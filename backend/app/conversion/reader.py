@@ -185,7 +185,7 @@ def read_dxf(path: str, unit_override: float | None = None) -> RawDrawing:
             p = e.dxf.insert
             h = (e.dxf.get("char_height", 0) or 0) * k
             # One Text per line so a room name isn't glued to the area note under it.
-            for i, line in enumerate(l for l in (e.plain_text() or "").splitlines() if l.strip()):
+            for i, line in enumerate(ln for ln in (e.plain_text() or "").splitlines() if ln.strip()):
                 texts.append(Text(layer, line.strip(), (p.x * k, p.y * k - i * h * 1.5), h))
         elif t == "INSERT":
             geo: list[list[Pt]] = []
