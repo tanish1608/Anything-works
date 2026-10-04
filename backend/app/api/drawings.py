@@ -121,8 +121,9 @@ def sheet_svg(sheet_id: str, user: User = Depends(current_user), db: Session = D
 @router.get("/sheets/{sheet_id}/file")
 def sheet_file(sheet_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)):
     s, _ = _load(db, sheet_id, user)
+    safe = "".join(c for c in s.filename if c.isalnum() or c in "._- ") or f"drawing.{s.file_type}"
     return Response(get_storage().get_bytes(s.storage_key), media_type="application/octet-stream",
-                    headers={"Content-Disposition": f'attachment; filename="{s.filename}"'})
+                    headers={"Content-Disposition": f'attachment; filename="{safe}"'})
 
 
 @router.patch("/sheets/{sheet_id}", response_model=SheetOut)

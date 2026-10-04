@@ -1,6 +1,7 @@
 # PLAN.md: 3D Construction Coordination MVP
 
-> Status: **M0 in progress.** Decisions already agreed: **web app first** (Flutter deferred), and a **local database for now**.
+> Status (2026-10-04): **M0–M7 built**, all tested, and waiting for your review. See §9 for what was built versus the plan, and for what's shaky.
+> Decisions already agreed: **web app first** (Flutter deferred), and a **local database for now**.
 > Open questions are in §8. Anything marked *(assumed)* is a default I picked so I could keep moving. Change it if you disagree.
 
 ---
@@ -204,3 +205,32 @@ How the key parts work:
 8. Voice notes: **skipped** for now (text notes only).
 9. Hosting: decided later.
 10. Anthropic API key: coming later. Vision runs in a mock mode until then.
+
+---
+
+## 9. Build notes (M0–M7)
+
+### Where the build differs from the plan above
+| Plan said | Built | Why |
+|---|---|---|
+| Redis + RQ job queue | A **DB-backed job table plus an in-process worker thread**. Tests run jobs inline | Nobody has to run Redis for a local DB. Handlers are registered by name, so moving to RQ/Celery later is a small change |
+| S3/MinIO object storage | A **local filesystem behind a `Storage` interface** (`app/storage.py`). Compose uses a volume | Same reason. An S3 implementation is one class |
+| `@thatopen/components` / Fragments in the browser | **three.js + GLB layers generated server-side by IfcOpenShell** (one GLB per discipline, with node name = element UUID) | One geometry path for both imported IFC and converted drawings. Trade scoping is enforced per file (a plumber never downloads the electrical GLB). It's lighter on phones, and That Open's API has been churning. IFC stays the system of record per version |
+| IFC → Fragments | IFC → GLB | As above. Fragments can be added later for very large models |
+| Trades see only their layer | Trades see their layer **plus architecture as a faint, read-only context layer** (a project setting) | Pipes floating in empty space are hard to read. Walls aren't sensitive |
+| PyMuPDF | **pdfminer.six** (MIT) | AGPL, as agreed |
+
+### Raster / scanned input (scoped, not built)
+1. **Classify each page.** A vector PDF has 20 or more path objects; anything else is treated as a scan and is rejected today with a clear message.
+2. **Rasterize at 200–300 dpi** with pypdfium2 (Apache/BSD).
+3. **Get structure, then geometry.** Ask a vision model for structure (rooms, labels, door and window positions, scale bar or title-block scale) as JSON. Classic CV handles wall geometry: binarize, then morphological thickness filtering, then Hough lines. The vision model is good at labels and symbols; CV is better for millimetre geometry.
+4. **Reuse the pipeline.** Feed the same `RawDrawing` / plan model into the existing review editor. Confidence starts low, so every element shows up for review.
+5. **Measure it.** Add a scanned-sample folder to `eval_conversion.py`, using the same metrics.
+
+Expect much more manual correction than with DXF. The correction counters in the review editor will show exactly how much.
+
+### Branches
+`ModelVersion` has `branch`, `parent_id` and `merge_parent_id`:
+- An import onto a branch can be approved without going live.
+- `POST /models/{id}/merge` creates a main version with both parents.
+- The UI shows branches in version lists and in diffs. A UI for creating branches from the review editor isn't built yet.

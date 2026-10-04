@@ -24,7 +24,9 @@ services:
       DATABASE_URL: postgresql+psycopg://sitemesh:${POSTGRES_PASSWORD:-sitemesh-local}@db:5432/sitemesh
       STORAGE_DIR: /data/storage
       CORS_ORIGINS: '["http://localhost:8080","http://localhost:5173"]'
-    volumes: [storage:/data/storage]
+    volumes:
+      - storage:/data/storage
+      - ./samples:/samples:ro  # demo seed data (python -m app.seed)
     ports: ["8000:8000"]
     depends_on:
       db: { condition: service_healthy }
