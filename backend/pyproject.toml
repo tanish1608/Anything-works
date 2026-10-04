@@ -20,6 +20,7 @@ dependencies = [
   "ezdxf>=1.3",
   "pillow>=10.0",
   "anthropic>=1.11",
+  "pdfminer.six>=20231228",
 ]
 
 [project.optional-dependencies]

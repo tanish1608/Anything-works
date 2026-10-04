@@ -1,0 +1,37 @@
+{
+  "house_a_L1_arch.pdf": {
+    "discipline": "architecture",
+    "units": "in",
+    "rooms": [
+      "LIVING",
+      "BEDROOM 1",
+      "KITCHEN",
+      "BATH",
+      "BEDROOM 2"
+    ],
+    "doors": 4,
+    "windows": 5,
+    "cased_openings": 1,
+    "wall_centerline_m": 68.58,
+    "windows_as": "opening",
+    "notes": "vector PDF plotted at 1/4in=1ft; windows as thin lines"
+  },
+  "duplex_L1_arch.pdf": {
+    "discipline": "architecture",
+    "units": "mm",
+    "rooms": [
+      "UNIT 101 LIVING",
+      "UNIT 101 BEDROOM",
+      "UNIT 101 BATH",
+      "UNIT 102 LIVING",
+      "UNIT 102 BEDROOM",
+      "UNIT 102 BATH"
+    ],
+    "doors": 6,
+    "windows": 4,
+    "cased_openings": 0,
+    "wall_centerline_m": 78.0,
+    "windows_as": "opening",
+    "notes": "vector PDF plotted at 1:100"
+  }
+}

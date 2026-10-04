@@ -50,7 +50,8 @@ def detect_sheet(db: Session, sheet: DrawingSheet, actor_id: str | None) -> None
     if sheet.file_type == "pdf":
         from app.conversion.pdf import detect_pdf_plan  # M7
 
-        plan, svg = detect_pdf_plan(str(path), sheet.discipline, sheet.layer_roles or {}, sheet.unit_m)
+        plan, svg = detect_pdf_plan(str(path), sheet.discipline, sheet.layer_roles or {},
+                                    sheet.unit_m if sheet.units_confirmed else None)
     else:
         plan = detect_plan(str(path), sheet.discipline, sheet.layer_roles or {},
                            sheet.unit_m if sheet.units_confirmed else None)

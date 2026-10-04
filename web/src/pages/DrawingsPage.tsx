@@ -97,7 +97,7 @@ export default function DrawingsPage() {
     <div className="page stack" style={{ maxWidth: 1200 }}>
       <h1>Drawings</h1>
       <p className="muted" style={{ marginTop: -8 }}>
-        Upload DXF floor plans per level and trade. Review what was detected, fix anything that's wrong, then build the 3D model.
+        Upload DXF (or vector PDF) floor plans per level and trade. Review what was detected, fix anything that's wrong, then build the 3D model.
         The model stays a draft until you approve it.
       </p>
       {error && <div className="error" role="alert">{error}</div>}
@@ -131,7 +131,7 @@ export default function DrawingsPage() {
         <div className="row" style={{ alignItems: 'flex-start' }}>
           <form className="panel stack grow" onSubmit={upload} style={{ maxWidth: 560 }}>
             <h2>Upload a drawing</h2>
-            <label>DXF file
+            <label>DXF or vector PDF
               <input type="file" accept=".dxf,.pdf,.dwg" onChange={(e) => setFile(e.target.files?.[0] ?? null)} required />
             </label>
             <div className="row">
@@ -150,7 +150,7 @@ export default function DrawingsPage() {
             </div>
             {levelId === '__new' && <label>New level name<input value={newLevel} onChange={(e) => setNewLevel(e.target.value)} placeholder="Level 1" /></label>}
             <div><button className="primary" disabled={!file || !!busy}>Upload &amp; detect</button></div>
-            <span className="muted" style={{ fontSize: 12 }}>DWG: in AutoCAD use SAVEAS → DXF first.</span>
+            <span className="muted" style={{ fontSize: 12 }}>DWG: in AutoCAD use SAVEAS → DXF first. PDFs: architectural plans only for now; scanned PDFs aren't supported yet.</span>
           </form>
           <div className="panel stack" style={{ maxWidth: 380 }}>
             <h2>Build 3D model</h2>

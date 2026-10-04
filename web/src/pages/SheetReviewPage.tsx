@@ -10,6 +10,9 @@ import { useProject } from './ProjectLayout'
 
 type Tool = 'select' | 'wall' | 'pipe' | 'reference'
 const UNITS: [string, number][] = [['millimetres', 0.001], ['centimetres', 0.01], ['metres', 1], ['inches', 0.0254], ['feet', 0.3048]]
+const PT = 0.0254 / 72 // one PDF point on paper, in metres
+const PDF_SCALES: [string, number][] = [['1/8" = 1\'-0"', PT * 96], ['3/16" = 1\'-0"', PT * 64], ['1/4" = 1\'-0"', PT * 48],
+  ['1/2" = 1\'-0"', PT * 24], ['1:200', PT * 200], ['1:100', PT * 100], ['1:50', PT * 50]]
 const SYSTEMS = ['cold', 'hot', 'waste', 'vent', 'gas']
 
 function fmtLen(m: number) {
@@ -125,7 +128,8 @@ export default function SheetReviewPage() {
   if (error) return <div className="page error">{(error as Error).message}</div>
   if (!sheet) return <div className="page muted">Loading…</div>
   const longest = plan ? Math.max(0, ...plan.walls.map((w) => Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]))) : 0
-  const unitName = UNITS.find(([, v]) => Math.abs(v - (sheet.unit_m ?? 0)) < 1e-9)?.[0] ?? `${sheet.unit_m} m/unit`
+  const scales = sheet.file_type === 'pdf' ? PDF_SCALES : UNITS
+  const unitName = scales.find(([, v]) => Math.abs(v - (sheet.unit_m ?? 0)) < 1e-9)?.[0] ?? `${sheet.unit_m} m/unit`
   const s = selected as Record<string, unknown> | null
 
   return (
@@ -151,12 +155,13 @@ export default function SheetReviewPage() {
         {plan && (
           <section>
             <h3>Scale</h3>
-            <div>Units: <strong>{unitName}</strong> <span className="muted">({sheet.units_confirmed ? 'confirmed' : plan.units.source === 'header' ? 'from file' : 'guessed'})</span></div>
+            <div>{sheet.file_type === 'pdf' ? 'Scale' : 'Units'}: <strong>{unitName}</strong> <span className="muted">({sheet.units_confirmed ? 'confirmed' : plan.units.source === 'header' ? 'from file' : plan.units.source === 'title block' ? 'from title block' : 'guessed'})</span></div>
             {longest > 0 && <div className="muted" style={{ fontSize: 12 }}>Longest wall: {fmtLen(longest)}. Does that look right?</div>}
             {editable && (
               <div className="row">
-                <select aria-label="Drawing units" value={sheet.unit_m ?? ''} onChange={(e) => patch({ unit_m: Number(e.target.value) }, 'Re-detecting at the new scale…')}>
-                  {UNITS.map(([n, v]) => <option key={n} value={v}>{n}</option>)}
+                <select aria-label="Drawing units" value={scales.find(([, v]) => Math.abs(v - (sheet.unit_m ?? 0)) < 1e-9)?.[1] ?? ''} onChange={(e) => patch({ unit_m: Number(e.target.value) }, 'Re-detecting at the new scale…')}>
+                  {!scales.some(([, v]) => Math.abs(v - (sheet.unit_m ?? 0)) < 1e-9) && <option value="">{unitName}</option>}
+                  {scales.map(([n, v]) => <option key={n} value={v}>{n}</option>)}
                 </select>
                 {!sheet.units_confirmed && <button className="small primary" onClick={() => patch({ unit_m: sheet.unit_m }, 'Confirming…')}>Confirm</button>}
               </div>

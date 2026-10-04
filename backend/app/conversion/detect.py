@@ -77,7 +77,11 @@ def _place_unmatched(walls: list[Wall], ev) -> int:
 
 def detect_plan(path: str, discipline: str, role_overrides: dict[str, str] | None = None,
                 unit_override: float | None = None) -> dict:
-    raw = read_dxf(path, unit_override)
+    return detect_from_raw(read_dxf(path, unit_override), discipline, role_overrides)
+
+
+def detect_from_raw(raw: RawDrawing, discipline: str, role_overrides: dict[str, str] | None = None) -> dict:
+    """Detection on an already-parsed drawing (DXF or vector PDF), coordinates in metres."""
     roles = suggest_roles(raw.layers)
     roles.update(role_overrides or {})
     warnings: list[str] = list(getattr(raw, "notes", []))

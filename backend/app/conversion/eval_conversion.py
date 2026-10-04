@@ -29,7 +29,12 @@ def _pr(det: int, exp: int) -> tuple[float, float]:
 
 def evaluate_file(path: Path, exp: dict) -> dict:
     t = time.time()
-    plan = detect_plan(str(path), exp.get("discipline", "architecture"))
+    if path.suffix.lower() == ".pdf":
+        from app.conversion.pdf import detect_pdf_plan
+
+        plan, _ = detect_pdf_plan(str(path), exp.get("discipline", "architecture"))
+    else:
+        plan = detect_plan(str(path), exp.get("discipline", "architecture"))
     c = plan["counts"]
     out: dict = {"file": path.name, "seconds": round(time.time() - t, 2), "metrics": {}}
     m = out["metrics"]
