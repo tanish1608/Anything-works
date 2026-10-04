@@ -192,15 +192,15 @@ How the key parts work:
 
 ---
 
-## 8. Open questions (answering these won't block M0)
+## 8. Decisions log (answers 2026-10-04)
 
-1. **Sample drawings:** when can you share real builder sets? Which formats are they in (DXF/DWG, vector PDF, scans)?
-2. **Tenancy:** is this multi-tenant SaaS from day one? *(assumed: yes, with orgs in the schema and one org per signup for now)*
-3. **DWG:** do we require DXF export, or should I evaluate the ODA File Converter licence?
-4. **PDF library:** are you OK replacing PyMuPDF (AGPL) with pypdfium2 or pdfminer.six? Or do you want to buy a PyMuPDF commercial licence?
-5. **Default approval mode:** is "PM approval required" the right default, with auto-approve gated on harness precision?
-6. **Status color precedence:** is red > amber > green right?
-7. **Auth:** email and password for now? Do trade workers reliably have email, or should we plan phone/SMS magic links?
-8. **Voice notes:** store the audio only, or also transcribe? If we transcribe, which provider?
-9. **Hosting target**, when we get there: AWS, GCP or a VPS?
-10. **Anthropic API key and budget** for M5 vision evaluation runs.
+1. Real drawing sets: coming at the end. Until then we use generated samples.
+2. Multi-tenant: **yes**. Orgs are in the schema, with one org per signup.
+3. DWG: **no ODA**. Users export to DXF.
+4. PDF library: **pypdfium2 / pdfminer.six** instead of PyMuPDF.
+5. Approval mode: deferred. The default stays **PM approval required**, and `auto` exists as a project setting.
+6. Status color precedence: **red > amber > green > discipline default**.
+7. Auth: **email and password**.
+8. Voice notes: **skipped** for now (text notes only).
+9. Hosting: decided later.
+10. Anthropic API key: coming later. Vision runs in a mock mode until then.
