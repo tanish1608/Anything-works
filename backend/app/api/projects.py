@@ -24,13 +24,17 @@ router = APIRouter(prefix="/projects", tags=["projects"])
 @router.get("", response_model=list[ProjectWithRole])
 def list_projects(user: User = Depends(current_user), db: Session = Depends(get_db)):
     rows = db.execute(
-        select(Project, ProjectMember.role)
+        select(Project, ProjectMember)
         .join(ProjectMember, ProjectMember.project_id == Project.id)
         .where(ProjectMember.user_id == user.id)
         .order_by(Project.created_at.desc())
     ).all()
-    return [ProjectWithRole.model_validate({**ProjectOut.model_validate(p).model_dump(), "my_role": r})
-            for p, r in rows]
+    return [_with_role(p, m) for p, m in rows]
+
+
+def _with_role(p: Project, m: ProjectMember) -> ProjectWithRole:
+    return ProjectWithRole.model_validate({**ProjectOut.model_validate(p).model_dump(), "my_role": m.role,
+                                           "my_trades": m.trades or [], "my_zone_ids": m.zone_ids})
 
 
 @router.post("", response_model=ProjectOut, status_code=201)
@@ -51,8 +55,7 @@ def create_project(body: ProjectIn, user: User = Depends(current_user), db: Sess
 @router.get("/{project_id}", response_model=ProjectWithRole)
 def get_project(project_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)):
     m = require(db, project_id, user.id, Perm.project_view)
-    p = db.get(Project, project_id)
-    return ProjectWithRole.model_validate({**ProjectOut.model_validate(p).model_dump(), "my_role": m.role})
+    return _with_role(db.get(Project, project_id), m)
 
 
 @router.patch("/{project_id}", response_model=ProjectOut)

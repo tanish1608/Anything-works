@@ -19,6 +19,7 @@ import {
 import IssueFilters, { DEFAULT_FILTER, filterQuery, type IssueFilter } from '../components/IssueFilters'
 import IssueForm, { type IssueDraft } from '../components/IssueForm'
 import IssuePanel from '../components/IssuePanel'
+import Evidence from '../components/Evidence'
 import { describe } from '../lib/events'
 import { DISCIPLINE_COLORS, DISCIPLINE_LABELS, LEGEND } from '../viewer/colors'
 import { colorMap, visibleIds } from '../viewer/filters'
@@ -67,7 +68,7 @@ function ImportPanel({ projectId, onDone }: { projectId: string; onDone: (versio
   )
 }
 
-function ElementPanel({ id, versionId, onClose }: { id: string; versionId?: string; onClose: () => void }) {
+function ElementPanel({ id, versionId, onClose, projectId, canOverride }: { id: string; versionId?: string; onClose: () => void; projectId: string; canOverride: boolean }) {
   const { data: el, error } = useQuery({
     queryKey: ['element', id, versionId],
     queryFn: () => api<ElementDetail>(`/elements/${id}${versionId ? `?version=${versionId}` : ''}`),
@@ -98,6 +99,9 @@ function ElementPanel({ id, versionId, onClose }: { id: string; versionId?: stri
               ))}
             </tbody>
           </table>
+          {!el.context && el.discipline !== 'architecture' && (
+            <Evidence elementId={el.id} projectId={projectId} zoneId={el.zone_id} canOverride={canOverride} status={el.status} />
+          )}
           <h3 style={{ margin: 0 }}>History</h3>
           {el.history.length === 0 && <span className="muted">No changes recorded yet.</span>}
           {el.history.map((h) => (
@@ -440,7 +444,7 @@ export default function ModelPage() {
           </button>
         </div>
         {rightTab === 'element' && (selected ? (
-          <ElementPanel id={selected} versionId={versionParam} onClose={() => { viewerRef.current?.select(null); setSelected(null) }} />
+          <ElementPanel id={selected} versionId={versionParam} projectId={project.id} canOverride={can.editStructure(project.my_role)} onClose={() => { viewerRef.current?.select(null); setSelected(null) }} />
         ) : (
           <div className="muted">Click an element to see its properties, status and history.</div>
         ))}

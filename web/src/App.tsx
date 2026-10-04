@@ -1,10 +1,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
-import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './auth/AuthContext'
 import ActivityPage from './pages/ActivityPage'
 import NotificationBell from './components/NotificationBell'
 import DrawingsPage from './pages/DrawingsPage'
+import { FieldHome, FieldScan, FieldZone, FieldZones, QrRedirect } from './field/FieldPages'
+import ProgressPage from './pages/ProgressPage'
+import QrPage from './pages/QrPage'
 import EmbedViewerPage from './pages/EmbedViewerPage'
 import SheetReviewPage from './pages/SheetReviewPage'
 import IssuesPage from './pages/IssuesPage'
@@ -17,8 +20,9 @@ import StructurePage from './pages/StructurePage'
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth()
+  const location = useLocation()
   if (loading) return <div className="page muted">Loading…</div>
-  if (!user) return <Navigate to="/login" replace />
+  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />
   return <>{children}</>
 }
 
@@ -29,6 +33,7 @@ function Shell({ children }: { children: ReactNode }) {
       <header className="topbar">
         <Link to="/" className="brand">SiteMesh</Link>
         <span className="grow" />
+        <Link to="/field" className="btn small">Field app</Link>
         <NotificationBell />
         <span className="muted">{user?.name}</span>
         <button className="small" onClick={logout}>Sign out</button>
@@ -47,12 +52,19 @@ export function AppRoutes() {
         <Route index element={<Navigate to="model" replace />} />
         <Route path="model" element={<ModelPage />} />
         <Route path="issues" element={<IssuesPage />} />
+        <Route path="progress" element={<ProgressPage />} />
+        <Route path="qr" element={<QrPage />} />
         <Route path="drawings" element={<DrawingsPage />} />
         <Route path="drawings/:sid" element={<SheetReviewPage />} />
         <Route path="structure" element={<StructurePage />} />
         <Route path="members" element={<MembersPage />} />
         <Route path="activity" element={<ActivityPage />} />
       </Route>
+      <Route path="/field" element={<RequireAuth><FieldHome /></RequireAuth>} />
+      <Route path="/field/:pid" element={<RequireAuth><FieldZones /></RequireAuth>} />
+      <Route path="/field/:pid/scan" element={<RequireAuth><FieldScan /></RequireAuth>} />
+      <Route path="/field/:pid/zone/:zid" element={<RequireAuth><FieldZone /></RequireAuth>} />
+      <Route path="/q/:token" element={<RequireAuth><QrRedirect /></RequireAuth>} />
       <Route path="/embed/p/:pid/viewer" element={<RequireAuth><EmbedViewerPage /></RequireAuth>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

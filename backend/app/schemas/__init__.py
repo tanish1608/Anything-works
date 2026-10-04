@@ -59,6 +59,8 @@ class ProjectOut(ORM):
 
 class ProjectWithRole(ProjectOut):
     my_role: Role
+    my_trades: list[str] = []
+    my_zone_ids: list[str] | None = None
 
 
 def _check_trades(v: list[str] | None) -> list[str] | None:

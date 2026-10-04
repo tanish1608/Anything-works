@@ -52,6 +52,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     const t = tokenStore.get()
     tokenStore.set(null)
+    // Offline caches hold this user's project data; don't leave it behind on a shared phone.
+    if ('caches' in window) caches.keys().then((ks) => ks.forEach((k) => caches.delete(k))).catch(() => {})
     if (t) await api('/auth/logout', { method: 'POST', json: { refresh_token: t.refresh_token } }).catch(() => {})
   }
 

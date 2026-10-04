@@ -227,7 +227,8 @@ class Writer:
                 z = z0 + pp.get("z", 0.5)
                 u = ((b[0] - a[0]) / L, (b[1] - a[1]) / L, 0.0)
                 m = _matrix((a[0], a[1], z), (-u[1], u[0], 0), u)
-                self._entity("IfcPipeSegment", f"{pp['system'].title()} pipe {pp['id'][:6]}", g("pipe", pp["id"]), st, m,
+                label = {"cold": "Cold water", "hot": "Hot water", "waste": "Waste", "vent": "Vent", "gas": "Gas"}.get(pp["system"], pp["system"])
+                self._entity("IfcPipeSegment", f"{label} pipe {L:.2f} m", g("pipe", pp["id"]), st, m,
                              self._cylinder(pp.get("diameter", 0.02) / 2, L),
                              {**self.props("plumbing", pp, sh.sheet_id), "System": pp["system"], "Fitting": pp.get("fitting")},
                              "RIGIDSEGMENT")

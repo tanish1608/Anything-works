@@ -13,6 +13,8 @@ export interface Project {
   settings: Record<string, unknown>
   created_at: string
   my_role: Role
+  my_trades: string[]
+  my_zone_ids: string[] | null
 }
 
 export interface Member {
@@ -264,4 +266,72 @@ export interface Sheet {
 
 export interface SheetDetail extends Sheet {
   plan: Plan | null
+}
+
+export interface ChecklistItem {
+  id: string
+  name: string | null
+  ifc_class: string
+  trade: string
+  discipline: string
+  status: ElementInfo['status']
+  flags: string[]
+  bbox: number[] | null
+  props: Record<string, unknown>
+  last_verification: { id: string; verdict: string; state: string; source: string; confidence: number | null; reason: string; upload_id: string | null } | null
+}
+
+export interface Photo {
+  id: string
+  upload_id: string
+  width: number | null
+  height: number | null
+  exif_time: string | null
+  gps_lat: number | null
+  gps_lon: number | null
+  flags: string[]
+  created_at: string
+  url: string
+  thumb_url: string
+}
+
+export interface Verification {
+  id: string
+  upload_id: string | null
+  element_id: string
+  verdict: 'installed' | 'missing' | 'not_visible' | 'uncertain'
+  confidence: number | null
+  reason: string
+  source: 'worker' | 'ai' | 'manager'
+  model: string | null
+  prompt_version: string | null
+  state: 'proposed' | 'approved' | 'rejected' | 'superseded'
+  confirmed_by: string | null
+  confirmed_at: string | null
+  overridden: boolean
+  override_reason: string | null
+  created_at: string
+  element_name: string | null
+  element_class: string | null
+}
+
+export interface UploadInfo {
+  id: string
+  zone_id: string | null
+  trade: string
+  user_id: string | null
+  user_name: string | null
+  zone_name: string | null
+  note: string
+  client_uuid: string
+  captured_at: string | null
+  created_at: string
+  analysis_status: string
+  photos: Photo[]
+  verifications: Verification[]
+}
+
+export function elementLabel(e: { name: string | null; ifc_class: string }): string {
+  const cls = e.ifc_class.replace(/^Ifc/, '').replace(/([a-z])([A-Z])/g, '$1 $2')
+  return e.name ? `${e.name}` : cls
 }
