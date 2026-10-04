@@ -405,3 +405,68 @@ class DrawingSheet(Base):
     created_by: Mapped[str | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+# ---------------------------------------------------------------- field progress (M4/M5)
+
+class Upload(Base):
+    """One field report: photos + note for a zone and trade, as submitted (possibly after offline queueing)."""
+
+    __tablename__ = "uploads"
+    __table_args__ = (UniqueConstraint("project_id", "client_uuid"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    zone_id: Mapped[str | None] = mapped_column(ForeignKey("zones.id", ondelete="SET NULL"), index=True)
+    trade: Mapped[str] = mapped_column(String(30))
+    user_id: Mapped[str | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), index=True)
+    note: Mapped[str] = mapped_column(Text, default="")
+    client_uuid: Mapped[str] = mapped_column(String(64))  # idempotency key from the offline queue
+    captured_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))  # when the worker submitted (device)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)  # when it synced
+    analysis_status: Mapped[str] = mapped_column(String(20), default="none")  # none|queued|done|failed (M5)
+    analysis: Mapped[dict | None] = mapped_column(JSON)  # raw model output + timings (M5)
+
+
+class Photo(Base):
+    __tablename__ = "photos"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    upload_id: Mapped[str] = mapped_column(ForeignKey("uploads.id", ondelete="CASCADE"), index=True)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    zone_id: Mapped[str | None] = mapped_column(String(36), index=True)
+    storage_key: Mapped[str] = mapped_column(String(500))
+    content_type: Mapped[str] = mapped_column(String(50))
+    size: Mapped[int] = mapped_column(Integer)
+    width: Mapped[int | None] = mapped_column(Integer)
+    height: Mapped[int | None] = mapped_column(Integer)
+    sha256: Mapped[str] = mapped_column(String(64), index=True)
+    phash: Mapped[str | None] = mapped_column(String(16), index=True)  # 64-bit difference hash, hex
+    exif_time: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    gps_lat: Mapped[float | None] = mapped_column()
+    gps_lon: Mapped[float | None] = mapped_column()
+    flags: Mapped[list] = mapped_column(JSON, default=list)  # e.g. ["near_duplicate:<photo_id>"]
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class Verification(Base):
+    """A claim about one element backed by an upload: from the worker's checklist, the AI, or a manager.
+    proposed → approved (element done) / rejected. Every approved 'done' links to photo evidence."""
+
+    __tablename__ = "verifications"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    upload_id: Mapped[str | None] = mapped_column(ForeignKey("uploads.id", ondelete="SET NULL"), index=True)
+    element_id: Mapped[str] = mapped_column(ForeignKey("elements.id", ondelete="CASCADE"), index=True)
+    verdict: Mapped[str] = mapped_column(String(20))  # installed | missing | not_visible | uncertain
+    confidence: Mapped[float | None] = mapped_column()
+    reason: Mapped[str] = mapped_column(Text, default="")
+    source: Mapped[str] = mapped_column(String(10))  # worker | ai | manager
+    model: Mapped[str | None] = mapped_column(String(100))
+    prompt_version: Mapped[str | None] = mapped_column(String(20))
+    state: Mapped[str] = mapped_column(String(20), default="proposed", index=True)  # proposed|approved|rejected|superseded
+    prev_status: Mapped[str | None] = mapped_column(String(20))  # element status before this claim (to undo on reject)
+    confirmed_by: Mapped[str | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    overridden: Mapped[bool] = mapped_column(default=False)
+    override_reason: Mapped[str | None] = mapped_column(Text)
+    created_by: Mapped[str | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

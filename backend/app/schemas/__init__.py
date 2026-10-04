@@ -380,3 +380,64 @@ class EditsIn(BaseModel):
 class BuildIn(BaseModel):
     level_ids: list[str] | None = None
     message: str = ""
+
+
+# --- progress ---
+class PhotoOut(ORM):
+    id: str
+    upload_id: str
+    width: int | None
+    height: int | None
+    exif_time: datetime | None
+    gps_lat: float | None
+    gps_lon: float | None
+    flags: list[str]
+    created_at: datetime
+    url: str = ""
+    thumb_url: str = ""
+
+
+class VerificationOut(ORM):
+    id: str
+    upload_id: str | None
+    element_id: str
+    verdict: str
+    confidence: float | None
+    reason: str
+    source: str
+    model: str | None
+    prompt_version: str | None
+    state: str
+    confirmed_by: str | None
+    confirmed_at: datetime | None
+    overridden: bool
+    override_reason: str | None
+    created_at: datetime
+    element_name: str | None = None
+    element_class: str | None = None
+
+
+class UploadOut(ORM):
+    id: str
+    zone_id: str | None
+    trade: str
+    user_id: str | None
+    user_name: str | None = None
+    zone_name: str | None = None
+    note: str
+    client_uuid: str
+    captured_at: datetime | None
+    created_at: datetime
+    analysis_status: str
+    photos: list[PhotoOut] = []
+    verifications: list[VerificationOut] = []
+
+
+class ReviewIn(BaseModel):
+    reason: str = ""
+
+
+class StatusIn(BaseModel):
+    status: str
+    reason: str = Field(min_length=3, max_length=2000)
+    upload_id: str | None = None  # evidence; required for "done"
