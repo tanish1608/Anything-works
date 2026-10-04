@@ -152,3 +152,22 @@ th { color: var(--muted); font-weight: 500; font-size: 12px; }
 @media (min-width: 1000px) { .issues-split { grid-template-columns: 1fr 380px; align-items: start; } }
 tr.selected td { background: var(--hover); }
 .model-side h3.title { text-transform: none; letter-spacing: 0; font-size: 16px; color: var(--text); }
+.sheet-canvas { position: relative; width: 100%; height: 100%; min-height: 300px; background: #fff; overflow: hidden; }
+.sheet-canvas svg { width: 100%; height: 100%; display: block; touch-action: none; user-select: none; }
+.sheet-canvas .sheet-underlay text { user-select: none; }
+.sheet-zoom { position: absolute; right: 8px; top: 8px; display: flex; gap: 4px; }
+.review-layout { flex: 1; min-height: 0; display: grid; grid-template-columns: 300px 1fr 300px; height: 100%; }
+.review-canvas { position: relative; min-width: 0; min-height: 400px; }
+.review-canvas .toolbar { flex-wrap: wrap; }
+@media (max-width: 1000px) {
+  .review-layout { grid-template-columns: 1fr; grid-template-rows: auto 60vh auto; height: auto; }
+  .review-layout .model-side { position: static; display: flex; max-height: none; border: none; box-shadow: none; }
+}
+.viewer-area { position: relative; min-width: 0; min-height: 0; display: grid; grid-template-columns: 1fr; }
+.viewer-area.split { grid-template-columns: 1fr 1fr; }
+.sheet-wrap { position: relative; border-left: 1px solid var(--border); min-height: 300px; }
+@media (max-width: 900px) {
+  .viewer-area { grid-row: 1; grid-column: 1; }
+  .viewer-area.split { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+  .sheet-wrap { border-left: none; border-top: 1px solid var(--border); }
+}

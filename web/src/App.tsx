@@ -4,7 +4,9 @@ import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from './auth/AuthContext'
 import ActivityPage from './pages/ActivityPage'
 import NotificationBell from './components/NotificationBell'
+import DrawingsPage from './pages/DrawingsPage'
 import EmbedViewerPage from './pages/EmbedViewerPage'
+import SheetReviewPage from './pages/SheetReviewPage'
 import IssuesPage from './pages/IssuesPage'
 import LoginPage from './pages/LoginPage'
 import MembersPage from './pages/MembersPage'
@@ -45,6 +47,8 @@ export function AppRoutes() {
         <Route index element={<Navigate to="model" replace />} />
         <Route path="model" element={<ModelPage />} />
         <Route path="issues" element={<IssuesPage />} />
+        <Route path="drawings" element={<DrawingsPage />} />
+        <Route path="drawings/:sid" element={<SheetReviewPage />} />
         <Route path="structure" element={<StructurePage />} />
         <Route path="members" element={<MembersPage />} />
         <Route path="activity" element={<ActivityPage />} />

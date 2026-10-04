@@ -12,6 +12,7 @@ import {
   ISSUE_STATUS_COLOR,
   type Issue,
   type Job,
+  type Sheet,
   type ModelVersion,
   type ViewerManifest,
 } from '../api/types'
@@ -23,6 +24,8 @@ import { DISCIPLINE_COLORS, DISCIPLINE_LABELS, LEGEND } from '../viewer/colors'
 import { colorMap, visibleIds } from '../viewer/filters'
 import type { SectionBox, SiteViewer } from '../viewer/Viewer'
 import ViewerCanvas from '../viewer/ViewerCanvas'
+import SheetPane from '../components/SheetPane'
+import { buildingToThree, type P2 } from '../lib/sheetMath'
 import { useProject } from './ProjectLayout'
 
 const FULL: SectionBox = { min: [0, 0, 0], max: [1, 1, 1] }
@@ -133,12 +136,15 @@ export default function ModelPage() {
   const [picking, setPicking] = useState(false)
   const [issueFilter, setIssueFilter] = useState<IssueFilter>(DEFAULT_FILTER)
   const [overlay, setOverlay] = useState(false)
+  const [sheetId, setSheetId] = useState<string>('')
+  const [sheetMarker, setSheetMarker] = useState<P2 | null>(null)
 
   const q = versionParam ? `?version=${versionParam}` : ''
   const manifest = useQuery({ queryKey: ['manifest', project.id, versionParam], queryFn: () => api<ViewerManifest>(`/projects/${project.id}/viewer${q}`) })
   const elements = useQuery({ queryKey: ['elements', project.id, versionParam], queryFn: () => api<ElementInfo[]>(`/projects/${project.id}/elements${q}`) })
   const versions = useQuery({ queryKey: ['versions', project.id], queryFn: () => api<ModelVersion[]>(`/projects/${project.id}/models`) })
   const tree = useQuery({ queryKey: ['tree', project.id], queryFn: () => api<Building[]>(`/projects/${project.id}/tree`) })
+  const sheets = useQuery({ queryKey: ['sheets', project.id], queryFn: () => api<Sheet[]>(`/projects/${project.id}/sheets`) })
   const issues = useQuery({
     queryKey: ['issues', project.id, issueFilter],
     queryFn: () => api<Issue[]>(`/projects/${project.id}/issues${filterQuery(issueFilter)}`),
@@ -216,6 +222,24 @@ export default function ModelPage() {
     flewTo.current = id
     api<Issue>(`/issues/${id}`).then((i) => i.viewpoint && viewerRef.current?.flyTo(i.viewpoint as never)).catch(() => {})
   }, [params, loading, viewerReady, manifest.data])
+
+  const pickOnSheet = (p: P2) => {
+    const sheet = sheets.data?.find((x) => x.id === sheetId)
+    const lv = levels.find((l) => l.id === sheet?.level_id)
+    const z = (lv?.elevation_m ?? 0) + 1.0
+    setSheetMarker(p)
+    // Select the smallest element on that level whose footprint contains the point.
+    const hits = els.filter((e) => e.bbox && (!sheet?.level_id || e.level_id === sheet.level_id) && !e.context &&
+      e.bbox[0] <= p[0] && p[0] <= e.bbox[3] && e.bbox[1] <= p[1] && p[1] <= e.bbox[4] && e.ifc_class !== 'IfcSlab')
+      .sort((a, b) => (a.bbox![3] - a.bbox![0]) * (a.bbox![4] - a.bbox![1]) - (b.bbox![3] - b.bbox![0]) * (b.bbox![4] - b.bbox![1]))
+    const target = buildingToThree(p, z)
+    viewerRef.current?.flyTo({ position: [target[0] + 4, target[1] + 6, target[2] + 4], target })
+    if (hits[0]) {
+      viewerRef.current?.select(hits[0].id)
+      setSelected(hits[0].id)
+      setRightTab('element')
+    }
+  }
 
   const startIssue = () => {
     const v = viewerRef.current
@@ -345,6 +369,14 @@ export default function ModelPage() {
             </div>
           ))}
         </section>
+        <section>
+          <h3>2D drawing</h3>
+          <select aria-label="Show drawing" value={sheetId} onChange={(e) => { setSheetId(e.target.value); setSheetMarker(null) }}>
+            <option value="">Hidden</option>
+            {sheets.data?.filter((x) => x.status === 'detected').map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
+          </select>
+          {sheets.data?.length === 0 && <span className="muted" style={{ fontSize: 12 }}>No drawings uploaded.</span>}
+        </section>
         <section className="row">
           <button onClick={() => viewerRef.current?.frame()}>Fit view</button>
           <button onClick={() => viewerRef.current?.setWalkMode(!walking)}>{walking ? 'Exit walk' : 'Walk mode'}</button>
@@ -357,6 +389,7 @@ export default function ModelPage() {
         )}
       </aside>
 
+      <div className={`viewer-area ${sheetId ? 'split' : ''}`}>
       <div className="viewer-wrap">
         <ViewerCanvas onReady={onReady} onError={() => setWebglFailed(true)} />
         {project.my_role !== 'viewer' && manifest.data?.version && (
@@ -390,6 +423,13 @@ export default function ModelPage() {
           <button onClick={() => setPanel(panel === 'controls' ? null : 'controls')}>Controls</button>
           <button onClick={() => setPanel(panel === 'details' ? null : 'details')}>Details & issues</button>
         </div>
+      </div>
+      {sheetId && sheets.data?.find((x) => x.id === sheetId) && (
+        <div className="sheet-wrap">
+          <SheetPane sheet={sheets.data.find((x) => x.id === sheetId)!} onPick={pickOnSheet} marker={sheetMarker}
+            highlight={els.find((e) => e.id === selected)?.bbox ?? null} />
+        </div>
+      )}
       </div>
 
       <aside className={`model-side right ${panel === 'details' ? 'open' : ''}`} aria-label="Details">

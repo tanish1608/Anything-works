@@ -218,3 +218,50 @@ export const ISSUE_STATUS_COLOR: Record<IssueStatus, string> = {
   closed: '#9e9e9e',
 }
 export const PRIORITIES: Priority[] = ['low', 'medium', 'high', 'critical']
+
+export interface PlanOpening { id: string; kind: 'door' | 'window' | 'opening'; start: number; end: number; height: number; sill: number; confidence: number; evidence?: string }
+export interface PlanWall { id: string; a: [number, number]; b: [number, number]; thickness: number; height: number | null; confidence: number; source: string; openings: PlanOpening[] }
+export interface PlanRoom { id: string; name: string; polygon: [number, number][]; confidence: number; area?: number }
+export interface PlanFixture { id: string; kind: string; pos: [number, number]; size: [number, number]; confidence: number; block?: string; source?: string }
+export interface PlanPipe { id: string; system: string; a: [number, number]; b: [number, number]; diameter: number; z: number; confidence: number; source: string; fitting?: string }
+export interface Plan {
+  units: { unit_m: number; name: string; source: string }
+  layers: Record<string, { role: string; count: number }>
+  extents: [number, number, number, number]
+  walls: PlanWall[]
+  rooms: PlanRoom[]
+  fixtures: PlanFixture[]
+  devices: PlanFixture[]
+  pipes: PlanPipe[]
+  footprint?: [number, number][]
+  warnings: string[]
+  review: { id: string; type: string; reason: string }[]
+  counts: Record<string, unknown>
+}
+
+export interface Sheet {
+  id: string
+  project_id: string
+  level_id: string | null
+  discipline: string
+  name: string
+  filename: string
+  file_type: string
+  status: 'uploaded' | 'detecting' | 'detected' | 'failed'
+  error: string | null
+  unit_m: number | null
+  units_confirmed: boolean
+  transform: { dx?: number; dy?: number; rotation_deg?: number; confirmed?: boolean; reference?: [number, number] | null }
+  layer_roles: Record<string, string>
+  detected_counts: Record<string, unknown> | null
+  corrections: { added?: number; deleted?: number; edited?: number }
+  created_at: string
+  updated_at: string
+  counts: { walls?: number; doors?: number; windows?: number; cased_openings?: number; rooms?: number; pipe_segments?: number; fixtures?: Record<string, number>; devices?: Record<string, number>; wall_centerline_m?: number } | null
+  warnings: string[]
+  review_open: number
+}
+
+export interface SheetDetail extends Sheet {
+  plan: Plan | null
+}

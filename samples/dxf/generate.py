@@ -310,6 +310,36 @@ def house_a_messy(seed: int = 7):
     return doc, p, doors, windows
 
 
+def duplex_plumbing(level: int):
+    """Plumbing for both duplex units: bath (WC, LAV, TUB) and kitchen sink in the living room, with
+    cold/hot/waste runs. Includes a branch that tees into the middle of a run."""
+    p = duplex_level(level)
+    doc, msp = new_doc("mm")
+    add_fixture_blocks(doc)
+    draw_arch(msp, p, layers=("A-WALL", "A-DOOR", "A-GLAZ", "A-AREA-IDEN"))
+    segs = 0
+    k = 25.4  # fixture blocks are drawn in inches
+    for ox in (0, 7000):
+        for name, pos, rot in [("WC", (ox + 5000, 8900), 0), ("LAV", (ox + 6000, 8900), 0), ("TUB", (ox + 3700, 4650), 0),
+                               ("SINK-K", (ox + 5500, 100), 180)]:
+            msp.add_blockref(name, pos, dxfattribs={"layer": "P-FIXT", "rotation": rot, "xscale": k, "yscale": k})
+        runs = {
+            "P-DOMW-CPIP": [[(ox + 6800, 4700), (ox + 6800, 8600), (ox + 5000, 8600)],
+                            [(ox + 6000, 8600), (ox + 6000, 8800)],  # tees into the middle of the run above
+                            [(ox + 6800, 4600), (ox + 6800, 500), (ox + 5600, 500)]],
+            "P-DOMW-HPIP": [[(ox + 6700, 4700), (ox + 6700, 8500), (ox + 6100, 8500), (ox + 6100, 8800)],
+                            [(ox + 6700, 4600), (ox + 6700, 600), (ox + 5650, 600)]],
+            "P-SANR-PIPE": [[(ox + 5000, 8750), (ox + 5000, 8200), (ox + 6900, 8200)]],
+        }
+        for layer, rs in runs.items():
+            for r in rs:
+                msp.add_lwpolyline(r, dxfattribs={"layer": layer})
+                segs += len(r) - 1
+        segs += 1  # the tee splits the run it lands on into two segments
+    title_block(msp, 0, -2000, f"DUPLEX - LEVEL {level} - PLUMBING", "SCALE 1:100", "mm")
+    return doc, segs
+
+
 # ----------------------------------------------------------------------------- write everything
 
 def main():
@@ -352,6 +382,14 @@ def main():
             "discipline": "architecture", "units": "mm", "rooms": [r for r, _ in p.rooms], "doors": doors,
             "windows": windows, "cased_openings": 0, "wall_centerline_m": centerline_length_m(p),
             "notes": "non-AIA layer names (WALLS, DOORS...), metric"}))
+
+    for level in (1, 2):
+        doc, segs = duplex_plumbing(level)
+        doc.saveas(OUT / f"duplex_L{level}_plumbing.dxf")
+        samples.append((f"duplex_L{level}_plumbing.dxf", {
+            "discipline": "plumbing", "units": "mm", "pipe_segments": segs,
+            "fixtures": {"toilet": 2, "lavatory": 2, "bathtub": 2, "kitchen_sink": 2},
+            "notes": "two units; a branch tees into the middle of a run"}))
 
     doc, p, doors, windows = duplex(1, generic_layers=True)
     doc.saveas(OUT / "duplex_L1_layer0.dxf")

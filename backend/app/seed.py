@@ -1,6 +1,10 @@
-"""Create demo users and a demo project so the app can be tried right away.
+"""Create demo users and projects so the app can be tried right away.
 
-    python -m app.seed            # idempotent: skips if the demo project exists
+    python -m app.seed            # idempotent: skips projects that already exist
+
+* "Maple Court (demo)": a two-storey duplex built through the real pipeline: generated DXF plans
+  (samples/dxf) → detection → IFC → approved model. The plumber is scoped to baths and living/kitchens.
+* "Sample House (buildingSMART IFC)": the buildingSMART sample house imported from IFC.
 
 All demo users share the password in DEMO_PASSWORD (default "demo-password")."""
 
@@ -14,6 +18,7 @@ from app.auth.security import hash_password
 from app.db import SessionLocal
 from app.models import (
     Building,
+    DrawingSheet,
     Level,
     Organization,
     OrgMembership,
@@ -37,6 +42,8 @@ PEOPLE = [
     ("electrician@example.com", "Elle Electric", Role.trade, ["electrical"]),
     ("inspector@example.com", "Ian Inspector", Role.viewer, []),
 ]
+SHEETS = [("duplex_L1_arch.dxf", "architecture", 0), ("duplex_L1_plumbing.dxf", "plumbing", 0),
+          ("duplex_L2_arch.dxf", "architecture", 1), ("duplex_L2_plumbing.dxf", "plumbing", 1)]
 
 
 def _user(db: Session, email: str, name: str, password: str) -> User:
@@ -48,44 +55,61 @@ def _user(db: Session, email: str, name: str, password: str) -> User:
     return u
 
 
-def seed(db: Session) -> Project:
-    existing = db.scalar(select(Project).where(Project.name == DEMO_PROJECT))
-    if existing:
-        return existing
-    password = os.environ.get("DEMO_PASSWORD", "demo-password")
-    users = {email: _user(db, email, name, password) for email, name, _, _ in PEOPLE}
+def _org(db: Session, users: dict[str, User]) -> Organization:
+    owner = users["owner@example.com"]
+    org_id = db.scalar(select(OrgMembership.org_id).where(OrgMembership.user_id == owner.id, OrgMembership.is_admin))
+    if org_id:
+        return db.get(Organization, org_id)
     org = Organization(id=new_id(), name="Maple Homes LLC")
     db.add(org)
     db.flush()
     for u in users.values():
         db.add(OrgMembership(org_id=org.id, user_id=u.id, is_admin=u.email == "owner@example.com"))
-    owner = users["owner@example.com"]
+    return org
+
+
+def seed(db: Session) -> Project:
+    existing = db.scalar(select(Project).where(Project.name == DEMO_PROJECT))
+    if existing:
+        return existing
+    from app.services.conversion import build_version, detect_sheet
+    from app.services.models import approve_version
+    from app.storage import get_storage
+
+    password = os.environ.get("DEMO_PASSWORD", "demo-password")
+    users = {email: _user(db, email, name, password) for email, name, _, _ in PEOPLE}
+    org = _org(db, users)
+    owner, pm = users["owner@example.com"], users["pm@example.com"]
     project = Project(id=new_id(), org_id=org.id, name=DEMO_PROJECT, address="123 Maple St")
     db.add(project)
     db.flush()
     events.record(db, project_id=project.id, actor_id=owner.id, type="project.created", entity_type="project",
                   entity_id=project.id, data={"name": project.name})
-
+    for email, _, role, trades in PEOPLE:
+        db.add(ProjectMember(project_id=project.id, user_id=users[email].id, role=role, trades=trades))
     b = Building(id=new_id(), project_id=project.id, name="Building A")
     db.add(b)
-    zone_ids: dict[str, str] = {}
-    for i, (lname, units) in enumerate([("Level 1", ["101", "102"]), ("Level 2", ["201", "202"])]):
-        lv = Level(id=new_id(), building_id=b.id, name=lname, index=i, elevation_m=i * 3.0, height_m=3.0)
-        db.add(lv)
-        for unit in units:
-            for room in ("Kitchen", "Bathroom", "Bedroom 1"):
-                z = Zone(id=new_id(), level_id=lv.id, name=f"Unit {unit}, {room}", code=f"{unit}-{room[:3].upper()}")
-                db.add(z)
-                zone_ids[z.name] = z.id
+    levels = [Level(id=new_id(), building_id=b.id, name=f"Level {i + 1}", index=i, elevation_m=i * 3.0, height_m=3.0)
+              for i in range(2)]
+    db.add_all(levels)
     db.flush()
 
-    for email, _, role, trades in PEOPLE:
-        scope = None
-        if email == "plumber@example.com":
-            scope = [zid for name, zid in zone_ids.items() if "Kitchen" in name or "Bathroom" in name]
-        db.add(ProjectMember(project_id=project.id, user_id=users[email].id, role=role, trades=trades, zone_ids=scope))
-    events.record(db, project_id=project.id, actor_id=owner.id, type="project.seeded", entity_type="project",
-                  entity_id=project.id, data={"zones": len(zone_ids)})
+    for fname, discipline, li in SHEETS:
+        sheet = DrawingSheet(project_id=project.id, level_id=levels[li].id, discipline=discipline, name=fname,
+                             filename=fname, file_type="dxf", created_by=pm.id,
+                             storage_key=f"projects/{project.id}/sheets/seed/{fname}")
+        get_storage().put_file(sheet.storage_key, SAMPLES / "dxf" / fname)
+        db.add(sheet)
+        db.flush()
+        detect_sheet(db, sheet, pm.id)
+    version = build_version(db, project, pm.id, "Converted from duplex drawings (demo)")
+    approve_version(db, version, pm.id, "Reviewed: matches drawings")
+
+    # Plumber works in the baths and kitchens (kitchens are in the living rooms on this plan).
+    zones = db.scalars(select(Zone).join(Level).where(Level.building_id == b.id)).all()
+    plumber = db.scalar(select(ProjectMember).where(ProjectMember.project_id == project.id,
+                                                    ProjectMember.user_id == users["plumber@example.com"].id))
+    plumber.zone_ids = [z.id for z in zones if "BATH" in z.name or "LIVING" in z.name]
     db.commit()
     return project
 
@@ -124,6 +148,6 @@ if __name__ == "__main__":
     with SessionLocal() as s:
         p = seed(s)
         seed_sample_ifc(s)
-        print(f"Demo project ready: {p.name} ({p.id})")
+        print(f"Demo projects ready: {DEMO_PROJECT}, {SAMPLE_PROJECT}")
         print("Log in as owner@example.com / pm@example.com / plumber@example.com / electrician@example.com /")
         print("inspector@example.com with password:", os.environ.get("DEMO_PASSWORD", "demo-password"))

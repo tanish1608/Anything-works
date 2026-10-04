@@ -1,20 +1,32 @@
 from sqlalchemy import func, select
 
-from app.models import Project, ProjectMember
+from app.models import ModelVersion, Project, ProjectMember
 from app.seed import seed, seed_sample_ifc
 
 
-def test_seed_is_idempotent_and_usable(db, client):
+def _login(client, email):
+    r = client.post("/api/auth/login", json={"email": email, "password": "demo-password"})
+    return {"Authorization": f"Bearer {r.json()['access_token']}"}
+
+
+def test_seed_converts_duplex_and_scopes_plumber(db, client):
     p1 = seed(db)
-    p2 = seed(db)
-    assert p1.id == p2.id
+    assert seed(db).id == p1.id
     assert db.scalar(select(func.count()).select_from(Project)) == 1
     assert db.scalar(select(func.count()).select_from(ProjectMember)) == 5
-    r = client.post("/api/auth/login", json={"email": "plumber@example.com", "password": "demo-password"})
-    h = {"Authorization": f"Bearer {r.json()['access_token']}"}
-    tree = client.get(f"/api/projects/{p1.id}/tree", headers=h).json()
-    names = [z["name"] for b in tree for lv in b["levels"] for z in lv["zones"]]
-    assert names and all("Bedroom" not in n for n in names)
+    v = db.get(ModelVersion, p1.current_version_id)
+    assert v.source == "conversion" and v.status == "approved"
+    pm, plumber = _login(client, "pm@example.com"), _login(client, "plumber@example.com")
+    zones = [z["name"] for b in client.get(f"/api/projects/{p1.id}/tree", headers=pm).json()
+             for lv in b["levels"] for z in lv["zones"]]
+    assert len(zones) == 12 and "UNIT 201 BATH" in zones
+    mine = [z["name"] for b in client.get(f"/api/projects/{p1.id}/tree", headers=plumber).json()
+            for lv in b["levels"] for z in lv["zones"]]
+    assert len(mine) == 8 and not any("BEDROOM" in n for n in mine)
+    els = client.get(f"/api/projects/{p1.id}/elements", headers=plumber).json()
+    pipes = [e for e in els if e["ifc_class"] == "IfcPipeSegment"]
+    assert pipes and all(not e["context"] for e in pipes)
+    assert {e["discipline"] for e in els} == {"plumbing", "architecture"}
 
 
 def test_seed_sample_ifc(db, client):

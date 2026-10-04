@@ -100,6 +100,30 @@
     "wall_centerline_m": 78.0,
     "notes": "non-AIA layer names (WALLS, DOORS...), metric"
   },
+  "duplex_L1_plumbing.dxf": {
+    "discipline": "plumbing",
+    "units": "mm",
+    "pipe_segments": 26,
+    "fixtures": {
+      "toilet": 2,
+      "lavatory": 2,
+      "bathtub": 2,
+      "kitchen_sink": 2
+    },
+    "notes": "two units; a branch tees into the middle of a run"
+  },
+  "duplex_L2_plumbing.dxf": {
+    "discipline": "plumbing",
+    "units": "mm",
+    "pipe_segments": 26,
+    "fixtures": {
+      "toilet": 2,
+      "lavatory": 2,
+      "bathtub": 2,
+      "kitchen_sink": 2
+    },
+    "notes": "two units; a branch tees into the middle of a run"
+  },
   "duplex_L1_layer0.dxf": {
     "discipline": "architecture",
     "units": "mm",

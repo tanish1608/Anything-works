@@ -40,6 +40,12 @@ def auto_transform(sheet: DrawingSheet) -> dict:
 @jobs.handler("sheet_detect")
 def run_detect(db: Session, job: Job) -> dict:
     sheet = db.get(DrawingSheet, job.payload["sheet_id"])
+    detect_sheet(db, sheet, job.created_by)
+    db.commit()
+    return {"sheet_id": sheet.id, "counts": sheet.plan["counts"]}
+
+
+def detect_sheet(db: Session, sheet: DrawingSheet, actor_id: str | None) -> None:
     path = get_storage().local_path(sheet.storage_key)
     if sheet.file_type == "pdf":
         from app.conversion.pdf import detect_pdf_plan  # M7
@@ -59,12 +65,10 @@ def run_detect(db: Session, job: Job) -> dict:
     sheet.status = "detected"
     sheet.error = None
     sheet.updated_at = datetime.now(UTC)
-    events.record(db, project_id=sheet.project_id, actor_id=job.created_by, type="sheet.detected",
+    events.record(db, project_id=sheet.project_id, actor_id=actor_id, type="sheet.detected",
                   entity_type="sheet", entity_id=sheet.id, data={"counts": plan["counts"],
                                                                  "warnings": len(plan["warnings"]),
                                                                  "review_items": len(plan["review"])})
-    db.commit()
-    return {"sheet_id": sheet.id, "counts": plan["counts"]}
 
 
 def mark_failed(db: Session, job: Job) -> None:
@@ -78,12 +82,12 @@ def mark_failed(db: Session, job: Job) -> None:
 def build_inputs(db: Session, project: Project,
                  level_ids: list[str] | None = None) -> tuple[list[LevelInput], list[DrawingSheet]]:
     q = select(DrawingSheet).where(DrawingSheet.project_id == project.id, DrawingSheet.status == "detected",
-                                   DrawingSheet.level_id.is_not(None))
+                                   DrawingSheet.level_id.is_not(None)).order_by(DrawingSheet.created_at, DrawingSheet.id)
     sheets = list(db.scalars(q))
     if level_ids:
         sheets = [s for s in sheets if s.level_id in level_ids]
     by_level: dict[str, LevelInput] = {}
-    for s in sorted(sheets, key=lambda s: s.created_at):
+    for s in sheets:
         lv = db.get(Level, s.level_id)
         b = db.get(Building, lv.building_id)
         li = by_level.setdefault(lv.id, LevelInput(lv.id, b.name, lv.name, lv.elevation_m, lv.height_m))
@@ -97,14 +101,25 @@ def build_inputs(db: Session, project: Project,
 @jobs.handler("model_build")
 def run_build(db: Session, job: Job) -> dict:
     project = db.get(Project, job.project_id)
-    levels, sheets = build_inputs(db, project, job.payload.get("level_ids"))
+    v = build_version(db, project, job.created_by, job.payload.get("message") or "Converted from drawings",
+                      job.payload.get("level_ids"), job.id)
+    db.commit()
+    return {"version_id": v.id, "number": v.number, "report": v.stats["report"]}
+
+
+def build_version(db: Session, project: Project, actor_id: str | None, message: str,
+                  level_ids: list[str] | None = None, run_id: str | None = None) -> ModelVersion:
+    import uuid
+
+    run_id = run_id or uuid.uuid4().hex
+    levels, sheets = build_inputs(db, project, level_ids)
     if not levels:
         raise ValueError("No detected drawings with a level assigned. Upload drawings and assign levels first.")
     with tempfile.TemporaryDirectory() as tmp:
         path = Path(tmp) / "model.ifc"
         stats = write_ifc(project.name, project.id, levels, str(path))
         items, spaces = read_ifc(path)
-        key = get_storage().put_file(f"projects/{project.id}/conversions/{job.id}/model.ifc", path)
+        key = get_storage().put_file(f"projects/{project.id}/conversions/{run_id}/model.ifc", path)
     report = {
         "levels": stats,
         "sheets": [{"id": s.id, "name": s.name, "discipline": s.discipline, "counts": counts(s.plan),
@@ -114,11 +129,8 @@ def run_build(db: Session, job: Job) -> dict:
                                           for x in s.plan.get(k, []) if x.get("confidence", 1) < 0.7)}
                    for s in sheets],
     }
-    v = create_version(db, project, items, spaces, actor_id=job.created_by,
-                       message=job.payload.get("message") or "Converted from drawings", source="conversion",
-                       extra_files={"ifc": [key]}, stats={"report": report})
-    db.commit()
-    return {"version_id": v.id, "number": v.number, "report": report}
+    return create_version(db, project, items, spaces, actor_id=actor_id, message=message, source="conversion",
+                          extra_files={"ifc": [key]}, stats={"report": report})
 
 
 def latest_conversion(db: Session, project_id: str) -> ModelVersion | None:

@@ -10,6 +10,7 @@ export interface ProjectCtx {
 const NAV = [
   { to: 'model', label: '3D model' },
   { to: 'issues', label: 'Issues' },
+  { to: 'drawings', label: 'Drawings' },
   { to: 'structure', label: 'Buildings & zones' },
   { to: 'members', label: 'Team' },
   { to: 'activity', label: 'Activity' },
