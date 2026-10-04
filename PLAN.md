@@ -1,195 +1,206 @@
-# PLAN.md — 3D Construction Coordination MVP (DRAFT v0)
+# PLAN.md: 3D Construction Coordination MVP
 
-> Status: **draft, awaiting answers.** No code has been written yet.
-> The brief I received is cut off partway through "Feature 1" (at "...zones (rooms or areas such as Unit").
-> Everything below Feature 1 is planned from the four-point summary only. See Q0.
-
----
-
-## 1. Where I'd push back on the brief
-
-These are the parts I think will hurt if we build them exactly as described.
-
-### 1a. Fully automatic "2D drawings → 3D model" is the riskiest part of the product
-- **Vector DXF/DWG** can realistically be converted. Walls are line or polyline pairs on named layers, and doors and windows are blocks. Even so, layer naming differs from firm to firm, so we'll need a per-project layer-mapping step.
-- **Vector PDFs** (exported from CAD) are doable but noisier. There are no layers or blocks, only line weights and paths.
-- **Scanned or raster PDFs** need ML-based wall and room detection. That's a research project, not an MVP feature.
-- **MEP (plumbing, electrical, HVAC)** is mostly symbols and schematic runs with no elevations. Any 3D placement of it is a guess.
-
-**Proposal:** make conversion *assisted*, not magic. The pipeline parses DXF (and vector PDF as a stretch goal) into candidate walls, openings and rooms. The PM then sets the scale and floor-to-floor heights, maps CAD layers to trades, and fixes mistakes in a 2D review editor before we extrude to 3D. MEP elements get placed as 2D-derived objects at default heights, clearly labeled "schematic". The output is a model the PM has *approved*, and that approval is what makes the model trustworthy.
-
-### 1b. "The photo turns the work green" shouldn't mean computer vision decides
-Figuring out which elements a phone photo shows, and whether they're actually done, isn't reliable enough to drive a status that lenders and owners will trust.
-
-**Proposal:** the worker selects the zone, the elements or a whole task, marks them "done", and attaches photos as evidence. The status goes to **pending** (for example amber or hatched) until a PM approves it, and only then turns **green**. Anything the worker didn't claim keeps its original color, as the brief asks. We keep photo metadata (GPS, EXIF time, uploader) for audit. Auto-suggestion from vision can come later.
-
-### 1c. "Git-like history" should be an append-only event log, not actual git
-Running real git under a multi-user web app causes trouble with binary blobs, merge conflicts and permissions.
-
-**Proposal:**
-- Every mutation writes an immutable `events` row: actor, timestamp, entity, before/after diff, and optional location (element, zone, level).
-- Model geometry is versioned as immutable **model revisions**. A re-upload or re-conversion creates revision N+1 with an element-level diff against N (added, removed, changed).
-- The UI then gives the git-like experience: a timeline, a "blame" view per element, and a compare view between revisions.
+> Status: **M0 in progress.** Decisions already agreed: **web app first** (Flutter deferred), and a **local database for now**.
+> Open questions are in §8. Anything marked *(assumed)* is a default I picked so I could keep moving. Change it if you disagree.
 
 ---
 
-## 1d. Revizto as the reference product: what we match, what we skip, what we add
+## 1. Where I'm deviating from the brief, and why
 
-These are findings from Revizto's public docs and reviews. I could only use search results, because revizto.com is blocked from this sandbox. We copy no branding, assets or code. Standard industry concepts like "issue", "viewpoint" and "priority" are fair game, but our names, UI and workflows are our own.
-
-| Revizto capability | What it is | Our MVP plan |
-|---|---|---|
-| **Issue tracker** | Issues have a 3D location, status (open / in progress / closed), priority (four levels), assignee, watchers, tags, deadline, reporter, comments, attachments and full change history. They can be filtered and reported on | **Match.** This is M2. We add a `trade` and `zone` field to each issue and a "pending review" status so the PM can sign off on fixes |
-| **Viewpoints** | Each issue saves a camera position and visibility state, and opening the issue restores it | **Match.** Each issue stores the camera, section box, visible layers and selected elements |
-| **Markups on issues** | Users draw, comment and attach photos and files on an issue | **Match, simplified.** 2D markup on the issue snapshot (arrow, cloud, freehand, text) plus photo attachments |
-| **Unified 2D/3D split view** | Sheets are overlaid on the model, there's a side-by-side pane, the user's position is tracked on the sheet, and callout hyperlinks jump between views | **Match, and it's easier for us.** We generated the 3D model *from* the sheets, so sheet-to-model registration comes free from conversion. The split view shows the source drawing beside the 3D level, with a "you are here" marker. Clicking a room on the sheet flies the camera to it. Callout hyperlinks come later |
-| **Search sets and appearance templates** | Saved queries over element properties, plus saved color and transparency schemes, which can be personal or shared | **Match in a narrower form.** Trade layers and progress coloring *are* our built-in appearance templates. Saved filters (by trade, zone, status or type) come in M5 |
-| **Stamps** | Quick, templated issues placed on 2D sheets | **Later.** Useful for inspectors, and an easy follow-up once sheets and issues exist |
-| **Clash detection and grouping** | Automatic clash detection between models, grouped and synced to issues | **Skip for MVP.** Our MEP geometry is schematic, so clashes would mostly be noise. We'd revisit once MEP placement is better |
-| **Issue automation** | Rule-based updates to deadlines, status, priority, assignee and tags | **Later.** Simple notifications, such as "assigned to you" or "due tomorrow", are in the MVP |
-| **Roles** | License-level roles plus customizable project roles | **Simpler.** We use four fixed project roles from the brief, plus scoping by trade and zone (Revizto doesn't have zone scoping). The policy layer is built so custom roles can come later |
-| **Platforms** | Desktop app, web app, and iOS/Android apps for field use | **Web only, mobile-first for field screens.** A PWA with an offline photo queue if you need offline support (see Q6) |
-| **Input** | Revit, Navisworks, IFC and other BIM models | **The opposite end of the market.** We take DXF and PDF drawings and produce the model, so the builder never needs BIM authoring |
-
-**What we add that Revizto doesn't have:**
-1. Conversion from 2D drawings to a 3D model, which is the core wedge.
-2. Trade-scoped access, so a trade worker sees only their own layer and zones.
-3. Photo-evidenced progress claims, approved by the PM, that drive the green/original coloring of the model.
-4. A per-element history and a "blame" view tying progress, issues and model revisions together.
-5. Pricing and UX for builders, not BIM coordinators.
-
-**Lessons from Revizto user complaints:**
-- Reviewers mention a steep learning curve, slow sync on large projects, and unreliable model uploads.
-- So we aim for a fast web viewer with geometry split per level and lazy loading, three or four primary screens, and conversion jobs that report clear, actionable errors.
+| # | Brief says | Problem | What I'm doing instead |
+|---|---|---|---|
+| 1 | Flutter app + three.js viewer in a WebView/iframe with a JS bridge | Agreed with you: web first. A Flutter shell around a web viewer gives two UI stacks and a bridge to debug, for little gain at MVP stage | **React + TypeScript + Vite**, shipped as a **PWA** (installable, offline upload queue). The viewer stays an **isolated module with a command/event API** (`selectElement`, `setColors`, `flyTo`, `snapshot`, plus `onSelect` and similar events). If we wrap it in Flutter or a native app later, that API becomes the bridge unchanged |
+| 2 | PostgreSQL | You asked for a local DB for now | **SQLite by default** (zero setup), through SQLAlchemy and Alembic, with no Postgres-only features in the schema. `docker compose` still offers Postgres, and CI runs the tests against **both** so we can switch with one env var |
+| 3 | `PyMuPDF` for vector PDF | PyMuPDF is **AGPL-3.0**. In a hosted SaaS that obliges us to open-source the server, unless we buy Artifex's commercial licence | Use **`pypdfium2`** (Apache/BSD) or **`pdfminer.six`** (MIT) for vector extraction in M7. You choose (Q4) |
+| 4 | DWG input | No good open-source DWG reader exists. ODA File Converter is free but closed-source with licence terms; LibreDWG is GPL | **DXF only in the MVP.** Users export DXF from AutoCAD, or we add an ODA conversion step if its licence suits you (Q3) |
+| 5 | Auto-approve green from AI verdicts | "A false green is far worse than a false gray." Auto-approve is the single biggest false-green risk | Both modes get built, but the **default is "PM approval required"**. Auto-approve needs ≥ 0.9 confidence *and* an evaluation-harness precision ≥ 0.95 for that element type before a project can enable it |
+| 6 | Pipe segments verified from photos | Many runs get covered (drywall, slab) and look identical, so matching *which* 6-inch segment appears in a photo is often unanswerable | Photo verdicts are per element as specified. The prompt is told explicitly to say `not_visible` rather than guess, and the evaluation harness reports results **per element type**, so we can see if pipe segments need a coarser unit (per run) |
+| 7 | iOS offline sync | Safari has no Background Sync API | Uploads are queued in IndexedDB and synced on app open, on the `online` event, and on a timer. The UI shows "3 uploads waiting" so nothing gets lost silently |
+| 8 | Status colors | Precedence between red (issue) and green or amber isn't defined | *(assumed)* **Red (open issue) > Amber (needs review) > Green (done) > discipline default.** An open issue on a completed element should still stand out |
 
 ---
 
-## 2. Proposed architecture
+## 2. Architecture
 
 ```
-┌──────────────┐   HTTPS/JSON   ┌───────────────┐    ┌──────────────┐
-│ Web app      │ ─────────────▶ │ API (FastAPI) │──▶ │ PostgreSQL   │
-│ React + TS   │                │ auth, RBAC,   │    │ (+ PostGIS?) │
-│ three.js     │ ◀── signed ─── │ events        │    └──────────────┘
-│ (R3F)        │     URLs       └──────┬────────┘
-└──────┬───────┘                       │ jobs (Redis queue)
-       │ direct upload/download        ▼
-       │                        ┌───────────────┐    ┌──────────────┐
-       └──────────────────────▶ │ Object store  │◀── │ Conversion   │
-                                │ (S3 / MinIO)  │    │ worker (Py)  │
-                                └───────────────┘    │ ezdxf,       │
-                                                     │ shapely,     │
-                                                     │ PyMuPDF,     │
-                                                     │ trimesh→glTF │
-                                                     └──────────────┘
+┌───────────────────────────────┐        ┌───────────────────────────────┐
+│ Web app (React + TS, PWA)     │  JSON  │ API (FastAPI)                 │
+│ ├ office: projects, issues,   │ ─────▶ │ ├ auth (JWT access + refresh) │
+│ │  review editor, history     │ ◀───── │ ├ RBAC policy (one module)    │
+│ ├ field: zone → checklist →   │        │ ├ domain services             │
+│ │  photos (IndexedDB queue)   │        │ └ event log (append-only)     │
+│ └ viewer module (three.js +   │        └──────┬───────────┬────────────┘
+│   @thatopen/components,       │               │           │ enqueue
+│   web-ifc), command/event API │               ▼           ▼
+└───────────────┬───────────────┘        ┌───────────┐ ┌──────────────────┐
+                │ signed URLs            │ SQLite /  │ │ Worker (RQ)      │
+                ▼                        │ Postgres  │ │ ├ conversion     │
+        ┌───────────────┐                └───────────┘ │ │  ezdxf, shapely│
+        │ Object store  │◀──────────────────────────── │ │  IfcOpenShell  │
+        │ local FS/MinIO│                              │ └ photo analysis │
+        └───────────────┘                              │   Anthropic API  │
+                                                       └──────────────────┘
 ```
 
-- **Backend: Python (FastAPI, SQLAlchemy, Alembic).** The geometry and CAD libraries we need (ezdxf, shapely, PyMuPDF, trimesh) are all Python. Keeping the API in the same language lets us share models and validation.
-- **Frontend: React + TypeScript + Vite, using three.js through react-three-fiber.**
-  - We render glTF per level, with element IDs stored in node `extras`.
-  - Trade layers are toggled by element `trade`.
-  - Status coloring is applied client-side from a lightweight status map, so it doesn't require regenerating geometry.
-- **Data: PostgreSQL for everything relational. Files (drawings, photos, glTF) go in S3-compatible storage** (MinIO locally).
-- **Jobs: Redis plus RQ** (or arq) for conversion and thumbnails.
-- **Auth:** email+password with JWT sessions for the MVP. The auth layer is shaped so SSO can be added later.
-- **Local dev:** `docker compose up` brings up Postgres, Redis, MinIO, the API, the worker and the web app.
-- **Tests:**
-  - Backend: pytest, including RBAC matrix tests and conversion golden-file tests using small sample DXFs.
-  - Frontend: Vitest.
-  - Smoke test: one Playwright flow.
+- **Storage is behind an interface:** the local filesystem in dev, S3/MinIO in compose and prod.
+- **The queue is behind an interface:** jobs run inline in dev and tests, and on RQ + Redis in compose and prod. Nobody has to run Redis just to try the app.
+- **Viewer data path:**
+  - M1 loads IFC in the browser with web-ifc.
+  - From M3 onwards the backend also produces **Fragments** (That Open's fast format) so large models load quickly.
+  - IFC remains the system of record for every model version.
+- **Vision model:** `VISION_MODEL` env var (default: the latest Claude Sonnet). `ANTHROPIC_API_KEY` comes from env only.
 
-### Repo structure
+### Repo layout
 ```
 /
-├── README.md               # setup that actually works
-├── PLAN.md                 # this file
-├── docker-compose.yml
+├── PLAN.md, README.md, docker-compose.yml, .github/workflows/ci.yml
 ├── backend/
 │   ├── app/
-│   │   ├── api/            # routers per resource
-│   │   ├── auth/           # users, sessions, RBAC policy
-│   │   ├── models/         # SQLAlchemy models
-│   │   ├── services/       # domain logic (issues, progress, history)
-│   │   └── events.py       # append-only audit/event log
-│   ├── conversion/         # DXF/PDF parsing → 2D plan graph → 3D extrusion → glTF
-│   ├── worker.py
-│   ├── migrations/
-│   └── tests/ (incl. fixtures/*.dxf)
-└── web/
-    ├── src/
-    │   ├── viewer/         # three.js scene, layers, picking, pins
-    │   ├── review/         # 2D conversion review editor
-    │   ├── features/       # projects, issues, progress, history
-    │   └── api/            # typed client (generated from OpenAPI)
-    └── tests/
+│   │   ├── main.py, config.py, db.py
+│   │   ├── auth/          # passwords, JWT, current-user deps
+│   │   ├── rbac.py        # role → permission matrix, scope checks
+│   │   ├── models/        # SQLAlchemy models
+│   │   ├── schemas/       # Pydantic I/O
+│   │   ├── api/           # routers
+│   │   ├── services/      # domain logic; every mutation writes an Event
+│   │   └── events.py
+│   ├── conversion/        # M3: dxf → plan graph → elements → IFC (+ eval script)
+│   ├── vision/            # M5: prompt, client, verdict mapping (+ eval harness)
+│   ├── migrations/        # Alembic
+│   └── tests/
+├── web/
+│   └── src/ (api/, auth/, pages/, viewer/, field/, components/)
+└── samples/
+    ├── README.md          # sources and licences of every sample
+    ├── ifc/  dxf/
+    └── photos/            # labeled photo set layout for M5
 ```
 
 ---
 
-## 3. Data model (core)
-
-Core tables:
+## 3. Data model
 
 ```
-Organization ─┬─ User (global identity)
-              └─ Project ── ProjectMembership(user, role, trades[], zone_ids[])
-                   └─ Building ── Level(elevation, height) ── Zone(name, polygon)
-Drawing (file, level_id?, kind: arch|plumbing|electrical|hvac|…, uploaded_by)
-ConversionJob (drawing_ids[], status, layer_mapping, scale, log)
-ModelRevision (project_id, n, source_job_id, approved_by, glb_uri per level)
-Element (stable_id, revision_id, level_id, zone_id?, trade, type, geometry_ref, props jsonb)
-Issue (project, title, status, priority, assignee, trade?, element_id?, anchor xyz + camera viewpoint, due)
-  └─ Comment, Attachment
-Task / WorkAssignment (trade, zone/elements, assignee, due)
-ProgressReport (author, date, zone, notes) ── Photo (uri, exif, gps)
-  └─ ProgressClaim (element_id | task_id, claimed_status) → Approval (by, decision, at)
-ElementStatus (element_stable_id, status: not_started|pending|complete|rejected, current) – derived/cached
-Event (id, project_id, actor_id, at, entity_type, entity_id, action, diff jsonb, location jsonb)
+User(id, email, name, password_hash)
+Organization(id, name)                         -- tenant; ERP/payments hang off this later
+OrgMembership(org, user, is_admin)
+Project(id, org, name, address, settings JSON) -- settings: approval_mode, confidence_threshold
+ProjectMember(project, user, role: owner|pm|trade|viewer, trades[], zone_ids[]?)
+Building(project) → Level(building, name, index, elevation, height) → Zone(level, name, code, kind, polygon JSON, qr_token)
+Trade(code, name, discipline)                  -- seeded: architecture, structure, plumbing, electrical, hvac, flooring, framing…
+
+DrawingSheet(project, level?, discipline, file_uri, scale, origin/transform JSON, version)
+ConversionJob(project, sheet_ids, params JSON, status, log) → ConversionReport(job, counts JSON, items JSON w/ confidence)
+
+ModelVersion(id, project, parent_id, merge_parent_id?, branch, message, author, approved_by, approved_at, status: draft|approved|merged|rejected, ifc_uri, fragments_uri)
+Element(id = stable UUID, project, ifc_guid)                       -- identity only, never deleted
+ElementRevision(version, element, type, discipline, trade, zone, geometry_ref, props JSON, source: drawn|traced|as_built, confidence, geom_hash)
+ElementStatus(element, status: not_started|in_progress|needs_review|done, flags[], updated_at, evidence_verification_id)
+                                                                   -- current state, rebuilt from events
+
+Upload(id, project, zone, trade, user, note, voice_uri, client_uuid, captured_at, synced_at, sync_state)
+Photo(upload, uri, exif_time, gps, sha256, phash)
+Verification(upload, element, verdict, confidence, reason, source: ai|manual, model, prompt_version, confirmed_by, overridden, override_reason)
+Issue(project, title, description, status: open|in_progress|resolved|closed, priority, trade, assignee, due, element?, anchor xyz, sheet anchor?, viewpoint)
+Viewpoint(camera JSON, section planes JSON, visible layers, isolated elements)
+Comment(issue, author, body), Attachment(owner_type, owner_id, uri)
+Notification(user, kind, payload, read_at)
+Event(id, project, actor, at, type, entity_type, entity_id, zone?, evidence_ids[], data JSON)  -- append-only
 ```
 
-Notes on these choices:
-- **`Element.stable_id` carries across revisions.** It's matched by geometry and type, so progress and issues survive a re-conversion. When matching fails, the item is flagged for the PM.
-- **Roles are per project:** `owner`, `pm`, `trade`, `viewer`. Trade members are scoped by `trades[]` and `zone_ids[]`. Every query goes through one policy function, so the same check covers API responses and file URLs. That way a plumber can't fetch the electrical glTF directly.
-- **Future modules plug into existing IDs.** Lots and units are just Zones with a type, so ERP, inventory, draws and warranty can hang off `project_id`, `zone_id` or `element_id`, plus `Event`, without schema surgery. I'll add `Zone.kind` and a `props jsonb` to keep that open.
+How the key parts work:
+- **Versioning and diffs.**
+  - A version is a set of `ElementRevision`s. A diff compares two versions by `element_id`: added, removed, moved (the bbox changed), or changed (props or type changed).
+  - `parent_id` plus `merge_parent_id` gives us branches and merges later without a schema change.
+- **Status is stored per physical element, not per version.**
+  - A new version keeps progress on elements whose geometry is unchanged.
+  - A moved or changed element that was `done` gets reset to `needs_review` with a flag, so it can't silently stay green.
+- **Green requires evidence, enforced in the service layer, not just the UI.**
+  - `ElementStatus.status = done` requires a `Verification` that's linked to an `Upload` with at least one `Photo`.
+  - A test enforces this rule.
+- **Every change is logged.**
+  - `Event` is append-only. The DB layer refuses UPDATE and DELETE on it, with a trigger on Postgres and an ORM guard on SQLite.
+  - Every service mutation writes its event in the same transaction.
+  - Timeline replay = fold the status events up to time T.
+- **Permissions sit in one place.**
+  - `rbac.py` is the single place for permission checks.
+  - A trade member's visibility is filtered by `trades[]`, and also by `zone_ids[]` when that's set. This is applied both in queries and to file access.
+- **Room for later modules.** Materials, inventory and draws attach to `Element`, `Zone` or `Project` via new tables. `Event.type` is an open string.
+
+### Role → permission matrix (M0)
+
+| Permission | owner | pm | trade | viewer |
+|---|:-:|:-:|:-:|:-:|
+| project.view | ✓ | ✓ | ✓ (scoped) | ✓ |
+| project.edit, members.manage | ✓ | ✓ (cannot add or remove owners) | | |
+| structure.edit (buildings, levels, zones) | ✓ | ✓ | | |
+| drawings.upload, conversion.review | ✓ | ✓ | | |
+| model.approve | ✓ | ✓ | | |
+| progress.upload | ✓ | ✓ | ✓ (own trades/zones) | |
+| progress.approve / override | ✓ | ✓ | override own claims with a reason only | |
+| issue.create / comment | ✓ | ✓ | ✓ (scoped) | |
+| history.view | ✓ | ✓ | ✓ (scoped) | ✓ |
 
 ---
 
-## 4. Milestones (each ends with a stop and a report)
+## 4. Milestones
 
-| # | Milestone | Done when |
-|---|-----------|-----------|
-| **M0** | Skeleton: repo, docker-compose, CI, auth, Org/Project/Building/Level/Zone CRUD, RBAC policy + matrix tests, event log | A user can create a project, invite members with roles, and every change appears in the event log |
-| **M1** | Viewer: load a glTF per level (hand-made sample first), orbit/section/level isolate, trade-layer toggles, element picking, trade-scoped visibility | A plumber login sees only the plumbing and their zones. A PM sees everything |
-| **M2** | Issues:<br>• pin to a 3D point or element with a saved viewpoint (camera, section box, layers)<br>• status, priority, assignee, watchers, tags, deadline and trade<br>• comments, attachments and snapshot markup<br>• filters, a jump from the issue list to 3D, and a PDF/CSV issue report<br>• in-app notifications | The issue loop works end to end |
-| **M3** | Conversion v1 and the 2D/3D split view:<br>• DXF upload → layer mapping → 2D review editor<br>• extrude walls, slabs and openings → glTF → PM approves → ModelRevision<br>• sheet viewer with split view and position tracking, using the registration from conversion<br>• issues can be pinned on the sheet too | Our sample house DXFs convert, golden tests pass, and the sheet and model stay in sync |
-| **M4** | Progress: assignments, mobile-friendly photo upload, claims → PM approval → green/pending/original coloring, plus a daily report view | The worker → PM → green loop works on a phone browser |
-| **M5** | History: timeline, per-element blame, revision compare (added/removed/changed highlighting), and CSV/PDF export of the audit trail | Questions about who did what, where and when can be answered from the UI |
-| M6 (stretch) | Vector-PDF conversion, MEP schematic placement, re-conversion with stable-ID matching, stamps on sheets, saved filters and color schemes, simple issue automation rules | — |
-
-I'd put Conversion (M3) *after* the viewer and issues on purpose. That way the coordination product is usable with a sample model while the hardest piece matures, and the viewer gives us a way to inspect conversion output.
-
----
-
-## 5. Questions / ambiguities (please answer before I build past M0)
-
-0. **The brief is truncated** at Feature 1 ("...zones (rooms or areas such as Unit"). Please send the rest: the remainder of Feature 1, Features 2–4 in detail, and anything about non-functional requirements, the deliverable filenames, and so on. The placeholders in "Start by writing : ..." and "keep a  with setup steps" look like filenames that were lost. I've assumed `PLAN.md` and `README.md`.
-1. **Input formats:** what share of your builders have DWG/DXF and what share only have PDFs? Are those PDFs vector exports or scans? Can you give me 2–3 real (or anonymized) drawing sets? This one question decides how feasible M3 is.
-2. **DWG:** is it acceptable to require DXF export, or convert with the ODA File Converter (free, but closed-source with licensing terms)? Native DWG parsing in-house isn't realistic.
-3. **Conversion fidelity:** is "walls, slabs, openings, rooms, plus schematic MEP" an acceptable v1 fidelity? Do you need roofs, stairs or framing members?
-4. **Progress approval:** do you accept the claim → PM approval → green flow from 1b, or must a photo alone turn elements green?
-5. **Granularity of progress:** by element (this wall), by zone plus trade ("Unit 3B plumbing rough-in"), or by task checklist? For small builders I'd suggest zone + trade + phase (rough-in / trim / final) as the default.
-6. **Offline:** do trade workers need offline photo capture (no signal on site)? If so, the web app needs to be a PWA with an upload queue. Alternatively, would a native app be expected later?
-7. **Tenancy:** is this multi-tenant SaaS (many builder orgs) from day one, or a single org for now?
-8. **Auth:** is email/password OK for the MVP, or do you need Google/Microsoft SSO or magic links? Also, do trade workers have email, or do they log in by phone or SMS?
-9. **Hosting / deployment target:** AWS, GCP, a single VPS, or don't care for now?
-10. **Stack:** any constraints, such as a team that only knows Node or an existing infra preference? If not, I'll go with Python + React/three.js as above.
-11. **IFC export:** should we export IFC so builders can hand models to Revizto/Navisworks users? It's cheap to add once we have elements, and it's a good interop story.
-12. **Scale targets:** what's the largest project (units, levels, drawings per level) we should test against?
-13. **Revizto parity:** is the "match / later / skip" split in §1d right for you? In particular:
-    - Is it OK to skip clash detection for the MVP?
-    - Do you need the issue workflow to match Revizto's (open / in progress / closed), or can we add "pending review"?
-    - Does anyone have a Revizto seat I could see screenshots or a walkthrough from? The site is blocked from my sandbox.
+| # | Scope | Done when |
+|---|---|---|
+| **M0** | Repo, docker compose, SQLite default with Alembic, auth (JWT access + refresh rotation), orgs/projects/members/roles, buildings/levels/zones CRUD, append-only event log, React web shell (login, projects, structure tree, members, activity feed), CI (pytest on SQLite and Postgres, vitest, lint, web build) | Tests are green in CI. A PM can sign up, create a project, add a building, levels and zones, and invite a trade member who only sees what they should. Every change appears in the activity feed |
+| **M1** | Viewer module: load a buildingSMART sample IFC; orbit/pan/zoom/walk; section planes and box; discipline toggles and isolate; level/zone filter; pick → properties panel; status coloring with legend and toggle; command/event API | The sample IFC is usable on desktop and phone browsers, and the viewer API has unit tests |
+| **M2** | Issues: pin to a point or element, viewpoint save and fly-to, comments, in-app notifications, filters with matching color overlay | The issue loop works end to end, with tests |
+| **M3** | DXF conversion: architectural pass (walls, openings, rooms → zones, scale, levels and alignment), plumbing pass (fixtures, segmented pipes, zone assignment), IFC + Fragments output, report with confidences, review editor (sheet overlay, edit, trace missing runs, approve → ModelVersion), 2D sheet ↔ 3D click sync, `eval_conversion.py` | Sample DXFs convert, the evaluation script prints counts and correction stats, and approval is required before going live |
+| **M4** | Field flow (manual): zone picker plus QR, trade checklist highlighted in 3D, photos + note, offline queue, PM marks done with evidence → green | Works offline on a phone. The "no green without evidence" test passes |
+| **M5** | Vision analysis: prompt + strict JSON schema, verdict mapping, approval modes, "possibly missed" and "retake" flags, notifications, phash reuse detection, `eval_vision.py` (precision and recall per element type, logged per model and prompt version) | The harness runs on the labeled set, and the numbers are recorded in `samples/photos/RESULTS.md` |
+| **M6** | History UI: versions with messages, diff view, timeline slider replay, branch-ready model | You can scrub the timeline and diff any two versions |
+| **M7** | Vector PDF input, plus scoping raster/vision input | Sample vector PDFs convert through the same pipeline |
 
 ---
 
-*Next step: once you answer (especially Q0 and Q1), I'll update this plan and start M0.*
+## 5. Conversion approach (M3, summary)
+
+1. **Parse.** ezdxf pulls in lines, polylines, arcs, block inserts, text and dimensions, with per-project **layer → role mapping** (wall, door, window, room-label, plumbing fixture, pipe…). The mapping is auto-suggested from common layer naming (AIA, `A-WALL`, `P-SANP`…) and the PM confirms it.
+2. **Scale.** Candidate scales come from `$INSUNITS`, dimension entities versus measured lengths, and title-block text such as "1/4" = 1'-0"". The PM confirms by measuring one known dimension.
+3. **Walls.** If there's a wall layer, use it. Otherwise pair parallel segments with a gap between 50 and 400 mm into wall centerlines with a thickness, then snap and merge.
+4. **Openings.** Door and window block inserts and arc swings are mapped to the nearest wall and cut.
+5. **Rooms.** Polygonize the wall centerline network with shapely, then match each polygon to a room label text point inside it. Each one becomes a zone, with a confidence based on label match and closure.
+6. **Levels.** Each sheet maps to a level. The PM picks a reference point on each sheet, and we stack them using the floor-to-floor height.
+7. **Plumbing.**
+   - Fixtures come from block names or layer plus a symbol library.
+   - Pipes are polylines split at vertices that are fittings or junctions (degree ≠ 2, or a fixture connection). Each segment gets a stable ID: a hash of the rounded endpoints plus the sheet, so it stays stable across re-runs.
+   - **Nothing is invented.** If no pipe routes are drawn, the report says so, and the PM traces runs in the editor (`source = traced`).
+8. **Output.** IfcOpenShell writes the IFC (IfcWall, IfcDoor, IfcWindow, IfcSpace, IfcSlab, IfcPipeSegment, IfcSanitaryTerminal…), with our element UUID stored in a property set. The conversion report is JSON plus a UI view.
+9. **Evaluation.** `eval_conversion.py samples/dxf/` reports detected counts per type against `expected.json`, and records the editor corrections per job (adds, deletes, edits) as the "manual correction" metric.
+
+## 6. Vision approach (M5, summary)
+
+- **Input:** photos (resized to a long side of about 1568px), the expected-element list (id, type, description, rough position in the zone), and the reference render from the viewer's `snapshot()` of the zone's trade layer.
+- **Output:** tool-use or structured output with a strict JSON schema. The response is validated, and invalid output is retried once, then treated as "uncertain" for all elements.
+- **Mapping:**
+  - `installed` with confidence ≥ the project threshold → needs_review (amber), or done (green) only under auto-approve.
+  - `missing` → keep the original color and flag "possibly missed", with notifications.
+  - `not_visible` or `uncertain` → keep the original color and add a retake prompt.
+- **Evaluation:** `eval_vision.py` reports precision and recall per element type plus a false-green count, with results appended to a CSV keyed by model and prompt version.
+
+---
+
+## 7. Test data
+- **M1–M2:** the buildingSMART sample IFCs (e.g. the IFC4 reference/sample house files). Sources and licences go in `samples/README.md`.
+- **M3:** a small set of **generated** DXF residential plans (single-family house, duplex, 4-unit floor) made with ezdxf, with known ground truth, plus any public DXF plans whose licence allows it. We'll add your real sets when they arrive.
+- **M5:** `samples/photos/<case_id>/{photos/*.jpg, case.json}` with zone, trade, expected elements and their true status.
+
+---
+
+## 8. Open questions (answering these won't block M0)
+
+1. **Sample drawings:** when can you share real builder sets? Which formats are they in (DXF/DWG, vector PDF, scans)?
+2. **Tenancy:** is this multi-tenant SaaS from day one? *(assumed: yes, with orgs in the schema and one org per signup for now)*
+3. **DWG:** do we require DXF export, or should I evaluate the ODA File Converter licence?
+4. **PDF library:** are you OK replacing PyMuPDF (AGPL) with pypdfium2 or pdfminer.six? Or do you want to buy a PyMuPDF commercial licence?
+5. **Default approval mode:** is "PM approval required" the right default, with auto-approve gated on harness precision?
+6. **Status color precedence:** is red > amber > green right?
+7. **Auth:** email and password for now? Do trade workers reliably have email, or should we plan phone/SMS magic links?
+8. **Voice notes:** store the audio only, or also transcribe? If we transcribe, which provider?
+9. **Hosting target**, when we get there: AWS, GCP or a VPS?
+10. **Anthropic API key and budget** for M5 vision evaluation runs.
