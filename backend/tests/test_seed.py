@@ -1,7 +1,7 @@
 from sqlalchemy import func, select
 
 from app.models import Project, ProjectMember
-from app.seed import seed
+from app.seed import seed, seed_sample_ifc
 
 
 def test_seed_is_idempotent_and_usable(db, client):
@@ -15,3 +15,9 @@ def test_seed_is_idempotent_and_usable(db, client):
     tree = client.get(f"/api/projects/{p1.id}/tree", headers=h).json()
     names = [z["name"] for b in tree for lv in b["levels"] for z in lv["zones"]]
     assert names and all("Bedroom" not in n for n in names)
+
+
+def test_seed_sample_ifc(db, client):
+    p = seed_sample_ifc(db)
+    assert p is not None and p.current_version_id
+    assert seed_sample_ifc(db).id == p.id

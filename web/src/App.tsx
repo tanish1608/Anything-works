@@ -3,8 +3,10 @@ import type { ReactNode } from 'react'
 import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from './auth/AuthContext'
 import ActivityPage from './pages/ActivityPage'
+import EmbedViewerPage from './pages/EmbedViewerPage'
 import LoginPage from './pages/LoginPage'
 import MembersPage from './pages/MembersPage'
+import ModelPage from './pages/ModelPage'
 import ProjectLayout from './pages/ProjectLayout'
 import ProjectsPage from './pages/ProjectsPage'
 import StructurePage from './pages/StructurePage'
@@ -37,11 +39,13 @@ export function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/" element={<RequireAuth><Shell><ProjectsPage /></Shell></RequireAuth>} />
       <Route path="/p/:pid" element={<RequireAuth><Shell><ProjectLayout /></Shell></RequireAuth>}>
-        <Route index element={<Navigate to="structure" replace />} />
+        <Route index element={<Navigate to="model" replace />} />
+        <Route path="model" element={<ModelPage />} />
         <Route path="structure" element={<StructurePage />} />
         <Route path="members" element={<MembersPage />} />
         <Route path="activity" element={<ActivityPage />} />
       </Route>
+      <Route path="/embed/p/:pid/viewer" element={<RequireAuth><EmbedViewerPage /></RequireAuth>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

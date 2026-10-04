@@ -79,3 +79,68 @@ export const can = {
   editStructure: (r: Role) => r === 'owner' || r === 'pm',
   manageMembers: (r: Role) => r === 'owner' || r === 'pm',
 }
+
+export interface ModelVersion {
+  id: string
+  number: number
+  parent_id: string | null
+  branch: string
+  message: string
+  source: string
+  status: 'draft' | 'approved' | 'rejected'
+  author_id: string | null
+  approved_by: string | null
+  approved_at: string | null
+  created_at: string
+  stats: { elements?: number; by_discipline?: Record<string, number>; [k: string]: unknown }
+  is_current: boolean
+}
+
+export interface MeshLayer {
+  discipline: string
+  url: string
+  context: boolean
+}
+
+export interface ViewerManifest {
+  version: ModelVersion | null
+  layers: MeshLayer[]
+}
+
+export interface ElementInfo {
+  id: string
+  ifc_guid: string
+  name: string | null
+  ifc_class: string
+  discipline: string
+  trade: string
+  level_id: string | null
+  zone_id: string | null
+  bbox: number[] | null
+  status: 'not_started' | 'in_progress' | 'needs_review' | 'done'
+  flags: string[]
+  source: string
+  confidence: number | null
+  open_issues: number
+  context: boolean
+}
+
+export interface ElementDetail extends ElementInfo {
+  props: Record<string, unknown>
+  history: EventRow[]
+}
+
+export interface Job {
+  id: string
+  kind: string
+  status: 'queued' | 'running' | 'done' | 'failed'
+  result: Record<string, unknown> | null
+  error: string | null
+}
+
+export const STATUS_LABEL: Record<string, string> = {
+  not_started: 'Not started',
+  in_progress: 'In progress',
+  needs_review: 'Needs review',
+  done: 'Done',
+}

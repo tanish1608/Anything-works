@@ -5,6 +5,7 @@
 All demo users share the password in DEMO_PASSWORD (default "demo-password")."""
 
 import os
+from pathlib import Path
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -26,6 +27,8 @@ from app.models import (
 from app.services import events
 
 DEMO_PROJECT = "Maple Court (demo)"
+SAMPLE_PROJECT = "Sample House (buildingSMART IFC)"
+SAMPLES = Path(__file__).resolve().parents[2] / "samples"
 PEOPLE = [
     # email, name, role, trades
     ("owner@example.com", "Olivia Owner", Role.owner, []),
@@ -87,9 +90,40 @@ def seed(db: Session) -> Project:
     return project
 
 
+def seed_sample_ifc(db: Session) -> Project | None:
+    """Second demo project: the buildingSMART sample house imported from IFC and approved."""
+    from app.bim.ifc_import import import_ifc
+    from app.services.models import approve_version
+    from app.storage import get_storage
+
+    existing = db.scalar(select(Project).where(Project.name == SAMPLE_PROJECT))
+    if existing:
+        return existing
+    files = ["Building-Architecture.ifc", "Building-Structural.ifc", "Building-Hvac.ifc"]
+    if not all((SAMPLES / "ifc" / f).exists() for f in files):
+        return None
+    demo = seed(db)
+    owner = db.scalar(select(User).where(User.email == "owner@example.com"))
+    project = Project(id=new_id(), org_id=demo.org_id, name=SAMPLE_PROJECT, address="buildingSMART Simple-Scene")
+    db.add(project)
+    db.flush()
+    for m in db.scalars(select(ProjectMember).where(ProjectMember.project_id == demo.id)):
+        trades = ["hvac", "framing"] if m.role == Role.trade and "plumbing" in m.trades else m.trades
+        db.add(ProjectMember(project_id=project.id, user_id=m.user_id, role=m.role, trades=trades))
+    events.record(db, project_id=project.id, actor_id=owner.id, type="project.created", entity_type="project",
+                  entity_id=project.id, data={"name": project.name})
+    keys = [(get_storage().put_file(f"projects/{project.id}/uploads/seed/{f}", SAMPLES / "ifc" / f), None)
+            for f in files]
+    v = import_ifc(db, project, keys, actor_id=owner.id, message="buildingSMART sample house (CC BY 4.0)")
+    approve_version(db, v, owner.id, "Seeded")
+    db.commit()
+    return project
+
+
 if __name__ == "__main__":
     with SessionLocal() as s:
         p = seed(s)
+        seed_sample_ifc(s)
         print(f"Demo project ready: {p.name} ({p.id})")
         print("Log in as owner@example.com / pm@example.com / plumber@example.com / electrician@example.com /")
         print("inspector@example.com with password:", os.environ.get("DEMO_PASSWORD", "demo-password"))
