@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import jobs
-from app.api import auth, events, issues, models, projects, structure
+from app.api import auth, drawings, events, issues, models, projects, structure
 from app.config import get_settings
 from app.db import SessionLocal
 from app.models import TRADES
@@ -29,7 +29,7 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    for r in (auth.router, projects.router, structure.router, events.router, models.router, issues.router):
+    for r in (auth.router, projects.router, structure.router, events.router, models.router, issues.router, drawings.router):
         app.include_router(r, prefix="/api")
 
     @app.get("/api/health")

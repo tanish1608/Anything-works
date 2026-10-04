@@ -377,3 +377,31 @@ class Notification(Base):
     link: Mapped[str | None] = mapped_column(String(500))  # web app path
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
     read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+# ---------------------------------------------------------------- drawings & conversion (M3)
+
+class DrawingSheet(Base):
+    """An uploaded 2D drawing (DXF now, vector PDF in M7) and its editable detected plan."""
+
+    __tablename__ = "drawing_sheets"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    level_id: Mapped[str | None] = mapped_column(ForeignKey("levels.id", ondelete="SET NULL"), index=True)
+    discipline: Mapped[str] = mapped_column(String(30))
+    name: Mapped[str] = mapped_column(String(300))
+    filename: Mapped[str] = mapped_column(String(300))
+    file_type: Mapped[str] = mapped_column(String(10))  # dxf | pdf
+    storage_key: Mapped[str] = mapped_column(String(500))
+    status: Mapped[str] = mapped_column(String(20), default="uploaded")  # uploaded|detecting|detected|failed
+    error: Mapped[str | None] = mapped_column(Text)
+    unit_m: Mapped[float | None] = mapped_column()  # metres per drawing unit (scale)
+    units_confirmed: Mapped[bool] = mapped_column(default=False)
+    transform: Mapped[dict] = mapped_column(JSON, default=dict)  # {dx, dy, rotation_deg, confirmed}
+    layer_roles: Mapped[dict] = mapped_column(JSON, default=dict)  # user overrides {layer: role}
+    plan: Mapped[dict | None] = mapped_column(JSON)
+    detected_counts: Mapped[dict | None] = mapped_column(JSON)  # counts straight out of detection (for eval)
+    corrections: Mapped[dict] = mapped_column(JSON, default=dict)  # {"added": n, "deleted": n, "edited": n}
+    created_by: Mapped[str | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

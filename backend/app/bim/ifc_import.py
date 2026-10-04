@@ -82,6 +82,29 @@ def _storey_of(product) -> tuple[str, str, float] | None:
     return (b.Name if b is not None and b.Name else "Building", c.Name or "Level", float(c.Elevation or 0) * scale)
 
 
+def _space_polygon(space, geo) -> list[list[float]] | None:
+    """Exact plan outline: our own exports carry it as a property; otherwise project the mesh."""
+    import json
+
+    try:
+        raw = uel.get_psets(space).get("SiteMesh", {}).get("Polygon")
+        if raw:
+            return [[round(x, 3), round(y, 3)] for x, y in json.loads(raw)]
+    except Exception:  # noqa: BLE001
+        pass
+    from shapely.ops import unary_union
+
+    v, f = geo
+    tris = [Polygon(v[t][:, :2]) for t in f]
+    shape = unary_union([t for t in tris if t.is_valid and t.area > 1e-8]).buffer(0)
+    if shape.is_empty:
+        return None
+    if shape.geom_type == "MultiPolygon":
+        shape = max(shape.geoms, key=lambda g: g.area)
+    shape = shape.simplify(0.005)
+    return [[round(x, 3), round(y, 3)] for x, y in shape.exterior.coords[:-1]]
+
+
 def read_ifc(path: str | Path, discipline_hint: str | None = None) -> tuple[list[Item], list[SpaceInfo]]:
     f = ifcopenshell.open(str(path))
     settings = ifcopenshell.geom.settings()
@@ -103,11 +126,11 @@ def read_ifc(path: str | Path, discipline_hint: str | None = None) -> tuple[list
         if p.is_a("IfcSpace"):
             st = _storey_of(p)
             if geo is not None and st is not None:
-                hull = MultiPoint(geo[0][:, :2]).convex_hull
-                if isinstance(hull, Polygon):
-                    spaces.append(SpaceInfo(st[0], st[1], st[2], p.LongName or p.Name or "Space",
-                                            p.Name if p.LongName else None,
-                                            [[round(x, 3), round(y, 3)] for x, y in hull.exterior.coords[:-1]]))
+                poly = _space_polygon(p, geo)
+                if poly:
+                    name = p.LongName or p.Name or "Space"
+                    spaces.append(SpaceInfo(st[0], st[1], st[2], name, p.Name if p.LongName and p.Name != name else None,
+                                            poly))
             continue
         if any(p.is_a(c) for c in SKIP_CLASSES) or geo is None or len(geo[1]) == 0:
             continue

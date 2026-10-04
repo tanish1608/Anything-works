@@ -1,0 +1,104 @@
+{
+  "house_a_L1_arch.dxf": {
+    "discipline": "architecture",
+    "units": "in",
+    "rooms": [
+      "LIVING",
+      "BEDROOM 1",
+      "KITCHEN",
+      "BATH",
+      "BEDROOM 2"
+    ],
+    "doors": 4,
+    "windows": 5,
+    "cased_openings": 1,
+    "wall_centerline_m": 68.58,
+    "notes": "AIA layers, walls drawn as outlines with gaps at openings"
+  },
+  "house_a_L1_plumbing.dxf": {
+    "discipline": "plumbing",
+    "units": "in",
+    "fixtures": {
+      "toilet": 1,
+      "lavatory": 1,
+      "bathtub": 1,
+      "kitchen_sink": 1,
+      "water_heater": 1
+    },
+    "pipe_segments": 19,
+    "notes": "fixtures + cold/hot/waste runs drawn as polylines"
+  },
+  "house_a_L1_plumbing_fixtures_only.dxf": {
+    "discipline": "plumbing",
+    "units": "in",
+    "fixtures": {
+      "toilet": 1,
+      "lavatory": 1,
+      "bathtub": 1,
+      "kitchen_sink": 1,
+      "water_heater": 1
+    },
+    "pipe_segments": 0,
+    "notes": "typical residential set: fixtures shown, routes left to the plumber"
+  },
+  "house_a_L1_electrical.dxf": {
+    "discipline": "electrical",
+    "units": "in",
+    "devices": {
+      "outlet": 8,
+      "switch": 4,
+      "light": 5
+    }
+  },
+  "duplex_L1_arch.dxf": {
+    "discipline": "architecture",
+    "units": "mm",
+    "rooms": [
+      "UNIT 101 LIVING",
+      "UNIT 101 BEDROOM",
+      "UNIT 101 BATH",
+      "UNIT 102 LIVING",
+      "UNIT 102 BEDROOM",
+      "UNIT 102 BATH"
+    ],
+    "doors": 6,
+    "windows": 4,
+    "cased_openings": 0,
+    "wall_centerline_m": 78.0,
+    "notes": "non-AIA layer names (WALLS, DOORS...), metric"
+  },
+  "duplex_L2_arch.dxf": {
+    "discipline": "architecture",
+    "units": "mm",
+    "rooms": [
+      "UNIT 201 LIVING",
+      "UNIT 201 BEDROOM",
+      "UNIT 201 BATH",
+      "UNIT 202 LIVING",
+      "UNIT 202 BEDROOM",
+      "UNIT 202 BATH"
+    ],
+    "doors": 6,
+    "windows": 4,
+    "cased_openings": 0,
+    "wall_centerline_m": 78.0,
+    "notes": "non-AIA layer names (WALLS, DOORS...), metric"
+  },
+  "duplex_L1_layer0.dxf": {
+    "discipline": "architecture",
+    "units": "mm",
+    "rooms": [
+      "UNIT 101 LIVING",
+      "UNIT 101 BEDROOM",
+      "UNIT 101 BATH",
+      "UNIT 102 LIVING",
+      "UNIT 102 BEDROOM",
+      "UNIT 102 BATH"
+    ],
+    "doors": 6,
+    "windows": 4,
+    "cased_openings": 0,
+    "wall_centerline_m": 78.0,
+    "notes": "everything on layer 0 plus furniture noise: geometry-only detection"
+  }
+}

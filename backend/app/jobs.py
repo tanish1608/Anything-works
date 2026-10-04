@@ -17,6 +17,7 @@ from app.models import Job
 log = logging.getLogger("jobs")
 Handler = Callable[[Session, Job], dict | None]
 HANDLERS: dict[str, Handler] = {}
+ON_FAIL: dict[str, Callable[[Session, Job], None]] = {}
 
 
 def handler(kind: str):
@@ -60,6 +61,11 @@ def run_job(make_session: sessionmaker, job_id: str) -> None:
             job.status, job.error = "failed", f"{e}\n{traceback.format_exc(limit=5)}"
         job.finished_at = datetime.now(UTC)
         db.commit()
+        if job.status == "failed" and job.kind in ON_FAIL:
+            try:
+                ON_FAIL[job.kind](db, job)
+            except Exception:  # noqa: BLE001
+                log.exception("failure hook for %s", job.kind)
 
 
 def run_pending(make_session: sessionmaker) -> int:

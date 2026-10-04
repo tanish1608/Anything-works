@@ -334,3 +334,49 @@ class NotificationOut(ORM):
     link: str | None
     created_at: datetime
     read_at: datetime | None
+
+
+# --- drawings ---
+class SheetOut(ORM):
+    id: str
+    project_id: str
+    level_id: str | None
+    discipline: str
+    name: str
+    filename: str
+    file_type: str
+    status: str
+    error: str | None
+    unit_m: float | None
+    units_confirmed: bool
+    transform: dict
+    layer_roles: dict
+    detected_counts: dict | None
+    corrections: dict
+    created_at: datetime
+    updated_at: datetime
+    counts: dict | None = None
+    warnings: list[str] = []
+    review_open: int = 0
+
+
+class SheetDetail(SheetOut):
+    plan: dict | None
+
+
+class SheetPatch(BaseModel):
+    name: str | None = None
+    level_id: str | None = None
+    discipline: str | None = None
+    unit_m: float | None = Field(default=None, gt=0, le=10)  # confirming/overriding the scale re-runs detection
+    layer_roles: dict[str, str] | None = None  # re-runs detection
+    transform: dict | None = None  # {dx, dy, rotation_deg} or {reference: [x, y]} (sheet metres)
+
+
+class EditsIn(BaseModel):
+    ops: list[dict] = Field(min_length=1, max_length=500)
+
+
+class BuildIn(BaseModel):
+    level_ids: list[str] | None = None
+    message: str = ""
