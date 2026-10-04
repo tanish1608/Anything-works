@@ -11,3 +11,4 @@ web/dist/
 *.db
 coverage/
 e2e/.results/
+sitemesh-*.bundle
