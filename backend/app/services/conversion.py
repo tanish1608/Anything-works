@@ -75,7 +75,8 @@ def mark_failed(db: Session, job: Job) -> None:
             db.commit()
 
 
-def build_inputs(db: Session, project: Project, level_ids: list[str] | None = None) -> tuple[list[LevelInput], list[DrawingSheet]]:
+def build_inputs(db: Session, project: Project,
+                 level_ids: list[str] | None = None) -> tuple[list[LevelInput], list[DrawingSheet]]:
     q = select(DrawingSheet).where(DrawingSheet.project_id == project.id, DrawingSheet.status == "detected",
                                    DrawingSheet.level_id.is_not(None))
     sheets = list(db.scalars(q))

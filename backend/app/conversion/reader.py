@@ -178,11 +178,15 @@ def read_dxf(path: str, unit_override: float | None = None) -> RawDrawing:
             c = (e.dxf.center.x * k, e.dxf.center.y * k)
             circles.append(Arc(layer, c, e.dxf.radius * k, 0, 360))
             allpts.append(c)
-        elif t in ("TEXT", "MTEXT"):
-            txt = e.plain_text() if t == "MTEXT" else e.dxf.text
+        elif t == "TEXT":
             p = e.dxf.insert
-            texts.append(Text(layer, (txt or "").strip(), (p.x * k, p.y * k), (e.dxf.get("height", 0) or
-                                                                                e.dxf.get("char_height", 0)) * k))
+            texts.append(Text(layer, (e.dxf.text or "").strip(), (p.x * k, p.y * k), (e.dxf.get("height", 0) or 0) * k))
+        elif t == "MTEXT":
+            p = e.dxf.insert
+            h = (e.dxf.get("char_height", 0) or 0) * k
+            # One Text per line so a room name isn't glued to the area note under it.
+            for i, line in enumerate(l for l in (e.plain_text() or "").splitlines() if l.strip()):
+                texts.append(Text(layer, line.strip(), (p.x * k, p.y * k - i * h * 1.5), h))
         elif t == "INSERT":
             geo: list[list[Pt]] = []
             try:

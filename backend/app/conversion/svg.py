@@ -46,8 +46,8 @@ def render_svg(raw: RawDrawing, role_overrides: dict[str, str] | None = None) ->
         if a1 < a0:
             a1 += 2 * math.pi
         n = max(4, int((a1 - a0) / 0.15))
-        pts = [(a.center[0] + a.radius * math.cos(a0 + (a1 - a0) * i / n), a.center[1] + a.radius * math.sin(a0 + (a1 - a0) * i / n))
-               for i in range(n + 1)]
+        angs = [a0 + (a1 - a0) * i / n for i in range(n + 1)]
+        pts = [(a.center[0] + a.radius * math.cos(t), a.center[1] + a.radius * math.sin(t)) for t in angs]
         add(a.layer, f'<polyline points="{_pts(pts)}"/>')
     for c in raw.circles:
         add(c.layer, f'<circle cx="{c.center[0]:.4f}" cy="{c.center[1]:.4f}" r="{c.radius:.4f}"/>')

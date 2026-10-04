@@ -269,6 +269,47 @@ def duplex(level: int, generic_layers: bool):
     return doc, p, doors, windows
 
 
+def house_a_messy(seed: int = 7):
+    """Same building, drawn sloppily: no units in the header, face lines broken into overlapping pieces,
+    endpoints off by up to 3 mm (1/8"), labels as multi-line MTEXT."""
+    import random
+
+    rnd = random.Random(seed)
+    p = house_a()
+    doc, msp = new_doc("in")
+    doc.header["$INSUNITS"] = 0
+    geom = p.outline()
+    polys = list(geom.geoms) if geom.geom_type == "MultiPolygon" else [geom]
+    j = lambda v: v + rnd.uniform(-0.12, 0.12)  # noqa: E731  (inches)
+    for poly in polys:
+        for ring in [poly.exterior, *poly.interiors]:
+            cs = list(ring.coords)
+            for a, b in zip(cs, cs[1:], strict=False):
+                L = math.dist(a, b)
+                cuts = sorted(rnd.uniform(0.2, 0.8) for _ in range(rnd.randint(0, 2))) if L > 40 else []
+                ts = [0.0, *cuts, 1.0]
+                for t0, t1 in zip(ts, ts[1:], strict=False):
+                    t0 = max(0.0, t0 - (0.01 if t0 > 0 else 0))  # small overlaps between pieces
+                    pa = (j(a[0] + (b[0] - a[0]) * t0), j(a[1] + (b[1] - a[1]) * t0))
+                    pb = (j(a[0] + (b[0] - a[0]) * t1), j(a[1] + (b[1] - a[1]) * t1))
+                    msp.add_line(pa, pb, dxfattribs={"layer": "A-WALL"})
+    doors = windows = 0
+    for o in p.openings:
+        a, b, (ux, uy), t = p.opening_geom(o)
+        ang = math.degrees(math.atan2(uy, ux))
+        if o["kind"] == "door":
+            msp.add_blockref("DOOR", a, dxfattribs={"layer": "A-DOOR", "xscale": o["width"], "yscale": o["width"], "rotation": ang})
+            doors += 1
+        elif o["kind"] == "window":
+            msp.add_blockref("WINDOW", a, dxfattribs={"layer": "A-GLAZ", "xscale": o["width"], "yscale": t, "rotation": ang})
+            windows += 1
+    for name, (x, y) in p.rooms:
+        msp.add_mtext(f"{name}\\P12'-0\" x 10'-0\"", dxfattribs={"layer": "A-AREA-IDEN", "char_height": 9,
+                                                                    "insert": (x - 30, y + 5)})
+    title_block(msp, 0, -80, "FLOOR PLAN - LEVEL 1", 'SCALE: 1/4" = 1\'-0"', "in")
+    return doc, p, doors, windows
+
+
 # ----------------------------------------------------------------------------- write everything
 
 def main():
@@ -296,6 +337,13 @@ def main():
     doc, devices = house_a_electrical()
     doc.saveas(OUT / "house_a_L1_electrical.dxf")
     samples.append(("house_a_L1_electrical.dxf", {"discipline": "electrical", "units": "in", "devices": devices}))
+
+    doc, p, doors, windows = house_a_messy()
+    doc.saveas(OUT / "house_a_L1_arch_messy.dxf")
+    samples.append(("house_a_L1_arch_messy.dxf", {
+        "discipline": "architecture", "units": "in", "rooms": [r for r, _ in p.rooms], "doors": doors,
+        "windows": windows, "cased_openings": 1, "wall_centerline_m": centerline_length_m(p),
+        "notes": "sloppy drafting: no $INSUNITS, broken/overlapping face lines, 1/8in jitter, MTEXT labels"}))
 
     for level in (1, 2):
         doc, p, doors, windows = duplex(level, generic_layers=False)

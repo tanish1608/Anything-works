@@ -50,6 +50,22 @@
       "light": 5
     }
   },
+  "house_a_L1_arch_messy.dxf": {
+    "discipline": "architecture",
+    "units": "in",
+    "rooms": [
+      "LIVING",
+      "BEDROOM 1",
+      "KITCHEN",
+      "BATH",
+      "BEDROOM 2"
+    ],
+    "doors": 4,
+    "windows": 5,
+    "cased_openings": 1,
+    "wall_centerline_m": 68.58,
+    "notes": "sloppy drafting: no $INSUNITS, broken/overlapping face lines, 1/8in jitter, MTEXT labels"
+  },
   "duplex_L1_arch.dxf": {
     "discipline": "architecture",
     "units": "mm",

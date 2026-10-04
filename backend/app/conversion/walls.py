@@ -53,6 +53,10 @@ def _ang_diff(a: float, b: float) -> float:
     return min(d, math.pi - d)
 
 
+def _parallel(w1: "Wall", w2: "Wall") -> bool:
+    return _ang_diff(math.atan2(*w1.dir[::-1]), math.atan2(*w2.dir[::-1])) <= ANGLE_TOL
+
+
 def _project(p: Pt, origin: Pt, u: tuple[float, float]) -> float:
     return (p[0] - origin[0]) * u[0] + (p[1] - origin[1]) * u[1]
 
@@ -109,10 +113,11 @@ def merge_collinear(walls: list[Wall], gap: float = 0.03) -> list[Wall]:
     for w in walls:
         for g in groups:
             r = g[0]
-            if abs(r.thickness - w.thickness) > 0.025 or _ang_diff(math.atan2(*r.dir[::-1]), math.atan2(*w.dir[::-1])) > ANGLE_TOL:
+            if abs(r.thickness - w.thickness) > 0.025 or not _parallel(r, w):
                 continue
             n = (-r.dir[1], r.dir[0])
-            if abs(_project(w.a, r.a, n)) < 0.02 and abs(_project(w.b, r.a, n)) < 0.02:
+            tol = min(r.thickness, w.thickness) / 2
+            if abs(_project(w.a, r.a, n)) < tol and abs(_project(w.b, r.a, n)) < tol:
                 g.append(w)
                 break
         else:
@@ -152,7 +157,8 @@ def bridge_openings(walls: list[Wall], evidence: list[tuple[str, object]]) -> li
                 if _ang_diff(math.atan2(*w1.dir[::-1]), math.atan2(*w2.dir[::-1])) > ANGLE_TOL:
                     continue
                 u, n = w1.dir, (-w1.dir[1], w1.dir[0])
-                if abs(_project(w2.a, w1.a, n)) > 0.03 or abs(_project(w2.b, w1.a, n)) > 0.03:
+                tol = min(w1.thickness, w2.thickness) / 2
+                if abs(_project(w2.a, w1.a, n)) > tol or abs(_project(w2.b, w1.a, n)) > tol:
                     continue
                 s2 = sorted((_project(w2.a, w1.a, u), _project(w2.b, w1.a, u)))
                 g0, g1 = w1.length, s2[0]
@@ -237,16 +243,30 @@ def extend_to_junctions(walls: list[Wall]) -> list[Wall]:
     return walls
 
 
+def snap_orthogonal(walls: list[Wall], tol_deg: float = 1.5) -> list[Wall]:
+    """Residential plans are overwhelmingly orthogonal; snap nearly-horizontal/vertical centrelines (drafting
+    jitter) to exact so collinear pieces merge and rooms close."""
+    for w in walls:
+        ang = math.degrees(math.atan2(w.b[1] - w.a[1], w.b[0] - w.a[0])) % 180
+        if min(ang, 180 - ang) <= tol_deg:
+            y = (w.a[1] + w.b[1]) / 2
+            w.a, w.b = (w.a[0], y), (w.b[0], y)
+        elif abs(ang - 90) <= tol_deg:
+            x = (w.a[0] + w.b[0]) / 2
+            w.a, w.b = (x, w.a[1]), (x, w.b[1])
+    return walls
+
+
 def detect_walls(segs: list[Seg], evidence: list[tuple[str, object]]) -> tuple[list[Wall], dict]:
     segs = [s for s in segs if s.length >= MIN_OVERLAP]  # same filter as pair_faces, so indices line up
     pairs = pair_faces(segs)
     used = {i for _, i, _ in pairs} | {j for _, _, j in pairs}
     # Gaps narrower than any door are junction artefacts (a crossing wall interrupts one face line).
-    walls = merge_collinear([w for w, _, _ in pairs], gap=0.5)
+    walls = merge_collinear(snap_orthogonal([w for w, _, _ in pairs]), gap=0.5)
     walls = [w for w in walls if w.length >= 0.2]
     walls = bridge_openings(walls, evidence)
-    walls = extend_to_junctions(walls)
-    walls = merge_collinear_keep_openings(walls)
+    walls = extend_to_junctions(snap_orthogonal(walls))
+    walls = merge_collinear_keep_openings(snap_orthogonal(walls))
     for w in walls:
         w.confidence = round(min(0.95, 0.6 + 0.1 * min(w.length, 3.5)), 2)
     unpaired = [s for k, s in enumerate(segs) if k not in used and s.length > 0.5]
@@ -266,7 +286,8 @@ def merge_collinear_keep_openings(walls: list[Wall]) -> list[Wall]:
                 if _ang_diff(math.atan2(*w1.dir[::-1]), math.atan2(*w2.dir[::-1])) > ANGLE_TOL:
                     continue
                 u, n = w1.dir, (-w1.dir[1], w1.dir[0])
-                if abs(_project(w2.a, w1.a, n)) > 0.03 or abs(_project(w2.b, w1.a, n)) > 0.03:
+                tol = min(w1.thickness, w2.thickness) / 2
+                if abs(_project(w2.a, w1.a, n)) > tol or abs(_project(w2.b, w1.a, n)) > tol:
                     continue
                 pa, pb = _project(w2.a, w1.a, u), _project(w2.b, w1.a, u)
                 lo2, hi2 = min(pa, pb), max(pa, pb)
