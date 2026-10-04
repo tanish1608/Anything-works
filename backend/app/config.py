@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     access_token_minutes: int = 15
     refresh_token_days: int = 30
     bcrypt_rounds: int = 12
+    storage_dir: str = "./storage"
+    # "thread": background worker thread polls the jobs table. "inline": run jobs immediately (tests).
+    jobs_mode: str = "thread"
     cors_origins: list[str] = ["http://localhost:5173"]
 
     @model_validator(mode="after")

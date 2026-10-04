@@ -33,6 +33,13 @@ engine = make_engine(get_settings().database_url)
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 
 
+def bind_engine(new_engine: Engine) -> None:
+    """Point the app (and background jobs) at another database. Used by tests."""
+    global engine
+    engine = new_engine
+    SessionLocal.configure(bind=new_engine)
+
+
 def get_db() -> Iterator[Session]:
     db = SessionLocal()
     try:

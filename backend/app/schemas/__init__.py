@@ -171,3 +171,68 @@ class EventOut(ORM):
     evidence_ids: list[str]
     data: dict
     message: str | None
+
+
+# --- models / elements / jobs ---
+class JobOut(ORM):
+    id: str
+    kind: str
+    status: str
+    result: dict | None
+    error: str | None
+    created_at: datetime
+    finished_at: datetime | None
+
+
+class ModelVersionOut(ORM):
+    id: str
+    number: int
+    parent_id: str | None
+    branch: str
+    message: str
+    source: str
+    status: str
+    author_id: str | None
+    approved_by: str | None
+    approved_at: datetime | None
+    created_at: datetime
+    stats: dict
+    is_current: bool = False
+
+
+class MeshLayer(BaseModel):
+    discipline: str
+    url: str
+    context: bool  # read-only ghost layer for trade members
+
+
+class ViewerManifest(BaseModel):
+    version: ModelVersionOut | None
+    layers: list[MeshLayer]
+
+
+class ElementOut(BaseModel):
+    id: str
+    ifc_guid: str
+    name: str | None
+    ifc_class: str
+    discipline: str
+    trade: str
+    level_id: str | None
+    zone_id: str | None
+    bbox: list[float] | None
+    status: str
+    flags: list[str]
+    source: str
+    confidence: float | None
+    open_issues: int = 0
+    context: bool = False
+
+
+class ElementDetail(ElementOut):
+    props: dict
+    history: list[EventOut]
+
+
+class ApproveIn(BaseModel):
+    message: str | None = None

@@ -38,6 +38,14 @@ TRADES: dict[str, str] = {
 }
 
 
+DEFAULT_PROJECT_SETTINGS = {
+    "approval_mode": "pm_required",  # or "auto" (M5)
+    "confidence_threshold": 0.85,
+    # Layers trade members see as faint, read-only context around their own trade.
+    "trade_context_disciplines": ["architecture"],
+}
+
+
 class TimestampMixin:
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
@@ -83,7 +91,8 @@ class Project(TimestampMixin, Base):
     name: Mapped[str] = mapped_column(String(200))
     address: Mapped[str | None] = mapped_column(String(500))
     # approval_mode ("pm_required" | "auto"), confidence_threshold, ...
-    settings: Mapped[dict] = mapped_column(JSON, default=lambda: {"approval_mode": "pm_required"})
+    settings: Mapped[dict] = mapped_column(JSON, default=lambda: dict(DEFAULT_PROJECT_SETTINGS))
+    current_version_id: Mapped[str | None] = mapped_column(String(36))  # latest approved model on main
 
     buildings: Mapped[list["Building"]] = relationship(
         back_populates="project", cascade="all, delete-orphan", order_by="Building.name"
@@ -196,3 +205,90 @@ def install_event_guards(conn) -> None:
 
     for stmt in EVENT_GUARD_SQL.get(conn.dialect.name, []):
         conn.execute(text(stmt))
+
+
+# ---------------------------------------------------------------- models & elements (M1)
+
+class ElementStatus(enum.StrEnum):
+    not_started = "not_started"
+    in_progress = "in_progress"
+    needs_review = "needs_review"
+    done = "done"
+
+
+class ModelVersion(Base):
+    """A commit of the building model. Branch/merge-ready via parent_id + merge_parent_id."""
+
+    __tablename__ = "model_versions"
+    __table_args__ = (UniqueConstraint("project_id", "number"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    number: Mapped[int] = mapped_column(Integer)  # 1, 2, 3 ... per project
+    parent_id: Mapped[str | None] = mapped_column(ForeignKey("model_versions.id"))
+    merge_parent_id: Mapped[str | None] = mapped_column(ForeignKey("model_versions.id"))
+    branch: Mapped[str] = mapped_column(String(100), default="main")
+    message: Mapped[str] = mapped_column(Text, default="")
+    source: Mapped[str] = mapped_column(String(30))  # ifc_import | conversion | edit
+    status: Mapped[str] = mapped_column(String(20), default="draft")  # draft | approved | rejected
+    author_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    approved_by: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    # {"meshes": {discipline: storage_key}, "ifc": [storage_key, ...]}
+    files: Mapped[dict] = mapped_column(JSON, default=dict)
+    stats: Mapped[dict] = mapped_column(JSON, default=dict)
+
+
+class Element(Base):
+    """Stable identity of a physical thing in the building. Status lives here (progress is about the
+    physical element, not a model version). Never deleted; versions decide whether it is present."""
+
+    __tablename__ = "elements"
+    __table_args__ = (UniqueConstraint("project_id", "ifc_guid"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    ifc_guid: Mapped[str] = mapped_column(String(64))
+    status: Mapped[ElementStatus] = mapped_column(
+        Enum(ElementStatus, native_enum=False, length=20), default=ElementStatus.not_started
+    )
+    flags: Mapped[list] = mapped_column(JSON, default=list)  # e.g. ["possibly_missed", "retake_photo"]
+    status_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class ElementRevision(Base):
+    """What an element looks like in one model version."""
+
+    __tablename__ = "element_revisions"
+    __table_args__ = (UniqueConstraint("version_id", "element_id"),)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    version_id: Mapped[str] = mapped_column(ForeignKey("model_versions.id", ondelete="CASCADE"), index=True)
+    element_id: Mapped[str] = mapped_column(ForeignKey("elements.id", ondelete="CASCADE"), index=True)
+    name: Mapped[str | None] = mapped_column(String(300))
+    ifc_class: Mapped[str] = mapped_column(String(80))
+    discipline: Mapped[str] = mapped_column(String(30), index=True)
+    trade: Mapped[str] = mapped_column(String(30), index=True)
+    level_id: Mapped[str | None] = mapped_column(ForeignKey("levels.id", ondelete="SET NULL"), index=True)
+    zone_id: Mapped[str | None] = mapped_column(ForeignKey("zones.id", ondelete="SET NULL"), index=True)
+    bbox: Mapped[list | None] = mapped_column(JSON)  # [minx, miny, minz, maxx, maxy, maxz] IFC coords (Z up)
+    props: Mapped[dict] = mapped_column(JSON, default=dict)
+    source: Mapped[str] = mapped_column(String(20), default="drawn")  # drawn | traced | as_built | imported
+    confidence: Mapped[float | None] = mapped_column()
+    geom_hash: Mapped[str | None] = mapped_column(String(64))
+
+
+class Job(Base):
+    """Background work (IFC import, conversion, photo analysis). Polled by the in-process worker."""
+
+    __tablename__ = "jobs"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    project_id: Mapped[str | None] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    kind: Mapped[str] = mapped_column(String(50))
+    status: Mapped[str] = mapped_column(String(20), default="queued", index=True)  # queued|running|done|failed
+    payload: Mapped[dict] = mapped_column(JSON, default=dict)
+    result: Mapped[dict | None] = mapped_column(JSON)
+    error: Mapped[str | None] = mapped_column(Text)
+    created_by: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

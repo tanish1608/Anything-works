@@ -3,18 +3,30 @@ import os
 os.environ.setdefault("APP_ENV", "test")
 os.environ.setdefault("JWT_SECRET", "test-secret-not-for-production-use-0123456789")
 os.environ.setdefault("BCRYPT_ROUNDS", "4")
+os.environ["JOBS_MODE"] = "inline"
+
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker
 
-from app.db import Base, get_db, make_engine
+from app.config import get_settings
+from app.db import Base, bind_engine, get_db, make_engine
 from app.main import app
 from app.models import install_event_guards
 
 # Set TEST_DATABASE_URL=postgresql+psycopg://... to run the suite against Postgres (CI does both).
 PG_URL = os.environ.get("TEST_DATABASE_URL")
+
+
+SAMPLES = Path(__file__).resolve().parents[2] / "samples"
+
+
+@pytest.fixture(autouse=True)
+def _storage(tmp_path, monkeypatch):
+    monkeypatch.setattr(get_settings(), "storage_dir", str(tmp_path / "storage"))
 
 
 @pytest.fixture
@@ -28,6 +40,7 @@ def engine(tmp_path):
     Base.metadata.create_all(eng)
     with eng.begin() as c:
         install_event_guards(c)
+    bind_engine(eng)
     yield eng
     eng.dispose()
 
@@ -83,6 +96,19 @@ class Api:
         z1 = self.c.post(f"/api/levels/{lv['id']}/zones", json={"name": "Unit 304, Bedroom 2"}, headers=h).json()
         z2 = self.c.post(f"/api/levels/{lv['id']}/zones", json={"name": "Unit 305, Kitchen"}, headers=h).json()
         return {"building": b["id"], "level": lv["id"], "z1": z1["id"], "z2": z2["id"]}
+
+
+    def import_ifc(self, h, pid, names=("Building-Architecture.ifc", "Building-Structural.ifc",
+                                        "Building-Hvac.ifc"), approve=True) -> dict:
+        files = [("files", (n, (SAMPLES / "ifc" / n).read_bytes(), "application/octet-stream")) for n in names]
+        r = self.c.post(f"/api/projects/{pid}/models/import", files=files, data={"message": "initial"}, headers=h)
+        assert r.status_code == 202, r.text
+        job = r.json()
+        assert job["status"] == "done", job
+        vid = job["result"]["version_id"]
+        if approve:
+            assert self.c.post(f"/api/models/{vid}/approve", json={}, headers=h).status_code == 200
+        return job["result"]
 
 
 @pytest.fixture
