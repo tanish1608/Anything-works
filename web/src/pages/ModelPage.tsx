@@ -9,10 +9,15 @@ import {
   type Building,
   type ElementDetail,
   type ElementInfo,
+  ISSUE_STATUS_COLOR,
+  type Issue,
   type Job,
   type ModelVersion,
   type ViewerManifest,
 } from '../api/types'
+import IssueFilters, { DEFAULT_FILTER, filterQuery, type IssueFilter } from '../components/IssueFilters'
+import IssueForm, { type IssueDraft } from '../components/IssueForm'
+import IssuePanel from '../components/IssuePanel'
 import { describe } from '../lib/events'
 import { DISCIPLINE_COLORS, DISCIPLINE_LABELS, LEGEND } from '../viewer/colors'
 import { colorMap, visibleIds } from '../viewer/filters'
@@ -67,7 +72,7 @@ function ElementPanel({ id, versionId, onClose }: { id: string; versionId?: stri
   return (
     <div className="stack" style={{ gap: 10 }}>
       <div className="row">
-        <h3 className="grow" style={{ margin: 0 }}>{el?.name || el?.ifc_class || 'Element'}</h3>
+        <h3 className="grow title" style={{ margin: 0 }}>{el?.name || el?.ifc_class || 'Element'}</h3>
         <button className="small" onClick={onClose} aria-label="Close">✕</button>
       </div>
       {error && <div className="error">{(error as Error).message}</div>}
@@ -122,12 +127,22 @@ export default function ModelPage() {
   const [walking, setWalking] = useState(false)
   const [selected, setSelected] = useState<string | null>(null)
   const [panel, setPanel] = useState<'controls' | 'details' | null>('controls')
+  const [rightTab, setRightTab] = useState<'element' | 'issues'>(params.get('issue') ? 'issues' : 'element')
+  const [issueId, setIssueId] = useState<string | null>(params.get('issue'))
+  const [draft, setDraft] = useState<IssueDraft | null>(null)
+  const [picking, setPicking] = useState(false)
+  const [issueFilter, setIssueFilter] = useState<IssueFilter>(DEFAULT_FILTER)
+  const [overlay, setOverlay] = useState(false)
 
   const q = versionParam ? `?version=${versionParam}` : ''
   const manifest = useQuery({ queryKey: ['manifest', project.id, versionParam], queryFn: () => api<ViewerManifest>(`/projects/${project.id}/viewer${q}`) })
   const elements = useQuery({ queryKey: ['elements', project.id, versionParam], queryFn: () => api<ElementInfo[]>(`/projects/${project.id}/elements${q}`) })
   const versions = useQuery({ queryKey: ['versions', project.id], queryFn: () => api<ModelVersion[]>(`/projects/${project.id}/models`) })
   const tree = useQuery({ queryKey: ['tree', project.id], queryFn: () => api<Building[]>(`/projects/${project.id}/tree`) })
+  const issues = useQuery({
+    queryKey: ['issues', project.id, issueFilter],
+    queryFn: () => api<Issue[]>(`/projects/${project.id}/issues${filterQuery(issueFilter)}`),
+  })
 
   const onReady = useCallback((v: SiteViewer | null) => {
     viewerRef.current = v
@@ -139,6 +154,19 @@ export default function ModelPage() {
       if (id) setPanel('details')
     })
     v.on('walkchange', setWalking)
+    v.on('pick', (hit) => {
+      v.setPickMode(false)
+      setPicking(false)
+      setDraft({ element_id: hit.elementId, anchor: hit.point, viewpoint: v.getViewpoint() })
+      setRightTab('issues')
+      setPanel('details')
+    })
+    v.on('marker', (id) => {
+      setIssueId(id)
+      setDraft(null)
+      setRightTab('issues')
+      setPanel('details')
+    })
   }, [])
 
   // Load geometry whenever the manifest changes.
@@ -168,8 +196,44 @@ export default function ModelPage() {
     const v = viewerRef.current
     if (!v || loading) return
     v.setVisible(visibleIds(els, { disciplines: shown, levelId, zoneId }))
-    v.setColors(colorMap(els, statusColoring))
-  }, [els, shown, levelId, zoneId, statusColoring, loading])
+    if (overlay && issues.data) {
+      const byEl = new Map<string, string>()
+      for (const i of [...issues.data].reverse()) if (i.element_id) byEl.set(i.element_id, ISSUE_STATUS_COLOR[i.status])
+      v.setColors(new Map(els.map((e) => [e.id, byEl.get(e.id) ?? '#d9d9d9'])))
+    } else v.setColors(colorMap(els, statusColoring))
+  }, [els, shown, levelId, zoneId, statusColoring, loading, overlay, issues.data])
+
+  // Issue pins
+  useEffect(() => {
+    viewerRef.current?.setMarkers((issues.data ?? []).filter((i) => i.anchor).map((i) => ({ id: i.id, position: i.anchor!, color: ISSUE_STATUS_COLOR[i.status] })))
+  }, [issues.data, loading])
+
+  // Deep link: ?issue=ID flies to its saved view once the model is loaded.
+  const flewTo = useRef<string | null>(null)
+  useEffect(() => {
+    const id = params.get('issue')
+    if (!id || loading || !viewerReady || flewTo.current === id || !manifest.data?.version) return
+    flewTo.current = id
+    api<Issue>(`/issues/${id}`).then((i) => i.viewpoint && viewerRef.current?.flyTo(i.viewpoint as never)).catch(() => {})
+  }, [params, loading, viewerReady, manifest.data])
+
+  const startIssue = () => {
+    const v = viewerRef.current
+    if (!v) return
+    if (picking) {
+      v.setPickMode(false)
+      setPicking(false)
+      return
+    }
+    v.setPickMode(true)
+    setPicking(true)
+  }
+  const openIssue = (i: Issue) => {
+    setIssueId(i.id)
+    setDraft(null)
+    if (i.viewpoint) viewerRef.current?.flyTo(i.viewpoint as never)
+    if (i.element_id) viewerRef.current?.select(i.element_id)
+  }
 
   useEffect(() => viewerRef.current?.setSection(section), [section])
 
@@ -295,6 +359,16 @@ export default function ModelPage() {
 
       <div className="viewer-wrap">
         <ViewerCanvas onReady={onReady} onError={() => setWebglFailed(true)} />
+        {project.my_role !== 'viewer' && manifest.data?.version && (
+          <div className="toolbar">
+            <button className={picking ? 'primary' : ''} onClick={startIssue}>{picking ? 'Click the model to pin… (cancel)' : '+ Issue'}</button>
+            {selected && !picking && (
+              <button onClick={() => { setDraft({ element_id: selected, viewpoint: viewerRef.current?.getViewpoint() }); setRightTab('issues'); setPanel('details') }}>
+                Issue on selection
+              </button>
+            )}
+          </div>
+        )}
         {(loading || manifest.isLoading) && <div className="viewer-overlay">Loading model…</div>}
         {loadError && <div className="viewer-overlay error">{loadError}</div>}
         {webglFailed && <div className="viewer-overlay error">3D isn't available in this browser (WebGL failed to start).</div>}
@@ -314,16 +388,47 @@ export default function ModelPage() {
         </div>
         <div className="mobile-tabs">
           <button onClick={() => setPanel(panel === 'controls' ? null : 'controls')}>Controls</button>
-          <button onClick={() => setPanel(panel === 'details' ? null : 'details')} disabled={!selected}>Details</button>
+          <button onClick={() => setPanel(panel === 'details' ? null : 'details')}>Details & issues</button>
         </div>
       </div>
 
       <aside className={`model-side right ${panel === 'details' ? 'open' : ''}`} aria-label="Details">
-        {selected ? (
+        <div className="tabs" role="tablist">
+          <button role="tab" className={rightTab === 'element' ? 'active' : ''} onClick={() => setRightTab('element')}>Element</button>
+          <button role="tab" className={rightTab === 'issues' ? 'active' : ''} onClick={() => setRightTab('issues')}>
+            Issues {issues.data ? `(${issues.data.length})` : ''}
+          </button>
+        </div>
+        {rightTab === 'element' && (selected ? (
           <ElementPanel id={selected} versionId={versionParam} onClose={() => { viewerRef.current?.select(null); setSelected(null) }} />
         ) : (
           <div className="muted">Click an element to see its properties, status and history.</div>
-        )}
+        ))}
+        {rightTab === 'issues' && (draft ? (
+          <IssueForm projectId={project.id} draft={draft} onCancel={() => setDraft(null)}
+            onCreated={(i) => { setDraft(null); qc.invalidateQueries({ queryKey: ['issues', project.id] }); qc.invalidateQueries({ queryKey: ['elements', project.id] }); setIssueId(i.id) }} />
+        ) : issueId ? (
+          <IssuePanel issueId={issueId} projectId={project.id} role={project.my_role} onClose={() => setIssueId(null)}
+            onFlyTo={(i) => i.viewpoint && viewerRef.current?.flyTo(i.viewpoint as never)} />
+        ) : (
+          <div className="stack" style={{ gap: 8 }}>
+            <IssueFilters projectId={project.id} value={issueFilter} onChange={setIssueFilter} />
+            <label className="row" style={{ flexDirection: 'row', color: 'var(--text)' }}>
+              <input type="checkbox" checked={overlay} onChange={(e) => setOverlay(e.target.checked)} /> Color the model by these issues
+            </label>
+            {issues.data?.length === 0 && <span className="muted">No issues match.</span>}
+            {issues.data?.map((i) => (
+              <div key={i.id} className="issue-row" onClick={() => openIssue(i)} role="button" tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && openIssue(i)}>
+                <span className="dot" style={{ background: ISSUE_STATUS_COLOR[i.status] }} />
+                <div className="grow">
+                  <div>#{i.number} {i.title}</div>
+                  <div className="muted" style={{ fontSize: 12 }}>{i.priority} · {i.trade ?? 'no trade'} · {i.assignee_name ?? 'unassigned'}{i.comment_count ? ` · ${i.comment_count} 💬` : ''}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
       </aside>
     </div>
   )

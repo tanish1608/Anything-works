@@ -3,7 +3,9 @@ import type { ReactNode } from 'react'
 import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from './auth/AuthContext'
 import ActivityPage from './pages/ActivityPage'
+import NotificationBell from './components/NotificationBell'
 import EmbedViewerPage from './pages/EmbedViewerPage'
+import IssuesPage from './pages/IssuesPage'
 import LoginPage from './pages/LoginPage'
 import MembersPage from './pages/MembersPage'
 import ModelPage from './pages/ModelPage'
@@ -25,6 +27,7 @@ function Shell({ children }: { children: ReactNode }) {
       <header className="topbar">
         <Link to="/" className="brand">SiteMesh</Link>
         <span className="grow" />
+        <NotificationBell />
         <span className="muted">{user?.name}</span>
         <button className="small" onClick={logout}>Sign out</button>
       </header>
@@ -41,6 +44,7 @@ export function AppRoutes() {
       <Route path="/p/:pid" element={<RequireAuth><Shell><ProjectLayout /></Shell></RequireAuth>}>
         <Route index element={<Navigate to="model" replace />} />
         <Route path="model" element={<ModelPage />} />
+        <Route path="issues" element={<IssuesPage />} />
         <Route path="structure" element={<StructurePage />} />
         <Route path="members" element={<MembersPage />} />
         <Route path="activity" element={<ActivityPage />} />

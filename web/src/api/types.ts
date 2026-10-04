@@ -144,3 +144,77 @@ export const STATUS_LABEL: Record<string, string> = {
   needs_review: 'Needs review',
   done: 'Done',
 }
+
+export type IssueStatus = 'open' | 'in_progress' | 'resolved' | 'closed'
+export type Priority = 'low' | 'medium' | 'high' | 'critical'
+
+export interface Issue {
+  id: string
+  number: number
+  title: string
+  description: string
+  status: IssueStatus
+  priority: Priority
+  trade: string | null
+  assignee_id: string | null
+  assignee_name: string | null
+  due_date: string | null
+  element_id: string | null
+  zone_id: string | null
+  level_id: string | null
+  anchor: [number, number, number] | null
+  sheet_anchor: { sheet_id: string; x: number; y: number } | null
+  viewpoint: { position: [number, number, number]; target: [number, number, number]; section?: unknown } | null
+  created_by: string | null
+  creator_name: string | null
+  created_at: string
+  updated_at: string
+  closed_at: string | null
+  comment_count: number
+}
+
+export interface Attachment {
+  id: string
+  filename: string
+  content_type: string
+  size: number
+  created_at: string
+  url: string
+}
+
+export interface Comment {
+  id: string
+  body: string
+  created_at: string
+  author: User | null
+}
+
+export interface IssueDetail extends Issue {
+  comments: Comment[]
+  attachments: Attachment[]
+}
+
+export interface Notification {
+  id: string
+  project_id: string | null
+  kind: string
+  title: string
+  body: string
+  link: string | null
+  created_at: string
+  read_at: string | null
+}
+
+export const ISSUE_STATUS_LABEL: Record<IssueStatus, string> = {
+  open: 'Open',
+  in_progress: 'In progress',
+  resolved: 'Resolved',
+  closed: 'Closed',
+}
+export const ISSUE_STATUS_COLOR: Record<IssueStatus, string> = {
+  open: '#e53935',
+  in_progress: '#fb8c00',
+  resolved: '#1e88e5',
+  closed: '#9e9e9e',
+}
+export const PRIORITIES: Priority[] = ['low', 'medium', 'high', 'critical']
