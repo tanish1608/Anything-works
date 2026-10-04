@@ -1,0 +1,46 @@
+name: sitemesh
+# Full stack: docker compose up --build   →  web on http://localhost:8080, API on http://localhost:8000
+# Secrets come from .env (copy .env.example). Nothing secret is hard-coded here.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: sitemesh
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sitemesh-local}
+      POSTGRES_DB: sitemesh
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sitemesh"]
+      interval: 3s
+      retries: 20
+
+  api:
+    build:
+      context: ./backend
+      secrets: [extra_ca]
+    env_file: [{ path: .env, required: false }]
+    environment:
+      APP_ENV: ${APP_ENV:-dev}
+      DATABASE_URL: postgresql+psycopg://sitemesh:${POSTGRES_PASSWORD:-sitemesh-local}@db:5432/sitemesh
+      STORAGE_DIR: /data/storage
+      CORS_ORIGINS: '["http://localhost:8080","http://localhost:5173"]'
+    volumes: [storage:/data/storage]
+    ports: ["8000:8000"]
+    depends_on:
+      db: { condition: service_healthy }
+
+  web:
+    build:
+      context: ./web
+      secrets: [extra_ca]
+    ports: ["8080:80"]
+    depends_on: [api]
+
+volumes:
+  pgdata:
+  storage:
+
+secrets:
+  # Only needed behind a TLS-intercepting proxy; point EXTRA_CA_FILE at its CA bundle.
+  extra_ca:
+    file: ${EXTRA_CA_FILE:-./.no-extra-ca}
