@@ -236,3 +236,101 @@ class ElementDetail(ElementOut):
 
 class ApproveIn(BaseModel):
     message: str | None = None
+
+
+# --- issues ---
+from app.models import IssueStatus, Priority  # noqa: E402
+
+
+class ViewpointIn(BaseModel):
+    position: tuple[float, float, float]
+    target: tuple[float, float, float]
+    section: dict | None = None
+
+
+class IssueIn(BaseModel):
+    title: str = Field(min_length=1, max_length=300)
+    description: str = ""
+    priority: Priority = Priority.medium
+    trade: str | None = None
+    assignee_id: str | None = None
+    due_date: str | None = Field(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$")
+    element_id: str | None = None
+    zone_id: str | None = None
+    anchor: tuple[float, float, float] | None = None
+    sheet_anchor: dict | None = None
+    viewpoint: ViewpointIn | None = None
+
+    _v = field_validator("trade")(lambda v: _check_trades([v])[0] if v else v)
+
+
+class IssuePatch(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=300)
+    description: str | None = None
+    status: IssueStatus | None = None
+    priority: Priority | None = None
+    trade: str | None = None
+    assignee_id: str | None = None
+    due_date: str | None = Field(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$")
+    viewpoint: ViewpointIn | None = None
+
+
+class AttachmentOut(ORM):
+    id: str
+    filename: str
+    content_type: str
+    size: int
+    created_at: datetime
+    url: str = ""
+
+
+class CommentOut(ORM):
+    id: str
+    body: str
+    created_at: datetime
+    author: UserOut | None
+
+
+class IssueOut(ORM):
+    id: str
+    number: int
+    title: str
+    description: str
+    status: IssueStatus
+    priority: Priority
+    trade: str | None
+    assignee_id: str | None
+    assignee_name: str | None = None
+    due_date: str | None
+    element_id: str | None
+    zone_id: str | None
+    level_id: str | None
+    anchor: list[float] | None
+    sheet_anchor: dict | None
+    viewpoint: dict | None
+    created_by: str | None
+    creator_name: str | None = None
+    created_at: datetime
+    updated_at: datetime
+    closed_at: datetime | None
+    comment_count: int = 0
+
+
+class IssueDetail(IssueOut):
+    comments: list[CommentOut]
+    attachments: list[AttachmentOut]
+
+
+class CommentIn(BaseModel):
+    body: str = Field(min_length=1, max_length=10000)
+
+
+class NotificationOut(ORM):
+    id: str
+    project_id: str | None
+    kind: str
+    title: str
+    body: str
+    link: str | None
+    created_at: datetime
+    read_at: datetime | None

@@ -292,3 +292,88 @@ class Job(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+# ---------------------------------------------------------------- issues & notifications (M2)
+
+class IssueStatus(enum.StrEnum):
+    open = "open"
+    in_progress = "in_progress"
+    resolved = "resolved"
+    closed = "closed"
+
+
+OPEN_ISSUE_STATUSES = (IssueStatus.open, IssueStatus.in_progress)
+
+
+class Priority(enum.StrEnum):
+    low = "low"
+    medium = "medium"
+    high = "high"
+    critical = "critical"
+
+
+class Issue(Base):
+    __tablename__ = "issues"
+    __table_args__ = (UniqueConstraint("project_id", "number"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    number: Mapped[int] = mapped_column(Integer)
+    title: Mapped[str] = mapped_column(String(300))
+    description: Mapped[str] = mapped_column(Text, default="")
+    status: Mapped[IssueStatus] = mapped_column(Enum(IssueStatus, native_enum=False, length=20),
+                                                default=IssueStatus.open, index=True)
+    priority: Mapped[Priority] = mapped_column(Enum(Priority, native_enum=False, length=20), default=Priority.medium)
+    trade: Mapped[str | None] = mapped_column(String(30), index=True)
+    assignee_id: Mapped[str | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), index=True)
+    due_date: Mapped[str | None] = mapped_column(String(10))  # ISO date
+    element_id: Mapped[str | None] = mapped_column(ForeignKey("elements.id", ondelete="SET NULL"), index=True)
+    zone_id: Mapped[str | None] = mapped_column(ForeignKey("zones.id", ondelete="SET NULL"), index=True)
+    level_id: Mapped[str | None] = mapped_column(ForeignKey("levels.id", ondelete="SET NULL"))
+    anchor: Mapped[list | None] = mapped_column(JSON)  # [x, y, z] viewer (three.js) coordinates
+    sheet_anchor: Mapped[dict | None] = mapped_column(JSON)  # {"sheet_id", "x", "y"} (M3)
+    viewpoint: Mapped[dict | None] = mapped_column(JSON)  # camera, target, section box
+    created_by: Mapped[str | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class Comment(Base):
+    __tablename__ = "comments"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    issue_id: Mapped[str] = mapped_column(ForeignKey("issues.id", ondelete="CASCADE"), index=True)
+    author_id: Mapped[str | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    body: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    author: Mapped[User | None] = relationship()
+
+
+class Attachment(Base):
+    """A stored file attached to something (issue, comment...). Progress photos have their own table (M4)."""
+
+    __tablename__ = "attachments"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    owner_type: Mapped[str] = mapped_column(String(30))
+    owner_id: Mapped[str] = mapped_column(String(36), index=True)
+    storage_key: Mapped[str] = mapped_column(String(500))
+    filename: Mapped[str] = mapped_column(String(300))
+    content_type: Mapped[str] = mapped_column(String(100))
+    size: Mapped[int] = mapped_column(Integer)
+    uploaded_by: Mapped[str | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    project_id: Mapped[str | None] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"))
+    kind: Mapped[str] = mapped_column(String(50))
+    title: Mapped[str] = mapped_column(String(300))
+    body: Mapped[str] = mapped_column(Text, default="")
+    link: Mapped[str | None] = mapped_column(String(500))  # web app path
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
+    read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
