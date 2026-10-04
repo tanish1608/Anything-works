@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
 from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -23,6 +23,7 @@ from app.schemas import (
     ViewerManifest,
 )
 from app.services import events
+from app.services.history import diff_versions, merge_branch, timeline
 from app.services.models import approve_version, element_visible, resolve_version, visible_disciplines
 from app.storage import get_storage
 
@@ -36,6 +37,7 @@ def _run_import(db: Session, job: Job) -> dict:
     project = db.get(Project, job.project_id)
     v = import_ifc(db, project, [(f["key"], f.get("discipline")) for f in p["files"]], actor_id=job.created_by,
                    message=p.get("message") or "Imported IFC model")
+    v.branch = p.get("branch") or "main"
     db.commit()
     return {"version_id": v.id, "number": v.number, "stats": v.stats}
 
@@ -46,7 +48,8 @@ def _version_out(v: ModelVersion, project: Project) -> ModelVersionOut:
 
 @router.post("/projects/{project_id}/models/import", response_model=JobOut, status_code=202)
 async def import_model(project_id: str, files: list[UploadFile] = File(...), message: str = Form(""),
-                       disciplines: str = Form(""), user: User = Depends(current_user), db: Session = Depends(get_db)):
+                       disciplines: str = Form(""), branch: str = Form("main"), user: User = Depends(current_user),
+                       db: Session = Depends(get_db)):
     """Upload one or more IFC files (a federated model). `disciplines` optionally gives a comma-separated
     discipline per file (blank = infer from IFC classes). Creates a draft version to review and approve."""
     require(db, project_id, user.id, Perm.drawings_upload)
@@ -67,7 +70,7 @@ async def import_model(project_id: str, files: list[UploadFile] = File(...), mes
         if hint and hint not in DISCIPLINES:
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, f"unknown discipline {hint}")
         stored.append({"key": key, "name": f.filename, "discipline": hint})
-    job = jobs.enqueue(db, "ifc_import", {"files": stored, "message": message}, project_id, user.id)
+    job = jobs.enqueue(db, "ifc_import", {"files": stored, "message": message, "branch": branch or "main"}, project_id, user.id)
     events.record(db, project_id=project_id, actor_id=user.id, type="model.uploaded", entity_type="job",
                   entity_id=job.id, data={"files": [s["name"] for s in stored]})
     db.commit()
@@ -202,3 +205,35 @@ def element_detail(element_id: str, version: str | None = None, user: User = Dep
                          confidence=rev.confidence, props=rev.props or {}, context=vis[rev.discipline],
                          open_issues=open_issue_counts(db, el.project_id).get(el.id, 0),
                          history=[EventOut.model_validate(e).model_copy(update={"actor_name": n}) for e, n in hist])
+
+
+@router.get("/projects/{project_id}/models/diff")
+def model_diff(project_id: str, from_: str = Query(..., alias="from"), to: str = Query(...),
+               user: User = Depends(current_user), db: Session = Depends(get_db)):
+    m = require(db, project_id, user.id, Perm.history_view)
+    a, b = resolve_version(db, project_id, m, from_), resolve_version(db, project_id, m, to)
+    d = diff_versions(db, a, b)
+    if m.role == Role.trade:  # only what this trade member can see
+        vis = visible_disciplines(db, m, DISCIPLINES)
+        for k in ("added", "removed", "moved", "changed"):
+            d[k] = [r for r in d[k] if r["discipline"] in vis and vis[r["discipline"]] is False]
+    return d
+
+
+@router.get("/projects/{project_id}/timeline")
+def project_timeline(project_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)):
+    m = require(db, project_id, user.id, Perm.history_view)
+    project = db.get(Project, project_id)
+    visible = None
+    if m.role == Role.trade and project.current_version_id:
+        visible = {e.id for e in element_rows(db, project_id, m, db.get(ModelVersion, project.current_version_id))}
+    return timeline(db, project, visible)
+
+
+@router.post("/models/{version_id}/merge", response_model=ModelVersionOut)
+def merge(version_id: str, body: ApproveIn, user: User = Depends(current_user), db: Session = Depends(get_db)):
+    v = _load_version(db, version_id)
+    require(db, v.project_id, user.id, Perm.model_approve)
+    merged = merge_branch(db, v, user.id, body.message)
+    db.commit()
+    return _version_out(merged, db.get(Project, v.project_id))
