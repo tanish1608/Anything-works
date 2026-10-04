@@ -14,6 +14,7 @@ const NAV = [
   { to: 'drawings', label: 'Drawings' },
   { to: 'structure', label: 'Buildings & zones' },
   { to: 'members', label: 'Team' },
+  { to: 'history', label: 'History' },
   { to: 'activity', label: 'Activity' },
 ]
 

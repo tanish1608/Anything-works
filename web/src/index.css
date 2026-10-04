@@ -194,3 +194,5 @@ a.btn:hover { text-decoration: none; background: var(--hover); }
 .qr-card { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: #111; text-align: center; break-inside: avoid; }
 .qr-card img { width: 160px; height: 160px; }
 @media print { .topbar, .sidenav, .no-print { display: none !important; } .page { padding: 0; } body { background: #fff; } }
+.history-layout { grid-template-columns: 320px 1fr; }
+@media (max-width: 900px) { .history-layout .model-side.left { display: flex; position: static; max-height: none; } .history-layout { grid-template-rows: auto 60vh; } }

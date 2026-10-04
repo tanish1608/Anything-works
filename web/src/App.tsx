@@ -11,6 +11,7 @@ import QrPage from './pages/QrPage'
 import EmbedViewerPage from './pages/EmbedViewerPage'
 import SheetReviewPage from './pages/SheetReviewPage'
 import IssuesPage from './pages/IssuesPage'
+import HistoryPage from './pages/HistoryPage'
 import LoginPage from './pages/LoginPage'
 import MembersPage from './pages/MembersPage'
 import ModelPage from './pages/ModelPage'
@@ -59,6 +60,7 @@ export function AppRoutes() {
         <Route path="structure" element={<StructurePage />} />
         <Route path="members" element={<MembersPage />} />
         <Route path="activity" element={<ActivityPage />} />
+        <Route path="history" element={<HistoryPage />} />
       </Route>
       <Route path="/field" element={<RequireAuth><FieldHome /></RequireAuth>} />
       <Route path="/field/:pid" element={<RequireAuth><FieldZones /></RequireAuth>} />
