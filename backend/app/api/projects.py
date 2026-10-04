@@ -61,9 +61,14 @@ def get_project(project_id: str, user: User = Depends(current_user), db: Session
 @router.patch("/{project_id}", response_model=ProjectOut)
 def update_project(project_id: str, body: ProjectPatch, user: User = Depends(current_user),
                    db: Session = Depends(get_db)):
-    require(db, project_id, user.id, Perm.project_edit)
+    m = require(db, project_id, user.id, Perm.project_edit)
     p = db.get(Project, project_id)
     changes = body.model_dump(exclude_unset=True)
+    if "settings" in changes:
+        new_settings = {k: v for k, v in (changes["settings"] or {}).items() if v is not None}
+        if new_settings.get("approval_mode") == "auto" and m.role != Role.owner:
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Only an owner can switch on auto-approval")
+        changes["settings"] = {**(p.settings or {}), **new_settings}
     before = {k: getattr(p, k) for k in changes}
     for k, v in changes.items():
         setattr(p, k, v)

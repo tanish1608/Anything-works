@@ -192,6 +192,17 @@ export function FieldZone() {
     viewer.setColors(new Map(items.map((i) => [i.id, checked.has(i.id) ? '#7c4dff' : ST_COLOR[i.status] ?? DISCIPLINE_COLORS[i.discipline]])))
   }, [viewer, items, checked])
 
+  const dispute = async (verificationId: string) => {
+    const reason = window.prompt('It is installed. Where can it be seen? (your manager will check)')
+    if (!reason || reason.length < 3) return
+    try {
+      await api(`/verifications/${verificationId}/override`, { method: 'POST', json: { verdict: 'installed', reason } })
+      setDone('Sent to your manager to check.')
+      checklist.refetch()
+    } catch (e) {
+      setDone((e as Error).message)
+    }
+  }
   const toggle = (id: string) => {
     const n = new Set(checked)
     if (n.has(id)) n.delete(id)
@@ -246,8 +257,14 @@ export function FieldZone() {
                 {elementLabel(i)}
                 {i.flags.includes('possibly_missed') && <span className="badge danger" style={{ marginLeft: 6 }}>possibly missed</span>}
                 {i.flags.includes('retake_photo') && <span className="badge warn" style={{ marginLeft: 6 }}>retake photo</span>}
+                {i.last_verification?.source === 'ai' && i.last_verification.reason && i.status !== 'done' && (
+                  <div className="muted" style={{ fontSize: 12 }}>Photo check: {i.last_verification.reason}</div>
+                )}
               </span>
               <span className="badge" style={{ color: ST_COLOR[i.status], borderColor: ST_COLOR[i.status] }}>{STATUS_LABEL[i.status]}</span>
+              {i.last_verification?.source === 'ai' && i.last_verification.verdict !== 'installed' && i.status !== 'done' && (
+                <button className="small" onClick={(e) => { e.preventDefault(); dispute(i.last_verification!.id) }}>Dispute</button>
+              )}
             </label>
           )
         })}

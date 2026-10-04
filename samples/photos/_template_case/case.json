@@ -1,0 +1,16 @@
+{
+  "zone": "Unit 304, Bedroom 2",
+  "trade": "plumbing",
+  "note": "Rough-in done, waiting on inspection",
+  "photos": ["photo1.jpg", "photo2.jpg"],
+  "reference": "reference.jpg",
+  "elements": [
+    {"id": "pipe-01", "ifc_class": "IfcPipeSegment", "name": "Cold water pipe 1.20 m",
+     "position_hint": "in the north-west part of the room, height 0.45-0.47 m, runs east-west, length 1.20 m",
+     "truth": "installed"},
+    {"id": "pipe-02", "ifc_class": "IfcPipeSegment", "name": "Hot water pipe 0.80 m",
+     "position_hint": "in the north-middle part of the room, height 0.54-0.56 m, runs north-south, length 0.80 m",
+     "truth": "missing"},
+    {"id": "wc-01", "ifc_class": "IfcSanitaryTerminal", "name": "Toilet", "truth": "not_visible"}
+  ]
+}

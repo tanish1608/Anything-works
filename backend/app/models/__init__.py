@@ -423,7 +423,8 @@ class Upload(Base):
     client_uuid: Mapped[str] = mapped_column(String(64))  # idempotency key from the offline queue
     captured_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))  # when the worker submitted (device)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)  # when it synced
-    analysis_status: Mapped[str] = mapped_column(String(20), default="none")  # none|queued|done|failed (M5)
+    reference_key: Mapped[str | None] = mapped_column(String(500))  # viewer snapshot of the zone's trade layer
+    analysis_status: Mapped[str] = mapped_column(String(20), default="none")  # none|queued|done|failed|off (M5)
     analysis: Mapped[dict | None] = mapped_column(JSON)  # raw model output + timings (M5)
 
 

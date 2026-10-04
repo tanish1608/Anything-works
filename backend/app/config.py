@@ -20,6 +20,13 @@ class Settings(BaseSettings):
     storage_dir: str = "./storage"
     # "thread": background worker thread polls the jobs table. "inline": run jobs immediately (tests).
     jobs_mode: str = "thread"
+    # Photo analysis (M5). vision_mode: "auto" = use the Anthropic API when credentials exist, else off;
+    # "anthropic" | "off" | "mock" (mock returns "uncertain" for everything: exercises the pipeline only).
+    vision_mode: str = "auto"
+    vision_model: str = "claude-opus-5-5"
+    vision_effort: str = "high"
+    vision_fallbacks: str = "default"  # server-side refusal fallbacks; "off" to disable
+    anthropic_api_key: str = ""
     cors_origins: list[str] = ["http://localhost:5173"]
 
     @model_validator(mode="after")

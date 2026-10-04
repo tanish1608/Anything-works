@@ -305,7 +305,7 @@ export interface Verification {
   source: 'worker' | 'ai' | 'manager'
   model: string | null
   prompt_version: string | null
-  state: 'proposed' | 'approved' | 'rejected' | 'superseded'
+  state: 'proposed' | 'approved' | 'rejected' | 'superseded' | 'noted'
   confirmed_by: string | null
   confirmed_at: string | null
   overridden: boolean

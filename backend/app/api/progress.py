@@ -79,6 +79,7 @@ def zone_checklist(zone_id: str, trade: str | None = None, user: User = Depends(
 async def create_upload(project_id: str, zone_id: str = Form(...), trade: str = Form(...), note: str = Form(""),
                         client_uuid: str = Form(...), captured_at: str | None = Form(None),
                         element_ids: str = Form("[]"), files: list[UploadFile] = File(...),
+                        reference: UploadFile | None = File(None),
                         user: User = Depends(current_user), db: Session = Depends(get_db)):
     """Field report. Idempotent on client_uuid so the offline queue can safely retry."""
     m = require(db, project_id, user.id, Perm.progress_upload)
@@ -137,6 +138,10 @@ async def create_upload(project_id: str, zone_id: str = Form(...), trade: str = 
                   flags=flags[:5], **meta)
         db.add(p)
         photos.append(p)
+    if reference is not None:
+        ref = await reference.read()
+        if 0 < len(ref) <= MAX_PHOTO:
+            up.reference_key = get_storage().put_bytes(f"projects/{project_id}/photos/{up.id}/reference.jpg", ref)
     db.flush()
     progress.claim(db, up, claimed, user.id)
     events.record(db, project_id=project_id, actor_id=user.id, type="upload.created", entity_type="upload",
@@ -299,3 +304,50 @@ def element_evidence(element_id: str, user: User = Depends(current_user), db: Se
 def progress_summary(project_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)):
     require(db, project_id, user.id, Perm.project_view)
     return progress.summary(db, db.get(Project, project_id))
+
+
+class OverrideIn(ReviewIn):
+    verdict: str
+
+
+@router.post("/verifications/{vid}/override", response_model=VerificationOut)
+def override_verdict(vid: str, body: OverrideIn, user: User = Depends(current_user), db: Session = Depends(get_db)):
+    """Disagree with a verdict (usually the AI's), with a reason. The worker who uploaded can propose a
+    correction for their manager to approve; a manager's override takes effect immediately (and turning an
+    element green still needs this upload's photos)."""
+    v = db.get(Verification, vid)
+    if v is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Not found")
+    m = require(db, v.project_id, user.id, Perm.project_view)
+    up = db.get(Upload, v.upload_id) if v.upload_id else None
+    manager = m.role in (Role.owner, Role.pm)
+    if not manager and not (up and up.user_id == user.id):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only the uploader or a manager can override this")
+    if body.verdict not in ("installed", "missing", "not_visible", "uncertain"):
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Unknown verdict")
+    if len(body.reason.strip()) < 3:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "A reason is required")
+    el = db.get(Element, v.element_id)
+    if v.state in ("proposed", "noted"):
+        v.state = "superseded"
+    new = Verification(project_id=v.project_id, upload_id=v.upload_id, element_id=el.id, verdict=body.verdict,
+                       reason=body.reason, source="manager" if manager else "worker", overridden=True,
+                       override_reason=body.reason, state="proposed", prev_status=el.status.value, created_by=user.id)
+    db.add(new)
+    db.flush()
+    zone_id = up.zone_id if up else None
+    if manager:
+        if body.verdict == "installed":
+            progress.approve(db, new, user.id, f"override: {body.reason}")
+        else:
+            new.state, new.confirmed_by = "approved", user.id
+            back = ElementStatus(v.prev_status) if v.prev_status and v.prev_status != "done" else el.status
+            progress.set_status(db, el, back if el.status == ElementStatus.needs_review else el.status, actor_id=user.id,
+                                upload_id=v.upload_id, zone_id=zone_id, verification_id=new.id,
+                                add_flags={"possibly_missed"} if body.verdict == "missing" else {"retake_photo"},
+                                reason=f"override: {body.reason}")
+    elif body.verdict == "installed" and el.status != ElementStatus.done:
+        progress.set_status(db, el, ElementStatus.needs_review, actor_id=user.id, upload_id=v.upload_id,
+                            zone_id=zone_id, verification_id=new.id, reason=f"worker disputes AI: {body.reason}")
+    db.commit()
+    return _ver_out(db, [new])[0]

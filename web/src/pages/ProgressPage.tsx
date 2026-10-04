@@ -9,10 +9,35 @@ import { useProject } from './ProjectLayout'
 
 const VERDICT_COLOR: Record<string, string> = { installed: STATUS_COLORS.done, missing: STATUS_COLORS.issue, not_visible: '#9e9e9e', uncertain: STATUS_COLORS.review }
 
+function OverrideForm({ id, onDone }: { id: string; onDone: () => void }) {
+  const [verdict, setVerdict] = useState('installed')
+  const [reason, setReason] = useState('')
+  const [err, setErr] = useState<string | null>(null)
+  const save = async () => {
+    try {
+      await api(`/verifications/${id}/override`, { method: 'POST', json: { verdict, reason } })
+      onDone()
+    } catch (e) {
+      setErr((e as Error).message)
+    }
+  }
+  return (
+    <div className="row" style={{ justifyContent: 'flex-end' }}>
+      <select value={verdict} onChange={(e) => setVerdict(e.target.value)} aria-label="Override verdict">
+        <option value="installed">Installed</option><option value="missing">Missing</option><option value="not_visible">Not visible</option>
+      </select>
+      <input placeholder="reason" value={reason} onChange={(e) => setReason(e.target.value)} style={{ width: 140 }} aria-label="Override reason" />
+      <button className="small" disabled={reason.length < 3} onClick={save}>Save</button>
+      {err && <span className="error">{err}</span>}
+    </div>
+  )
+}
+
 function UploadCard({ u, projectId, highlight }: { u: UploadInfo; projectId: string; highlight: boolean }) {
   const qc = useQueryClient()
   const [reason, setReason] = useState<Record<string, string>>({})
   const [big, setBig] = useState<string | null>(null)
+  const [overriding, setOverriding] = useState<string | null>(null)
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ['reviews', projectId] })
     qc.invalidateQueries({ queryKey: ['elements', projectId] })
@@ -61,7 +86,14 @@ function UploadCard({ u, projectId, highlight }: { u: UploadInfo; projectId: str
                     <input placeholder="why?" style={{ width: 110 }} value={reason[v.id] ?? ''} onChange={(e) => setReason({ ...reason, [v.id]: e.target.value })} aria-label="Reject reason" />
                     <button className="small danger" disabled={(reason[v.id] ?? '').length < 3} onClick={() => act.mutate({ id: v.id, action: 'reject', why: reason[v.id] })}>Reject</button>
                   </div>
-                ) : <span className={`badge ${v.state === 'approved' ? 'ok' : v.state === 'rejected' ? 'danger' : ''}`}>{v.state}</span>}
+                ) : overriding === v.id ? (
+                  <OverrideForm id={v.id} onDone={() => { setOverriding(null); refresh() }} />
+                ) : (
+                  <span className="row" style={{ justifyContent: 'flex-end' }}>
+                    <span className={`badge ${v.state === 'approved' ? 'ok' : v.state === 'rejected' ? 'danger' : ''}`}>{v.state === 'noted' ? 'flagged' : v.state}</span>
+                    {v.state !== 'superseded' && <button className="small" onClick={() => setOverriding(v.id)}>Override</button>}
+                  </span>
+                )}
               </td>
             </tr>
           ))}
@@ -71,6 +103,41 @@ function UploadCard({ u, projectId, highlight }: { u: UploadInfo; projectId: str
       {pending.filter((v) => v.verdict === 'installed').length > 1 && (
         <div><button className="primary" onClick={() => all.mutate()}>Approve all {pending.filter((v) => v.verdict === 'installed').length}</button></div>
       )}
+    </div>
+  )
+}
+
+function SettingsPanel() {
+  const { project } = useProject()
+  const qc = useQueryClient()
+  const st = project.settings as { approval_mode?: string; confidence_threshold?: number }
+  const [err, setErr] = useState<string | null>(null)
+  const save = async (settings: Record<string, unknown>) => {
+    setErr(null)
+    try {
+      await api(`/projects/${project.id}`, { method: 'PATCH', json: { settings } })
+      qc.invalidateQueries({ queryKey: ['project', project.id] })
+    } catch (e) {
+      setErr((e as Error).message)
+    }
+  }
+  return (
+    <div className="panel stack" style={{ gap: 8 }}>
+      <h2 style={{ margin: 0 }}>Photo check settings</h2>
+      <label className="row" style={{ flexDirection: 'row', color: 'var(--text)' }}>
+        <input type="radio" checked={st.approval_mode !== 'auto'} onChange={() => save({ approval_mode: 'pm_required' })} />
+        A manager approves every item before it turns green (recommended)
+      </label>
+      <label className="row" style={{ flexDirection: 'row', color: 'var(--text)' }}>
+        <input type="radio" checked={st.approval_mode === 'auto'} onChange={() => window.confirm('Items the AI is confident about will turn green without a manager looking. Only do this once the vision eval shows ≥ 95% precision. Continue?') && save({ approval_mode: 'auto' })} />
+        Auto-approve confident AI verdicts (owners only)
+      </label>
+      <label>Confidence threshold: {Math.round((st.confidence_threshold ?? 0.85) * 100)}%
+        <input type="range" min={0.5} max={0.99} step={0.01} defaultValue={st.confidence_threshold ?? 0.85}
+          onMouseUp={(e) => save({ confidence_threshold: Number((e.target as HTMLInputElement).value) })}
+          onTouchEnd={(e) => save({ confidence_threshold: Number((e.target as HTMLInputElement).value) })} aria-label="Confidence threshold" />
+      </label>
+      {err && <div className="error">{err}</div>}
     </div>
   )
 }
@@ -110,6 +177,7 @@ export default function ProgressPage() {
           {reviews.data?.map((u) => <UploadCard key={u.id} u={u} projectId={project.id} highlight={params.get('upload') === u.id} />)}
         </>
       )}
+      {manager && <SettingsPanel />}
       <h2>By zone</h2>
       <div className="panel" style={{ padding: 0, overflowX: 'auto' }}>
         <table>

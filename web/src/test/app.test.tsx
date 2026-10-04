@@ -45,7 +45,7 @@ describe('app', () => {
       'GET /auth/me': { id: 'u1', email: 'pm@example.com', name: 'Pat' },
       'GET /projects': [{ id: 'p1', name: 'Maple Court', address: null, settings: {}, created_at: '', my_role: 'pm' }],
     })
-    renderAt('/p/p1/structure')
+    renderAt('/')
     await userEvent.type(await screen.findByLabelText('Email'), 'pm@example.com')
     await userEvent.type(screen.getByLabelText('Password'), 'password123')
     await userEvent.click(screen.getByRole('button', { name: 'Sign in' }))

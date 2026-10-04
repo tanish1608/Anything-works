@@ -28,9 +28,8 @@ test('PM uploads DXF, reviews, builds and approves a model', async ({ page }) =>
   await expect(page.getByTestId('sheet-svg')).toBeVisible()
   await expect(page.getByText("Gap in wall with no door or window symbol")).toBeVisible()
   await page.screenshot({ path: 'e2e/.results/m3-review.png' })
-  await page.locator('.plan-overlay text', { hasText: 'BEDROOM 2' }).waitFor()
-  // click the room polygon for BEDROOM 2 via its label position
-  const label = page.locator('.plan-overlay text', { hasText: 'BEDROOM 2' })
+  // click the room polygon for BEDROOM 2 just below its label on the drawing
+  const label = page.locator('.sheet-underlay text', { hasText: 'BEDROOM 2' })
   const bb = (await label.boundingBox())!
   await page.mouse.click(bb.x + bb.width / 2, bb.y + bb.height + 12)
   await page.getByLabel('Room name').fill('Guest bedroom')

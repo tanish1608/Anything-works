@@ -1,0 +1,39 @@
+{
+  "zone": "SYNTHETIC BATH",
+  "trade": "plumbing",
+  "note": "synthetic drawing, not a real photo",
+  "photos": [
+    "photo1.jpg"
+  ],
+  "reference": "reference.jpg",
+  "elements": [
+    {
+      "id": "cold-1",
+      "ifc_class": "IfcPipeSegment",
+      "name": "Cold water pipe 2.10 m",
+      "position_hint": "runs east-west at the back wall",
+      "truth": "installed"
+    },
+    {
+      "id": "cold-2",
+      "ifc_class": "IfcPipeSegment",
+      "name": "Cold water pipe 0.60 m",
+      "position_hint": "vertical riser at the east end",
+      "truth": "installed"
+    },
+    {
+      "id": "hot-1",
+      "ifc_class": "IfcPipeSegment",
+      "name": "Hot water pipe 1.60 m",
+      "position_hint": "runs east-west below the cold pipe",
+      "truth": "installed"
+    },
+    {
+      "id": "waste-1",
+      "ifc_class": "IfcPipeSegment",
+      "name": "Waste pipe 0.30 m",
+      "position_hint": "vertical, middle of the floor",
+      "truth": "missing"
+    }
+  ]
+}
