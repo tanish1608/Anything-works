@@ -46,6 +46,7 @@ What the code already has vs. what this needs:
 | **Push notifications, email/SMS invites, sub access without an account** | **No.** In-app notifications only |
 | 2D-to-3D conversion (DXF, vector PDF) | Works on our generated samples only; real PDF sheets fail (see 2.11a). Now a fallback rather than the main feature |
 | **Hosting, real storage (S3), backups, monitoring** | **No.** Local disk and SQLite by default |
+| **Polished 3D look and dashboard (concept render)** | **No.** Flat grey viewer, plain admin UI. See 2.10 |
 
 ---
 
@@ -166,12 +167,50 @@ Build in this order. Each item ends with tests, a commit and a short report, per
 - [ ] SMS for subs who never open the app (task assigned, zone ready, retake requested).
 - [ ] Email digests. Per-user notification settings.
 
-### 2.10 UI polish — P1
+### 2.10 Look and feel: match the concept render — P0 for the demo and pitch, P1 for the product
 
-- [ ] Redesign the office app. It works but looks like a dev build. Use the walkthrough demo's look as a starting point.
+Target: `docs/design/concept-render.jpg`. It shows an x-ray glass building with glowing pipes by system, an exploded floor stack, a room cutaway, red/amber/green map pins on a pipe segment, and a dark dashboard around the 3D view.
+
+Today the viewer has flat grey Lambert boxes on a light background, two lights, and sphere markers. The UI is a plain light admin layout (`web/e2e/.results/m1-model.png`).
+
+**What's realistic.** About 80% of the look is reachable in real time in the browser with three.js. The rest is the photoreal interior (furniture, warm room lighting, soft bounce light). That needs either content we don't have (furniture models) or offline rendering. Plan for "looks like the concept" in the live app, and use a path-traced still or video for marketing shots.
+
+**A. Demo content (do first: the renderer can't make a duplex look like a 4-storey building)**
+- [ ] A 4–5 storey apartment demo building with full MEP: cold, hot and waste water, electrical, HVAC ducts and sprinklers. Either extend `samples/dxf/generate.py` to stack a typical apartment floor with risers, or find a CC-licensed IFC with MEP. Seed it as the main demo project.
+- [ ] Real pipe geometry: elbows and tees at fittings (today pipes are straight cylinders), real diameters, insulation on hot lines. Ducts as rectangular sections with bends.
+- [ ] Fixture models instead of boxes: a small CC0 glTF library (toilet, basin, shower, tub, kitchen sink, water heater, outlet, switch, light), placed by fixture `kind` at the detected position and rotation.
+- [ ] Element properties the info card needs: system (domestic cold, hot, waste), material, diameter, location breadcrumb. IFC import already carries some of these; make the converter fill them from layer names and defaults (editable in the review editor).
+- [ ] Optional "dressing" layer: furniture per room type, purely visual, never part of progress or the checklist. Off by default; on for demos.
+
+**B. Renderer (`web/src/viewer/`)**
+- [ ] PBR materials (`MeshStandardMaterial`/`MeshPhysicalMaterial`), ACES tone mapping, sRGB output, and an environment map (`RoomEnvironment` or a small HDRI) so surfaces read as glass, metal and plastic.
+- [ ] X-ray architecture: walls and slabs as tinted glass, with crisp edge lines (`EdgesGeometry`) so floors and rooms stay legible; MEP opaque and saturated on top. This is the main look in the concept.
+- [ ] Colour by system, not just by discipline: cold = blue, hot = red/orange, waste = purple, HVAC = teal, electrical = yellow. Status colours still win (red > amber > green), per `PLAN.md`.
+- [ ] Glow for status: emissive plus a selective bloom pass on green, amber and red elements, and a soft green fill light inside rooms that are done (the green floors in the concept). Use the `postprocessing` library (pmndrs) for bloom, SSAO/N8AO and SMAA.
+- [ ] Ground and shadows: a dark gradient backdrop, a contact shadow under the building, and soft shadows from one key light.
+- [ ] Exploded floor view: animate levels apart vertically, with a floor picker (4F / 3F / 2F / 1F) to lift out one level. Levels and zones already exist in the data.
+- [ ] Room cutaway: on selecting a zone, fly the camera in, hide the ceiling and the walls facing the camera, and ghost the rest of the building. Reuses `flyTo`, the section box and zone filters.
+- [ ] 3D map-pin markers (pin plus ring around the element) for issues and status, replacing the spheres. Pulse on new events.
+- [ ] Smooth camera transitions everywhere: fly-to, floor focus, and a "return to building" button.
+- [ ] Quality tiers: auto-detect GPU and phone. Low tier = no bloom or SSAO, simpler materials. The field app must stay fast on older Android phones.
+- [ ] "Beauty mode" for marketing stills: `three-gpu-pathtracer` to render the current view photoreal, exported as PNG. Not used in the daily flow.
+
+**C. App shell (office app)**
+- [ ] Dark theme with design tokens (colours, radius, spacing), also usable in light mode for the field app outdoors.
+- [ ] Layout from the concept: an icon sidebar (Building view, Systems, Issues, Analytics, Reports, Settings), a full-bleed 3D view, the floor stack on the left, and system toggle pills along the bottom (Water pipes, Electrical, HVAC ducts, Sprinklers, Gas lines).
+- [ ] Right panel: breadcrumb (Building › 3rd Floor › Unit 3B › Bathroom), tabs **3D view / 2D plan / Isolate**, a room close-up viewport, an element card (system, location, material, diameter, status), and a per-element **status timeline** (issue detected → under review → resolved, with times) built from the event log.
+- [ ] Icons (Lucide or similar), one typeface, consistent empty, loading and error states in plain site language.
 - [ ] A simpler field app: big buttons, works with gloves, readable in sunlight, three taps to report.
 - [ ] An onboarding flow: create project → upload IFC → see the model split into floors and rooms → invite crews. Target: under 15 minutes.
-- [ ] Empty states, loading states and error messages written in plain site language.
+
+**D. The story (the top half of the concept is a storyboard)**
+- [ ] A "guided replay" mode: whole building → zoom into a unit → pipe flagged red → amber after photo check → green after approval → pull back to the building turning green floor by floor. Build it on the existing timeline replay (`src/lib/replay.ts`) plus scripted camera moves.
+- [ ] Export the replay as a video (MediaRecorder on the canvas) for the pitch deck and outreach.
+
+**E. Checks**
+- [ ] Visual regression screenshots of the main views (Playwright) so the look doesn't silently break.
+- [ ] Frame-rate budget: 60 fps on a mid-range laptop and at least 30 fps on a 3-year-old Android phone with the demo building. Measure before and after each renderer step.
+- [ ] Keep the viewer's command/event API (`selectElement`, `setColors`, `flyTo`, `snapshot`) unchanged. Add new commands (`explodeFloors`, `focusZone`, `setQuality`) to the same API, with unit tests.
 
 ### 2.11 Integrations — P2
 
