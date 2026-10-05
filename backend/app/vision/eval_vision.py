@@ -2,7 +2,7 @@
 element type. Run it whenever the prompt (PROMPT_VERSION) or model (VISION_MODEL) changes.
 
     .venv/bin/python -m app.vision.eval_vision ../samples/photos                    # real API call per case
-    .venv/bin/python -m app.vision.eval_vision ../samples/photos --model claude-sonnet-5-5 --threshold 0.9
+    .venv/bin/python -m app.vision.eval_vision ../samples/photos --model gemini-3.1-pro-preview --threshold 0.9
     .venv/bin/python -m app.vision.eval_vision ../samples/photos --mock             # pipeline check, no API
 
 Positive class = "installed" with confidence >= threshold (what would turn an element amber/green).

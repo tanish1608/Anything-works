@@ -12,25 +12,27 @@ from app.vision.prompt import OUTPUT_SCHEMA
 
 
 class FakeClient:
-    """Stands in for anthropic.Anthropic(): records the request, returns canned outputs in order."""
+    """Stands in for google.genai.Client(): records the request, returns canned outputs in order."""
 
     def __init__(self, outputs):
         self.outputs = list(outputs)
         self.calls = []
-        self.beta = SimpleNamespace(messages=SimpleNamespace(create=self._create))
+        self.models = SimpleNamespace(generate_content=self._generate)
 
-    def _create(self, **kw):
+    def _generate(self, **kw):
         self.calls.append(kw)
         out = self.outputs.pop(0)
-        stop = "refusal" if out == "REFUSE" else "end_turn"
-        text = out if isinstance(out, str) else json.dumps(out)
-        return SimpleNamespace(stop_reason=stop, model=kw["model"], content=[SimpleNamespace(type="text", text=text)],
-                               usage=SimpleNamespace(input_tokens=1000, output_tokens=200), _request_id="req_test")
+        finish = SimpleNamespace(name="SAFETY" if out == "REFUSE" else "STOP")
+        text = None if out == "REFUSE" else out if isinstance(out, str) else json.dumps(out)
+        return SimpleNamespace(candidates=[SimpleNamespace(finish_reason=finish)], text=text, prompt_feedback=None,
+                               model_version=kw["model"], response_id="resp_test",
+                               usage_metadata=SimpleNamespace(prompt_token_count=1000, candidates_token_count=200,
+                                                              thoughts_token_count=50))
 
 
 @pytest.fixture
 def demo(db, client, monkeypatch):
-    monkeypatch.setattr(get_settings(), "vision_mode", "anthropic")
+    monkeypatch.setattr(get_settings(), "vision_mode", "gemini")
     p = seed(db)
     pm, plumber = login(client, "pm@example.com"), login(client, "plumber@example.com")
     zones = {z["name"]: z["id"] for b in client.get(f"/api/projects/{p.id}/tree", headers=pm).json()
@@ -66,11 +68,12 @@ def test_brief_example_five_verified_one_missed(client, demo, monkeypatch):
     # Request shape: configured model, strict JSON schema, photo + reference images, every element listed.
     kw = fake.calls[0]
     assert kw["model"] == get_settings().vision_model
-    assert kw["output_config"]["format"] == {"type": "json_schema", "schema": OUTPUT_SCHEMA}
-    assert kw["thinking"] == {"type": "adaptive"} and kw["fallbacks"] == "default"
-    content = kw["messages"][0]["content"]
-    assert sum(1 for c in content if c["type"] == "image") == 2
-    assert all(p["id"] in content[-1]["text"] for p in pipes)
+    cfg = kw["config"]
+    assert cfg.response_mime_type == "application/json" and cfg.response_json_schema == OUTPUT_SCHEMA
+    assert cfg.thinking_config.thinking_level.name == get_settings().vision_effort.upper()
+    contents = kw["contents"]
+    assert sum(1 for c in contents if getattr(c, "inline_data", None)) == 2
+    assert all(p["id"] in contents[-1] for p in pipes)
 
     els = {e["id"]: e for e in checklist(client, demo)}
     assert [els[p["id"]]["status"] for p in pipes[:5]] == ["needs_review"] * 5  # amber until a PM approves
@@ -142,9 +145,9 @@ def test_worker_disputes_ai_and_manager_overrides(client, demo, monkeypatch):
 
 def test_vision_off_without_credentials(client, demo, monkeypatch):
     monkeypatch.setattr(get_settings(), "vision_mode", "auto")
-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-    monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
-    monkeypatch.setattr(get_settings(), "anthropic_api_key", "")
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
+    monkeypatch.setattr(get_settings(), "gemini_api_key", "")
     bath = demo["zones"]["UNIT 101 BATH"]
     r = client.post(f"/api/projects/{demo['pid']}/uploads", headers=demo["plumber"],
                     data={"zone_id": bath, "trade": "plumbing", "client_uuid": "x1"},

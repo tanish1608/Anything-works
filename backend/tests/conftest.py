@@ -4,6 +4,8 @@ os.environ.setdefault("APP_ENV", "test")
 os.environ.setdefault("JWT_SECRET", "test-secret-not-for-production-use-0123456789")
 os.environ.setdefault("BCRYPT_ROUNDS", "4")
 os.environ["JOBS_MODE"] = "inline"
+# Never call the real vision API from tests, even when backend/.env has a key; vision tests opt in with a fake client.
+os.environ["VISION_MODE"] = "off"
 
 from pathlib import Path
 

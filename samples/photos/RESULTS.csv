@@ -1,0 +1,3 @@
+timestamp,git,model,prompt_version,threshold,element_type,n,tp,fp,fn,precision,recall,false_greens,missing_caught,missing_total
+2026-10-05T00:08:46+00:00,8803e66,gemini-3.8-flash,v1,0.85,IfcPipeSegment,4,3,0,0,1.0,1.0,0,1,1
+2026-10-05T00:08:46+00:00,8803e66,gemini-3.8-flash,v1,0.85,ALL,4,3,0,0,1.0,1.0,0,1,1

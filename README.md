@@ -56,14 +56,13 @@ Behind a TLS-intercepting corporate proxy, add `EXTRA_CA_FILE=/path/to/ca.pem` t
 
 ## AI photo checks (M5)
 
-Photo analysis switches on when Anthropic credentials are present: `ANTHROPIC_API_KEY`, or an `ant auth login` profile. Otherwise uploads simply go to manual PM review.
+Photo analysis uses Google Gemini and switches on when `GEMINI_API_KEY` (or `GOOGLE_API_KEY`) is set. Otherwise uploads simply go to manual PM review.
 
 | Variable | Default | What it does |
 |---|---|---|
-| `VISION_MODE` | `auto` | `auto` (on when credentials exist), `anthropic`, `off`, or `mock` |
-| `VISION_MODEL` | `claude-opus-5-5` | Any vision-capable Claude model |
-| `VISION_EFFORT` | `high` | `low` … `max` |
-| `VISION_FALLBACKS` | `default` | Server-side refusal fallbacks; `off` to disable |
+| `VISION_MODE` | `auto` | `auto` (on when credentials exist), `gemini`, `off`, or `mock` |
+| `VISION_MODEL` | `gemini-3.8-flash` | Any image-capable Gemini model (e.g. `gemini-3.1-pro-preview`) |
+| `VISION_EFFORT` | `high` | Gemini thinking level: `low`, `medium` or `high` |
 
 **How a check works:**
 1. Each upload sends the photos, the zone's reference render (a snapshot from the field app's 3D view) and the expected elements.
@@ -117,7 +116,7 @@ All configuration comes from environment variables (or `backend/.env`). Secrets 
 | `STORAGE_DIR` | `./storage` | Uploaded drawings, photos, generated IFC and GLB |
 | `JOBS_MODE` | `thread` | Background worker in the API process (`inline` is used by tests) |
 | `CORS_ORIGINS` | `["http://localhost:5173"]` | JSON list |
-| `ANTHROPIC_API_KEY`, `VISION_*` | | See "AI photo checks" above |
+| `GEMINI_API_KEY`, `VISION_*` | | See "AI photo checks" above |
 
 ## Repo layout
 

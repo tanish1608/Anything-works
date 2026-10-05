@@ -1,0 +1,50 @@
+[
+ {
+  "case": "synthetic_bath_01",
+  "element_id": "cold-1",
+  "type": "IfcPipeSegment",
+  "truth": "installed",
+  "verdict": "installed",
+  "confidence": 0.99,
+  "reason": "Visible running horizontally across the wall in Photo 1.",
+  "model": "gemini-3.8-flash",
+  "seconds": 9.0,
+  "error": null
+ },
+ {
+  "case": "synthetic_bath_01",
+  "element_id": "cold-2",
+  "type": "IfcPipeSegment",
+  "truth": "installed",
+  "verdict": "installed",
+  "confidence": 0.99,
+  "reason": "Visible as the vertical blue pipe segment rising at the right end in Photo 1.",
+  "model": "gemini-3.8-flash",
+  "seconds": 9.0,
+  "error": null
+ },
+ {
+  "case": "synthetic_bath_01",
+  "element_id": "hot-1",
+  "type": "IfcPipeSegment",
+  "truth": "installed",
+  "verdict": "installed",
+  "confidence": 0.99,
+  "reason": "Visible running horizontally directly below the cold water pipe in Photo 1.",
+  "model": "gemini-3.8-flash",
+  "seconds": 9.0,
+  "error": null
+ },
+ {
+  "case": "synthetic_bath_01",
+  "element_id": "waste-1",
+  "type": "IfcPipeSegment",
+  "truth": "missing",
+  "verdict": "missing",
+  "confidence": 0.99,
+  "reason": "The lower floor area where the vertical waste pipe belongs is clearly visible in Photo 1, but the pipe is absent.",
+  "model": "gemini-3.8-flash",
+  "seconds": 9.0,
+  "error": null
+ }
+]

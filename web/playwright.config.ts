@@ -13,7 +13,7 @@ export default defineConfig({
       command: `rm -f ${DB.replace('sqlite:///', '')} && DATABASE_URL=${DB} .venv/bin/alembic upgrade head && DATABASE_URL=${DB} .venv/bin/python -m app.seed && DATABASE_URL=${DB} .venv/bin/uvicorn app.main:app --port 8001`,
       cwd: '../backend',
       url: 'http://localhost:8001/api/health',
-      env: { JWT_SECRET: 'e2e-secret-e2e-secret-e2e-secret-e2e-secret', CORS_ORIGINS: '["http://localhost:5174"]' },
+      env: { JWT_SECRET: 'e2e-secret-e2e-secret-e2e-secret-e2e-secret', CORS_ORIGINS: '["http://localhost:5174"]', VISION_MODE: 'off' },
       reuseExistingServer: false,
       timeout: 60_000,
     },

@@ -205,6 +205,7 @@ How the key parts work:
 8. Voice notes: **skipped** for now (text notes only).
 9. Hosting: decided later.
 10. Anthropic API key: coming later. Vision runs in a mock mode until then.
+11. Vision provider (2026-10-04): **Google Gemini** instead of Anthropic. `google-genai` SDK, `GEMINI_API_KEY`, default model `gemini-3.8-flash` with thinking level `high`.
 
 ---
 

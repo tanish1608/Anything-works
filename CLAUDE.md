@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-SiteMesh (working name): 3D construction coordination for small builders. It converts 2D drawings (DXF, vector PDF) into an IFC/3D model, scopes layers per trade, pins issues to elements, tracks progress from photos (Claude vision checks with PM approval), and keeps git-like model history. `PLAN.md` has the architecture, data model and decisions log (§8); `STATUS.md` lists known weak spots. Read them before making design-level changes.
+SiteMesh (working name): 3D construction coordination for small builders. It converts 2D drawings (DXF, vector PDF) into an IFC/3D model, scopes layers per trade, pins issues to elements, tracks progress from photos (Gemini vision checks with PM approval), and keeps git-like model history. `PLAN.md` has the architecture, data model and decisions log (§8); `STATUS.md` lists known weak spots. Read them before making design-level changes.
 
 ## Working agreement (from the product brief)
 
@@ -82,7 +82,7 @@ Full stack: `JWT_SECRET=... docker compose up --build -d && docker compose exec 
 
 **BIM** (`app/bim/`): IFC import → elements and zones, plus one GLB per discipline (node name = element UUID) generated server-side. The browser loads GLBs, not IFC. IFC stays the system of record per version.
 
-**Vision** (`app/vision/`): Claude vision with structured JSON output per element (`installed` / `missing` / `not_visible` / `uncertain`), mapped to statuses and flags in `services/photos.py` / `vision_jobs.py`. Controlled by `VISION_MODE` (`auto|anthropic|off|mock`), `VISION_MODEL`, `VISION_EFFORT`, `VISION_FALLBACKS`. Default approval mode is PM approval. Auto-approve is an opt-in project setting.
+**Vision** (`app/vision/`): Google Gemini (`google-genai` SDK, `GEMINI_API_KEY`) with structured JSON output per element (`installed` / `missing` / `not_visible` / `uncertain`), mapped to statuses and flags in `services/photos.py` / `vision_jobs.py`. Controlled by `VISION_MODE` (`auto|gemini|off|mock`), `VISION_MODEL`, `VISION_EFFORT` (thinking level). Default approval mode is PM approval. Auto-approve is an opt-in project setting.
 
 **Migrations:** `backend/migrations/versions/` are numbered (`0001_…`). Add a new one for any model change. `tests/test_migrations.py` checks migrations against the models (SQLite only).
 

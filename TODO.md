@@ -9,13 +9,14 @@ The codebase covers the original eight-milestone brief. Checked today:
 | Check | Result |
 | --- | --- |
 | Backend tests (SQLite) | 122 passed |
+| Backend tests (Postgres 16) | 121 passed, 1 skipped (the SQLite-only migration check) |
 | Backend lint (ruff) | Clean |
 | Web unit tests (Vitest) | 16 passed |
-| Web lint (oxlint) | 2 warnings (setState inside an effect: `SheetReviewPage.tsx`, `HistoryPage.tsx`) |
+| Web lint (oxlint) | 0 errors, 14 warnings (mostly setState inside an effect: `SheetReviewPage.tsx`, `HistoryPage.tsx`) |
 | Web build | OK |
-| End-to-end (Playwright) | 8 of 9 pass. `m4.spec.ts` (plumber reports, PM approves) fails in the full run and passes on its own, so it's flaky |
-| Conversion eval | 100%, but only on samples we generated ourselves |
-| Vision eval | Never run against the real Claude API |
+| End-to-end (Playwright) | 9 of 9 in two full runs today. `m4.spec.ts` was flaky earlier; keep an eye on it |
+| Conversion eval | 100% on our generated samples. **Fails on the first real set** (`drawings2d.pdf`, 12 NIST sheets): see 2.11a |
+| Vision eval | Now on **Google Gemini** (`gemini-3.8-flash`). First real API run: 1 synthetic case, 3/3 installed found, missing caught, 0 false greens. No real photos yet |
 
 What the product now is (the final pitch):
 
@@ -35,7 +36,7 @@ What the code already has vs. what this needs:
 | **Planned work (tasks) assigned to crews and zones by day** | **No.** Only issues exist |
 | **Subcontractor companies and crews** | **No.** Trades are text labels on a project member |
 | Photo uploads from the field, offline queue, QR codes per room | Yes |
-| Photo check against expected elements (Claude vision), PM approval, green only with evidence | Yes (untested on real photos) |
+| Photo check against expected elements (Gemini vision), PM approval, green only with evidence | Yes (untested on real photos) |
 | **Guided capture (required photo angles per zone)** | **No** |
 | **Voice notes** | **No** (skipped earlier) |
 | **AI daily log** | **No** |
@@ -43,19 +44,20 @@ What the code already has vs. what this needs:
 | History, versions, timeline replay | Yes |
 | **Owner dashboard across projects** | **No** |
 | **Push notifications, email/SMS invites, sub access without an account** | **No.** In-app notifications only |
-| 2D-to-3D conversion (DXF, vector PDF) | Yes, now a fallback rather than the main feature |
+| 2D-to-3D conversion (DXF, vector PDF) | Works on our generated samples only; real PDF sheets fail (see 2.11a). Now a fallback rather than the main feature |
 | **Hosting, real storage (S3), backups, monitoring** | **No.** Local disk and SQLite by default |
 
 ---
 
 ## Phase 0 — Clean up the repo (1–2 days)
 
-- [ ] Commit `CLAUDE.md` (it's untracked).
+- [x] Commit `CLAUDE.md`.
+- [ ] Commit the Gemini switch (vision client, config, tests, docs) and the test guard that keeps tests from calling the real API.
 - [ ] Stop tracking `backend/sitemesh_backend.egg-info/` and `web/e2e/.results/*.png`. Add both to `.gitignore` (they change on every install or test run).
-- [ ] Fix the flaky `e2e/m4.spec.ts`. Likely a timing issue with the offline queue sync or the shared seeded database between specs. Wait on a real signal (the network response or a UI state), not a timer.
-- [ ] Fix the two oxlint warnings (derive the value during render instead of setting state in an effect).
+- [ ] Watch `e2e/m4.spec.ts` (passed in two full runs on 2026-10-04, flaky before). If it fails again, fix it. Likely a timing issue with the offline queue sync or the shared seeded database between specs. Wait on a real signal (the network response or a UI state), not a timer.
+- [ ] Fix the oxlint warnings (14 today) (derive the value during render instead of setting state in an effect).
 - [ ] Fix the 25 pytest warnings (mostly deprecations). Treat warnings as errors in CI once they're clean.
-- [ ] Push to a private GitHub repo so CI actually runs. Right now no remote exists and the only off-machine copy is a git bundle.
+- [x] Push to GitHub (`tanish1608/Anything-works`). Check that CI goes green there.
 - [ ] Update `PLAN.md` and `STATUS.md` with the new direction: 3D task and progress tracking for mid-size builders; conversion becomes a fallback.
 - [ ] Rename the product if "SiteMesh" stays a working name. Check the domain and trademark before the pilot.
 
@@ -128,7 +130,7 @@ Build in this order. Each item ends with tests, a commit and a short report, per
 ### 2.6 AI daily log — P0
 
 - [ ] Add a `DailyLog` model: project, date, status (draft / signed), body (structured sections), signed by, signed at, sources (the events, uploads, photos and transcripts it used).
-- [ ] A nightly job (and a "draft now" button) gathers the day's events, check-ins, task changes, issues, uploads and transcripts, and asks Claude for a structured draft:
+- [ ] A nightly job (and a "draft now" button) gathers the day's events, check-ins, task changes, issues, uploads and transcripts, and asks Gemini for a structured draft:
   - weather
   - crews and headcount by company and zone
   - work completed
@@ -178,6 +180,19 @@ Build in this order. Each item ends with tests, a commit and a short report, per
 - [ ] Import the schedule from MS Project or P6 to create tasks.
 - [ ] Optional: photo intake over WhatsApp (a sub sends photos to a number and they land on the right task).
 
+### 2.11a Conversion on real drawings — P1 (moves to P0 if Phase 1 finds most jobs have no IFC)
+
+First real test, 2026-10-04: `drawings2d.pdf` (12 vector sheets from NIST: house, duplex, apartments, office, retail, school, restaurant). Every sheet "converts" but none is usable. On sheet 2 (house, first floor): 55 wall pieces, 0 doors, 3 rooms named "W", "M", "H", scale guessed. Fix in this order and track each step with the eval:
+
+- [ ] Make it an eval set: split into one PDF per sheet under `samples/pdf/real_nist/`, record the true scale, room names, door and window counts in `expected.json` for at least the house sheets (2–4). Check and note the licence in `samples/README.md` (US government work).
+- [ ] Filter the sheet border and title block. Today only lines on the page edge are dropped; these sheets have an inset frame, which became walls and a 47 m² "room".
+- [ ] Read rotated text. The plans are drawn sideways, and pdfminer splits rotated labels into single letters. Group characters by their matrix/direction before matching room labels and scale notes.
+- [ ] Find the scale. Notes are tiny and rotated. Also try dimension strings (e.g. `15' - 2 1/4"`) against measured line lengths.
+- [ ] Split a sheet into its separate drawings (main plan, enlarged kitchen and restroom plans, schedules) by viewport or title ("FIRST FLOOR PLAN"). Today they are merged into one level.
+- [ ] Interior walls: most are missed (thin double lines). Revisit the line-weight rule.
+- [ ] Doors: 0 found on all 12 sheets. Check the arc and swing shapes these sheets use.
+- [ ] Read all pages of a multi-page PDF (today only page 1 is read), with the PM picking which sheets are plans.
+
 ### 2.12 Park for later (don't build now)
 
 - [ ] Payments tied to verified progress, lender draws, materials and deliveries. The data model leaves room for them.
@@ -196,7 +211,7 @@ Build in this order. Each item ends with tests, a commit and a short report, per
 - [ ] Structured logs, with no photos or personal data in the logs.
 - [ ] Security review: auth, magic links, file uploads (type and size checks, image re-encoding), permission checks on every file download.
 - [ ] Data policy: who owns photos, how long we keep them, how a customer exports or deletes their data. Write terms of service and a privacy policy.
-- [ ] Cost tracking for Claude vision and transcription per project per day. Set limits and alerts.
+- [ ] Cost tracking for Gemini vision and transcription per project per day. Set limits and alerts.
 - [ ] Load test: one project with 500 photos a day, 50 users, a 200 MB IFC model.
 
 ## Phase 4 — Testing plan
@@ -225,7 +240,7 @@ Build in this order. Each item ends with tests, a commit and a short report, per
 - [ ] **Voice transcription:** word error rate on 30+ real site recordings, including noisy ones.
 - [ ] **IFC import:** run on every real model we collect. Check floors, rooms and trades are detected correctly, and time the import.
 - [ ] **IFC re-import:** take two versions of the same real project. Check that tasks and progress carry over and changed elements are flagged.
-- [ ] **Conversion fallback:** run the eval on the real drawing sets. Record how much manual fixing each sheet needed.
+- [ ] **Conversion fallback:** run the eval on the real drawing sets (first one: `drawings2d.pdf`, see 2.11a). Record how much manual fixing each sheet needed.
 - [ ] Keep a results log (date, model name, prompt version, numbers) in `samples/RESULTS.md`.
 
 ### Field tests (real phones, real site)

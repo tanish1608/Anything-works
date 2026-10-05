@@ -36,9 +36,9 @@ Run the eval:
 
 ```bash
 cd backend
-export ANTHROPIC_API_KEY=...            # or `ant auth login`
+export GEMINI_API_KEY=...
 .venv/bin/python -m app.vision.eval_vision ../samples/photos                       # default VISION_MODEL
-.venv/bin/python -m app.vision.eval_vision ../samples/photos --model claude-sonnet-5-5
+.venv/bin/python -m app.vision.eval_vision ../samples/photos --model gemini-3.1-pro-preview
 .venv/bin/python -m app.vision.eval_vision ../samples/photos --mock               # no API; checks the data
 ```
 

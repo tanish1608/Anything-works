@@ -1,7 +1,6 @@
-"""Calls the vision model and returns validated per-element verdicts. The model is a config value
-(VISION_MODEL); credentials come from the environment (ANTHROPIC_API_KEY or an `ant auth login` profile)."""
+"""Calls the vision model (Google Gemini) and returns validated per-element verdicts. The model is a
+config value (VISION_MODEL); credentials come from the environment (GEMINI_API_KEY or GOOGLE_API_KEY)."""
 
-import base64
 import json
 import logging
 import time
@@ -55,19 +54,20 @@ def validate(data: object, expected_ids: list[str]) -> list[Verdict]:
     return [got.get(e) or Verdict(e, "uncertain", 0.0, "No verdict returned for this element") for e in expected_ids]
 
 
-def _image_block(jpeg: bytes) -> dict:
-    return {"type": "image", "source": {"type": "base64", "media_type": "image/jpeg",
-                                        "data": base64.standard_b64encode(jpeg).decode()}}
+def _image_part(jpeg: bytes):
+    from google.genai import types
+
+    return types.Part.from_bytes(data=jpeg, mime_type="image/jpeg")
 
 
 def build_content(photos: list[bytes], reference: bytes | None, zone: str, trade: str, note: str,
-                  elements: list[dict]) -> list[dict]:
-    content: list[dict] = []
+                  elements: list[dict]) -> list:
+    content: list = []
     for i, p in enumerate(photos, 1):
-        content += [{"type": "text", "text": f"Photo {i}:"}, _image_block(p)]
+        content += [f"Photo {i}:", _image_part(p)]
     if reference:
-        content += [{"type": "text", "text": "REFERENCE (3D model render, not a photo):"}, _image_block(reference)]
-    content.append({"type": "text", "text": user_text(zone, trade, note, elements, len(photos), bool(reference))})
+        content += ["REFERENCE (3D model render, not a photo):", _image_part(reference)]
+    content.append(user_text(zone, trade, note, elements, len(photos), bool(reference)))
     return content
 
 
@@ -77,15 +77,23 @@ def mode() -> str:
         return s.vision_mode
     import os
 
-    has_creds = bool(s.anthropic_api_key or os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN"))
-    return "anthropic" if has_creds else "off"
+    has_creds = bool(s.gemini_api_key or os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY"))
+    return "gemini" if has_creds else "off"
 
 
 def _client():
-    import anthropic
+    from google import genai
 
     s = get_settings()
-    return anthropic.Anthropic(api_key=s.anthropic_api_key) if s.anthropic_api_key else anthropic.Anthropic()
+    return genai.Client(api_key=s.gemini_api_key) if s.gemini_api_key else genai.Client()
+
+
+# Finish/block reasons that mean the model declined to answer (treated like a refusal: fail safe, no retry).
+_BLOCKED = {"SAFETY", "PROHIBITED_CONTENT", "BLOCKLIST", "SPII", "IMAGE_SAFETY", "IMAGE_PROHIBITED_CONTENT", "RECITATION"}
+
+
+def _name(v) -> str | None:
+    return None if v is None else getattr(v, "name", None) or str(v)
 
 
 def analyze(photos: list[bytes], reference: bytes | None, *, zone: str, trade: str, note: str,
@@ -93,41 +101,45 @@ def analyze(photos: list[bytes], reference: bytes | None, *, zone: str, trade: s
     """photos/reference: JPEG bytes (already resized). elements: dicts with id, ifc_class, name, props,
     position_hint. Raises VisionUnavailable when analysis is switched off."""
     s = get_settings()
-    m = mode() if client is None else "anthropic"
+    m = mode() if client is None else "gemini"
     ids = [e["id"] for e in elements]
     model = model or s.vision_model
     if m == "off":
-        raise VisionUnavailable("Photo analysis is off (no Anthropic credentials or VISION_MODE=off)")
+        raise VisionUnavailable("Photo analysis is off (no Gemini credentials or VISION_MODE=off)")
     if m == "mock":
         return AnalysisResult([Verdict(e, "uncertain", 0.0, "mock analysis") for e in ids], "mock", raw={"mock": True})
     if not ids:
         return AnalysisResult([], model)
+    from google.genai import types
+
     client = client or _client()
-    content = build_content(photos, reference, zone, trade, note, elements)
-    kwargs: dict = {
-        "model": model,
-        "max_tokens": 16000,
-        "system": SYSTEM,
-        "messages": [{"role": "user", "content": content}],
-        "thinking": {"type": "adaptive"},
-        "output_config": {"effort": s.vision_effort, "format": {"type": "json_schema", "schema": OUTPUT_SCHEMA}},
-    }
-    if s.vision_fallbacks != "off":
-        kwargs |= {"betas": ["server-side-fallback-2026-07-01"], "fallbacks": s.vision_fallbacks}
+    contents = build_content(photos, reference, zone, trade, note, elements)
+    config = types.GenerateContentConfig(
+        system_instruction=SYSTEM,
+        response_mime_type="application/json",
+        response_json_schema=OUTPUT_SCHEMA,
+        thinking_config=types.ThinkingConfig(thinking_level=s.vision_effort.upper()),
+        max_output_tokens=16000,
+        automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
+    )
     last_err = None
     for attempt in range(2):  # one retry on malformed output
         t = time.time()
-        resp = client.beta.messages.create(**kwargs)
-        raw = {"attempt": attempt + 1, "model": getattr(resp, "model", model), "stop_reason": resp.stop_reason,
-               "seconds": round(time.time() - t, 2), "request_id": getattr(resp, "_request_id", None),
-               "usage": {"input": getattr(resp.usage, "input_tokens", None), "output": getattr(resp.usage, "output_tokens", None)}}
-        if resp.stop_reason == "refusal":
-            last_err = "model declined the request"
+        resp = client.models.generate_content(model=model, contents=contents, config=config)
+        cand = (resp.candidates or [None])[0]
+        finish = _name(getattr(cand, "finish_reason", None))
+        block = _name(getattr(resp.prompt_feedback, "block_reason", None)) if resp.prompt_feedback else None
+        usage = resp.usage_metadata
+        raw = {"attempt": attempt + 1, "model": resp.model_version or model, "finish_reason": finish,
+               "seconds": round(time.time() - t, 2), "response_id": resp.response_id,
+               "usage": {"input": getattr(usage, "prompt_token_count", None), "output": getattr(usage, "candidates_token_count", None),
+                         "thinking": getattr(usage, "thoughts_token_count", None)}}
+        if block or finish in _BLOCKED:
+            last_err = f"model declined the request ({block or finish})"
             raw["error"] = last_err
             break
-        text = next((b.text for b in resp.content if getattr(b, "type", None) == "text"), "")
         try:
-            verdicts = validate(json.loads(text), ids)
+            verdicts = validate(json.loads(resp.text or ""), ids)
             raw["results"] = [v.__dict__ for v in verdicts]
             return AnalysisResult(verdicts, raw["model"], raw=raw)
         except (ValueError, json.JSONDecodeError) as e:
