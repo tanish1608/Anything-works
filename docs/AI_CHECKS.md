@@ -68,3 +68,14 @@ AGENT_ENABLED=true
 ```
 
 Tests use a fake provider (`backend/tests/test_work_assessment.py`); the suite never calls Gemini.
+
+## Project Copilot chat and photo updates
+
+A floating **Copilot** button opens a chat on every project screen (ported from the `codex/design-iteration-2` Project Copilot and re-targeted at shared work records).
+
+- **Ask:** answers from the work records the person is allowed to see. Connected projects use `POST /api/projects/{id}/copilot/chat`, which builds context from the same authorized workspace snapshot as the UI (trade/zone scope applies), up to 40 work records and 12 recent events, including the latest AI check outcome. Public samples use `POST /api/copilot/public-chat` with the browser's visible sample records (untrusted, nothing authenticated) and a per-process rate limit (`AGENT_PUBLIC_CHAT_PER_MINUTE`, default 20).
+- **Send photos:** attach photos (phone camera or files) and describe the work. The copilot suggests up to three work items the photos belong to, limited to work the person can submit for. The person picks the work item, edits the note and ticks the location confirmation; only then is the update submitted through the normal update path (the offline outbox on connected projects, the local record on samples). On connected projects the AI check then runs and its outcome appears in the chat.
+- **Without the AI:** if chat is off or fails, photos can still be sent; the person must choose the work item (nothing is guessed).
+- **Guarantees:** the copilot never changes records. Cited records and suggested work ids are validated server-side against the person's context; an answer that cites anything else is replaced with "unavailable". Customers can ask questions but cannot attach photos. A copilot update never discards another update the person is still writing.
+
+Not ported from the original copilot: draggable/resizable window, avatar image, calendar coordination, LiDAR shortcut, assignment drafting.

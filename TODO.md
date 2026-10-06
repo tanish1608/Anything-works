@@ -31,7 +31,10 @@ The manual loop is connected; the AI plugs into it as a reviewer's assistant. Th
 - [ ] **Public samples:** the browser-only sample projects cannot call the AI; decide whether to offer a server-backed demo project.
 - [ ] **AI-raised issues:** let a "possible mistake" pin itself on the model as AI-suggested until a PM confirms it (today the PM confirms from the card).
 - [ ] **Multi-component updates, retries/leases and cost tracking** per run; the original branch's lease/recovery design is a good reference.
-- [ ] **Not ported (extras on `codex/design-iteration-2`):** Project Copilot chat, voice-note transcription, wording suggestions, AI daily summary, coordination/calendar helpers, Docker/OpenAPI tooling. Revisit individually; voice and daily summary are on the roadmap.
+- [x] **Project Copilot chat with photo updates:** ask questions from scoped work records (or public sample records); attach photos in the chat, get a suggested work item, confirm work and location, and submit through the normal update path (offline outbox, AI check). Verified in a real browser with live Gemini on the duplex sample.
+- [ ] Copilot on phones: check camera capture, keyboard overlap and the floating window on iPhone/Android.
+- [ ] Copilot: let PMs act from chat (open the suggested decision pre-filled), and show AI-check results for photos sent from chat on public samples once a server-backed demo exists.
+- [ ] **Not ported (extras on `codex/design-iteration-2`):** voice-note transcription (chat has browser voice input only), wording suggestions, AI daily summary, coordination/calendar helpers, Docker/OpenAPI tooling. Revisit individually; voice and daily summary are on the roadmap.
 - [ ] **Retire the legacy path** (`vision_jobs.py` confidence auto-approval) once nothing depends on zone uploads.
 
 ## Shared daily integration — October 6

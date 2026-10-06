@@ -820,7 +820,8 @@ export function transition(
         at: now,
       });
     }
-    next.draft = null;
+    // Only the submitted draft is cleared; a separate update in progress (e.g. from copilot) survives.
+    if (!next.draft || next.draft.clientId === action.draft.clientId) next.draft = null;
     return next;
   }
   if (!action.reason.trim())

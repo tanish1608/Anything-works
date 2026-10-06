@@ -51,6 +51,18 @@ describe("shared model and field workflow", () => {
     ).toThrow(/already has tracked work/);
   });
 
+  it("submitting a copilot photo update keeps a different update draft in progress", () => {
+    const state = initialProjectState(model);
+    const [a, b] = state.items;
+    const writing = { ...draft(a.id), clientId: "capture-draft" };
+    const next = transition({ ...state, draft: writing }, {
+      type: "submit", draft: { ...draft(b.id), clientId: "copilot-1" }, offline: false, sample: false,
+    });
+    expect(next.draft).toEqual(writing);
+    const same = transition({ ...state, draft: writing }, { type: "submit", draft: writing, offline: false, sample: false });
+    expect(same.draft).toBeNull();
+  });
+
   it("keeps a customer or crew report in PM triage instead of confirming an issue", () => {
     const state = initialProjectState(model);
     const work = state.items.find((i) => !i.issue && i.status !== "issue")!;

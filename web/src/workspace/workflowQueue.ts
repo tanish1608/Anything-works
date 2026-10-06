@@ -43,7 +43,7 @@ export function saveDraft(actor: string, project: string, draft: Draft | null) {
 export function getDraft(actor: string, project: string): Promise<Draft | undefined> {
   return transaction("drafts", "readonly", (s) => s.get(`${actor}:${project}`));
 }
-export async function queueWorkUpdate(actor: string, project: string, version: string, draft: Draft) {
+export async function queueWorkUpdate(actor: string, project: string, version: string, draft: Draft, keepSavedDraft = false) {
   if (draft.photos.some((p) => p.sample || !p.url.startsWith("data:image/"))) throw Error("Attach actual photos to a connected project.");
   const files = await Promise.all(draft.photos.map(async (p) => ({ name: p.name, blob: await (await fetch(p.url)).blob() })));
   const item: PendingWorkUpdate = { client_uuid: draft.clientId || crypto.randomUUID(), actor_id: actor, project_id: project,
@@ -53,7 +53,8 @@ export async function queueWorkUpdate(actor: string, project: string, version: s
   await new Promise<void>((resolve, reject) => {
     const tx = db.transaction(["updates", "drafts"], "readwrite");
     tx.objectStore("updates").put(item);
-    tx.objectStore("drafts").delete(`${actor}:${project}`);
+    // A copilot photo update must not discard a different update the user is still writing.
+    if (!keepSavedDraft) tx.objectStore("drafts").delete(`${actor}:${project}`);
     tx.oncomplete = () => { db.close(); resolve(); };
     tx.onerror = tx.onabort = () => { db.close(); reject(tx.error || Error("Unable to queue update")); };
   });

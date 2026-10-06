@@ -9,6 +9,7 @@ import {
   type ModelDataset,
   type PublicProjectId,
 } from "../viewer/modelData";
+import ProjectCopilot from "./ProjectCopilot";
 import { WorkspaceContext, type Decision } from "./context";
 import {
   initialProjectState,
@@ -826,6 +827,12 @@ function BuildingWorkspace({
             </div>
           </WorldDialog>
         )}
+        <ProjectCopilot
+          key={`${model.source.slug}:${model.version}`} // a new project starts a new conversation
+          selectedWorkId={params.get("work")}
+          page={panel || "overview"}
+          onOpenRecord={selectWork}
+        />
       </div>
     </WorkspaceContext.Provider>
   );

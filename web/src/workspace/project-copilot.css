@@ -1,0 +1,44 @@
+/* Project Copilot: floating chat. Colours follow the dark workspace; adapted from codex/design-iteration-2. */
+.project-copilot { position: fixed; right: 22px; bottom: 22px; z-index: 80; font-size: 13px; }
+.project-copilot-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.project-copilot .project-copilot-fab { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #3a5878; border-radius: 999px; background: #1d3a5c; color: #edf3fb; box-shadow: 0 12px 30px #0008; cursor: pointer; }
+.project-copilot .project-copilot-fab:hover { background: #24497a; }
+.project-copilot.is-open .project-copilot-fab { display: none; }
+.project-copilot-window { display: flex; flex-direction: column; width: min(380px, calc(100vw - 32px)); height: min(560px, calc(100dvh - 120px)); overflow: hidden; border: 1px solid #48617c; border-radius: 16px; background: #182535; color: #edf3fb; box-shadow: 0 24px 70px #000b; }
+.project-copilot-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-bottom: 1px solid #2d3e52; background: #132030; }
+.project-copilot-head div { display: flex; flex-direction: column; gap: 2px; }
+.project-copilot-head span { color: #98aabd; font-size: 12px; }
+.project-copilot .project-copilot-head button { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #98aabd; cursor: pointer; }
+.project-copilot-log { flex: 1 1 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 10px; padding: 14px; }
+.project-copilot-empty p { margin: 0 0 8px; color: #c2cfde; }
+.project-copilot-message { max-width: 94%; padding: 10px 12px; border-radius: 11px; background: #26394e; }
+.project-copilot-message.user { align-self: flex-end; background: #1e4a40; }
+.project-copilot-message p { margin: 4px 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.4; }
+.project-copilot-message small { display: block; color: #98aabd; font-size: 11px; margin-top: 4px; }
+.project-copilot-prompts, .project-copilot-sources { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.project-copilot .project-copilot-prompts button, .project-copilot .project-copilot-sources button { padding: 5px 9px; border: 1px solid #354c65; border-radius: 999px; background: #1f3043; color: #a8cefa; font-size: 11px; cursor: pointer; text-align: left; }
+.project-copilot-thinking { color: #98aabd; margin: 0; }
+.project-copilot-log [role="alert"] { color: #ffb3a8; margin: 0; }
+.project-copilot-thumbs { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.project-copilot-thumbs img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; border: 1px solid #3b5470; }
+.project-copilot-thumbs figure { position: relative; margin: 0; }
+.project-copilot .project-copilot-thumbs figure button { position: absolute; top: -6px; right: -6px; display: grid; place-items: center; width: 20px; height: 20px; padding: 0; border-radius: 50%; border: 1px solid #48617c; background: #132030; color: #edf3fb; cursor: pointer; }
+.project-copilot-handoff label { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; color: #c2cfde; font-size: 12px; }
+.project-copilot-handoff select, .project-copilot-handoff textarea { width: 100%; box-sizing: border-box; padding: 7px 8px; border-radius: 8px; border: 1px solid #3b5470; background: #132030; color: #edf3fb; font: inherit; }
+.project-copilot-handoff .project-copilot-confirm { flex-direction: row; align-items: flex-start; gap: 8px; color: #edf3fb; }
+.project-copilot .project-copilot-handoff button { margin-top: 6px; padding: 8px 12px; border-radius: 9px; border: 1px solid #459afa; background: #3189e9; color: white; cursor: pointer; }
+.project-copilot .project-copilot-handoff button:disabled { opacity: 0.5; cursor: not-allowed; }
+.project-copilot-composer { border-top: 1px solid #2d3e52; padding: 10px 12px; background: #132030; }
+.project-copilot-composer textarea { width: 100%; box-sizing: border-box; resize: none; padding: 8px 10px; border-radius: 10px; border: 1px solid #3b5470; background: #182535; color: #edf3fb; font: inherit; }
+.project-copilot-tools { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.project-copilot-tools span { flex: 1; color: #98aabd; font-size: 12px; }
+.project-copilot .project-copilot-tools button { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border-radius: 50%; border: 1px solid #354c65; background: #1f3043; color: #a8cefa; cursor: pointer; }
+.project-copilot .project-copilot-tools button:disabled { opacity: 0.45; cursor: not-allowed; }
+.project-copilot .project-copilot-tools .project-copilot-send { background: #3189e9; border-color: #459afa; color: white; }
+.project-copilot .project-copilot-tools button[aria-pressed="true"] { background: #5fa9ff; color: #0f1b2b; }
+@media (max-width: 640px) {
+  .project-copilot { right: 12px; bottom: 12px; }
+  .project-copilot-window { width: calc(100vw - 24px); height: calc(100dvh - 96px); }
+}
+.project-copilot .project-copilot-confirm input { flex: none; width: 16px; height: 16px; margin: 2px 0 0; }
+.project-copilot .project-copilot-confirm { line-height: 1.35; }

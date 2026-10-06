@@ -28,7 +28,7 @@ const paths: Record<string, string> = {
   play: 'm8 4 12 8-12 8z', pause: 'M8 4v16M16 4v16',
   link: 'M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2',
   wifi: 'M2 8a16 16 0 0 1 20 0M5 12a11 11 0 0 1 14 0M8 16a6 6 0 0 1 8 0M12 20h.01',
-  menu: 'M4 6h16M4 12h16M4 18h16', lock: 'M5 10h14v12H5zM8 10V6a4 4 0 0 1 8 0v4',
+  menu: 'M4 6h16M4 12h16M4 18h16', mic: 'M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3M19 10v2a7 7 0 0 1-14 0v-2M12 19v3', lock: 'M5 10h14v12H5zM8 10V6a4 4 0 0 1 8 0v4',
 }
 export function Icon({ name, size = 18, style, className = '' }: { name: string; size?: number; style?: CSSProperties; className?: string }) {
   return <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" style={style} aria-hidden="true"><path d={paths[name] || paths.cube} /></svg>

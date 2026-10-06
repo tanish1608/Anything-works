@@ -112,8 +112,10 @@ export function useConnectedWork(model: ModelDataset, changed: (state: Workspace
           assignee_id: action.owner, due: action.due, expected_revision: revision, update_id: null } });
         message("Issue raised under your account and pinned on the shared model.");
       } else if (action.type === "submit") {
-        await queueWorkUpdate(snapshot.user.id, project, model.version, action.draft);
-        draft.current = null;
+        const saved = draft.current;
+        const same = !saved || saved.clientId === action.draft.clientId;
+        await queueWorkUpdate(snapshot.user.id, project, model.version, action.draft, !same);
+        if (same) draft.current = null;
         if (navigator.onLine) { try { await syncWorkUpdates(snapshot.user.id, project); } catch { /* durable outbox remains */ } }
         message("Update saved. The outbox shows any photos still waiting for a server receipt.");
       } else if ("id" in action) {

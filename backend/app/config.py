@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     # Review-only AI checks on received work updates (shadow mode: suggestions for the PM, never completion).
     agent_enabled: bool = False
     agent_timeout_seconds: int = 90
+    # Project Copilot chat (text only). Public sample chat is rate limited per server process.
+    agent_chat_model: str = "gemini-3.8-flash"
+    agent_chat_timeout_seconds: int = 30
+    agent_public_chat_per_minute: int = 20
     cors_origins: list[str] = ["http://localhost:5173"]
 
     @model_validator(mode="after")
