@@ -44,6 +44,8 @@ it('opens as a floating local-context assistant without login', async () => {
   expect(screen.getByText(/using this screen/)).toBeVisible();
   expect(screen.queryByRole('button', { name: 'Connect project records' })).not.toBeInTheDocument();
   expect(screen.queryByText('Ask Agent Isle')).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Inspect photo' }));
+  expect(screen.getByLabelText('Message Placeholder AI')).toHaveValue('What photo should I capture for this work?');
   fireEvent.change(screen.getByLabelText('Message Placeholder AI'), { target: { value: 'How should I check this?' } });
   fireEvent.click(screen.getByRole('button', { name: 'Send' }));
   await screen.findByText('Collect a clear view of the pipe connection.');
