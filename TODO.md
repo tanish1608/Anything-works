@@ -1,14 +1,38 @@
 # Implementation backlog — Everything Works AI
 
-Updated October 6, 2026 after choosing the main website, confirming sign-in-free testing and planning user-specific views. Checked items identify completed work and explicitly state when it is limited to local samples or retained components. Unchecked items remain open; existing foundations and verification limits are in [STATUS.md](STATUS.md).
+Updated October 6, 2026 after rebuilding the website around one central building and contextual workflow panels. Checked items identify completed work and explicitly state when it is limited to local samples or retained components. Unchecked items remain open; existing foundations and verification limits are in [STATUS.md](STATUS.md).
 
 Product scope: AI checking daily updates across construction stages, identifying mistakes and incomplete work, and updating completion and issues in 3D. Before-drywall checking is one use case.
 
 Owners are suggested contributor roles, not assignments. Each package needs a named owner when coding begins. Requirements R1–R10 are defined in the [product specification](docs/PRODUCT_SPEC.md).
 
+## Building-centered workspace — current UI, October 6
+
+This supersedes the earlier tab-based Home/Logs/Building layout. The building is the website: one persistent model canvas with optional contextual panels on the right (below the canvas on small screens). The earlier implementation sections below describe retained foundations, not the current navigation.
+
+- [x] Replace page tabs and permanent sidebars with a large central building, compact header, floating floor controls and source-system toggles.
+- [x] Keep one ProjectScene/SiteViewer mounted across issue review, daily updates, history, teams and project context; preserve the renderer when switching to 2D.
+- [x] Start with exploded source levels and interior visibility; retain exterior-wall, fit and selected-component isolation controls.
+- [x] Navigate building → floor → unit → room → source component. Use the reviewed public duplex A/B room grouping; do not invent unit numbers or guess unit associations for uploaded models.
+- [x] Link model pins and work rows to a room-context camera focus, then offer an explicit tighter component zoom.
+- [x] Open issue photos, current evidence, model-derived reference, responsible team, review actions and recorded timeline in the same contextual panel.
+- [x] Select the latest submission's photo by default while preserving earlier evidence and decisions.
+- [x] Require location confirmation, photos and a note for side-panel updates; move the model when capture changes to another work item.
+- [x] Preserve drafts/offline update identity and source revision; fresh evidence reopens review. Uploaded photos do not run the sample AI simulator or automatically complete work.
+- [x] Support evidence requests, confirmed issue assignment, acceptance, correction rejection, explicit resolution and reopening with recorded reasons; model colors follow the same local records.
+- [x] Replay dated progress on this same model, compare recorded statuses and export daily history; historical geometry/evidence reconstruction remains separate future work.
+- [x] Provide team/contact/availability and project-name/source-context panels; retain local record keys and guarded reset.
+- [x] Redirect old page bookmarks to root query-state panels, preserving work selections and fragments.
+- [x] Add DOM workflow tests for the persistent viewer, source hierarchy, capture target changes, review/history and offline handoffs; verify pin body/centre picking with real three.js CPU ray tests. All 85 frontend tests and production compilation pass.
+- [ ] Review the dark theme, real WebGL camera paths/pins and responsive layout on desktop and physical phones. Renderer-stub/CPU tests do not establish visual acceptance.
+- [ ] Finish keyboard access to untracked model components and assistive-technology review of the spatial explorer.
+- [ ] Bring real project/model import, reviewed unit metadata, permissions and persistence into this canvas/panel interface; keep customer and trade views on the same model rather than adding separate model pages.
+
+See [the building workspace handoff](docs/BUILDING_WORKSPACE.md) for UI behavior, source files and remaining integration boundaries.
+
 ## Current testing setup and next priorities
 
-The chosen website is `/`, with Home, Work & Issues, Building, Logs, People, Setup and capture. Authentication is disabled for this browser-local testing experience: no account, token or sign-in is required. The current view uses a sample PM identity and public model. Backend APIs retain their existing authentication and project permissions; the website does not bypass them or load private projects anonymously.
+The chosen website is `/`, with one building canvas and contextual project pulse, work/issues, history, team, project context and capture panels. Authentication is disabled for this browser-local testing experience: no account, token or sign-in is required. The current view uses a sample PM identity and public model. Backend APIs retain their existing authentication and project permissions; the website does not bypass them or load private projects anonymously.
 
 - [x] Open the root website and its pages without an authentication provider or sign-in gate; redirect the retired `/login` URL to Home.
 - [x] Preserve saved browser records when moving from `/demo` to root URLs.
@@ -25,7 +49,7 @@ Suggested order: role/view design → project storage and approved-model onboard
 - [x] Implement Home, Work & Issues, review, correction, Building, Logs, People, Setup, capture and result screens in React; now the main website at `/`.
 - [x] Apply the designer's typography, colors and navigation; bundle fonts and supplied sample images locally.
 - [x] Implement retained connected Home components using authorized API records; their former `/p/:pid/home` route is retired from the public website.
-- [x] Verify the redesigned frontend with 76 passing tests, production compilation and lint completion with warnings. Tests use mocked APIs and a stubbed 3D renderer; browser/device verification remains open.
+- [x] Verify the redesigned frontend with 85 passing tests, production compilation and lint completion with warnings. Tests use mocked APIs and a stubbed 3D renderer; browser/device verification remains open.
 - [x] Document routes, interactions, fixture boundaries and implementation files in [the implementation guide](docs/design/ui/IMPLEMENTATION.md).
 
 The detailed completed demo interactions are checked in the packages below. No production backend package or live AI capability is complete merely because its demo works.
@@ -96,15 +120,15 @@ Use one project, one model revision and the same work/evidence records, with dif
 | User | Home and main views | Intended actions and scope |
 |---|---|---|
 | Customer / client / homeowner | Simple project summary, shared milestones, approved photos, shared issues and a read-only building/progress view | Read project information explicitly shared with the customer; ask questions and make customer decisions only when requested. No internal review queue, team administration, private contractor notes or installation approval. |
-| General contractor / project manager / superintendent | Current Home layout: project summary, full building with work pins, exceptions, Logs and People; project/model setup where permitted | Plan and assign work, review evidence, request corrections, accept or reject proposals, explicitly resolve issues and approve design baselines where authorized. Contractor business administration is separate from day-to-day PM review. |
+| General contractor / project manager / superintendent | Current building canvas with project pulse, work pins, exception/evidence/history and team panels; project/model setup where permitted | Plan and assign work, review evidence, request corrections, accept or reject proposals, explicitly resolve issues and approve design baselines where authorized. Contractor business administration is separate from day-to-day PM review. |
 | Subcontractor / trade lead | Assigned trade work, affected rooms/floors, due corrections, relevant plans, own-team updates and progress | Submit evidence, coordinate the assigned crew and respond to findings within assigned trade/location scope. No cross-trade approval, unrelated commercial data, membership administration or baseline release. |
 | Field worker / crew member | Mobile-first assigned tasks, reference/location confirmation, capture, drafts, queue status and follow-up requests | Upload photos/notes and correction evidence for assigned work; see whether an update is queued, received or awaiting review. No project administration or approval actions. |
 | Invited architect / engineer / inspector — later | Relevant drawings, assigned technical questions, inspection/evidence context and a scoped model | Comment or record a technical/formal decision only within the granted scope. AI results remain distinct from an authoritative inspection record. |
 | Company / project administrator — later | Projects, invitations, teams, role/location scope and settings | Manage access and configuration explicitly granted to the administrator; do not implicitly grant construction acceptance authority. |
 
 - [ ] Agree on the initial role/action matrix and customer-visible fields with the team; ship customer, contractor/PM and subcontractor experiences first.
-- [ ] Design role-specific Home summaries and navigation; provide a compact field-worker mode rather than exposing the PM dashboard on a phone.
-- [ ] Reuse Building, Logs, People, capture and review components with role-aware projections; retain consistent pin selection, evidence links and completion provenance across views.
+- [ ] Design role-specific building summaries, contextual panels and permitted actions; provide a compact field-worker mode rather than exposing the PM dashboard on a phone.
+- [ ] Reuse the persistent building canvas and history, team, capture and review panels with role-aware projections; retain consistent pin selection, evidence links and completion provenance across views.
 - [ ] Define customer sharing/release controls, customer questions and requested decisions; identify which milestones and evidence are visible before sharing them.
 - [ ] Scope subcontractor and worker work lists, model components, plans, evidence and contacts by project membership, trade and assigned locations.
 - [ ] Distinguish client/customer access from the existing backend `owner` role. Existing roles are `owner`, `pm`, `trade` and `viewer`; design any new role/permission migrations explicitly rather than giving clients administrative owner permissions.

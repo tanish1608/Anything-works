@@ -41,12 +41,12 @@ A PM can review exceptions, confirm or dismiss a finding, and track a correction
 
 ## What exists today
 
-This repository contains an earlier **SiteMesh** prototype:
+The current website builds on the earlier **SiteMesh** prototype:
 
-- An interactive designer workspace at `/demo`, with a simple Home summary and linked 3D/work list, People contacts and teams, calendar-based Logs with progress comparison, work filters, corrections and local mobile capture.
-- A connected application with model import, drawing review, a linked model on Home, People, daily Logs, issues, photo uploads and progress review.
-- A detailed imported duplex in Building at `/demo/building` and standalone `/bim-lab`: 1,282 actual IFC components, an interior view with exterior walls/roof hidden, bedroom pipe fittings, close-up inspection, precise model pins and linked 2D silhouettes. Home, Logs and Building now share this same model and component-linked sample work records. Home opens the whole building and separates levels before focusing a selected pin.
-- An offline field upload queue and an existing Gemini photo-analysis integration.
+- One large building workspace at `/`, with contextual panels for work/issues, evidence and decisions, daily updates, progress history, teams and project context. There are no separate Home/Logs/Building model pages.
+- A public duplex with 1,282 actual IFC components, exploded floors, exterior walls/roof initially hidden, source-system controls, component zoom, model pins and linked 2D silhouettes. Floor, reviewed Unit A/B and room locations share the original source geometry and IDs.
+- Browser-local capture, offline update identity, human review, corrections and progress replay on the same model. Uploaded photos await review; the live assessment agent is not connected.
+- Retained backend foundations for model import, drawing review, photo uploads, permissions and Gemini analysis. These are not yet connected to the chosen public interface.
 
 These are foundations. The new daily quality-checking workflow, calibrated automatic completion, reliable plan comparison and broad real-site coverage are **not yet delivered or validated**. Existing “installed” verdicts do not establish correct installation.
 
@@ -61,6 +61,7 @@ See [current implementation and gaps](STATUS.md) and [design implementation note
 | [Build plan](PLAN.md) | Architecture, delivery sequence and decisions |
 | [Task backlog](TODO.md) | Detailed work packages for contributors |
 | [Current status](STATUS.md) | What is implemented versus planned |
+| [Building workspace](docs/BUILDING_WORKSPACE.md) | Current canvas/panel UI, source locations and testing boundaries |
 | [Shared model workflow](docs/MODEL_WORKFLOW.md) | Import/review setup, spatial hierarchy, daily evidence and shared progress |
 | [Detailed BIM audit](docs/BIM_AUDIT.md) | Real-project import results, viewer choice, precise locations and P3 verification |
 | [Developer guide](docs/DEVELOPMENT.md) | Setup, configuration, tests and repository map |
@@ -70,6 +71,6 @@ See [current implementation and gaps](STATUS.md) and [design implementation note
 
 ## Running the existing prototype
 
-Follow the [developer guide](docs/DEVELOPMENT.md). The local frontend runs at `http://localhost:5173`; open `/` for the main website. Home, Work & Issues, Building, Logs, People, Setup and capture use the chosen workspace UI. Old `/demo/...` links redirect to the equivalent root URLs. The previous login/project UI is retired from public routing; backend integration remains a separate work package.
+Follow the [developer guide](docs/DEVELOPMENT.md). The local frontend runs at `http://localhost:5173`; open `/` for the main website. One large building canvas is the main workspace. Issues, photos/review, daily updates, progress history, teams and project context open beside it. Old `/demo/...` and page bookmarks redirect into the corresponding root query-state panels. The previous login/project UI is retired from public routing; backend integration remains a separate work package.
 
 Documentation reset and designer UI implementation: October 5, 2026. Detailed BIM/inspection work: October 6, 2026. The full new assessment workflow still requires backend integration and field validation.

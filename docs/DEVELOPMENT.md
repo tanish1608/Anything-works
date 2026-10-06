@@ -38,10 +38,10 @@ Open `http://localhost:5173`. Vite proxies API calls to port 8000.
 
 ## Application surfaces
 
-- **`/`:** main website, using the chosen daily-update workspace UI with local records and a shared building model. It runs without a backend and is not yet a live AI or multi-user project workflow.
-- **`/building`:** full-width duplex viewer with floating Level/View/Layers and a corner 3D/2D preview switch. Component-linked records use `?work=ID`; old illustrated-unit links open the overview.
-- **`/work`, `/logs`, `/people`, `/setup`, `/capture`:** the other main workspace pages.
-- **`/demo/...`:** compatibility redirects to the same page at the root, preserving queries/fragments. Older login/private-project/QR/embed routes no longer mount the previous UI. Backend services and connected components remain available for future integration. See [frontend routing](../web/README.md).
+- **`/`:** one building-centered website with optional right-side panels. It runs without backend/sign-in and stores testing records locally.
+- **`/?panel=record&work=ISS-031`:** evidence/review/timeline for a component-linked record, focused on the shared model.
+- **`/?panel=issues`, `/?panel=activity`, `/?panel=team`, `/?panel=project`, `/?panel=capture`:** contextual workflows; no separate model pages.
+- **Old page and `/demo/...` bookmarks:** normalize to root panel state, preserving relevant work IDs/fragments. Private-project/QR/embed bookmarks no longer mount the retired UI. See [the UI handoff](BUILDING_WORKSPACE.md) and [frontend routes](../web/README.md).
 
 Seeded accounts use `demo-password` unless `DEMO_PASSWORD` is configured.
 

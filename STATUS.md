@@ -8,6 +8,18 @@ AI checks daily construction updates against approved project context, flags mis
 
 The original implementation was built as SiteMesh. The UI now uses Everything Works AI branding and the designer's visual system. Internal identifiers and existing backend behavior remain in place.
 
+## Current building-centered interface
+
+The website now uses one large building canvas with optional contextual panels, replacing the previous tab-based layout. The current entry point is `web/src/workspace/Workspace.tsx`; `BuildingCanvas.tsx` keeps the same ProjectScene/SiteViewer mounted across selection, review, capture, history and team workflows. It starts with exploded source levels and an interior view. Floor controls, system toggles, source breadcrumbs, exterior visibility, fit, component isolation and 3D/2D controls sit inside the model surface.
+
+Issue pins and work rows open photos, responsible team, source context, review/correction actions and recorded timelines in a right panel. Camera focus first includes the room's source components; explicit zoom narrows to the component. Source floor/space IDs and reviewed sample Unit A/B grouping drive the breadcrumbs; unknown unit associations are not invented. The latest submission photo opens first, retaining older evidence.
+
+Daily update capture confirms the selected work location and follows target changes in the same model. Uploaded evidence creates the existing version-bound handoff and awaits review. Completion, open issues, evidence gaps and explicit review actions project from shared local records. Date replay and comparison use this same current design; they do not reconstruct historical design geometry or historical photo snapshots. Team availability, project naming and guarded local reset remain available in panels.
+
+All 85 frontend tests pass, including single-viewer persistence, source hierarchy, current-photo selection, capture target movement, correction resolution, historical replay, offline identity and three.js pin ray hits. Production compilation passes. Lint has existing warnings in retained components; new workspace files have no reported warnings. Browser smoke tests are updated and discoverable but not run; real WebGL/mobile visual acceptance remains open under the saved browser-access restriction. Authentication remains disabled for testing. These UI changes do not connect a live agent or production multi-user persistence.
+
+See [the current handoff](docs/BUILDING_WORKSPACE.md). The earlier implementation notes below describe retained foundations and the route migration history; their page layouts are no longer the current website.
+
 ## Designer UI implementation
 
 The main website at `/` implements Home, Work & Issues, comparison/review, corrections, Building, Logs, People, Setup and mobile capture/results. Home has a record-based daily summary above a model on the left and grouped work pins on the right. Selecting either side focuses/selects the corresponding record. KPI cards, status badges, legends and the floating mascot are removed from Home. Home, Logs and Building use the same imported public duplex through the shared ProjectScene/SiteViewer controller. Fourteen newly defined sample work packages reference its actual component, room and level IDs. Home starts with the entire building, separates floors before focusing a selected component and restores the whole building on request. Component-centre pins are model context, not photo registration.
@@ -48,7 +60,7 @@ IFC2x3 type classification, property truncation and duplicate room-name merging 
 | AI photo-analysis integration | `backend/app/vision/`, `backend/app/services/vision_jobs.py` | Installed/missing/not-visible/uncertain results; not validated broad plan compliance |
 | Issues, notifications and history | `backend/app/api/`, `backend/app/services/` | New assessment-to-correction flow and consistent projections remain work |
 | Authentication and scoped access | `backend/app/auth/`, `backend/app/rbac.py` | Extend the same controls to new records and derived AI outputs |
-| Tests and evaluation harnesses | `backend/tests/`, `web/src/test/`, `web/e2e/`, `samples/` | 76 frontend tests pass; targeted model/workflow/backend suites pass (details below); browser E2E and live AI evaluations were not run |
+| Tests and evaluation harnesses | `backend/tests/`, `web/src/test/`, `web/e2e/`, `samples/` | 85 frontend tests pass; targeted model/workflow/backend suites pass (details below); browser E2E and live AI evaluations were not run |
 
 ## Known migration gaps
 
@@ -72,7 +84,7 @@ IFC2x3 type classification, property truncation and duplicate room-name merging 
 
 ## Verification and next work
 
-The frontend passes 76 tests and production compilation. Frontend lint completes with existing warnings. Initial targeted import/progress verification passed 16 backend tests; final workflow/progress/history/legacy-vision regression verification passed 20 tests, with AI mocked/off. Ruff passes for the changed backend files. Tests include source hierarchy bindings, shared model projections, reversible floor expansion, camera sequencing, first-upload onboarding, offline revision identity, fresh-evidence reopening and stale submission/approval rejection. Browser visual acceptance remains unverified under the saved local-URL preference. No live AI evaluations were run.
+The frontend passes 85 tests and production compilation. Frontend lint completes with existing warnings. Initial targeted import/progress verification passed 16 backend tests; final workflow/progress/history/legacy-vision regression verification passed 20 tests, with AI mocked/off. Ruff passes for the changed backend files. Tests include source hierarchy bindings, shared model projections, reversible floor expansion, camera sequencing, first-upload onboarding, offline revision identity, fresh-evidence reopening and stale submission/approval rejection. Browser visual acceptance remains unverified under the saved local-URL preference. No live AI evaluations were run.
 
 Retained connected onboarding components implement a guided upload → review → approve flow, but are no longer exposed as website routes. Field queues retain their checklist revision; immutable upload audit events record revision, element and photo IDs. Old received retries stay idempotent. Evidence against a superseded baseline cannot approve work on the new model. The local demo prepares structured assessment requests; new agent execution is deferred. See [the model workflow](docs/MODEL_WORKFLOW.md).
 

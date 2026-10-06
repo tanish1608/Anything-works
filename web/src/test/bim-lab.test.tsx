@@ -9,7 +9,7 @@ import {
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { Workbench, type BimDataset } from "../pages/BimLabPage";
 import type { ElementDetail } from "../api/types";
-import Workspace from "../workspace/Workspace";
+import Workspace from "../workspace/LegacyWorkspace";
 import SimpleBuilding from "../workspace/SimpleBuilding";
 import ModelPlan from "../viewer/ModelPlan";
 import ModelPage from "../pages/ModelPage";

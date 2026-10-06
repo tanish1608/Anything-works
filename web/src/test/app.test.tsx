@@ -1,86 +1,392 @@
-import { readFileSync } from 'node:fs'
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { MemoryRouter, useLocation } from 'react-router-dom'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { AppRoutes } from '../App'
-import type { ModelDataset } from '../viewer/modelData'
-import { STORE_KEY } from '../workspace/state'
+import { readFileSync } from "node:fs";
+import { useEffect, type ComponentProps } from "react";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { MemoryRouter, useLocation } from "react-router-dom";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { AppRoutes } from "../App";
+import type ProjectScene from "../viewer/ProjectScene";
+import type { ModelDataset } from "../viewer/modelData";
+import { COLORS, STORE_KEY, type WorkspaceState } from "../workspace/state";
 
-const model = JSON.parse(readFileSync('public/bim-duplex/model.json', 'utf8')) as ModelDataset
-vi.mock('../viewer/modelData', async (original) => ({
-  ...(await original<typeof import('../viewer/modelData')>()),
+const model = JSON.parse(
+  readFileSync("public/bim-duplex/model.json", "utf8"),
+) as ModelDataset;
+const scene = vi.hoisted(() => ({
+  mount: vi.fn(),
+  dispose: vi.fn(),
+  last: null as ComponentProps<typeof ProjectScene> | null,
+}));
+vi.mock("../viewer/modelData", async (original) => ({
+  ...(await original<typeof import("../viewer/modelData")>()),
   loadDemoModel: async () => model,
-}))
-vi.mock('../viewer/ProjectScene', () => ({ default: () => <div data-testid="project-scene" /> }))
-
+}));
+vi.mock("../workspace/photoInput", () => ({
+  readPhoto: async (file: File) => ({
+    id: "uploaded-photo",
+    url: "data:image/jpeg;base64,dGVzdA==",
+    sample: false,
+    name: file.name,
+  }),
+}));
+vi.mock("../viewer/ProjectScene", () => ({
+  default: function Scene(props: ComponentProps<typeof ProjectScene>) {
+    scene.last = props;
+    useEffect(() => {
+      scene.mount();
+      return () => scene.dispose();
+    }, []);
+    return (
+      <div data-testid="project-scene">
+        {props.markers.map((m) => (
+          <button key={m.id} onClick={() => props.onMarker?.(m.id)}>
+            Model pin {m.id}
+          </button>
+        ))}
+        <button onClick={() => props.onSelect?.(model.elements[0].id)}>
+          Select untracked component
+        </button>
+      </div>
+    );
+  },
+}));
 function CurrentUrl() {
-  const { pathname, search, hash } = useLocation()
-  return <output data-testid="url">{pathname}{search}{hash}</output>
+  const { pathname, search, hash } = useLocation();
+  return (
+    <output data-testid="url">
+      {pathname}
+      {search}
+      {hash}
+    </output>
+  );
 }
 function renderAt(path: string) {
-  return render(<MemoryRouter initialEntries={[path]}><AppRoutes /><CurrentUrl /></MemoryRouter>)
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <AppRoutes />
+      <CurrentUrl />
+    </MemoryRouter>,
+  );
+}
+function saved(): WorkspaceState {
+  return JSON.parse(localStorage.getItem(STORE_KEY)!);
+}
+async function ready() {
+  await screen.findByRole(
+    "region",
+    { name: "Building workspace" },
+    { timeout: 5000 },
+  );
+}
+async function menu(name: string) {
+  await userEvent.click(screen.getByLabelText("Open project menu"));
+  await userEvent.click(screen.getByRole("menuitem", { name }));
+}
+async function addEvidence() {
+  await userEvent.click(
+    screen.getByLabelText("I confirm this is the correct work location."),
+  );
+  await userEvent.upload(
+    screen.getByLabelText("Upload evidence photos"),
+    new File(["photo"], "field-photo.jpg", { type: "image/jpeg" }),
+  );
+  await userEvent.type(
+    screen.getByLabelText("What changed?"),
+    "New connection photo; please review against the source plan.",
+  );
 }
 beforeEach(() => {
-  localStorage.clear()
-  vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
-  // The public workspace must not call retired authentication/project APIs.
-  vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Unexpected network request'))
-})
-afterEach(() => { cleanup(); vi.restoreAllMocks() })
+  localStorage.clear();
+  vi.clearAllMocks();
+  scene.last = null;
+  vi.spyOn(globalThis, "fetch").mockRejectedValue(
+    new Error("Unexpected network request"),
+  );
+});
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
 
-describe('canonical website', () => {
-  it('opens Home directly and keeps all navigation within the chosen workspace', async () => {
-    renderAt('/')
-    // The first visit also loads/transforms the lazy workspace module in this test worker.
-    await screen.findByRole('heading', { name: 'Home' }, { timeout: 5000 })
-    const nav = within(screen.getByRole('navigation', { name: 'Workspace' }))
-    expect(nav.getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/')
-    for (const [name, path] of [['Work & Issues', '/work'], ['Building', '/building'], ['Logs', '/logs'], ['People', '/people'], ['Setup', '/setup']]) {
-      expect(nav.getByRole('link', { name })).toHaveAttribute('href', path)
+describe("one building workspace", () => {
+  it("opens the building without login or page tabs and keeps one scene mounted through every panel", async () => {
+    renderAt("/");
+    await ready();
+    expect(
+      screen.queryByRole("navigation", { name: "Workspace" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Sign in" }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("complementary")).not.toBeInTheDocument();
+    const firstData = scene.last!.data;
+    for (const name of [
+      "Project pulse",
+      "Progress history",
+      "Project team",
+      "Project context",
+      "Explore building",
+    ]) {
+      await menu(name);
+      expect(screen.getByRole("complementary", { name })).toBeInTheDocument();
+      expect(screen.getAllByTestId("project-scene")).toHaveLength(1);
     }
-    expect(screen.queryByRole('button', { name: 'Sign in' })).not.toBeInTheDocument()
-    expect(globalThis.fetch).not.toHaveBeenCalled()
-    await userEvent.click(nav.getByRole('link', { name: 'Building' }))
-    await screen.findByRole('region', { name: 'Building viewer' })
-    expect(screen.getByTestId('url')).toHaveTextContent('/building')
-    await userEvent.click(screen.getByRole('link', { name: 'Everything Works AI' }))
-    await screen.findByRole('heading', { name: 'Home' })
-    expect(screen.getByTestId('url').textContent).toBe('/')
-  })
-
-  it('preserves a bookmarked work selection, query and fragment while retiring the demo prefix', async () => {
-    renderAt('/demo/building/?work=ISS-031#workspace-main')
-    await screen.findByRole('region', { name: 'Building viewer' })
-    expect(screen.getByTestId('url').textContent).toBe('/building/?work=ISS-031#workspace-main')
-    expect(screen.getByRole('main')).toHaveClass('simple-building-page')
-  })
-
-  it('preserves saved project records when reopening at the new root', async () => {
-    const first = renderAt('/demo/setup')
-    const input = await screen.findByLabelText('Project name')
-    await userEvent.clear(input)
-    await userEvent.type(input, 'Elm Court')
-    await userEvent.click(screen.getByRole('button', { name: 'Save name' }))
-    expect(JSON.parse(localStorage.getItem(STORE_KEY)!).projectName).toBe('Elm Court')
-    first.unmount()
-    renderAt('/')
-    await screen.findByRole('heading', { name: 'Home' })
-    expect(screen.getByRole('button', { name: 'Project: Elm Court' })).toBeInTheDocument()
-  })
-
+    await userEvent.click(screen.getByLabelText("Close side panel"));
+    expect(screen.queryByRole("complementary")).not.toBeInTheDocument();
+    expect(scene.mount).toHaveBeenCalledTimes(1);
+    expect(scene.dispose).not.toHaveBeenCalled();
+    expect(scene.last!.data).toBe(firstData);
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
+  it("preserves bookmarked issue selection and fragments while moving old screens into root panels", async () => {
+    renderAt("/demo/building/?work=ISS-031#workspace-main");
+    await ready();
+    await screen.findByRole("complementary", { name: "Work record" });
+    await waitFor(() =>
+      expect(screen.getByTestId("url").textContent).toBe(
+        "/?work=ISS-031&panel=record#workspace-main",
+      ),
+    );
+    expect(scene.last!.focus!.element).toBe(
+      "f1bbcc89-9317-5a67-b1e2-9e8b7c9a846c",
+    );
+    expect(scene.last!.expanded).toBe(true);
+  });
+  it("preserves saved project records in the new interface", async () => {
+    const first = renderAt("/setup");
+    await ready();
+    const input = await screen.findByLabelText("Project name");
+    await userEvent.clear(input);
+    await userEvent.type(input, "Elm Court");
+    await userEvent.click(
+      screen.getByRole("button", { name: "Save project name" }),
+    );
+    expect(saved().projectName).toBe("Elm Court");
+    first.unmount();
+    renderAt("/");
+    await ready();
+    expect(
+      screen.getByRole("heading", { name: "Elm Court" }),
+    ).toBeInTheDocument();
+  });
   it.each([
-    ['/logs', 'Logs'], ['/people', 'People'], ['/setup', 'Model, locations and daily updates'],
-  ])('opens %s directly after a refresh', async (path, heading) => {
-    renderAt(path)
-    await screen.findByRole('heading', { name: heading })
-    expect(screen.getByTestId('url').textContent).toBe(path)
-  })
-
-  it.each(['/demo', '/login', '/p/private/home', '/field/private/zone/room', '/q/private-token', '/embed/p/private/viewer', '/unknown-page'])('retires %s without mounting the old app', async (path) => {
-    renderAt(path)
-    await screen.findByRole('heading', { name: 'Home' })
-    await waitFor(() => expect(screen.getByTestId('url').textContent).toBe('/'))
-    expect(globalThis.fetch).not.toHaveBeenCalled()
-  })
-})
+    ["/logs", "Progress history"],
+    ["/people", "Project team"],
+    ["/setup", "Project context"],
+  ])("opens %s as a panel after a refresh", async (path, name) => {
+    renderAt(path);
+    await ready();
+    await screen.findByRole("complementary", { name });
+    await waitFor(() =>
+      expect(screen.getByTestId("url").textContent).toMatch(/^\/\?panel=/),
+    );
+  });
+  it.each([
+    "/demo",
+    "/login",
+    "/p/private/home",
+    "/field/private/zone/room",
+    "/q/private-token",
+    "/embed/p/private/viewer",
+    "/unknown-page",
+  ])("retires %s without mounting the old app", async (path) => {
+    renderAt(path);
+    await ready();
+    await waitFor(() =>
+      expect(screen.getByTestId("url").textContent).toBe("/"),
+    );
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
+  it("maps a model pin through the source floor, unit and room, and supports a tighter component focus", async () => {
+    renderAt("/");
+    await ready();
+    await userEvent.click(
+      screen.getByRole("button", { name: "Model pin ISS-031" }),
+    );
+    const nav = within(
+      screen.getByRole("navigation", { name: "Model location" }),
+    );
+    expect(nav.getByRole("button", { name: "Level 2" })).toBeInTheDocument();
+    expect(nav.getByRole("button", { name: "Unit A" })).toBeInTheDocument();
+    expect(nav.getByRole("button", { name: "Bedroom 2" })).toBeInTheDocument();
+    expect(scene.last!.focus!.elements!.length).toBeGreaterThan(1);
+    await userEvent.click(
+      screen.getByRole("button", { name: "Zoom to component" }),
+    );
+    expect(scene.last!.focus!.elements).toEqual([
+      "f1bbcc89-9317-5a67-b1e2-9e8b7c9a846c",
+    ]);
+    await userEvent.click(nav.getByRole("button", { name: "Unit A" }));
+    expect(
+      screen.getByRole("complementary", { name: "Explore building" }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("url").textContent).toContain("unit=A");
+    const directory = within(screen.getByRole("complementary"));
+    expect(
+      directory.getByRole("button", { name: /Explore Bedroom 2 · A203/ }),
+    ).toBeInTheDocument();
+    expect(
+      directory.queryByRole("button", { name: /B203/ }),
+    ).not.toBeInTheDocument();
+  });
+  it("resolves a reviewed correction, updates the same component and records history without changing the model", async () => {
+    renderAt("/issue/ISS-031");
+    await ready();
+    const source = scene.last!.data,
+      element = source.elements.find(
+        (e) => e.id === "f1bbcc89-9317-5a67-b1e2-9e8b7c9a846c",
+      )!,
+      bbox = [...element.bbox!];
+    await userEvent.click(
+      screen.getByRole("button", { name: "Accept correction & resolve" }),
+    );
+    await userEvent.type(
+      screen.getByLabelText("Decision reason"),
+      "Reviewed the correction evidence and confirmed the required follow-up.",
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "Save decision" }),
+    );
+    const record = saved().items.find((i) => i.id === "ISS-031")!;
+    expect(record.status).toBe("human");
+    expect(record.issue).toBeUndefined();
+    expect(scene.last!.colors.get(element.id)).toBe(COLORS.human);
+    expect(scene.last!.data).toBe(source);
+    expect(element.bbox).toEqual(bbox);
+    expect(saved().events[0].text).toContain(
+      "Reviewed the correction evidence",
+    );
+    expect(record.inspection).toBe("Not recorded");
+  });
+  it("submits actual photo evidence from the side panel and withdraws previous completion pending review", async () => {
+    renderAt("/capture?item=PLUMB-402");
+    await ready();
+    await addEvidence();
+    await userEvent.click(
+      screen.getByRole("button", { name: "Submit for review" }),
+    );
+    expect(
+      screen.getByRole("complementary", { name: "Work record" }),
+    ).toBeInTheDocument();
+    const state = saved(),
+      record = state.items.find((i) => i.id === "PLUMB-402")!;
+    expect(record.status).toBe("review");
+    expect(record.photos.find((p) => p.id === "uploaded-photo")!.sample).toBe(
+      false,
+    );
+    expect(
+      screen.getByRole("img", { name: "field-photo.jpg" }),
+    ).toBeInTheDocument();
+    expect(state.assessmentJobs![0].state).toBe("awaiting_agent");
+    expect(state.assessmentJobs![0].modelVersion).toBe(model.version);
+    expect(scene.last!.colors.get(record.location!.elements[0])).not.toBe(
+      COLORS.human,
+    );
+    expect(scene.mount).toHaveBeenCalledTimes(1);
+  });
+  it("retains the same offline submission identity when reconnecting and does not auto-complete it", async () => {
+    const connection = vi
+      .spyOn(navigator, "onLine", "get")
+      .mockReturnValue(false);
+    renderAt("/capture?item=PLUMB-402");
+    await ready();
+    await addEvidence();
+    await userEvent.click(screen.getByRole("button", { name: "Queue update" }));
+    const before = saved().assessmentJobs![0];
+    expect(before.state).toBe("queued_offline");
+    connection.mockReturnValue(true);
+    act(() => window.dispatchEvent(new Event("online")));
+    const after = saved().assessmentJobs![0];
+    expect(after.id).toBe(before.id);
+    expect(after.update).toBe(before.update);
+    expect(after.state).toBe("awaiting_agent");
+    expect(saved().items.find((i) => i.id === "PLUMB-402")!.status).toBe(
+      "review",
+    );
+  });
+  it("moves the same model to a changed capture target and asks for fresh location confirmation", async () => {
+    renderAt("/capture?item=PLUMB-402");
+    await ready();
+    await userEvent.click(
+      screen.getByLabelText("I confirm this is the correct work location."),
+    );
+    await userEvent.selectOptions(
+      screen.getByLabelText("Work item"),
+      "ISS-031",
+    );
+    expect(
+      screen.getByLabelText("I confirm this is the correct work location."),
+    ).not.toBeChecked();
+    expect(scene.last!.focus!.element).toBe(
+      "f1bbcc89-9317-5a67-b1e2-9e8b7c9a846c",
+    );
+    expect(screen.getByTestId("url").textContent).toContain("work=ISS-031");
+    expect(scene.mount).toHaveBeenCalledTimes(1);
+  });
+  it("searches room context and opens the matching issue without losing the building", async () => {
+    renderAt("/");
+    await ready();
+    await userEvent.type(
+      screen.getByLabelText("Search building records"),
+      "Bedroom pipe connection",
+    );
+    const panel = within(
+      screen.getByRole("complementary", { name: "Work & issues" }),
+    );
+    await userEvent.click(
+      panel.getByRole("button", { name: /Bedroom pipe connection/ }),
+    );
+    expect(
+      screen.getByRole("complementary", { name: "Work record" }),
+    ).toBeInTheDocument();
+    expect(scene.mount).toHaveBeenCalledTimes(1);
+  });
+  it("replays historical status on the same scene and returns to current evidence when opening a record", async () => {
+    renderAt("/logs");
+    await ready();
+    const source = scene.last!.data;
+    fireEvent.change(screen.getByLabelText("Show recorded day"), {
+      target: { value: "2026-01-01" },
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId("url").textContent).toContain(
+        "date=2026-01-01",
+      ),
+    );
+    expect(scene.last!.data).toBe(source);
+    expect(scene.last!.markers).toHaveLength(0);
+    await userEvent.click(
+      screen.getByRole("button", { name: "Return model to current progress" }),
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "Model pin ISS-031" }),
+    );
+    expect(
+      screen.getByRole("complementary", { name: "Work record" }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("url").textContent).not.toContain("date=");
+    expect(scene.mount).toHaveBeenCalledTimes(1);
+  });
+  it("opens untracked components without inventing work or completion", async () => {
+    renderAt("/");
+    await ready();
+    await userEvent.click(
+      screen.getByRole("button", { name: "Select untracked component" }),
+    );
+    expect(
+      screen.getByRole("complementary", { name: "Component details" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/no tracked work or evidence record/),
+    ).toBeInTheDocument();
+    expect(saved()?.assessmentJobs || []).toHaveLength(0);
+  });
+});

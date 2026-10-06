@@ -75,3 +75,7 @@ The workspace header separates brand/project/profile controls from navigation, k
 ## Canonical website routing — October 6
 
 The user selected this workspace as the final website UI. `App.tsx` now mounts it at `/`; its navigation, capture/results, review/issues and model links use root paths. `/demo/...` redirects preserve query/fragment values. The previous login/project/field/embed UI is not mounted; retained backend and connected components are foundations for integration into this interface. Local storage keys and sample provenance labels stay unchanged. The PWA starts at Home. DOM routing tests and production compilation pass; revised browser smoke tests remain unrun.
+
+## Building-centered redesign — October 6
+
+The current website replaces page tabs with a large persistent model and optional contextual workflows. `Workspace.tsx`, `BuildingCanvas.tsx` and `WorldPanels.tsx` are the active interface. Existing tabbed layouts are retained only as source/regression-test foundations. Floor/unit/room breadcrumbs, room-context focus, component zoom/isolation, photo evidence, recorded timeline, review/corrections, capture, progress replay and teams share one model. The latest submitted image is selected without dropping history. Unit grouping is limited to reviewed sample room codes. Root query-state links preserve old work bookmarks. See [the building workspace handoff](../../BUILDING_WORKSPACE.md). Tests: 85 passing; production compilation passes; real browser/mobile visual review remains unverified.

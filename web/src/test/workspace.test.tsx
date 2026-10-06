@@ -19,7 +19,7 @@ import {
   it,
   vi,
 } from "vitest";
-import Workspace from "../workspace/Workspace";
+import Workspace from "../workspace/LegacyWorkspace";
 import { STORE_KEY } from "../workspace/state";
 
 const model = JSON.parse(

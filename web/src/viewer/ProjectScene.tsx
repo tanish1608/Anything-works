@@ -27,6 +27,7 @@ export default function ProjectScene({
   onError,
   onLoaded,
   loader = fetchModelLayer,
+  background,
 }: {
   data: ModelDataset;
   visible: Set<string>;
@@ -41,6 +42,7 @@ export default function ProjectScene({
   onError?: (error: string) => void;
   onLoaded?: (ready: boolean) => void;
   loader?: (url: string) => Promise<ArrayBuffer>;
+  background?: string;
 }) {
   const viewer = useRef<SiteViewer | null>(null),
     callbacks = useRef({ onSelect, onMarker, onReady, onError, onLoaded });
@@ -65,6 +67,9 @@ export default function ProjectScene({
     callbacks.current.onError?.(text);
     callbacks.current.onLoaded?.(false);
   };
+  useEffect(() => {
+    if (ready && background) viewer.current?.setBackground?.(background);
+  }, [ready, background]);
   useEffect(() => {
     const v = viewer.current;
     if (!v || !ready) return;

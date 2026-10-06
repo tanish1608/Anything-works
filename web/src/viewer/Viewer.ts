@@ -13,6 +13,7 @@ import { PointerLockControls } from "three/examples/jsm/controls/PointerLockCont
 import { SELECTION_COLOR } from "./colors";
 import { DIRECTIONS, fitBounds, type ViewDirection } from "./spatialMath";
 import { applyDisplayOffset } from "./explosion";
+import { createMarkerMesh } from "./markers";
 
 export interface LayerData {
   discipline: string;
@@ -38,6 +39,7 @@ export interface Marker {
   color: string;
   label?: string;
   elementId?: string;
+  kind?: "pin" | "dot";
 }
 
 type Events = {
@@ -132,6 +134,11 @@ export class SiteViewer {
   }
 
   // ------------------------------------------------------------------ events
+  setBackground(color: string) {
+    this.renderer.setClearColor(new THREE.Color(color));
+    this.invalidate();
+  }
+
   on<K extends keyof Events>(type: K, fn: Events[K]): () => void {
     if (!this.listeners.has(type)) this.listeners.set(type, new Set());
     const set = this.listeners.get(type)!;
@@ -467,7 +474,7 @@ export class SiteViewer {
     );
     const ray = new THREE.Raycaster();
     ray.setFromCamera(ndc, this.camera);
-    const markerHit = ray.intersectObjects(this.markerGroup.children, false)[0];
+    const markerHit = ray.intersectObjects(this.markerGroup.children, true)[0];
     if (markerHit && !this.pickMode && this.insideSection(markerHit.point)) {
       this.emit("marker", markerHit.object.userData.markerId);
       return null;
@@ -514,25 +521,13 @@ export class SiteViewer {
   setMarkers(markers: Marker[]) {
     this.disposeGroup(this.markerGroup);
     for (const m of markers) {
-      const s = new THREE.Mesh(
-        new THREE.SphereGeometry(1, 12, 8),
-        new THREE.MeshBasicMaterial({
-          color: m.color,
-          depthTest: false,
-          clippingPlanes: this.clipPlanes,
-        }),
-      );
+      const s = createMarkerMesh(m, this.clipPlanes);
       s.position.set(
         m.position[0],
         m.position[1] + (this.displayOffsets.get(m.elementId || "") || 0),
         m.position[2],
       );
-      s.renderOrder = 10;
-      s.userData = {
-        markerId: m.id,
-        elementId: m.elementId,
-        canonicalPoint: [...m.position],
-      };
+      if (m.kind === "pin") s.quaternion.copy(this.camera.quaternion);
       this.markerGroup.add(s);
     }
     this.sizeMarkers();
@@ -545,14 +540,16 @@ export class SiteViewer {
     const height = this.container.clientHeight || 600;
     const factor =
       (10 * Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2))) / height;
-    this.markerGroup.children.forEach((marker) =>
+    this.markerGroup.children.forEach((marker) => {
+      if (marker.userData.billboard)
+        marker.quaternion.copy(this.camera.quaternion);
       marker.scale.setScalar(
         Math.max(
           0.00005,
           marker.position.distanceTo(this.camera.position) * factor,
         ),
-      ),
-    );
+      );
+    });
   }
 
   // ------------------------------------------------------------------ walk mode

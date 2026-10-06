@@ -6,20 +6,21 @@ The target experience checks daily construction updates for mistakes and incompl
 
 ## Current website
 
-The former `/demo` experience is the single public website. There is no separate login/project app in the public route tree.
+The building is the workspace at `/`. There are no page tabs or permanent left sidebar. A single mounted `BuildingCanvas`/`ProjectScene` fills the available space; contextual workflows open on the right, or below the canvas on small screens.
 
-- `/`: Home, with the daily summary and linked building/work pins.
-- `/work`, `/review/:id`, `/issue/:id`: work, evidence, review and corrections.
-- `/building`: full-width model with Level/View/Layers and the 3D/2D corner preview; `?work=ID` focuses a component-linked record.
-- `/logs`, `/people`, `/setup`: history, project teams and baseline/location context.
-- `/capture`, `/result/:id`: daily updates and their recorded results.
-- `/demo/...` redirects to the equivalent root URL, preserving query strings and fragments. `/bim-lab` redirects to Building; `/field` redirects to capture. Retired login, private project, QR and embedded-viewer URLs return Home without mapping private IDs onto sample records.
+- Overview: exploded source floors, interior visibility, floating floor/system controls and 3D/2D switching.
+- Work/issue selection: building → source floor → reviewed unit group → room → component; room context first, with explicit component zoom/isolation.
+- Right panels: project pulse, work/issues, photo evidence/reference/review, progress history, capture, team and project context.
+- Daily updates: confirmed location, photos, note and optional progress claim; draft persistence and offline queueing. Actual uploads await review; no live agent or automatic completion runs here.
+- History: replay recorded statuses and compare dates on the same current design. Open records show current evidence, not reconstructed historical photos.
 
-Public routing lives in [App.tsx](src/App.tsx); workspace pages and aliases live in [Workspace.tsx](src/workspace/Workspace.tsx). The PWA starts at `/`. Vite and the shipped Nginx configuration serve the SPA entry for direct page visits; other hosts must also rewrite non-file, non-API routes to `index.html`.
+Panel state is bookmarkable: `/?panel=issues`, `/?panel=record&work=ISS-031`, `/?panel=capture&work=PLUMB-402`, `/?panel=activity&date=2026-10-04`, `/?panel=team`, `/?panel=project` and spatial `level`/`unit`/`room` parameters. Old `/demo/...`, `/work`, `/building?work=...`, `/logs`, `/people`, `/setup`, `/capture`, review/issue/result bookmarks normalize to these root panels. Retired private-project URLs return to the sample overview without transferring private IDs.
 
-The UI still uses public sample geometry, fictional work records and local storage. Saved records retain their existing keys across the URL change. Generated evidence and simulated checks stay labeled. Backend auth, import, offline queue and connected components remain in source for integration; their older screens are no longer public routes.
+Routing lives in [App.tsx](src/App.tsx) and [Workspace.tsx](src/workspace/Workspace.tsx); spatial navigation is in [spatialNavigation.ts](src/workspace/spatialNavigation.ts). The PWA opens `/`. Vite and production Nginx serve the SPA entry for deep links; other hosts need the same non-file/non-API rewrite.
 
-Authentication is intentionally disabled on the website for testing; open any workspace page without signing in. Backend APIs retain authentication and project scope. The current UI is the PM sample view; customer, contractor/PM, subcontractor and worker experiences are planned in [TODO.md](../TODO.md). Restore scoped sign-in in this interface when connecting private project data.
+The public duplex, fictional work records, sample PM identity and existing local-storage keys are preserved. Unit A/B grouping is explicitly limited to the reviewed sample room codes; imported projects will need reviewed unit metadata. Generated images, missing evidence, uncertain checks and formal inspection boundaries remain explicit. Authentication stays disabled for website testing; backend permissions remain active.
+
+See [the building workspace handoff](../docs/BUILDING_WORKSPACE.md). Legacy tabbed pages and connected components remain as integration/regression-test foundations and are not mounted in the website.
 
 ## Run and check
 
