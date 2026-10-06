@@ -1,0 +1,6037 @@
+{
+  "source": {
+    "repository": "buildingsmart-community/Community-Sample-Test-Files",
+    "revision": "7ddf57a201f88a0c213d5322b02ed15e94a60a40",
+    "folder": "IFC 2.3.0.1 (IFC 2x3)/Duplex Apartment",
+    "attribution": "BSI (2020) Duplex Apartment Test Files, buildingSMART International",
+    "license": "CC BY 4.0",
+    "building_aliases": {
+      "XYZ": "Building"
+    },
+    "alignment_note": "Reviewed federation: discipline files describe the same duplex in shared world coordinates; their building labels differ. Only the label XYZ is mapped to Building. Geometry is unchanged.",
+    "files": {
+      "Duplex_A_20110907.ifc": "b347a2c8aa8fff6db896a4417a9c50c22ac0ccd7c5cfc22b99b8d29336c606ed",
+      "Duplex_Plumbing_20121113.ifc": "abfaf5c0979b6b4b05182aec7ada8945374bdb414db76c763724d549b41b212b",
+      "Duplex_Electrical_20121207.ifc": "d47b014ed5b3428496683ee75e4664013f6df8237ea571b8d13f877cea0b7a94",
+      "Duplex_M_20111024_ROOMS_AND_SPACES.ifc": "3cd577ecff9daf91632789a408070251a431b198de7be47f64e01c7fda1be92b"
+    }
+  },
+  "files": [
+    {
+      "file": "Duplex_A_20110907.ifc",
+      "bytes": 2380763,
+      "sha256": "b347a2c8aa8fff6db896a4417a9c50c22ac0ccd7c5cfc22b99b8d29336c606ed",
+      "schema": "IFC2X3",
+      "source_products": 295,
+      "source_spaces": 21,
+      "imported_spaces": 21,
+      "imported_elements": 215,
+      "unrendered_products": [
+        {
+          "guid": "0jf0rYHfX3RAB3bSIRjmxl",
+          "class": "IfcRoof",
+          "name": "Basic Roof:Live Roof over Wood Joist Flat Roof:184483",
+          "has_representation": false
+        },
+        {
+          "guid": "0wkEuT1wr1kOyafLY4v_O1",
+          "class": "IfcStair",
+          "name": "Stair:Residential - 200mm Max Riser 250mm Tread:151086",
+          "has_representation": false
+        },
+        {
+          "guid": "21ldoMpbP4VfsJ0XGY_34d",
+          "class": "IfcStair",
+          "name": "Stair:Residential - 200mm Max Riser 250mm Tread:198878",
+          "has_representation": false
+        }
+      ],
+      "source_storeys": [
+        {
+          "guid": "1xS3BCk291UvhgP2dvNMKI",
+          "name": "Level 1",
+          "elevation": 0
+        },
+        {
+          "guid": "1xS3BCk291UvhgP2dvNMQJ",
+          "name": "Level 2",
+          "elevation": 3.100000000000378
+        },
+        {
+          "guid": "1xS3BCk291UvhgP2dvNsgp",
+          "name": "T/FDN",
+          "elevation": -1.25
+        },
+        {
+          "guid": "1xS3BCk291UvhgP2dvNtSE",
+          "name": "Roof",
+          "elevation": 6.00000000000039
+        }
+      ],
+      "seconds": 6.519,
+      "by_discipline": {
+        "structure": 19,
+        "architecture": 196
+      },
+      "triangles": 26348,
+      "max_properties": 95
+    },
+    {
+      "file": "Duplex_Plumbing_20121113.ifc",
+      "bytes": 31556138,
+      "sha256": "abfaf5c0979b6b4b05182aec7ada8945374bdb414db76c763724d549b41b212b",
+      "schema": "IFC2X3",
+      "source_products": 1474,
+      "source_spaces": 1,
+      "imported_spaces": 1,
+      "imported_elements": 498,
+      "unrendered_products": [
+        {
+          "guid": "3KJBAcniL5ZPXb$6VUOeIq",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2UMDWIUcv6XPMPcBHMQIuF",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3lPhNXOR1AT9ujmVbj0BHF",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0judyHII125AZVccqCdo5h",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0jTpyZA4r3jgmE$UTB74RZ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1m$SMVzP1B38v3REOMC1bT",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1qIUHAviP80Bf6C0wL$vq0",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1phWY8gWP5$f7I4wK4EUJg",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1WImV_KXjD8vxzXq9jzvot",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2Nd7uXxEPDF9lhl$06dPi3",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2DpNlBPRL8Yv04pPK9vWqq",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1NoeMDLkjFJuaZCEWcrToM",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3DiQ8haI96TOu$ODieAh$K",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3Yiy3lWBD9pve$JSU_JXbb",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "299YYXP6jCkAnyEkzay4B5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0ZmzBY9lHEuPoKMlShNAM7",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0d46ckN$T73vGMl8SGIUUO",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "14jQHLlyn2pBmA8la$uC8a",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3Tsl70bmrBtRMeEVVBf3LV",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1YP0ED4vfDwBtpQ6_bC8Ya",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1OCPcTQS9BZhUR33fjuBi1",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1pb0CoXLn9D97e5G7Mi3tK",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1ZcsP0o0z8KRKAnSK0iKom",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1PMyP5dm5Aeg_fxs8q9d9f",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0W9wMiW7zF0wM$2zEIObyL",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3iTOXXaGj1kQRyigSKse4s",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2gjzg6pLH6$gRKlzNbXl9u",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0KwmggQMz0fRgzE3FOp$Iy",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3XTIGK8ovDC81yI3KujjoY",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0Nlrfckdv1mOx73T3dPHxd",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0pFuk$j3f02Qu6p0rEtItd",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1ZmufSNev10eYWslgi4IJO",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2KHaMyyT9ALOjYkqr86rNu",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0IY2OSKZX9k8LZZZBLZav2",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2UhvBOtCL1EObMFlGw1E4R",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3hF2AkXBr1x9oM6u$ZwIZ8",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "39ZXLydlv8DRuqZislUwL_",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2YFN9MW915UORdutzZF_EY",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "06nVXHLzXDOAm0eveuvBtT",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2iJdU7El5A0wqHF_0wgZfA",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2Lqv52$orBTxC2Us4t8zr_",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0rJQqF9VP0nhHaiW1L7Zn_",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "029A4OoNj2lxGE2v4p6tdH",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1FawQ3tKjERRsZ7D8fOy8g",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2FpBDplqf3hg_0RpJg0tzL",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "291ZMbPuT3mPc0wyJDxdY$",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0hviztmAnB6gqk$qCG_nFi",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2qZgIE8ov9zOnzJrHFVEWO",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0b9A63Kyz13AqzrcpJo1S1",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2R_x8LD6fB1RE76HAUL419",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "39296xMMf9hRzK_kKak169",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3WPs4yxzPDOxNYf6BtQ6Eo",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1ZMINbzGzAPAQQuTPeWH9R",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3alzyaJvHBk9O$KIj66w5h",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1BVD2_aAP1nADdEv_8q9s6",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0TwJ4kaFL3dBnscSo3buqK",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2k8vx6Lwj0RB0Y25s28yLk",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0zn62Lx5j93eK833ANq$i5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3Tz6EZ0f10Ze3yOfDKZD58",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2rCIxphf946P3U5uqgUUuJ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1s8D9YtuT1A9Zmy_1lnr2B",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1Pt30SUfjBtQvd05wacthP",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "01hZABkqPDsRlzdyr5rPbT",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2bR10eJgr9_RPsp5nRB6xL",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "23CDu5QGb6POwPWl6gyaX$",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3UwNoBN3v6y9$4sTN09xx4",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1YthwVxsz6Lg1yS$UnEfV1",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2148LSWKHB_PlzYxzFHdw_",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2GYsP0ADLAgODClPwH6XdK",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2s8L3kexL4GRueEp0xfNVo",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1JBgje7FLAMBf6Sdd8qb6j",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1n$9Adk4PBsxi8IyN31_Tt",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0EnAbNvMTEtQXzEedGzKYu",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "35zWE3j3zCNP_QtCabNinI",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1R5xLVdfTF69yq3pt7iEfO",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2DkibPbLv4auOehyB22GQ_",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0GTD$wPe94dwOtkJc64KdH",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1NPiZVeO56VPgxQFHvmSuL",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0KQMUNEl5C7Q$oxZztsW2E",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3YDuFx5uP8CxlhA$YXrL7w",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2wQ6dpgZD2tPrqohMLer_U",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3sl6ad3lf0GPYRfWwc7tt6",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3dOmW$Ov9CpvDQ84GKX2F8",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "28PZxPmgHDtRuZOIcKWEMd",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0uf96GNEz2cRnGqUjVogPt",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0KGfO1OBv0lxd8VJ1wfiPA",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1AwpHwZ0X29R1pDdM1SYZX",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2v4eIkR0r3zRo1titXzdj4",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0IAfqGpJv6uucad9GQMGXU",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0kUuN$rGH1L83yGONDaki1",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1k2JfEuMX3VQ_kyDPcDYWn",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "10dmJBgQz1YO2hi3Q1xpnC",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3aFSKHwpv5t8ZipsqsWExq",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2vRw$0E5v59vgKH3CdrTcq",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1GCWirtFP43uH70_oIqsle",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0HiP2bANn42RFKcjGtbJtM",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3f0hj8L314TxF3R0J9e_WP",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2HltXX4uPF9Aev_QSn9KIZ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3SwRD2KQ919OJ9rTY3$Qdm",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "06VrNgGCH5HvuopTaFwJao",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "31AxwrGhb0QQZ$ZlN5g6QW",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1h$58GSCT2iuuvYsayo6d8",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2iutMUhdXBqAB6EqVdxWpS",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3L6WaFW7fE1u$GVBukrxzv",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3m8Ha03eT0iBzdgkXfwUeR",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1nHMxSPBj0WQWF5roPQh3n",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1pMsu_7Ub8PuUC0kJy4zs6",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1$y5_Spcn0bBqEHNC7l4ir",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2iP_wlSfP86xxhH6O0JEhI",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1qdVYmQ5PF8eH3B4i4Emqy",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3EFDb$FYXDmAw8gVd$z$LX",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0s59P82dX47AOOjZVM7KYP",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2fNs62fcn75h9R$TBX7_QS",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2DGYmiBFzBxej5AiLmbNnS",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3bAtMbtJXAARMxCEnlQrob",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1OXAvrDFjA1fC7whKV8YnC",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1d8thl0NnCvAV4X93xe0al",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3O556xRXb20eH8wGZOmAY6",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2DIl$KRJv1TghLgm7RgLCW",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3HZzpbRdf6i9kZDV12bXBU",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3WOuA0NzX4ke2MaxdFIoom",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1UuxKbfjbFzhPwAN7JCZSq",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0k_FxScuXEOQV57$LgQ7oN",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1ZFldqlpn2cfe$Ll9cJSMs",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1O40pV_TD4ehAgxaU9d1fW",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0KVxVb9eX8Y9$OR2C6db82",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3vxur3Huj4AvyDCBBTBwd8",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1HIt_VFBT5HucAq_qCF5Or",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2t9SUG2wz5fwi0vH7cJW6U",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1r4xSbkLH5uRyba7HnR9lS",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0S5YpKgaH3nBLmyLegEC0B",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3CZBy8sAf7Rx9KTvjJyUIa",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1jJyM_cjPFS9f8T3$ScZkS",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3upSTR8kX6yePvzmrnZrsE",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1TV2CEK718uARPSqvHVWr2",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1GkW1sYdL708sST0sR$PhB",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "03inpjFSH5Px7ZHyS0KrSJ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0yd6YAtB1298VZsq0Wgzov",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3DOJ1e4Pr6Ov246kuqEjxl",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1HS4szrVb9yw17DKP5JEwQ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1eran$PRz1_OtSCrPJYdtO",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0QesoZibH0t8swvfquQrb1",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1UX3Gsn7f4fA9jo_wlD08r",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2WpZ15I_18hOeDkK1Jpdzb",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0iMpF8McP6GAzIUahOpcSH",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3iMJMtzA92Pxk$bDIzGcwV",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0V2CJyggX7t9_7wZyVSgIx",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "15RU5YKBX9eBBs4ZfGdly$",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2iL7SRogr2BRk625RzRzer",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2kiKuyYn94JPyqDCAdVS09",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "32BTSBp2P5oOKKdI7ZHcXD",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0XSpYs29zFHge39HZOmc2y",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2bZrkmRwf5ZQfCbunXXoeX",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3HIYwIlIr5X8FBvJBoFoSW",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0kSbqVjwH63gzruAlAtMP5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3ZAeg1tbD6auINPmd6bD0o",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0P7AjYYb1DcwW_0pJ2domi",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "08OmK01yr4HhDI3cAY8ME_",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0Il6Nu2qfAcPdtAhfF5yUu",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2rx$c32yPERfIiw8jlHt1T",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3GPFKP8k5FvPhTC5bWL0v9",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1kKuBRhD93Tw0YfoCCfFUv",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0O3w4kdqH3dw$wppGO9t82",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3INBSpyYX9Wxc2bM2j2ehb",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1uyD$k2lHDMeazmaMvAqrU",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3cV$HXjn9638FlaAR8RE$i",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2bM3QrSOf1DwR2$XH_X81p",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3W7DV$BffCrxe5lPd5WDZS",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0emGfFqAr0FRD$iGaJ2AcZ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1qVkaAm0D2TweOFlXDzpma",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0$t8wQ5zbBKfOKObHSTyCR",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2iSgSkg9jF$xnSwgkadoKH",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "07lxlWM6T4DQ8i1P52blij",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "34jhMt9nzF$PqjQK9sbw9s",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2dYL59oab9PRpiJcn3W53$",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2Mtk4KX054sgferPOkBFjJ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0gWYyOubDA3xwe6kr_gB8x",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2QHg7lQQfDChJS2JDoGEsa",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1wi3nCROj59u23FHTY8ual",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0$TNCbiMrEDxtxevI4L$Db",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3btMxia619TwhkZ0hdBmaN",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1SV3nz_0PA0BGgg0A2I_PN",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0sz6_SjqP6AvdOJilcCPK5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2fMhIVYYn0GxNcXBz4oiYY",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "03f1FzD8nBPBYkRXrCtm0m",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "246UYxjX1FPuKrQWoTQCwj",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1ymrrwZOPBUPJIqfaTLWYH",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1E0oso4Vn9xOI4y0wR_xQX",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2a2musLZ977A9M2BhI_tmv",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3ljNbbNiL3Ie0MgHOk1nDM",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2qR8Ne2W53KQDTO$veIgDo",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2C7__PtuL77RjmptVB$OPb",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1zHweo7Zr4NgiMOWxoZal3",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1do8QKeST9tuNP9NRs$E$U",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2uBY0fkvn6Re4dwYblPmGn",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3h4tks1bvDNuoMqCNqOHmp",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3h763_Mdf5Ch$M49TKIznU",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3SQGq9aW1Cb9lzeaIebSEU",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1Px797TPrCPwONbsK90kZD",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1CeOCADyfDnQN0r_XTQiJv",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0Mbn2XBJ19MPHvSf2u9JLk",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1jUf5dwpHAjfBoa5m4GR6C",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0RnTeV2o922ORhQwd2xlOL",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "15cYoqm9j7j8poGObrJf9a",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "26C7F0EJbA_xUNKfiQoZCH",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0b5M$o3Mz7ZORWyh6KLwLL",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0jrlV0Jev7Kv2z2qFpO54Z",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "34lww$twjDDvdGYAkmLTFg",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3xIMMJpTj2QQJFtv89PCIS",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3iX$Htcx95h8_JHGw2gthq",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0RWIcQRxLB0O9UIpFJY2oA",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1BRDur0p10QQ6NwlVg6lbn",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0n6rEm6gXAEuLBNuwyPb03",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0pAyDBr7v2yfvmtTXn3l5t",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2pbjzmToT4lhhBxBeBayk5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2LeRB$RvzA9Q$Ux_rDvpba",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1Vty0UztrAuOk$WnNQ3SHY",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1yPGEzs35Ad9Ftdq0Lq69w",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0GDHEnvZL2OvfWU36pmshB",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2h4PvT3753t9rvG4jYiR6h",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2$hDlBeur2wfP_LI6WVCha",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0QXOycLULEy8RvJrEuzhjZ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "10vcsV7F1C1g9kEzYoUdv5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0rx9XdEET2SxWZVWlPIwfM",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0QIAG1x_19Ggn9ja4keyqn",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0A1eL8o3n8NgXGBDghiNga",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1xPJxZDE52ex9ebtrOyJw9",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1q0AMXc4944R9wuWmUTJ6e",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0sxS7uuRfFHu1gDGIh5iVI",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2A9J7Dfn94zAaqvdthTeqr",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3UPPnD7yb1g9uJV_18VWGG",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0UyDIXXUf1QAXjsF6p_Tp9",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0J1IKFqzL2hgUmse0OtrLi",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0CRfFKUWT0jAwrfT3eHFrq",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "19E6BMWWDAfw9s$7LF1C6a",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2RJJIRxTP6O9MWMfEXtTot",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2X7_gEKhPEHg4d5_VKRnil",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1sBTM3Ylj3cBwlaWNzn0zB",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "00lTix8LfFUusLMt$iXarx",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2rNSve2Er9kgCzlHpSYe04",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1DlU2JEwr51vCKCMdVpU2e",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0fX2jJPEz0PepIIvm_8VQ$",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2_e4$2Bbf1xe7pPW1JVpaF",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1pF5gMWprFSuwlBuzP_Xvj",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "16EX5lqwv808sfNArCafc1",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "14WeEAlIP1V95tmPfMHd24",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0GL6MbIrb2$f6_bGJzGT4K",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "11$9okDwHBK8$Jki06awcD",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3rLhYKAsX9WfVkE$4TSPaa",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "08pjua6lHETf4p_sY_zjIQ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0P1OpXMrjF$PgQkQHHAr4M",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0Tzf_nRTr6A9TXajNBEwBy",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3QxF5v21f4NO1BUZ1SfZpL",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "16MklGXZfFFOHOyhgNRDOg",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0HTIKy8WnBsRMfa$XxBvCv",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2$PlnXYeX83OY70H8j_dcW",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2bOBQJTKL0s8uqg0EtubpZ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0C8w3pVpb8Lvux$23ijutL",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "20hO7ra1DBJunFu2L2$HyU",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "238ODVjCz4WQBCarSMabb1",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1HoT4QyJbBuu5k3tVgWYkQ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0gLCoG93PFwgHGjCBR_w3p",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2ZNAX5BCf8wem1B0enhG0E",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2MVgkL$05DiQuo4W$XkvHF",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0zsZ1qYkbDBf2iZJqMZJVR",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1P_jkttk5CdOwLePhNoRMK",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3M1lvef611V8ujWkceIADj",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2QGbRyKYPC$PFou$U5otKp",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "14Pez8Q9j0tftfPwVcdCe_",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3TZ$70MinDLQi7SFsZATiZ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2xXIrh2mb5ShuoWwHjC1eK",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0LNvKIiEjFbRL8p2UP2UOv",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0EKGqTNpj5YvrYR$F7VENx",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3F5nAbmN5CGe$ON$xRSSNF",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "39nZToGszETBOoxJ16KNok",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3CT$b7NFLAYR2R2JE6y4Y5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0z4gDtU2LCmwMtHi1MKbmA",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "04TTABgE52wRUnmD1uBqSU",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0ACUA9HrjBVxCYNT8TuhZP",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3YWMZIVaf8hRYoW0Rsbx3P",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1rDvEToSj4mfBJKmaWN8PB",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3tLzojAr96lwkOYxjo8hZx",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "16AR62zzXBABcvpe8g2QY_",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2FbtlCGt5DJxn7Vz556eFO",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2$Zr4E_UvBVfLAn8$r_vFP",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3BF2UzS8LC593snilyfahT",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "00D4s3xTPDvA2Q6zjkic5Q",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0x60VMdub1zRJVkBQ9PWvy",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "07iHxRhOLFMP9LYEl_XDJA",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "35MGxuj3P7Kuys2j1iVi2e",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2cq0B6Ypz6aBLYud8LFv2E",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0sHzmq0_DFtB40fQpAMxv3",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2hGzkLkwj0XfwRGos2z_fS",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0PNH91dI1EDxpSt74Qrmf4",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3EiXyb46vBYuX09ydwgQfd",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1ij2SXCy93Vw3kvI5gSD9U",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "13YbnYBmDAw9pmmt4nwEdP",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2zuOZthJ1AdB641KIBx$AW",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1EZIoUX1LFvRQ0$S4E$Tke",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0_6P9XfPX9oh3$yDz3PdlZ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0pFAh9O1vAqPTA4l7bIP33",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3du72bi4n2ZPheoX_Jm4NK",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "20r6bL0XTCeAXLC1HLXA5T",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0e833$p2f83vgH1QBuyoWy",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2CR66ZeyH1QhMGbZI1m_74",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2URzFhmbn4LhpLnjdqzA81",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3jx_vLV8DCLv6ClPN7FCZ$",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "336xwkvd97C9j9gGRb1TOB",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0OrXWcWVb8xOZ_KihQ6qC0",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3LnadNv1H3w9GdTFni9K1G",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2d0o_dFYrFY8UTNQVFYd0_",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3f0UblzaD04hhx4D_65KIk",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0FENZ59rf3jQ9xYNEXum$P",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "33mLwJL816dR3MHEoHkvFt",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0q0lXDGOnFWvPPa5frchOv",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "07YYvE6IL1vRgX5d683s8b",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1mXHXtgIH1ABxA4qYHbagQ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1ibX3tW9X82BNrmZ7UbQOV",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0mrTsuklzCDhymbkm5BudI",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2BfR9F18P97xJA6DeXJXDA",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2lCsCG1o5A7BhGUTriWOvf",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "05xmLG6nH8D8ic8L9EvtWp",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1oiVTKvmj8bAeB1CG64K4D",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0$kn9qZJb8L8N9czXnawz4",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "11rfsIsP54gviIVGSK8BrZ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0zJvO4iX98LQyvhf6C_0DO",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3DseUdGrTCsvhKqKbOrsUt",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3CNqEShTz0YxSb28ivPLLi",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2PDATYD1PFOQzmliGJJw10",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1Fgeia_Y99WgGCweb2udfe",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0iRPDhJ3XDkw2YY0avarLP",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "20HWFLJub0$QMz540vI8oy",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0Qd6y3uAz7tf1xERLsR6eC",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3zDOTCJ7P8OencHaebmv_6",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3yyFpBDHrDKfC3lG$ofzL0",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1SH0YMoT1B1xnr2BsJvgVN",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0P_8NVyxr5QBjcv4SDMHH7",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1xk1Rxv5z8JfkgYP4S$KLK",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1uVb4hwRz0CO6F26Gsq3Qr",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1KIRJDB5j4KebsV0YRnwG8",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3SPeS8mI18X8Whmx8RL3wJ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3cEhTpVY16Dgp8kGFVO2O3",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1QWynXsYnCvOLgX5ZAvAn5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2hozzJchLCxfeUO9ETir_D",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2oJc8zvmL7qulFE4j3yaCV",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3Og_27KSr9_wzMQKacnsKN",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3YSh5XLfvFQun1t63UdAuQ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3f3cEJu$zAiBA58PNrMhtn",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1R6NBmcpvDnfQjHGttXTYv",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "39qFgeXWbC1fcRRD4Uc8V1",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "08IEIKBJn4bABnHWTnHIFl",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3p0VO94VrFqgrBdD3uPb7L",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2WxXknAKHB_eXiBAxXnMkD",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2cLKbE47j1BPReFIf9cO6$",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1RgmUgATj0ZBUj2C7W6xga",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0_SOYKmRLDBwAhvPisSurf",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1YYnxhhAfEpRfsA6ItErdA",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1YowTt9Mn92fe9Dra60It4",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "378HJYMfr0mu15JN7jpCsw",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2zegxoCQLAtQM52fRl3dK9",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0cRqqkFwn2_ukuzi5jiLnN",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2EPgCg0wL82ui7Tm8ZffLZ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "11TW_oCav2Q8i$Ry_V6QiD",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3HoKkaf61CAvzshQdyKo43",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0OfoEFOHD5SAMDHPqrmUCs",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "03iIGPoXj1R8dBu9WDstke",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "12m$JEIFnCsAUHfQEWCby$",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0Yn4RrrIb4hwcfdFmSA0T7",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1UFMp21tP0OAW8SpvXgnpx",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1zA7vEGyb6px3ADhB1vPt8",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2k2JuwOnPDUwsQ8c1OfYMV",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2BHToXiQD5DPIMWlHwRWTT",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1zLOjAVCb4RRDv9kZDItOV",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2Oq84rKjT9RuDLv9xNBmd2",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "18yQM1uh9ECOJxrsz1LLIb",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0ih7uoJO569uZTG8ezXqOD",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0EabOpFCL1lvJUTOHnDkX8",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1dSA60geb4H9DFaPMsypDs",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "34JMbDMGPFCvn1lwjupriU",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2jrXzeicv78Pki_UPzHB3i",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1KTUxYR5LFcQEl6hp67W7b",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1_5dd8H$P0m9LwYMLYLuN5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "36i4tX9a5AnfT1dq3lZ$sZ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1d7U3TYhfBHwUs_8bonqfd",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1cCzsCm7PCz8ggE5n7jGdL",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3rflBVSV1C1hTjcsceYlz6",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0mmqBOgi5BvwrhUhst$ubW",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0$Dm2Orbz1sQv64gOzbs4x",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "39nI1Xxo1C_hVoiCrxwyva",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0uwbFR9OD0puutYhh5HHSy",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3I_1Gn3l915QlD4fiL$Qwq",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1yMs_U4SbAzRE9mIYrwbMQ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0cS9$hwQ56ouNeySrBzYKx",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0Hi8klPdTAPRzcdrZi0z6X",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0oQpvsgJ14dPLVFYdLy4fg",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "09NZZrJqv4VfgH7qX8innh",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0GMANE9P9BKhUwu3_0V94s",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3QKNFNEcX9NO40Y_gqcWBM",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1HRdhHXr16Weczlm$Puh3U",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "19J1hOJs1EHBqjfxL3HxiT",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1SCgO4F1TBXOiEMZr5vutH",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1rZArt9AT0dhkUToGNLp4I",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0J8gEMWXr1DeFdoMsttOhN",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3$dg6Pt3PDfxy8elYWYN8B",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1hgaw4oZz9PeYbb6LahGXW",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3Ep0Ddxt589e_$kQUl7Ta2",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0fG8ZbDqj7ZBf0EbnBM3DK",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0sfgmrdCL9U9QeYJMs5_nI",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0ldl9WbpH4mx0d$EVTHHkV",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "10VbYAtUn8sfTW5GWUfImn",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0TN7CJl_b2HR8nJqb85Sk1",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0yKv_tAdr9TQ7fg45C1xPG",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2RvlfwAGL9U8GIWONmr0Mi",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0umiSH9N9819iMSK9qCHtL",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0p_G7kUAbCMg$G7Usj$A0o",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0j8qR9XqT6ZvAZ$jVBUtry",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "00tTnwCyX7TO5r5zbxh$2D",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1l2tLkruT8LPi4hALIkON3",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3Z9G6i6EfB1vO4j8betHN1",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2K1LTV2gH5hfJzS3KKKhmx",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0pU2WQnmLFx98_kbola374",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2m8m__5tj0mfRaacVC8joy",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3aNDOk$6D7wRimj5I2WuPq",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0tE7V1WsP4eP9cvkuhLe6$",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1d7t4qU_n27eiUWAzb1K_1",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0VNAoeMyrAMPNgU9NrTmpz",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1BwttlyN9Cwg33ZOVch$5A",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2jIDHNmCj1ofGtdkGXHOXz",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "06aOdg8LL5Jgk5yEFsvqmM",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "00tZsotGb9lOA_3IFvIAaM",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2od3c0tMn9fPzvbVPflqKG",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0zvpFcDOjFAxqqsVbt87bd",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3WiL_Y1hT1FAHjIC7GhnEz",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2GYE8BvTz2i92rTYS12CRK",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1CTXI7Ucz7auXPG94rKUEx",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "057D8EMEvCFAJzXf3WQWrn",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0GNeuXTEPBjhIIHbp38KZw",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3QBmyVIrD3rAN7mILcmk1p",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1hAcoc6910cg9qBAcqfgYC",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "39z0CVh3b3RhGEcKoYTbBq",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0Yx3UM3q5CCw7UZ0nfmlaP",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0I9RdFfFv7PR18hYnJgD_a",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "278tbmo61AuAVbmkaK_X4p",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1P$VWACtf5VesUGody4$f6",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2wcw6flsD27uPqqeriy_DI",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2bipdWcBX5jg0pdUWNzw4R",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2HAI6elyrCLRkuvxp1hZLG",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "008X71xqTCGw8w$TIV$70p",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1LezW$NhXEIwfyeAVs5F$0",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2sCHjLOI11xQ9SInDxsVoO",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1cfSLfcnD3DgqVmIVDR4Yw",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1hm$BHCIX4PuT4csUFsOn3",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3y3sJLkcr3hwE27Ht7VLc3",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2gexe$0hL2_PA$ja44ITjl",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0qz0U1Krr0mg6u5$AfbROU",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0Rqip$t$r8ox0ezbUNdEZP",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2QANYzfNf2cxjq0H5lLZhB",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "32n4fnoL91$B2AniU8OhFz",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1MxTy_WpP4sgJsITlLlqkP",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1zVRh7HXb5dPhaQ5e_N06d",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1NdmQe8SPA$uTKHN0nq6tX",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1hifuBUqD71PUeVJ$RnL9g",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3eroYWRyv4XhwqKbSEC_Sl",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "080TLdtWz4gBbPYESwLLZ5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2tCyP4pMD4j9yISm$frNqa",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "360Op1Xif1pBMfXn8lQfBC",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1c3RZc_A1Aeu6Wxjql1HHs",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0NwHi_2mrFB8fobyn1OP3k",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1mxATo3RT6cgmw8NmUIOxF",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "23krceEG9CEvMA3l9lgBkh",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1hhawPRJf8UwvOtw$z1HzH",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0OkFeY8V93JuMrGLy$hPWX",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "17KteqccTA0wKb6v_f4pN3",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2YoCisQYXA6wmpeSKQOxNs",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3Qv3cZlvH55wA4M__DLs0u",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "29U1QdvVv3Q90iRlF7U$vc",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2mp9OYYcTBWBZjgLVk8pwZ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3LoBq9uUb2xx0BDDJ3cs11",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3veacz7WXC0Af4UIypjXoB",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0zlqdlifz8kx6UOseqi2Ga",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3utPlPXgj4hghtbAPZ5W4K",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2scJBmhDj7PxL$g__IH_aA",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3zP0to66jF3936ThpAxoj8",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3odBvbTrf3_ObASv9WyQ_9",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3iZ3TfOYH1XfE67UhG$9MQ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0hq$hTiTj1gAv8ypyOxP9x",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1Fu0ankLr7eAPHoShKnw1f",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "21W3J8PRz3XhyuA0NosU4a",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1RiN2hrPbCdPVwbB5js$yY",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3Bp9sf6S56T8zreJujmYL7",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2sewiQl0rBjPERPgtoWeBs",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0wSRyrPDrDzvP4gN7FyZ7e",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3B8Fl3uCXDWfxEfggeFpXo",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "19pc7_QRz6z9cKS04pg1yq",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2g992sEtP5ifI3Vi5KF5OM",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2nQzZRWq929eCFnAzH$ORK",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3c53voFif3QQPUKlMtw7db",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3GTaG0Mhf4ZR4kyz9qt3Wk",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1o_wFPgnz3pxbjiFI30N0C",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3R0_K8toz6FP0QNhwBM2e5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3StDk51mf2I9gADBUmQfJ0",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0puTQLsKf4IeiBErCwzmEB",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2sKFrVI_L9Qhe1o$G0N4d$",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0lJ2rxlOnFdQc1RP8tmSnm",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0p0BNwfXz23uuXYdwE9Mjx",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "03QGx9nFf3jO_7hhT2I89K",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "360nzooLf9xeGCezRkTquL",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0yDhUyiun9quer7wP1q$uI",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "315gqnK1P9bBoDjw2WOjFg",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3eB1elJ21DgB8ewfSVyF7h",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0TdP9hZwL5RR5Eu_w3D7O1",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "29CUdjgZD1IOUltmO2sszS",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3YiLzqOsT28AEz4Wz0SkNv",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2vNFVdLGz64hmwAF2JhcY5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0EbVZ0A9XFoQBK$vEasRQy",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2yazYJO3PEPBveKXqnr$GS",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1$2CUHWaD2uOeWRAkpQ7EM",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1GXnb_YdP0jOLqFdz4tlbI",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "04EgBEC318xfPTmlVLx9Il",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2$9DjoPaf3g9o62dd7H6kU",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1zyfmFhXH8mR$RHh3LNLR_",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0LJXvnSvTDXPOhLFNgBrzW",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0K1ggBBmr8Q9aEn8mkLU4T",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1OseELlS5DQxqBhRPBadmU",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1HOypzM0P2D9DCL7EQxinC",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3qHuhh2hr1aPkoJBAX19p5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "18Oceoh3HC78ypsK$_IFW2",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3wgGb9D85BY9G9NGNOWJMl",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1SrUFKwxTCCwTL86cyRzcY",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0bkuVdJUHCtRiUdF3koNJx",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0naRdO1BD5$upFO6uUzpEc",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1_6VIORaD5J8lIScRtxP4g",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "147U3v0Ar8wvTjcik$Bn71",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0zTD9L$KjEj8cKoJECmQBp",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3xaPtGKhH9R9dMkZFRzVkL",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3WbdEctP90MRcOqQj7dEx4",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2cpI8xKMHDNBGRPZhaumH6",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2Nkz_w$KTAOhR6jX0ujc$C",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2IBLjx6XD9kvOb2t2mbDy0",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2Sslnb6hb7UwCR_m3YIv5$",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1rqjYnXq5FkAXUSMPrtq8B",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2zyBKTZbb66xUpko8evWAi",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "304pV2QOL09PGyjFVTh8SA",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1TRD8gIln4pQQiVQD4bwU8",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3sceR8K0f3RwxA58$vAuCI",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "32V3oFJ$1BOOoMZaVruGsI",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1nh4pX$TDBUfgvQzt3bfV6",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2YX2zE5mL8wgsUHELn6KIQ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2VeXaoDer0CxKikEcx333Z",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3ao6NwSa57kgJmvpvoADDM",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3LS1Bi5$vANQNcBcWsUvKi",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0xtJVndPr4pvXcCOod8ma4",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3PrI4ZrLv6Mv7$7Y6eCinf",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3MbRLPKerCGepoZ5x6XMxz",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3hgba80ij6YwjMfeWouFuB",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2vx5wJBcrCygh97Xo6iQw0",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2B6RbKhH13wftSLObJeHTm",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0v7w7Mib13BO$_uMgkkCdh",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "181_FkU4bFuPxV0WN51n8r",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0QYc0WXtL3uB2mIbGeqTLH",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1Vson9iRPBY98Rl1XGcK7x",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "01hHZxI9vBi9jFYL3OHyAa",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2WBj7sCg9DYgyjQON25K1d",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2wIw_FbK126OmRb6V9Arkg",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2cgm84yRjDcvcQtkik3$NM",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3_QLeDHqb0lwPLdwBuC9Fb",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1Lh0fXAun3oAijbVCHwU1m",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "38hDWWPcH4lQz9pv9dpCRZ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2VX2GDguPB9hC8sA01WAL6",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1zGBX2m998WAJgucaOMe9y",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0fdyHkFS1Aaw6q0XayuY2Y",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0$Oow7DHX8SRZvvZKg9j$M",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0ZqKNaNcnCZxYDodZSOTBJ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3UO12mR1z4TfDmrYy1K7_v",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2OXJZkf9b7HO6TRpplVEKb",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1TzVxiElvApumXFutIzMV0",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3imBTxsRT2WAUUMkohfGwx",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "28637SE0v2FAeWl2_DcbAz",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2b$bPZNdrCCf0jfg6tn4GZ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "173Q9hCd52_BVUlfDALR9s",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3ooTMwIW90rwrUrVYaOaQa",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "19AcMO5oX8i8GQ84Ou1eeT",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3R5mDiP7XCSREljnYGWhQE",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2sprp1pwT5Zu8HCLWN0FL$",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "282NqtXEDBYvCBkXQq661o",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1WvqDWcwX708VsLb24DMPG",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0GUWPqjDD3gh9iyueu6Nlx",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0ReUldX4T9pxJlWAMWc1y7",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0CSRHT7e50Bgk9VDtiTmNQ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2tPFzioYL9wxRbQXji_unX",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0gjdPj$znCx8puaJggWpIg",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0BZPgWKPf3SxlsBJD2AmlH",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1zYg7zpdXBHAYVZTpt2P37",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2LIqU0p1jBshhB82KoGiPI",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0fY3OWCxX97eeI20wP4Ela",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0a7GmYNvr8vhLjwNGxjOKC",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "22qJZ27MP9lvZtRAsaZneD",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3h0Ct7ACT4Oxo1tHPfldPT",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "12xYMvjejEl9Mv7KfT91xx",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3g6jjBnZnFDfMZi$NolIUx",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1n$lnnSxb1yg3ohROPd70X",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3ePIyRM0j2IQfgK4EbfXB$",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0qhqhewxvBA9Vyh5tYK97U",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3z92jFcRTDyep6fTC0XyhH",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0Cj7jHyTHD1eXy55q54YWC",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2hvvkqpfv8WQRpdAP3_nZw",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0je8Xsu3bAMh$vEARUQs4D",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2xhPGHdqbCFfrabB6PgsEo",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1lYFsH2pT0M9Axo6HngItb",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1DIfppt0D9leh7xXzgWRrB",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1nehxQBpDCpglmYD3wSLte",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2rZSynLRT0Jv1YOwbpo2Oa",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2qSZFs4cDBL8pYlli1z_Pm",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3_Z5HERavBqhqQaMZyFNXN",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2wBvjS3Mz9cx9$IUoqli8i",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0SorruwYj4URfjgJxqMi5Y",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1T2yk6fGTFMAZASW3jLMur",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0DSlGCIvL6LP0mZYozvGiq",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0bV0i4_c502O$LdoskTJJI",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2jyqLCUNv9pAXQF0$3CzOS",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3tY3LaM$rEpAJfgjWXYC10",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0KvPAkyY52nvXBP05YFF12",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2NA98FlZ52GRGvHzgf8ZHz",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3jeCPDEsv1xR3tgziWVxrN",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2tOIghRTTE3R$RUbRM1bo1",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1xGMPY2$TDxxBG5Rg80Cjw",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2aO2Jyv_nDQe1gAmVf0Et5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0v_68w3SL88e69GLWlW9UA",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "12ib$Tnq5DXwGJ9ArVFD0e",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1DbVgtcrDFeBoeFYFOVzQ5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1csMqV_kD3GAV$iILn5Uj5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "06w5zLitvAzgdE_O67nMhs",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0qKUxzfTH03wv8jLUN$m5d",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3Y670MBPD5rAUThC6gfvzC",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1ACj0QST945vBxGr0EoWB0",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3SJNUyrTP07hhWw96jGILT",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2dventAy170hcKT8hDMyRN",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0RUGsS3fHA7g1iWpogo38z",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0giHYN3DfFXetwbsgRkcc_",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "25W2A$LiH1ngJRhB275Q4A",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1Tmk7qaXj8q8xXVS4_JBq7",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3vtKkdQ611rx$buRNEITCJ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2tUvz_p5nEuvggGLExTy8N",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2n3TgnaC5EuQQlU3QpCNil",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0x5nwgw$v0H9mhVFuHbKZV",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3mVo0IsYvAoPx3dAVGw63C",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "39Px3kB8j9pPko5RIpxI8h",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2jAtdX2xbCWR5xMpVReMN0",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1YJ5uskp96APMjeg8hay2r",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "26H1UKQH9CoResZDZOgkUP",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2jtSwrGqnEuuqvpJxjxoov",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "24mj4WZ8r78xMkRcIpf0aw",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3Ii1hodnT39BWeOy$_FQGJ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0mnRbV42f0LPBz8AFxmSSx",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3GHWKfCpX409DQnIheV8P1",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2TrC3cDlnC3BV0SAyZFV5P",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0uPBwtsNr0k9jaWSV0vBYv",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0t8NRD7$D5ABf0kuku0Z42",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1iuS0zLS9BqxISIOuP9e4b",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1rZcjvRXvERPp3fzVZRUUt",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1as9bRK6LENQKAgfl6tc28",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2dAzQF65f5R9ahLGPipG2N",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2EMAprK8z9OB41cqj5FqbR",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "24pKp7zRLD8epdFgFL5qAK",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3SPs6AxWT1yRt6SDEdYzlv",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0sKquKXuz2VBaKM7y3xv4J",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2yeYe_j219cRewWyqS_Yz9",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3$lmLLexnDiAiwekgUY3tN",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "21d9ohO8nCfu2ijEmU9OgW",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2XQl5oe2v8AgnmXj1pNtmX",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2jdO6_xjPAKQ38Q7TiO8KD",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0wIqd6VJ51vg3sw7RZnqtJ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2Q9nbFd7L5auKZRPAesuTt",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "38ENMdbvbDpfQ1oWPNTxp0",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2U2QY7Dgr29hZx2j5RbsNo",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3ndQ8vWp53PAVKllQf5HA$",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1yQkHr5vn3hfJumT3ugbuT",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "21ZfayfwPFoenmrLf7$D91",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0kNK$BmK1EXPztQDvRSnrn",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0WQhC_ehH4wvE$iQLjiGnz",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "19r7iAeEXBXQRU7jp8aCKq",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1ENToy_g56WxoiRMj3noxA",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0Pp_idHCnF4QVbbXhKiS3O",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3sMbIQYbj6PegD48KMbQle",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1cl2ZSQx5FTRmMGzwkG5qX",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0QON5oJnn99x_5o8nczSRk",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1st3yFSlf2KxVGkBySBBVK",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2qJOZ86AHBP9sQDfGqDSLl",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "04z7OdWkr5zhkBkhOGkO6V",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3b0WWqaTf0b8OGO7CYDBJ9",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1Z5AzL0bX21fUGEPX_jGng",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2r$$gnKvL9fvH6QfQT3VW1",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "04sVl7FCLBXvktjNJBlR14",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2S23cx6MT1WATlJdyzptNT",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2AsHv99svB5QPi46QzqBpP",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0WsHlAy$P9B9758HWmGL1I",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2NjUsHS$r0pBDMDtTA289o",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "33zT$wp$D0fOG6JD4PAXY7",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "15q7u0rTT8O8XyTm5lvgr5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3yHyeoPZ1DshGuKsGuutzk",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3GOepj8sP6FPpt6UhLMHGG",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2TuUJ82lf3zhD0GcI9juVj",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0HPtAy7fj6D8Yk5MWb4UaO",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "06qLHNiI1Dt8jSkbz97R$n",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0B0URc9df2PPD2kluUNLsA",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1naz9ol3T7HAtb9vtvDqxA",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0qYIRi6j90TPFxcsfXNK42",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3coEJ8$iP9rB3ygsy8KUgE",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2n65u6cZH6NeT6__hLG7pk",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3sLy06iNzCqxV529oJuR8k",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1h_kL776TAhBqCliEmSQaj",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3HBmV3$nbEuP1UIS5nmc7_",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1j9S31ogrCawZtnpEgJp$q",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3Jc9ms3S14tu9P762CSTkY",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0BsjnS0LX7HRNQqRKkQpt2",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1bAJ9f_Bb7UA5S7Zc5mao_",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2T3eRNhyj6z8jUa_dCpdFw",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1qWOAAAaH9dPFETG_zboTZ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1jG9Z25PP7Xh92OGQLLPdw",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "03_O6lxcj1yRWHeglMrMxY",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "31jVQ8e811yhy$PxgGeSPh",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3Z4SBIWz53ohUJIIf10lOn",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1I2JnubQz50OPrgrfYsj3h",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0By9uckofA8Rw9CQ8IvrHi",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "12TchQ3Yz0AAGHtuLo9yC6",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3CsUTedvf4yPEt4ljqL0XI",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3D_$4AeW96$xdJ6dKLm7UZ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3ib9N42u14dQMrAm6leObn",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3_8IaHrhL7c9IO7ZyuBhIj",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2EIzteWLvEQONALTHafyjt",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0zcpP$u1D3fu5VS9jeEgCe",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "20XqBdaPb0pwIY1kiJF6WN",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1fQolr1FL7KvOSXbULk1FR",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2upo63ksH4avN4_GjRpUza",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "33CNFfd$DFzPPf89Tgydfa",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0H5RH0M3P9dB3ymsDQLt1i",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2a_7ZEaUr9jOKowRc0yRae",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3Pb3WIhhLAJfJ6JMEhkw9s",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2H1i6GUGDCkxpMW4LBmvVe",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2ZMBiJO0vF8uqrs8qlTZai",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3fv1Dwtmj2zgZUT6rYkynh",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2BTknq_FLEN82pP7HYg_ug",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "13gV7d6jvC5wLbyRZZqZTK",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "13RtxMHTP4VuXvuZKMglLm",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2J3UYjBXL0ou$ZYDq5VfNY",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "29oJBHh5b30QcWMKfAX0uQ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3yX2b$hEnEqPTZJy2C18d1",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0LLHdFPzz0_gf_dWKbwSVY",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "38rabDUW53kBcu1ha2QRv9",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "216hP1_XL9$Rll0tEKXZC9",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0puGBN6qf31ANY$HKCPMGE",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2gRnpXHFX9I9JRnO7ukdcJ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1W_nGActn6QPhezJANiEdi",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0h1eMrsaD67xYWWFr6nTJ9",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3Vb5DMQOb4yhXQCY2yW3gp",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "13xVweF99Bbf4sIYALAGIR",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3CWwuyD1j2m8HGKuwV_fX3",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2eNhikJFv9L96aCXlMI6O3",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3iaJ8Tlh54CxW4zVxjXppS",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1Wzvp7DA5CxBDEvqnOQmP5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "15LfT4Ngv2gRX_YWEhQ6Vq",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1mryO0I$n1nRv8Nos$LefX",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3YStpdZLv06hJXCLk23BvG",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3AZdrVKjH1YRB9sQKx98Az",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0rDcTK4ITAtRannPgJGm4b",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0p8xcZxcT8h82oAuR$EIIy",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1FgcTGJ2L0u9Sp5$xU3OJC",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "08x4X8KKj4Ux9K8jwqLGht",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3p6cXErlPB5gWlHgHpLBut",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3FIwED2Fv6jRBjmWDxARCR",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1rWGr3Ey991uzHBe6224lF",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1H0ilagbP1oPogcPr_qlsU",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3hiTJaalb4JPJuBAxYCTZE",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2SaYsh4L13ROS4fbrEegqA",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3AsP3QR15BZ9b6qGz3HiN$",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2J4YTQSonEHgtDD2VlB4xu",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2meF36mOr1Y9u_ETwRgzHF",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0NBAqKHp13tOuB6Sob8Kys",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "35$dpqlUD29PuW16up2rjr",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2nglYKBULBOxwLJ93xKlEw",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1F9GO1RJr7lwurFci4CQAE",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1ssc_pQ3n3a9Y9UOtgWvuz",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1uLOYoSOjDNRDFXX7GMKcP",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1FbwuacCPElwHRivbe_CEW",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3jHUobv4PD28z2TMyar21N",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2KgbR4Jvv6ePNZufya2y3n",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2ON84EJjD8buhFq5OdFcf8",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3mtQsj35X0ru7lsO5Qryro",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2$_VtQtkXCmvjjc5OrV_G$",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "158PxNmZL5CP9BgGmsovrN",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1kzmXf3sn4S9S73X0q700n",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2meyOSZb907eQDpM0t6oY9",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2Yymo$qwL9AgqJuT$TRvPH",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0a6m$4IWX8xPW20zdHo8Gb",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2mpqPH70DFIAlbAJSzfsbw",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1gcYz$x7TFiRUBBW8MEXUs",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "02N6XcSKL2LeOx_yev8w60",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "30_UMlUSL2ORo_0m5mJF8i",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0CoLwj6$HF0PB7xgo6ulKR",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "05MG2qeqjBEfM6QlYIFn5G",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2qOZ6o_KX4sv2vZqbKaY_M",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3BEB6VnPP9sen$EJaAwiN6",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "27RBdoEvP2OgyAPFD3$xaY",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2fd2jjjYT8Ng3S3Z1keDpQ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0G$t2xz1nEmuskTIAzoz9v",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2cSNNoPc52xu7dKaWXK2$M",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3_LkzAHt16fOqI17ldHes4",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1QG19tdALEUAIFsB8TqLZ1",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2_8SRwM1D53vj3E0ILxeel",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "012Bg9ugDD4u8S0TBxVZAC",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "19oqAowjn1WOMYXErCIQLt",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1NqZJRqMDEIuO15AKtuTUC",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0qLjerAxj4cRG9OXPWMpsC",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2Gq40FRDz25PXyw5_Iwmuy",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0WOe51X5rAMOje0JbwfpLP",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1Dm8N6hozDlO967FKwEmAf",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3yNoheq3LFkA8g5H4kKj$2",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0aOfVYcP1F7v7vihZdfA1J",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "34t_QA2dH8N9PV0dg1FHAz",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2Jm6cfw8z8_xshtiiJvu3C",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3Rb3eqLLj2A85lAc9GBBqM",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2yKkTGKYfEW9SBxLWZfYcy",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1IhiRTJ_v7LxBiSYpMw6fI",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2FdxmmvfjELvZXkSuu0vcL",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2VV6zlUzb1PADW1cHVUB2F",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1dN3KUQDD8UPMee$Qltny0",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2yiUo_cPrE3xQ3pwz_RVGe",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1SjVt4uBL9thAlAI44sFN5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "17bhzD4eDA8vx4TbP361iY",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2N5dklxZb0RfbKOTveL6Ii",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1$PB964pn3W8VTrKVID91I",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1iQJs724HFQwsnkwk_kva5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0nCNAWJlv24uA1u7KmcovW",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2u_WghdIb9Y9q5P92F9vL1",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0KSALgQA9DKQ3ltLSB0iz5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3TnAQEIfb67RzpjJKHhYzK",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3KQ_k8tY1EQ8L2FEFMdblt",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1mRVc6IhPEOf3NwtSiuWso",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "06DTZLsR9AfvtH6kIFc6Gu",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3diX77pvb3$wuF4s_JhCA6",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2oUymE_tz5swfalP0ZRetl",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1n1L7kr79DkQ$dcGD019LF",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2wcdIdPKj49gttlJGx_Pae",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0JRCI8kc99IRi_z$8n66b7",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2zcl_EHfbEKBd26OGRupMG",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3nNRZPJ2f9XBAelCNGUEN3",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0SbM5jZwD4_9NG4F7HQJ9u",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3kOuyOhin6XvVD00SFVHhH",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0floVxJ5vA8gyXePdRinfj",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3dUHnp3Qj0ou79$ZreGVse",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1wRGqNPjHEJgrs0gHm04FB",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1WdIELM$13pw_RU074cxyf",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3IwjHnYqPBVhMpxRzoBjv9",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3H7lKW_e5Fuun23cfv4ovu",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3IrNo6Vnj84P3s2_X_Xk09",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3Na8N7terErx02y4BgcIB9",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "14dU$ZFJPD7hw5t3W3_hlf",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "05_ZKQ7wP5Yf7GobjHL6xg",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0EQZWeXVPCzvQ9wkUEhVSw",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "32qgUzl5PCqvzjiYO4EkdL",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0Wszrhw_X2oAtcPnF_DYkG",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1aevYr8fb1n8oekadw0Sjb",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1MJhbeMALDkfTK9VR7amd_",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2Rup1dM6X7b8DaGg2j8KMn",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1f4mN3TVb8jxURVNCupIka",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1mrq7MUN50bPMGpoo10LkK",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2qJh9TWefD2xQ5wRYtkJ1w",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1Nu5pzbU5Ac8ujg2qeWYFN",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1L$3WlKzT4TuBkib8ZS2$4",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3jVWPExF903Q6VmaftRceQ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1RPbL6j7X4mwC4HfLOBRTj",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "26TwlqmP57X86bqnhKiybb",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0mPTJNOnTFJQe$p3e2v9bm",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0QQagOTcD5XfDCPVWX0HyJ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3iy$kVRG92RQJAmUXaMLxM",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3nin5_245BuPbppCQaj7C4",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0lPzLjss17jPRBt72uwUM3",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3gw1RbPIf5dxrsETXxt222",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3j7d1SXa58pwKnikqEw1ml",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0V122GIpb6Rec5w9Lq2sHj",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2Y1mTFw4r2Ax4cmlFCKrAJ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2Dv3IqVsvDcxUVhMHYppFN",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3VFbQ8RQL1dA9jFxxuI904",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "05tagIA5fESeVU_8PT7mtk",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "08uifPieLDs9p0bm4JypWY",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0ypqb3tULDLgvuGDbCoJFp",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2912trq7nD99Id0WYc1y1k",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0dEuXYwhT2lwwnUv6esp0_",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "01kJPX2HH9dQcQqvcWLVNa",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3AmIVXyhfB9vTqV81n2n1e",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2$GjZipY99PAguSASeZyBM",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0N7_XSIgL2QPxpk$IuwMZl",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0cop9p$TzBwvI93aInieQq",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0kVNcoLj97su4sx_2InfrR",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2iSgUNGEb9CBWdSAAOZgz2",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0fbQRxamD4tO_06b$uD9FE",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1teqQTrMH3Rg8EQjpJ6we$",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3QjMDGKkX3TQGltTV14oKj",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1RMEMw3GrDdwBA$n$dKIeU",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0oYEi4a8fBQ9GWuuWPa2$P",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0ODf5TTcb8YxQtOUgYEw0d",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3bzF2Oe119uhk328L7WAuB",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "26nERyOen2QO0dgtCuq3ak",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3eXC1sHjH9BQc$0Z7o9EHm",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1ISqzTQfT4tRhGV7pQrQgH",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3IfBa5Qfn93wGvr6LIl0Uh",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0Aas5kkgX6ePW8eY0K5Eic",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1Ic9vW9K50t8hH$MS5sIhx",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3m0QSjER5CVeUA7kGBAwFq",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2sPfmqPgLAN8T6yfG1BrNE",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0eAVVFotbCYfK$VjnLynZB",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "39rO1EWx9AlRD0sAWMoY2R",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2URZrqoHr8VPqgbDWhFg_O",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2s6HLTSNT5kQDjau5ZB9sT",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0IscfnfnrANBMRNfyFjygs",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1NCu1Jqh5FSOmfL0Rm3gCN",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2GdT0xuir57vxloNmjDN7K",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3HHwlOPAj8cPmjDRMzDnpy",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2E5acZX_fDmg9MMmz6VPr$",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1TkQhUzaz2xAbV8Bt7DWp7",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2a$fb76_L2b8_y6W6NFR6i",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2sI5SYTDz8Qe3SoTx4_FML",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1NVx3B1DPDBxHMghAFNCBZ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "258vmaeEP5nROnFzpkRaEY",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "26QD3NhYj4tw_ZeXg0NEOF",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "11x4tVDzTEqxqLN5_$vfe4",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3lbzXJ5nbCOAQgW$P01YnE",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "23hCPF_Db2dfMtRAAp_8Aq",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0HKpQP4e58pAvcm5M_0492",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0TXDMC$UvBxx16lAQBTKui",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3BI$2SrnbDkA7vcA0tqTbu",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2U2__2CwjDevdNQ_FQdq99",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1kImOLC814hhY4cLRCeIms",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3BWKolvu1EQvLGl5P18G3d",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3TchwY2fn6jPDitQM2PUA0",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2NqUhq0393NRzBuoE8UU06",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3o$y9fdOn38vkNW7h2r7Lf",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1ml9Me2gnFYwyX33vlKjW0",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1g8ZQ9D211WRcqtj39dHyZ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0bxP_gNCz3Oh3HlaQKtJ53",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3JQR_lDXv2mBDdVT43K0bQ",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "24TL6kiiPEpuVncV1ycmvC",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2WA3vby7LABAfWlYxeJfyN",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2k_nUrMBXDmOpVLF$RvXhU",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "14uqYDJZP4Ku9ek6QPnoU7",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1W7E1vpkr1mvQx0ps6LhwI",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3Gl949bST6VPHmr3Eg$f9O",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2Yi1BJWVbElxSfkMe1J$kU",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1q__6kjrr15Af9fMIMirsM",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3uHKWAhTH7WOzQno2V6jjq",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1csNZPQBLFUAMmwfHN013f",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3msoip4wn79OqW847H3ozb",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2uiabPNcTByPkaY8n8$OcO",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1XWMbjTSXDox4uEU9PAd4U",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0TnC3flFH0GQHJkdcf5_2V",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1PWbL4XoLETQoRlaPbRJsx",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2NXPnlQGbB2RsIQL3y8nP5",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3IohfyNNXBRxiX$o1_AXpX",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3yPP4SdMn1ZxARkdPT1WCr",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2ZRN_EQ2f1_Rem9dPGfX5w",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0gtHfvhvjF0eTQnKV9W8PD",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2cN1GpgsvBRgNJfmifgjPh",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "1qAaubL6XB_9ozSn7V7Eoz",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "125fFri9H5PB5lIau$BQ5n",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2XFfOV5_L1aA19BeEIrFiy",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "2vtvwt6Uj0rPi5xu7zeXFp",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3alPs9k359FveShw2$N5k2",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "0TMMn99YvAbRtxrwobVBKT",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "3Eg0u_efX65Bi0yBbxFE7q",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        },
+        {
+          "guid": "32$V7Dunj7MOOif14vRY4t",
+          "class": "IfcDistributionPort",
+          "name": null,
+          "has_representation": false
+        }
+      ],
+      "source_storeys": [
+        {
+          "guid": "0o8nNAbaT5OQLV8C9mNFXU",
+          "name": "Level 1",
+          "elevation": 0
+        },
+        {
+          "guid": "0o8nNAbaT5OQLV8C9mNFlV",
+          "name": "Level 2",
+          "elevation": 3100.00000000037
+        },
+        {
+          "guid": "0o8nNAbaT5OQLV8C9mLSZW",
+          "name": "Roof",
+          "elevation": 6000.00000000038
+        }
+      ],
+      "seconds": 82.897,
+      "by_discipline": {
+        "plumbing": 498
+      },
+      "triangles": 349670,
+      "max_properties": 128
+    },
+    {
+      "file": "Duplex_Electrical_20121207.ifc",
+      "bytes": 1602758,
+      "sha256": "d47b014ed5b3428496683ee75e4664013f6df8237ea571b8d13f877cea0b7a94",
+      "schema": "IFC2X3",
+      "source_products": 109,
+      "source_spaces": 1,
+      "imported_spaces": 1,
+      "imported_elements": 103,
+      "unrendered_products": [],
+      "source_storeys": [
+        {
+          "guid": "0o8nNAbaT5OQLV8C9mNFXU",
+          "name": "Level 1",
+          "elevation": 0
+        },
+        {
+          "guid": "0o8nNAbaT5OQLV8C9mNFlV",
+          "name": "Level 2",
+          "elevation": 10.1706036745419
+        },
+        {
+          "guid": "0o8nNAbaT5OQLV8C9mLSZW",
+          "name": "Roof",
+          "elevation": 19.68503937008
+        }
+      ],
+      "seconds": 3.998,
+      "by_discipline": {
+        "other": 7,
+        "plumbing": 4,
+        "electrical": 90,
+        "hvac": 2
+      },
+      "triangles": 30014,
+      "max_properties": 124
+    },
+    {
+      "file": "Duplex_M_20111024_ROOMS_AND_SPACES.ifc",
+      "bytes": 8781887,
+      "sha256": "3cd577ecff9daf91632789a408070251a431b198de7be47f64e01c7fda1be92b",
+      "schema": "IFC2X3",
+      "source_products": 529,
+      "source_spaces": 37,
+      "imported_spaces": 37,
+      "imported_elements": 487,
+      "unrendered_products": [],
+      "source_storeys": [
+        {
+          "guid": "0o8nNAbaT5OQLV8C9mNFXU",
+          "name": "Level 1",
+          "elevation": 0
+        },
+        {
+          "guid": "0o8nNAbaT5OQLV8C9mNFlV",
+          "name": "Level 2",
+          "elevation": 3.100000000000205
+        },
+        {
+          "guid": "0o8nNAbaT5OQLV8C9mLSZW",
+          "name": "Roof",
+          "elevation": 6.000000000000207
+        }
+      ],
+      "seconds": 25.168,
+      "by_discipline": {
+        "plumbing": 461,
+        "hvac": 26
+      },
+      "triangles": 183914,
+      "max_properties": 107
+    }
+  ],
+  "elements": 1282,
+  "levels": 4,
+  "rooms": 22,
+  "assigned_to_room": 806,
+  "by_discipline": {
+    "structure": 19,
+    "architecture": 196,
+    "plumbing": 944,
+    "other": 7,
+    "electrical": 90,
+    "hvac": 26
+  },
+  "export_seconds": 1.49,
+  "mesh_bytes": 6174160,
+  "bedroom_fitting": {
+    "id": "f1bbcc89-9317-5a67-b1e2-9e8b7c9a846c",
+    "ifc_guid": "13kXneVBL8egWoGKRJw4aA",
+    "name": "M_Elbow - Generic:Standard:Standard:549664",
+    "zone_id": "a1f3f216-3334-4951-ad4f-dd689c18315e",
+    "bbox": [
+      8.3163,
+      -16.7742,
+      3.1746,
+      8.3449,
+      -16.7392,
+      3.2095
+    ]
+  },
+  "triangles": 549338,
+  "vertices": 297918
+}

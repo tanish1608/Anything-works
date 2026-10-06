@@ -1,6 +1,6 @@
 # Current status — Everything Works AI
 
-Updated October 6, 2026 for the designer UI release. This inventory describes source and verification; it does not certify live AI accuracy.
+Updated October 6, 2026 after the designer UI and detailed BIM implementation. This inventory describes source and verification; it does not certify live AI accuracy.
 
 ## Current direction
 
@@ -18,19 +18,23 @@ See [design implementation notes](docs/design/ui/IMPLEMENTATION.md). Browser vis
 
 ## Implemented foundations
 
+P3 now has a detailed public duplex import: 1,282 rendered elements, 22 spaces, four levels and six discipline layers. `/bim-lab` exposes actual IFC geometry, component properties, close-up inspection, precise local pins and linked model-derived 2D silhouettes. An optional seed adds the same detailed project to the authorized connected app. See [the BIM audit](docs/BIM_AUDIT.md) for extraction results and source attribution.
+
+IFC2x3 type classification, property truncation and duplicate room-name merging are fixed. Connected pins now retain their model version; progress projections distinguish actual human acceptance from legacy automatic approvals. Original PDF/CAD references and generated plans are separate; an unaligned sheet cannot silently locate work in 3D. Live automatic completion and exact photo localization are still pending.
+
 | Foundation | Source location | Important limit |
 |---|---|---|
 | Designer daily-update demo | `web/src/workspace/`, route `/demo`; geometry in `web/src/studio/scene.ts` | Fictional records and generated images; browser-local state; sample checking and notifications are simulated |
 | Connected project workspace | `web/src/App.tsx`, `web/src/pages/` | Earlier coordination/progress workflow, not the new complete specification |
 | IFC import and GLB generation | `backend/app/bim/` | A model is context, not evidence of actual installed quality |
 | DXF and vector-PDF conversion/review | `backend/app/conversion/` | Generated sample results do not establish general real-plan accuracy; DWG is unsupported |
-| 3D viewer and model controls | `web/src/viewer/` | Detailed inspection and new coverage/AI-completion semantics remain separate work |
+| 3D viewer and model controls | `web/src/viewer/`, `/bim-lab` | Detailed import, component inspection/pins/plans and saved progress projection implemented; live scoped AI completion and WebGL/device visual acceptance remain open |
 | Photo uploads and offline queue | `web/src/field/`, `backend/app/services/photos.py` | Device and production offline behavior need validation for the new flow |
 | Evidence-backed progress and review | `backend/app/services/progress.py` | Existing `done` semantics need separation into observed completion and acceptance |
 | AI photo-analysis integration | `backend/app/vision/`, `backend/app/services/vision_jobs.py` | Installed/missing/not-visible/uncertain results; not validated broad plan compliance |
 | Issues, notifications and history | `backend/app/api/`, `backend/app/services/` | New assessment-to-correction flow and consistent projections remain work |
 | Authentication and scoped access | `backend/app/auth/`, `backend/app/rbac.py` | Extend the same controls to new records and derived AI outputs |
-| Tests and evaluation harnesses | `backend/tests/`, `web/src/test/`, `web/e2e/`, `samples/` | Designer release frontend checks are described below; browser E2E and live AI evaluations were not run |
+| Tests and evaluation harnesses | `backend/tests/`, `web/src/test/`, `web/e2e/`, `samples/` | 126 backend and 39 frontend tests pass; browser E2E and live AI evaluations were not run |
 
 ## Known migration gaps
 
@@ -54,6 +58,6 @@ See [design implementation notes](docs/design/ui/IMPLEMENTATION.md). Browser vis
 
 ## Verification and next work
 
-The designer implementation passes 32 frontend tests and production compilation. Frontend lint completes with warnings, including route-menu reset and procedural-WebGL-fallback warnings. The build reports a large 3D bundle, which remains future optimization work. Browser visual review remains blocked by the saved local-URL preference. No live AI evaluations were run. Backend code is unchanged in this release.
+The current implementation passes 126 backend and 39 frontend tests and production compilation. Backend Ruff passes; frontend lint completes with warnings, including the earlier route-menu reset and procedural-WebGL-fallback warnings. Actual GLB ray hits, component identity, close-fit math, persisted pins/plans and evidence-to-element decisions are tested. Browser visual review remains blocked by the saved local-URL preference. No live AI evaluations were run.
 
 Begin with **P0** in [TODO.md](TODO.md): examples, state contract, completion policy and screen flow. Follow [PLAN.md](PLAN.md) for dependencies. Update this file with actual checks and known limitations as implementation progresses.

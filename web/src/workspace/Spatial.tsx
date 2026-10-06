@@ -106,7 +106,7 @@ export default function Spatial() {
         title="Work, quality and context — in one view."
         sub="The approved geometry stays fixed. Daily evidence changes status, coverage and issue pins."
         action={
-          <div className="row"><Link className="btn" to="/demo/capture">
+          <div className="row"><Link className="btn primary" to="/bim-lab">Explore imported BIM project →</Link><Link className="btn" to="/demo/capture">
             New update <Icon name="camera" size={16} />
           </Link></div>
         }

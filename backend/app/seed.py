@@ -144,10 +144,48 @@ def seed_sample_ifc(db: Session) -> Project | None:
     return project
 
 
+def seed_duplex_ifc(db: Session) -> Project:
+    """Optional detailed public project; costs a few minutes to tessellate on first import."""
+    import json
+
+    from app.bim.ifc_import import import_ifc
+    from app.services.models import approve_version
+    from app.storage import get_storage
+
+    name = "Duplex Apartment — detailed BIM"
+    existing = db.scalar(select(Project).where(Project.name == name))
+    if existing:
+        return existing
+    root = SAMPLES / "ifc/duplex"
+    source = json.loads((root / "source.json").read_text())
+    if not all((root / filename).exists() for filename in source["files"]):
+        raise FileNotFoundError("Run python -m app.bim.audit --download before seeding the detailed model")
+    demo = seed(db)
+    owner = db.scalar(select(User).where(User.email == "owner@example.com"))
+    project = Project(id=new_id(), org_id=demo.org_id, name=name, address="Public buildingSMART duplex sample",
+                      settings={"model_building_aliases": source["building_aliases"], "approval_mode": "manual"})
+    db.add(project)
+    db.flush()
+    for member in db.scalars(select(ProjectMember).where(ProjectMember.project_id == demo.id)):
+        db.add(ProjectMember(project_id=project.id, user_id=member.user_id, role=member.role, trades=member.trades))
+    keys = [(get_storage().put_file(f"projects/{project.id}/uploads/duplex/{filename}", root / filename), None)
+            for filename in source["files"]]
+    version = import_ifc(db, project, keys, actor_id=owner.id, message=source["attribution"])
+    approve_version(db, version, owner.id, "Public test model; not a live construction project")
+    db.commit()
+    return project
+
+
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--duplex", action="store_true", help="Also import the detailed public duplex project")
+    args = parser.parse_args()
     with SessionLocal() as s:
         p = seed(s)
         seed_sample_ifc(s)
+        if args.duplex:
+            seed_duplex_ifc(s)
         print(f"Demo projects ready: {DEMO_PROJECT}, {SAMPLE_PROJECT}")
         print("Log in as owner@example.com / pm@example.com / plumber@example.com / electrician@example.com /")
         print("inspector@example.com with password:", os.environ.get("DEMO_PASSWORD", "demo-password"))

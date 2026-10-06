@@ -1,3 +1,4 @@
+import math
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
@@ -236,6 +237,7 @@ class ElementOut(BaseModel):
     confidence: float | None
     open_issues: int = 0
     context: bool = False
+    completion_basis: str | None = None
 
 
 class ElementDetail(ElementOut):
@@ -256,6 +258,13 @@ class ViewpointIn(BaseModel):
     target: tuple[float, float, float]
     section: dict | None = None
 
+    @field_validator("position", "target")
+    @classmethod
+    def finite_point(cls, point):
+        if not all(math.isfinite(v) for v in point):
+            raise ValueError("Coordinates must be finite")
+        return point
+
 
 class IssueIn(BaseModel):
     title: str = Field(min_length=1, max_length=300)
@@ -267,10 +276,16 @@ class IssueIn(BaseModel):
     element_id: str | None = None
     zone_id: str | None = None
     anchor: tuple[float, float, float] | None = None
+    model_version_id: str | None = None
     sheet_anchor: dict | None = None
     viewpoint: ViewpointIn | None = None
 
     _v = field_validator("trade")(lambda v: _check_trades([v])[0] if v else v)
+
+    @field_validator("anchor")
+    @classmethod
+    def finite_anchor(cls, point):
+        return ViewpointIn.finite_point(point) if point is not None else None
 
 
 class IssuePatch(BaseModel):
@@ -315,6 +330,7 @@ class IssueOut(ORM):
     zone_id: str | None
     level_id: str | None
     anchor: list[float] | None
+    model_version_id: str | None = None
     sheet_anchor: dict | None
     viewpoint: dict | None
     created_by: str | None

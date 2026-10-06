@@ -7,6 +7,7 @@ export interface IssueDraft {
   element_id?: string | null
   zone_id?: string | null
   anchor?: [number, number, number] | null
+  model_version_id?: string | null
   sheet_anchor?: { sheet_id: string; x: number; y: number } | null
   viewpoint?: unknown
   trade?: string | null

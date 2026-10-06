@@ -331,6 +331,7 @@ class Issue(Base):
     zone_id: Mapped[str | None] = mapped_column(ForeignKey("zones.id", ondelete="SET NULL"), index=True)
     level_id: Mapped[str | None] = mapped_column(ForeignKey("levels.id", ondelete="SET NULL"))
     anchor: Mapped[list | None] = mapped_column(JSON)  # [x, y, z] viewer (three.js) coordinates
+    model_version_id: Mapped[str | None] = mapped_column(ForeignKey("model_versions.id", ondelete="SET NULL"))
     sheet_anchor: Mapped[dict | None] = mapped_column(JSON)  # {"sheet_id", "x", "y"} (M3)
     viewpoint: Mapped[dict | None] = mapped_column(JSON)  # camera, target, section box
     created_by: Mapped[str | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))

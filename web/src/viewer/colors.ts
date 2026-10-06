@@ -23,7 +23,8 @@ export const DISCIPLINE_LABELS: Record<string, string> = {
 export const STATUS_COLORS = {
   issue: '#e53935', // red: open issue
   review: '#ffb300', // amber: needs review
-  done: '#43a047', // green: done (verified)
+  done: '#43a047', // legacy recorded completion; evidence/source remains in the detail panel
+  human: '#047857',
 } as const
 
 export const SELECTION_COLOR = '#7c4dff'
@@ -32,6 +33,7 @@ export interface ColorInput {
   discipline: string
   status: string
   open_issues: number
+  completion_basis?: string | null
 }
 
 export type StatusKey = keyof typeof STATUS_COLORS | null
@@ -40,6 +42,8 @@ export type StatusKey = keyof typeof STATUS_COLORS | null
 export function statusKey(el: ColorInput): StatusKey {
   if (el.open_issues > 0) return 'issue'
   if (el.status === 'needs_review') return 'review'
+  if (el.status === 'done' && el.completion_basis === 'legacy_ai') return 'review'
+  if (el.status === 'done' && el.completion_basis === 'human') return 'human'
   if (el.status === 'done') return 'done'
   return null
 }
@@ -52,5 +56,6 @@ export function elementColor(el: ColorInput, statusColoring: boolean): string {
 export const LEGEND = [
   { color: STATUS_COLORS.issue, label: 'Open issue' },
   { color: STATUS_COLORS.review, label: 'Needs review' },
-  { color: STATUS_COLORS.done, label: 'Done (verified)' },
+  { color: STATUS_COLORS.human, label: 'Human accepted · photo linked' },
+  { color: STATUS_COLORS.done, label: 'Recorded complete · see evidence' },
 ]

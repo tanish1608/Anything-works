@@ -15,6 +15,10 @@ Every file here lists its source and licence. Don't add files whose licence does
 
 These are a small one-storey house split by discipline (a "federated" model). They share a few elements (chimney, proxies) under the same GlobalId, and our importer de-duplicates them.
 
+## `ifc/duplex/`: detailed residential BIM
+
+The larger [public duplex IFC sample](ifc/duplex/README.md) provides detailed architectural/MEP geometry and bedroom pipe fittings. Source files are checksum-verified downloads; [the audit](../docs/BIM_AUDIT.md) records generated assets, attribution, import results and limitations.
+
 ## `dxf/`: generated residential plans
 
 See `dxf/README.md`.

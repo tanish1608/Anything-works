@@ -1,0 +1,15 @@
+{
+  "repository": "buildingsmart-community/Community-Sample-Test-Files",
+  "revision": "7ddf57a201f88a0c213d5322b02ed15e94a60a40",
+  "folder": "IFC 2.3.0.1 (IFC 2x3)/Duplex Apartment",
+  "attribution": "BSI (2020) Duplex Apartment Test Files, buildingSMART International",
+  "license": "CC BY 4.0",
+  "building_aliases": { "XYZ": "Building" },
+  "alignment_note": "Reviewed federation: discipline files describe the same duplex in shared world coordinates; their building labels differ. Only the label XYZ is mapped to Building. Geometry is unchanged.",
+  "files": {
+    "Duplex_A_20110907.ifc": "b347a2c8aa8fff6db896a4417a9c50c22ac0ccd7c5cfc22b99b8d29336c606ed",
+    "Duplex_Plumbing_20121113.ifc": "abfaf5c0979b6b4b05182aec7ada8945374bdb414db76c763724d549b41b212b",
+    "Duplex_Electrical_20121207.ifc": "d47b014ed5b3428496683ee75e4664013f6df8237ea571b8d13f877cea0b7a94",
+    "Duplex_M_20111024_ROOMS_AND_SPACES.ifc": "3cd577ecff9daf91632789a408070251a431b198de7be47f64e01c7fda1be92b"
+  }
+}

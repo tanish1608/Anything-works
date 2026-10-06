@@ -36,10 +36,11 @@ npm run dev
 
 Open `http://localhost:5173`. Vite proxies API calls to port 8000.
 
-## Two application surfaces
+## Application surfaces
 
 - **`/demo`:** fictional Studio building, 48 units over six levels, local tasks/evidence/decisions and a reset control. Actions persist in the browser. This is not a live AI or multi-user project workflow.
 - **`/` and `/field`:** authenticated connected workspace and field capture. Seed the backend for example projects.
+- **`/bim-lab`:** detailed public duplex IFC import with component-level 3D inspection and model-derived 2D plans. Evidence/pins/progress here are local test records, and AI results are simulated. See [the BIM audit](BIM_AUDIT.md).
 
 Seeded accounts use `demo-password` unless `DEMO_PASSWORD` is configured.
 
@@ -52,6 +53,8 @@ Seeded accounts use `demo-password` unless `DEMO_PASSWORD` is configured.
 | inspector@example.com | Read-only viewer |
 
 The seed includes Maple Court generated from DXF samples and a buildingSMART IFC sample project. Demo credentials and data are for local development.
+
+For a detailed architectural/MEP sample, run `VISION_MODE=off .venv/bin/python -m app.bim.audit --download` from `backend/`, then `.venv/bin/python -m app.seed --duplex` after migrations. This adds **Duplex Apartment — detailed BIM** to the connected workspace. The first tessellation takes a few minutes; subsequent seed runs reuse the project. Migration `0007` adds issue/model-version provenance. Existing unversioned pins retain their unknown revision rather than receiving invented provenance.
 
 ## Configuration
 

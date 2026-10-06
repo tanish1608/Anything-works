@@ -1,6 +1,6 @@
 # Implementation backlog — Everything Works AI
 
-Updated October 6, 2026 for the designer UI release. Checked items identify completed work and explicitly state when it is limited to a test/demo. Unchecked items remain open; existing foundations and verification limits are in [STATUS.md](STATUS.md).
+Updated October 6, 2026 after the designer UI and detailed BIM work. Checked items identify completed work and explicitly state when it is limited to a test/demo. Unchecked items remain open; existing foundations and verification limits are in [STATUS.md](STATUS.md).
 
 Product scope: AI checking daily updates across construction stages, identifying mistakes and incomplete work, and updating completion and issues in 3D. Before-drywall checking is one use case.
 
@@ -25,7 +25,8 @@ The detailed completed demo interactions are checked in the packages below. No p
 - [ ] Replace illustrated reference comparisons with authorized plan/detail files and per-assessment source revisions.
 - [ ] Connect real assessment jobs and correction rechecks; keep real uploads unassessed until a traceable result or explicit human review exists.
 - [ ] Connect issue assignments and follow-ups to real delivery/notification records instead of simulated demo delivery.
-- [ ] Split the large frontend/3D bundle and resolve the new route-menu reset and WebGL-fallback lint warnings.
+- [x] Split the frontend inspection routes and 3D engine into separate bundles; the production build no longer reports an oversized main bundle.
+- [ ] Resolve the remaining route-menu reset and WebGL-fallback lint warnings.
 
 ## P0 — Define and prepare
 
@@ -144,6 +145,64 @@ The designer screens now have an interactive React implementation at `/demo`; se
 **Done when:** results support the specific capability claims made in the UI, with no synthetic score presented as field accuracy.
 
 ## P3 — 3D and corrections
+
+Detailed import results, viewer choice, reproduction steps and verification limits: [BIM audit](docs/BIM_AUDIT.md). `/bim-lab` uses the real imported duplex geometry; its progress/pins are local test records. The connected project uses actual authorized API persistence. Visual/device acceptance and live automatic AI completion remain open.
+
+### P3.0 Real-project import and viewer audit — backend + frontend
+
+- [x] Select and attribute the public duplex architecture/plumbing/electrical/mechanical IFC files; pin source revision and hashes.
+- [x] Import through the real pipeline and measure 1,282 elements, 22 spaces, four levels, types/properties and skipped source products. Record absent geometry and raw-value limitations.
+- [x] Fix IFC2x3 type-based discipline classification, property truncation and duplicate bedroom names; retain GUIDs and shared metre coordinates. Apply only the sample's reviewed building-label alias.
+- [x] Verify actual GLB element IDs, small-component bounds, coordinate round trips and surface ray hits in CPU tests.
+- [x] Review documented That Open capabilities/licensing versus the current viewer and document retaining three.js. No third-party runtime/performance benchmark was run.
+- [x] Provide `python -m app.bim.audit --download`, `/bim-lab`, and optional connected-project seeding with `python -m app.seed --duplex`.
+- [ ] Validate visual geometry fidelity against an independent BIM viewer and profile larger federations.
+- [ ] Extend extraction to full topology/ports, compound material layers, property-unit interpretation and additional source formats where needed.
+
+**Done when:** the project can be reproduced from attributed source files and import losses are measured rather than hidden.
+
+### P3.4 Detailed inspection and exact locations — frontend + backend
+
+- [x] Add component search, full property inspection, isolate/hide/reset and selected-element focus in the connected viewer and workbench.
+- [x] Fit the actual roughly 35mm bedroom elbow at close range with viewport-aware framing and a smaller near plane; remove the one-metre minimum radius.
+- [x] Add top/front/side/isometric camera presets, zoom controls and sections.
+- [x] Persist connected pins with element identity, clicked surface point, model version and viewpoint; preserve unknown provenance on legacy pins.
+- [x] Test coordinate round trips and saved pin/old-version retention; reopen versioned issues on their recorded model and hide their pins on other versions.
+- [x] Provide an A203 Bedroom 2 elbow shortcut and verify an actual exported mesh surface hit. Room association is derived from overlap and needs field confirmation.
+- [ ] Visually verify close zoom, picking and section cuts in real WebGL on desktop and mobile.
+
+**Done when:** a teammate can find a component, inspect it closely and reopen the same issue at its recorded model location.
+
+### P3.5 Accessible 2D plans and 3D linking — frontend + backend
+
+- [x] Add original authorized PDF/CAD file viewing/download beside 3D and retain the converted-sheet view. Upload alone does not imply approval or registered alignment.
+- [x] Generate labeled IFC-derived level silhouettes; keep them distinct from approved construction drawings.
+- [x] Add level/room selection, zoom/pan, room labels and component highlighting in 2D.
+- [x] Link selected elements and model-derived plan coordinates to the same 3D geometry.
+- [x] Keep model-plan coordinates explicit; require confirmed units/level and reviewed alignment before linking an external converted drawing to IFC locations.
+- [ ] Persist reviewed original-sheet alignment and approved revision registration; support and validate raster/image references and non-convex section-quality plans.
+
+**Done when:** users can open a relevant plan, identify its provenance and move between matching 2D/3D locations.
+
+### P3.6 Evidence-to-element progress — frontend + backend + AI
+
+- [x] Link existing photo-backed review decisions to stable imported element IDs and preserve evidence/history; test the saved API round trip.
+- [x] Project separate human/fixture-AI/review/issue states on real imported workbench geometry. Actual connected human acceptance is distinguished from legacy AI auto-approval and unknown legacy records.
+- [ ] Connect the full released scoped-assessment/coverage/inspection contract to real geometry; fixture AI is not live completion.
+- [x] Refresh connected element details, model colors and progress queries after a saved decision; verify GLB bytes remain unchanged.
+- [ ] Keep pending/failed/unsupported or merely uploaded photos from turning components green; preserve issue precedence and changed-reference reopening.
+- [x] Verify photo/proposal → human review → saved element completion/provenance through authorized APIs and test viewer color projection. Live automatic completion still depends on P2's released checks.
+
+**Done when:** a saved scoped decision changes the correct component, the evidence explains why and a later revision cannot silently retain an invalid completion.
+
+### P3.7 Performance and acceptance — frontend + backend
+
+- [x] Record source size, import time, 1,282 elements, 549,338 triangles and 6.17 MB of GLBs in the reproducible audit.
+- [x] Guard asynchronous viewer replacement, dispose geometry/materials/markers and surface load/import failures.
+- [x] Test actual exported GLB identity and surface ray hits; separately test scoped state/color projection and document renderer-stub limits.
+- [x] Load inspection routes and the 3D engine separately from the base app; production build no longer reports an oversized main bundle.
+- [x] Update audit report, STATUS and P3 checkboxes with completed capabilities and remaining limits.
+- [ ] Profile actual GPU frame time, memory, gestures and mobile load performance; evaluate a model-local origin for large georeferenced projects.
 
 ### P3.1 Shared model status — frontend + backend (R4, R7)
 

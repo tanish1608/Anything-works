@@ -105,6 +105,7 @@ export default function IssuePanel({ issueId, projectId, role, onFlyTo, onClose 
         <div>Assignee: {issue.assignee_name ?? 'Unassigned'}</div>
       )}
       {issue.viewpoint && onFlyTo && <button onClick={() => onFlyTo(issue)}>Fly to saved view</button>}
+      {issue.anchor && <p className="muted" style={{ fontSize: 12 }}>Model location (metres, Y up): {issue.anchor.map((v) => v.toFixed(4)).join(', ')}. {issue.model_version_id ? 'Recorded against a specific model revision.' : 'Legacy pin: model revision unknown.'}</p>}
 
       {issue.attachments.length > 0 && (
         <div className="thumbs">

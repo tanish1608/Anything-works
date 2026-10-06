@@ -43,6 +43,7 @@ This repository contains an earlier **SiteMesh** prototype:
 
 - An interactive designer workspace at `/demo`, with daily overview, work filters, comparison, corrections, local mobile capture, reports and 3D status navigation.
 - A connected application with model import, drawing review, 3D viewing, issues, photo uploads, progress review and event history.
+- A detailed imported duplex at `/bim-lab`: 1,282 actual IFC components, bedroom pipe fittings, close-up inspection, precise model pins and linked 2D silhouettes. Its evidence/progress demonstrations are local test records.
 - An offline field upload queue and an existing Gemini photo-analysis integration.
 
 These are foundations. The new daily quality-checking workflow, calibrated automatic completion, reliable plan comparison and broad real-site coverage are **not yet delivered or validated**. Existing “installed” verdicts do not establish correct installation.
@@ -58,6 +59,7 @@ See [current implementation and gaps](STATUS.md) and [design implementation note
 | [Build plan](PLAN.md) | Architecture, delivery sequence and decisions |
 | [Task backlog](TODO.md) | Detailed work packages for contributors |
 | [Current status](STATUS.md) | What is implemented versus planned |
+| [Detailed BIM audit](docs/BIM_AUDIT.md) | Real-project import results, viewer choice, precise locations and P3 verification |
 | [Developer guide](docs/DEVELOPMENT.md) | Setup, configuration, tests and repository map |
 | [Research index](docs/README.md) | Supporting customer-pain and competitor research |
 
@@ -67,4 +69,4 @@ See [current implementation and gaps](STATUS.md) and [design implementation note
 
 Follow the [developer guide](docs/DEVELOPMENT.md). The local frontend runs at `http://localhost:5173`; visit `/demo` for the interactive example or use the seeded accounts for the connected workspace.
 
-Documentation reset and designer UI implementation: October 5, 2026. Release checked October 6, 2026. The full new assessment workflow still requires backend integration and field validation.
+Documentation reset and designer UI implementation: October 5, 2026. Detailed BIM/inspection work: October 6, 2026. The full new assessment workflow still requires backend integration and field validation.

@@ -110,6 +110,7 @@ export interface ViewerManifest {
 }
 
 export interface ElementInfo {
+  completion_basis?: 'human' | 'legacy_ai' | 'legacy' | null
   id: string
   ifc_guid: string
   name: string | null
@@ -165,6 +166,7 @@ export interface Issue {
   zone_id: string | null
   level_id: string | null
   anchor: [number, number, number] | null
+  model_version_id?: string | null
   sheet_anchor: { sheet_id: string; x: number; y: number } | null
   viewpoint: { position: [number, number, number]; target: [number, number, number]; section?: unknown } | null
   created_by: string | null

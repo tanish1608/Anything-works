@@ -1,0 +1,62 @@
+.inspection-controls {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.inspection-controls button {
+  font-size: 12px;
+  padding: 6px 9px;
+}
+.model-plan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 320px;
+  background: white;
+  overflow: hidden;
+}
+.model-plan-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 13px;
+}
+.model-plan-heading span {
+  color: #64748b;
+  font-size: 11px;
+}
+.model-plan svg {
+  width: 100%;
+  flex: 1;
+  min-height: 250px;
+  touch-action: none;
+  cursor: grab;
+}
+.model-plan-tools {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  padding: 10px;
+  border-top: 1px solid #e2e8f0;
+}
+.model-plan-tools button {
+  font-size: 12px;
+  padding: 6px 9px;
+}
+.component-search-results {
+  max-height: 180px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.component-search-results button {
+  text-align: left;
+  font-size: 12px;
+}
+.props td {
+  overflow-wrap: anywhere;
+}

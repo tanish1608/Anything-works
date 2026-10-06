@@ -12,3 +12,4 @@ web/dist/
 coverage/
 e2e/.results/
 *.bundle
+samples/ifc/duplex/*.ifc

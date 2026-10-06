@@ -2,7 +2,9 @@
 ModelVersion: elements + revisions, levels from storeys, zones from IfcSpaces, per-discipline GLBs."""
 
 import hashlib
+import json
 import logging
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -59,16 +61,45 @@ class SpaceInfo:
     polygon: list[list[float]]
 
 
+def apply_building_aliases(items: list[Item], spaces: list[SpaceInfo], aliases: dict) -> None:
+    """Only apply an explicitly reviewed federation map; identical floor names alone are insufficient."""
+    for item in items:
+        if item.storey:
+            building, name, elevation = item.storey
+            item.storey = (aliases.get(building, building), name, elevation)
+    for space in spaces:
+        space.building = aliases.get(space.building, space.building)
+
+
 def _flat_props(product) -> dict:
     out = {}
     try:
         for pset, values in uel.get_psets(product).items():
             for k, v in values.items():
-                if k != "id" and isinstance(v, str | int | float | bool) and len(out) < 60:
+                if k != "id" and v is not None:
+                    # Keep quantities and compound values; no arbitrary 60-property truncation.
+                    v = json.loads(json.dumps(v, default=str))
                     out[f"{pset}.{k}"] = v
+        typ = uel.get_type(product)
+        out["IFC.type_class"] = typ.is_a() if typ else None
+        out["IFC.type_name"] = typ.Name if typ else None
+        out["IFC.description"] = product.Description
+        out["IFC.tag"] = getattr(product, "Tag", None)
+        out["IFC.materials"] = [m.Name for m in uel.get_materials(product) if m.Name]
+        groups = [r.RelatingGroup for r in getattr(product, "HasAssignments", ())
+                  if r.is_a("IfcRelAssignsToGroup") and r.RelatingGroup.is_a("IfcSystem")]
+        out["IFC.systems"] = [{"guid": g.GlobalId, "name": g.Name, "class": g.is_a()} for g in groups]
     except Exception:  # noqa: BLE001 - property extraction is best effort
         pass
     return out
+
+
+def _resolved_class(product) -> str:
+    """IFC2x3 uses generic occurrence classes with specific types (e.g. IfcPipeFittingType)."""
+    typ = uel.get_type(product)
+    if typ and typ.is_a().endswith("Type") and product.is_a("IfcDistributionElement"):
+        return typ.is_a()[:-4]
+    return product.is_a()
 
 
 def _storey_of(product) -> tuple[str, str, float] | None:
@@ -105,12 +136,12 @@ def _space_polygon(space, geo) -> list[list[float]] | None:
     return [[round(x, 3), round(y, 3)] for x, y in shape.exterior.coords[:-1]]
 
 
-def read_ifc(path: str | Path, discipline_hint: str | None = None) -> tuple[list[Item], list[SpaceInfo]]:
+def read_ifc(path: str | Path, discipline_hint: str | None = None, *, audit: dict | None = None) -> tuple[list[Item], list[SpaceInfo]]:
     f = ifcopenshell.open(str(path))
     settings = ifcopenshell.geom.settings()
     settings.set("use-world-coords", True)
     shapes: dict[int, tuple[np.ndarray, np.ndarray]] = {}
-    it = ifcopenshell.geom.iterator(settings, f)
+    it = ifcopenshell.geom.iterator(settings, f, min(os.cpu_count() or 1, 4))
     if it.initialize():
         while True:
             sh = it.get()
@@ -121,6 +152,7 @@ def read_ifc(path: str | Path, discipline_hint: str | None = None) -> tuple[list
                 break
 
     items, spaces = [], []
+    missing = []
     for p in f.by_type("IfcProduct"):
         geo = shapes.get(p.id())
         if p.is_a("IfcSpace"):
@@ -132,16 +164,28 @@ def read_ifc(path: str | Path, discipline_hint: str | None = None) -> tuple[list
                     spaces.append(SpaceInfo(st[0], st[1], st[2], name, p.Name if p.LongName and p.Name != name else None,
                                             poly))
             continue
-        if any(p.is_a(c) for c in SKIP_CLASSES) or geo is None or len(geo[1]) == 0:
+        if any(p.is_a(c) for c in SKIP_CLASSES):
+            continue
+        if geo is None or len(geo[1]) == 0:
+            missing.append({"guid": p.GlobalId, "class": p.is_a(), "name": p.Name,
+                            "has_representation": bool(p.Representation)})
             continue
         props = _flat_props(p)
+        props["IFC.resolved_class"] = _resolved_class(p)
+        props["IFC.length_unit_to_m"] = uunit.calculate_unit_scale(f)
         hint = props.get("SiteMesh.Discipline") or discipline_hint
         items.append(Item(
             guid=p.GlobalId, ifc_class=p.is_a(), name=p.Name, storey=_storey_of(p),
-            discipline=discipline_for(p.is_a(), getattr(p, "PredefinedType", None), hint),
+            discipline=discipline_for(_resolved_class(p), getattr(p, "PredefinedType", None), hint),
             verts=geo[0], faces=geo[1], props=props,
             source=props.get("SiteMesh.Source", "imported"), confidence=props.get("SiteMesh.Confidence"),
         ))
+    if audit is not None:
+        audit.update(schema=f.schema, source_products=len(f.by_type("IfcProduct")),
+                     source_spaces=len(f.by_type("IfcSpace")), imported_spaces=len(spaces),
+                     imported_elements=len(items), unrendered_products=missing,
+                     source_storeys=[{"guid": s.GlobalId, "name": s.Name, "elevation": s.Elevation}
+                                     for s in f.by_type("IfcBuildingStorey")])
     return items, spaces
 
 
@@ -179,7 +223,9 @@ class _Structure:
         return lv
 
     def zone(self, lv: Level, name: str, code: str | None, polygon: list) -> Zone:
-        z = self.db.scalar(select(Zone).where(Zone.level_id == lv.id, Zone.name == name))
+        # Apartment A and B both have a "Bedroom 1". Their IFC space codes are distinct.
+        identity = Zone.code == code if code else (Zone.name == name) & Zone.code.is_(None)
+        z = self.db.scalar(select(Zone).where(Zone.level_id == lv.id, identity))
         if z is None:
             z = Zone(id=new_id(), level_id=lv.id, name=name, code=code, polygon=polygon)
             self.db.add(z)
@@ -224,6 +270,7 @@ def create_version(db: Session, project: Project, items: list[Item], spaces: lis
     existing = {e.ifc_guid: e for e in db.scalars(select(Element).where(Element.project_id == project.id))}
     zone_cache: dict[str, list[tuple[Zone, Polygon]]] = {}
     by_disc: dict[str, list] = {}
+    by_level: dict[str, list] = {}
     seen: set[str] = set()
     for it in items:
         if it.guid in seen:  # federated files often repeat shared elements
@@ -248,6 +295,10 @@ def create_version(db: Session, project: Project, items: list[Item], spaces: lis
                                bbox=it.bbox, props=it.props, source=it.source, confidence=it.confidence,
                                geom_hash=it.geom_hash))
         by_disc.setdefault(it.discipline, []).append((el.id, it.verts, it.faces))
+        if lv:
+            from app.bim.plans import footprint
+            if it.ifc_class not in ("IfcSlab", "IfcRoof", "IfcFooting", "IfcCovering"):
+                by_level.setdefault(lv.id, []).append({"id": el.id, "discipline": it.discipline, "points": footprint(it)})
     db.flush()
 
     store = get_storage()
@@ -256,7 +307,18 @@ def create_version(db: Session, project: Project, items: list[Item], spaces: lis
         key = f"projects/{project.id}/models/v{number}-{version.id[:8]}/{disc}.glb"
         store.put_bytes(key, build_glb(ms))
         meshes[disc] = key
-    version.files = {"meshes": meshes, **(extra_files or {})}
+    plans = {}
+    for level_id, elements in by_level.items():
+        level = db.get(Level, level_id)
+        rooms = [{"id": z.id, "name": z.name, "code": z.code, "polygon": z.polygon}
+                 for z in db.scalars(select(Zone).where(Zone.level_id == level_id)) if z.polygon]
+        data = {"id": level_id, "name": level.name, "elevation_m": level.elevation_m,
+                "provenance": "IFC-derived plan silhouettes; not an approved construction drawing",
+                "coordinate_system": "IFC world coordinates in metres, Z up", "elements": elements, "rooms": rooms}
+        key = f"projects/{project.id}/models/v{number}-{version.id[:8]}/plans/{level_id}.json"
+        store.put_bytes(key, json.dumps(data).encode())
+        plans[level_id] = key
+    version.files = {"meshes": meshes, "plans": plans, **(extra_files or {})}
     version.stats = {"elements": len(seen), "by_discipline": {d: len(m) for d, m in by_disc.items()},
                      "zones_from_model": len(spaces), **(stats or {})}
     events.record(db, project_id=project.id, actor_id=actor_id, type="model.version_created",
@@ -270,9 +332,14 @@ def import_ifc(db: Session, project: Project, files: list[tuple[str, str | None]
     """files: (storage key of the uploaded .ifc, discipline hint or None)."""
     items, spaces = [], []
     store = get_storage()
+    audits = []
     for key, hint in files:
-        i, s = read_ifc(store.local_path(key), hint)
+        audit = {"file": Path(key).name}
+        i, s = read_ifc(store.local_path(key), hint, audit=audit)
         items += i
         spaces += s
+        audits.append(audit)
+    aliases = (project.settings or {}).get("model_building_aliases", {})
+    apply_building_aliases(items, spaces, aliases)
     return create_version(db, project, items, spaces, actor_id=actor_id, message=message, source="ifc_import",
-                          extra_files={"ifc": [k for k, _ in files]})
+                          extra_files={"ifc": [k for k, _ in files]}, stats={"import_audit": audits, "building_aliases": aliases})

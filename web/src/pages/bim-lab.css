@@ -1,0 +1,150 @@
+.ew-app.bim-lab {
+  min-height: 100dvh;
+}
+.bim-layout {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr) 330px;
+  height: calc(100dvh - 105px);
+}
+.bim-controls,
+.bim-details {
+  padding: 20px;
+  overflow: auto;
+  background: white;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.bim-details {
+  border-right: 0;
+  border-left: 1px solid #e2e8f0;
+}
+.ew-app .bim-controls h2,
+.ew-app .bim-details h2 {
+  font-size: 18px;
+  margin: 0;
+}
+.ew-app .bim-controls h3,
+.ew-app .bim-details h3 {
+  font-size: 13px;
+  margin: 8px 0 0;
+}
+.ew-app .bim-controls label,
+.ew-app .bim-details label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+}
+.ew-app .bim-check {
+  flex-direction: row;
+  align-items: center;
+}
+.ew-app .bim-check input {
+  width: auto;
+}
+.bim-check i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.bim-views {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.bim-canvas {
+  position: relative;
+  flex: 1;
+  min-height: 320px;
+}
+.bim-canvas .viewer-canvas {
+  height: 100%;
+}
+.bim-canvas-toolbar {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.bim-canvas-toolbar span {
+  background: #ffffffdd;
+  border-radius: 6px;
+  padding: 6px;
+}
+.bim-views .model-plan {
+  height: 40%;
+  min-height: 280px;
+  border-top: 1px solid #e2e8f0;
+}
+.bim-properties {
+  max-height: 380px;
+  overflow: auto;
+}
+.ew-app .bim-properties .props {
+  font-size: 11px;
+  width: 100%;
+}
+.bim-properties th {
+  overflow-wrap: anywhere;
+  text-align: left;
+  max-width: 150px;
+}
+.bim-properties td {
+  max-width: 140px;
+}
+.bim-details figure {
+  margin: 0;
+}
+.bim-details figure img {
+  width: 100%;
+  max-height: 180px;
+  object-fit: contain;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+.bim-error {
+  padding: 12px 20px;
+  color: #991b1b;
+  background: #fef2f2;
+}
+@media (max-width: 1200px) {
+  .bim-layout {
+    grid-template-columns: 220px minmax(0, 1fr);
+    height: auto;
+    min-height: calc(100dvh - 105px);
+  }
+  .bim-views {
+    height: 800px;
+  }
+  .bim-details {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+  }
+}
+@media (max-width: 720px) {
+  .bim-layout {
+    display: flex;
+    flex-direction: column;
+  }
+  .bim-controls {
+    max-height: 300px;
+  }
+  .bim-views {
+    height: 780px;
+    flex: none;
+  }
+  .bim-details {
+    display: flex;
+  }
+  .bim-canvas-toolbar span {
+    display: none;
+  }
+}

@@ -8,6 +8,7 @@ The target experience checks daily construction updates for mistakes and incompl
 
 - `/demo`: designer daily-update workspace in `src/workspace/`, using the existing procedural building scene. Includes capture, results, review, correction and reports; AI results are labeled fixtures.
 - `/p/:pid/today`: connected overview using real project progress, issues and upload records.
+- `/bim-lab`: real imported duplex geometry with precise surface pins, small-component focus, searchable properties and linked 2D silhouettes; review/progress here are local tests. See [the BIM audit](../docs/BIM_AUDIT.md).
 - `/` and `/p/:pid/...`: authenticated project workspace.
 - `/field`: mobile field workflow and IndexedDB upload queue.
 - `/embed/p/:pid/viewer`: authenticated embedded viewer.

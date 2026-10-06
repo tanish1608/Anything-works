@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
+import { lazy, Suspense, type ReactNode } from 'react'
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './auth/AuthContext'
 import ActivityPage from './pages/ActivityPage'
@@ -8,19 +8,21 @@ import DrawingsPage from './pages/DrawingsPage'
 import { FieldHome, FieldScan, FieldZone, FieldZones, QrRedirect } from './field/FieldPages'
 import ProgressPage from './pages/ProgressPage'
 import QrPage from './pages/QrPage'
-import EmbedViewerPage from './pages/EmbedViewerPage'
 import SheetReviewPage from './pages/SheetReviewPage'
 import IssuesPage from './pages/IssuesPage'
 import HistoryPage from './pages/HistoryPage'
 import LoginPage from './pages/LoginPage'
 import MembersPage from './pages/MembersPage'
-import ModelPage from './pages/ModelPage'
 import ProjectLayout from './pages/ProjectLayout'
 import ProjectsPage from './pages/ProjectsPage'
 import StructurePage from './pages/StructurePage'
 import TodayPage from './pages/TodayPage'
 import { Icon } from './studio/Icon'
-import Workspace from './workspace/Workspace'
+
+const ModelPage = lazy(() => import('./pages/ModelPage'))
+const Workspace = lazy(() => import('./workspace/Workspace'))
+const BimLabPage = lazy(() => import('./pages/BimLabPage'))
+const EmbedViewerPage = lazy(() => import('./pages/EmbedViewerPage'))
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth()
@@ -50,9 +52,10 @@ function Shell({ children }: { children: ReactNode }) {
 
 export function AppRoutes() {
   return (
-    <Routes>
+    <Suspense fallback={<div className="page muted">Loading workspace…</div>}><Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/demo/*" element={<Workspace />} />
+      <Route path="/bim-lab" element={<BimLabPage />} />
       <Route path="/" element={<RequireAuth><Shell><ProjectsPage /></Shell></RequireAuth>} />
       <Route path="/p/:pid" element={<RequireAuth><Shell><ProjectLayout /></Shell></RequireAuth>}>
         <Route index element={<Navigate to="model" replace />} />
@@ -75,7 +78,7 @@ export function AppRoutes() {
       <Route path="/q/:token" element={<RequireAuth><QrRedirect /></RequireAuth>} />
       <Route path="/embed/p/:pid/viewer" element={<RequireAuth><EmbedViewerPage /></RequireAuth>} />
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    </Routes></Suspense>
   )
 }
 

@@ -43,6 +43,8 @@ export default function Evidence({ elementId, projectId, zoneId, canOverride, st
       qc.invalidateQueries({ queryKey: ['evidence', elementId] })
       qc.invalidateQueries({ queryKey: ['element', elementId] })
       qc.invalidateQueries({ queryKey: ['elements', projectId] })
+      qc.invalidateQueries({ queryKey: ['progress', projectId] })
+      qc.invalidateQueries({ queryKey: ['reviews', projectId] })
     } catch (e) {
       setErr((e as Error).message)
     }

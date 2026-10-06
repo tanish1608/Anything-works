@@ -11,11 +11,13 @@ from app.db import get_db
 from app.disciplines import DISCIPLINES
 from app.models import (
     Attachment,
+    Building,
     Comment,
     Element,
     ElementRevision,
     Issue,
     IssueStatus,
+    Level,
     Notification,
     Project,
     ProjectMember,
@@ -36,7 +38,7 @@ from app.schemas import (
 )
 from app.services import events
 from app.services.issues import issue_visible
-from app.services.models import element_visible, visible_disciplines
+from app.services.models import element_visible, resolve_version, visible_disciplines
 from app.services.notify import notify
 from app.storage import get_storage
 
@@ -66,7 +68,8 @@ def _out(db: Session, issues: list[Issue]) -> list[IssueOut]:
 def _snapshot(i: Issue) -> dict:
     return {k: (v.value if hasattr(v, "value") else v) for k, v in {
         "title": i.title, "status": i.status, "priority": i.priority, "trade": i.trade,
-        "assignee_id": i.assignee_id, "due_date": i.due_date, "element_id": i.element_id}.items()}
+        "assignee_id": i.assignee_id, "due_date": i.due_date, "element_id": i.element_id,
+        "model_version_id": i.model_version_id, "anchor": i.anchor}.items()}
 
 
 def _check_member(db: Session, project_id: str, user_id: str | None) -> None:
@@ -109,19 +112,27 @@ def list_issues(project_id: str, status_: list[IssueStatus] = Query([], alias="s
 def create_issue(project_id: str, body: IssueIn, user: User = Depends(current_user), db: Session = Depends(get_db)):
     m = require(db, project_id, user.id, Perm.issue_create)
     project = db.get(Project, project_id)
+    version = resolve_version(db, project_id, m, body.model_version_id)
     zone_id, level_id, trade = body.zone_id, None, body.trade
     if body.element_id:
         el = db.get(Element, body.element_id)
-        rev = el and project.current_version_id and db.scalar(select(ElementRevision).where(
-            ElementRevision.version_id == project.current_version_id, ElementRevision.element_id == el.id))
+        rev = el and version and db.scalar(select(ElementRevision).where(
+            ElementRevision.version_id == version.id, ElementRevision.element_id == el.id))
         if not rev or el.project_id != project_id or not element_visible(m, rev, visible_disciplines(db, m, DISCIPLINES)):
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Unknown element")
         zone_id = zone_id or rev.zone_id
         level_id = rev.level_id
         trade = trade or rev.trade
+        if body.anchor and body.model_version_id and rev.bbox:
+            from app.bim.meshes import three_to_ifc
+            point = three_to_ifc(body.anchor)
+            if not all(rev.bbox[i] - 0.02 <= point[i] <= rev.bbox[i + 3] + 0.02 for i in range(3)):
+                raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Location is outside the selected element bounds")
     if zone_id:
         z = db.get(Zone, zone_id)
-        if z is None or not zone_visible(m, zone_id):
+        level = z and db.get(Level, z.level_id)
+        building = level and db.get(Building, level.building_id)
+        if z is None or building.project_id != project_id or not zone_visible(m, zone_id):
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Unknown zone")
         level_id = level_id or z.level_id
     if m.role == Role.trade and m.zone_ids is not None and zone_id is None:
@@ -132,6 +143,7 @@ def create_issue(project_id: str, body: IssueIn, user: User = Depends(current_us
                   priority=body.priority, trade=trade, assignee_id=body.assignee_id, due_date=body.due_date,
                   element_id=body.element_id, zone_id=zone_id, level_id=level_id,
                   anchor=list(body.anchor) if body.anchor else None, sheet_anchor=body.sheet_anchor,
+                  model_version_id=version.id if version and (body.anchor or body.element_id) else None,
                   viewpoint=body.viewpoint.model_dump() if body.viewpoint else None, created_by=user.id)
     db.add(issue)
     db.flush()
