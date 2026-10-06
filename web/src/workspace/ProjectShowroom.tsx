@@ -1,5 +1,5 @@
 import { BrandMark } from "../branding/BrandMark";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { api, tokenStore } from "../api/client";
 import type { Project } from "../api/types";
@@ -23,12 +23,17 @@ import {
   propertyFacts,
   type PropertyChoice,
 } from "./propertyCatalog";
+import "./world.css";
 import "./showroom.css";
+import ProjectImportPanel from "./ProjectImportPanel";
 
 export default function ProjectShowroom({ current }: { current: string }) {
   const location = useLocation(),
     navigate = useNavigate();
   const params = new URLSearchParams(location.search);
+  const setup = params.get("panel") === "import";
+  const homeRef = useRef<HTMLElement>(null);
+  useEffect(() => { if (!setup) homeRef.current?.focus({ preventScroll: true }); }, [setup]);
   const selectedId = params.get("preview") || current;
   const returnTo = safeReturnUrl(params.get("returnTo"), current);
   const [session, setSession] = useState(0);
@@ -109,7 +114,7 @@ export default function ProjectShowroom({ current }: { current: string }) {
   const page = properties.slice(pageStart, pageStart + 4);
   const key = `${selectedId}:${selected?.private ? session : "public"}:${retry}`;
   useEffect(() => {
-    if (!selected) return;
+    if (!selected || setup) return;
     let alive = true;
     const request = selected.private
       ? loadAuthorizedModel(selected.id.slice(4), null, true).then(
@@ -126,7 +131,7 @@ export default function ProjectShowroom({ current }: { current: string }) {
     return () => {
       alive = false;
     };
-  }, [key, selected]);
+  }, [key, selected, setup]);
   const model = loaded?.key === key ? loaded.model : null;
   const error = failure?.key === key ? failure.message : "";
   const facts = model ? propertyFacts(model) : null;
@@ -177,8 +182,29 @@ export default function ProjectShowroom({ current }: { current: string }) {
     if (selected.private && !model.layers.length) next.set("panel", "import");
     navigate(next.size ? `/?${next}` : "/");
   };
+  const openImported = useCallback((id: string, version?: string) => {
+    const next = new URLSearchParams({ project: `api:${id}`, panel: "import" });
+    if (version) next.set("version", version);
+    navigate(`/?${next}`);
+  }, [navigate]);
+  const home = () => {
+    const next = new URLSearchParams(location.search);
+    next.delete("panel");
+    navigate(next.size ? `/?${next}` : "/");
+  };
+  if (setup) return <main className="world-app showroom-setup" aria-label="Add or import project">
+    <header className="showroom-header">
+      <a className="showroom-brand" href="/" onClick={(e) => { e.preventDefault(); navigate("/"); }}><BrandMark size={30} /><span>Placeholder AI</span></a>
+      <div className="showroom-header-actions"><button onClick={home}><Icon name="chevron" className="showroom-previous" size={16} />Back to projects</button></div>
+    </header>
+    <div className="showroom-setup-scroll"><div className="showroom-setup-content">
+      <ProjectImportPanel onOpen={openImported} onPublic={home} />
+    </div></div>
+  </main>;
   return (
     <main
+      ref={homeRef}
+      tabIndex={-1}
       className="project-showroom"
       aria-label="Choose building project"
       onKeyDown={(e) => {
@@ -188,7 +214,7 @@ export default function ProjectShowroom({ current }: { current: string }) {
           )
         )
           return;
-        if (e.key === "Escape") {
+        if (e.key === "Escape" && params.has("returnTo")) {
           e.preventDefault();
           navigate(returnTo);
         }
@@ -201,22 +227,21 @@ export default function ProjectShowroom({ current }: { current: string }) {
       <header className="showroom-header">
         <a
           className="showroom-brand"
-          href={returnTo}
+          href="/"
           onClick={(e) => {
             e.preventDefault();
-            navigate(returnTo);
+            navigate("/");
           }}
         >
           <BrandMark size={30} />
-          Placeholder <span>AI</span>
+          <span>Placeholder AI</span>
         </a>
         <div className="showroom-header-actions">
-          <button onClick={() => navigate("/?panel=import")}>
-            <Icon name="plus" size={16} /> Add project
-          </button>
-          <button onClick={() => navigate(returnTo)}>
-            <Icon name="close" size={17} /> Back to building
-          </button>
+          <button onClick={() => {
+            const next = new URLSearchParams(location.search);
+            next.set("screen", "projects"); next.set("preview", selectedId); next.set("panel", "import");
+            navigate(`/?${next}`);
+          }}><Icon name="plus" size={16} /> Add / import project</button>
         </div>
       </header>
       <div className="showroom-hero">
@@ -308,6 +333,14 @@ export default function ProjectShowroom({ current }: { current: string }) {
               <Icon name="pin" size={15} />
               {selected.address}
             </p>
+          )}
+          {tokenStore.get() && catalog?.session === session && catalog.error && (
+            <div className="showroom-catalog-error" role="status">
+              <strong>Connected projects are unavailable.</strong>
+              <p>You can still explore the sample projects. Reconnect or retry when the project service is available.</p>
+              <button onClick={() => setSession((n) => n + 1)}>Retry connection</button>
+              <button onClick={() => { tokenStore.set(null); navigate("/"); }}>Use sample projects</button>
+            </div>
           )}
           {facts && (
             <dl className="showroom-facts">
@@ -433,14 +466,6 @@ export default function ProjectShowroom({ current }: { current: string }) {
             </button>
           ))}
         </div>
-        {catalog?.session === session && catalog.error && (
-          <p className="showroom-catalog-error" role="alert">
-            Your connected project list couldn't load: {catalog.error}{" "}
-            <button onClick={() => setSession((n) => n + 1)}>
-              Retry project list
-            </button>
-          </p>
-        )}
         <p className="showroom-footnote">
           The hero loads real model meshes. Collection silhouettes summarize
           source component bounds; they do not show field completion.

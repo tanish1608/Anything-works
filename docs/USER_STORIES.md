@@ -8,7 +8,7 @@ The promise to demonstrate is **daily evidence → review/check → a located is
 
 **Alex, a project manager:** “When I open the project, show me what I need to act on. I don't want to search a building before I know what the problem is.”
 
-Alex opens the duplex. **Work & issues** is already beside the building, initially filtered to Attention and sorted with issues first. Alex can change the team filter or due-date order, or search across all statuses. An open issue stays prominent even when older evidence was accepted.
+Alex opens the duplex. After choosing Open project on home, **Work & issues** is already beside the building, initially filtered to Attention and sorted with issues first. Alex can change the team filter or due-date order, or search across all statuses. An open issue stays prominent even when older evidence was accepted.
 
 Alex selects the bedroom pipe-connection record, such as the existing `ISS-031` sample bookmark. The model expands the relevant floors and focuses the linked room/component. The evidence panel shows the latest submission, responsible crew, source reference and recorded timeline. An optional tighter zoom explains the fitting; Alex does not need to identify a mesh ID or hunt across page tabs.
 

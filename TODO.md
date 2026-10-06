@@ -10,6 +10,8 @@ The UI-only iteration backlog is [Design iteration 2](docs/UI_TODO_ITERATION_2.m
 
 ## Building-centered workspace — current UI, October 6
 
+- [x] Make the showroom home, add explicit Switch project, keep the title non-interactive, move Add/import to standalone home setup, retire pulse/context screens and retain user previews in the account menu. Theme Sort/Team popups, contain preview loading and recover connected-list outages. Restore local API for the reproduced 502 without bypassing authentication.
+
 - [x] Rebrand to Placeholder AI using the supplied angular P: workspace/showroom wordmarks, browser/PWA identity and app icons, current docs and mobile handoff. Keep saved project identities and workflows stable.
 
 - [x] Fit the showroom to the viewport with four visible cards, default interior/rotation and no preview buttons. Open Work & issues by default; preserve explicit panel dismissal and deep links.

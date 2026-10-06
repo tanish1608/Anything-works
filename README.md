@@ -43,7 +43,7 @@ A PM can review exceptions, confirm or dismiss a finding, and track a correction
 
 The current website builds on the earlier **SiteMesh** prototype:
 
-- One large building workspace at `/`, with contextual panels for work/issues, evidence and decisions, daily updates, progress history, teams and project context. There are no separate Home/Logs/Building model pages.
+- The project showroom is home at `/`. Opening a project enters one large building workspace with contextual panels for work/issues, evidence and decisions, daily updates, progress history and teams. There are no separate Home/Logs/Building model pages.
 - A public duplex with 1,282 actual IFC components, exploded floors, exterior walls/roof initially hidden, source-system controls, component zoom, model pins and linked 2D silhouettes. Floor, reviewed Unit A/B and room locations share the original source geometry and IDs.
 - Browser-local capture, offline update identity, human review, corrections and progress replay on the same model. Uploaded photos await review; the live assessment agent is not connected.
 - Real authenticated project creation/IFC upload, draft preview and explicit reference approval inside the chosen interface. Private geometry uses authorized requests. Private field capture/review persistence and live AI remain pending.

@@ -130,7 +130,7 @@
   border-radius: 4px;
 }
 .world-project-title h1 {
-  padding-right: 22px;
+  padding-right: 0;
   font-size: 14px;
   line-height: 1.5;
   margin: 0;
@@ -1973,3 +1973,28 @@
     inset: 65px 35px;
   }
 }
+
+.world-app .world-switch-project { display: flex; align-items: center; gap: 7px; white-space: nowrap; padding: 9px 11px; }
+.world-user-previews { border-top: 1px solid #3b526a; margin-top: 6px; padding: 8px 4px 0; }
+.world-user-previews label { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; }
+.world-app .world-user-previews select { padding: 7px; font-size: 11px; appearance: none; }
+.world-user-previews small { color: #98aabd; font-size: 10px; }
+@media (max-width: 640px) {
+  .world-header { gap: 8px; padding: 0 10px; }
+  .world-header-actions { gap: 6px; }
+  .world-project-title { min-width: 0; padding-left: 8px; flex: 1; }
+  .world-app .world-switch-project { font-size: 10px; padding: 9px 7px; }
+  .world-switch-project > svg { display: none; }
+}
+
+.world-control-label { display: flex; flex-direction: column; gap: 8px; min-width: 0; margin: 14px 0; color: #98aabd; font-size: 12px; }
+.world-select { min-width: 0; }
+.world-app .world-select > button { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 42px; padding: 10px; text-align: left; background: #111d2c; border: 1px solid #35475c; border-radius: 8px; font: inherit; color: #edf3fb; }
+.world-select > button > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.world-select > button > svg { flex: none; }
+.world-select-popup { position: fixed; z-index: 10000; overflow-y: auto; background: #1c2d40; border: 1px solid #48617a; border-radius: 10px; box-shadow: 0 12px 36px #050b1590; padding: 5px; color-scheme: dark; box-sizing: border-box; }
+.world-select-popup > button { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 38px; border: 0; border-radius: 6px; padding: 9px 10px; background: transparent; color: #edf3fb; font: 12px Inter, sans-serif; text-align: left; gap: 10px; cursor: pointer; }
+.world-select-popup > button > span { overflow-wrap: anywhere; min-width: 0; }
+.world-select-popup > button > svg { flex: none; }
+.world-select-popup > button:hover, .world-select-popup > button:focus { background: #2c435d; outline: 1px solid #6eaef0; outline-offset: -1px; }
+.world-select-popup > button[aria-selected="true"] { color: #9ccbff; }

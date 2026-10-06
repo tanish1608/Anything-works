@@ -103,7 +103,7 @@ function renderAt(path: string) {
   );
 }
 async function switchProject(id: "duplex" | "schependomlaan") {
-  await userEvent.click(screen.getByLabelText("Switch building project"));
+  await userEvent.click(screen.getByRole("button", { name: "Switch project" }));
   await userEvent.click(
     screen.getByRole("button", {
       name: `Preview ${id === "duplex" ? "Duplex Apartment" : "Schependomlaan Apartments"}`,
@@ -126,7 +126,7 @@ async function ready() {
 }
 async function menu(name: string) {
   await userEvent.click(screen.getByLabelText("Open project menu"));
-  await userEvent.click(screen.getByRole("menuitem", { name }));
+  if (name !== "View as") await userEvent.click(screen.getByRole("menuitem", { name }));
 }
 async function addEvidence() {
   await userEvent.click(
@@ -158,7 +158,7 @@ describe("one building workspace", () => {
   it("starts a new source project with issues and a direct path to planning work", async () => {
     renderAt("/?project=schependomlaan");
     await ready();
-    expect(screen.getByRole("button", { name: "Placeholder AI — building overview" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Placeholder AI — project home" })).toBeInTheDocument();
     expect(
       screen.getByRole("complementary", { name: "Work & issues" }),
     ).toBeInTheDocument();
@@ -205,7 +205,7 @@ describe("one building workspace", () => {
     renderAt("/?panel=issues");
     await ready();
     expect(screen.getAllByTestId("project-scene")).toHaveLength(1);
-    await userEvent.click(screen.getByLabelText("Switch building project"));
+    await userEvent.click(screen.getByRole("button", { name: "Switch project" }));
     await screen.findByRole("main", { name: "Choose building project" });
     await waitFor(() => expect(scene.last!.orbitFit).toBe(true));
     expect(screen.getAllByTestId("project-scene")).toHaveLength(1);
@@ -213,16 +213,14 @@ describe("one building workspace", () => {
     expect(
       screen.queryByRole("region", { name: "Building workspace" }),
     ).not.toBeInTheDocument();
-    await userEvent.click(
-      screen.getByRole("button", { name: "Back to building" }),
-    );
+    await userEvent.keyboard("{Escape}");
     await ready();
     expect(screen.getByTestId("url").textContent).toBe("/?panel=issues");
     expect(scene.last!.data).toBe(model);
     expect(screen.getAllByTestId("project-scene")).toHaveLength(1);
   });
   it("keeps apartment work, drafts and decisions separate while switching buildings", async () => {
-    renderAt("/");
+    renderAt("/?panel=issues");
     await ready();
     await userEvent.click(screen.getByLabelText("Open work and issues"));
     await switchProject("schependomlaan");
@@ -324,7 +322,7 @@ describe("one building workspace", () => {
     expect(scene.last!.data).toBe(apartment);
   });
   it("opens the building without login or page tabs and keeps one scene mounted through every panel", async () => {
-    renderAt("/");
+    renderAt("/?panel=issues");
     await ready();
     expect(
       screen.queryByRole("navigation", { name: "Workspace" }),
@@ -337,10 +335,8 @@ describe("one building workspace", () => {
     ).toBeInTheDocument();
     const firstData = scene.last!.data;
     for (const name of [
-      "Project pulse",
       "Progress history",
       "Project team",
-      "Project context",
       "Explore building",
     ]) {
       await menu(name);
@@ -369,17 +365,11 @@ describe("one building workspace", () => {
     expect(scene.last!.expanded).toBe(true);
   });
   it("preserves saved project records in the new interface", async () => {
-    const first = renderAt("/setup");
+    localStorage.setItem(STORE_KEY, JSON.stringify({ ...initialProjectState(model), projectName: "Elm Court" }));
+    const first = renderAt("/?panel=issues");
     await ready();
-    const input = await screen.findByLabelText("Project name");
-    await userEvent.clear(input);
-    await userEvent.type(input, "Elm Court");
-    await userEvent.click(
-      screen.getByRole("button", { name: "Save project name" }),
-    );
-    expect(saved().projectName).toBe("Elm Court");
     first.unmount();
-    renderAt("/");
+    renderAt("/?panel=issues");
     await ready();
     expect(
       screen.getByRole("heading", { name: "Elm Court" }),
@@ -388,7 +378,7 @@ describe("one building workspace", () => {
   it.each([
     ["/logs", "Progress history"],
     ["/people", "Project team"],
-    ["/setup", "Project context"],
+    ["/setup", "Work & issues"],
   ])("opens %s as a panel after a refresh", async (path, name) => {
     renderAt(path);
     await ready();
@@ -407,7 +397,8 @@ describe("one building workspace", () => {
     "/unknown-page",
   ])("retires %s without mounting the old app", async (path) => {
     renderAt(path);
-    await ready();
+    if (path === "/unknown-page") await ready();
+    else await screen.findByRole("main", { name: "Choose building project" });
     await waitFor(() =>
       expect(screen.getByTestId("url").textContent).toBe(
         path === "/unknown-page" ? "/?panel=issues" : "/",
@@ -416,7 +407,7 @@ describe("one building workspace", () => {
     expect(globalThis.fetch).not.toHaveBeenCalled();
   });
   it("maps a model pin through the source floor, unit and room, and supports a tighter component focus", async () => {
-    renderAt("/");
+    renderAt("/?panel=issues");
     await ready();
     await userEvent.click(
       screen.getByRole("button", { name: "Model pin ISS-031" }),
@@ -542,7 +533,7 @@ describe("one building workspace", () => {
     expect(scene.mount).toHaveBeenCalledTimes(1);
   });
   it("searches room context and opens the matching issue without losing the building", async () => {
-    renderAt("/");
+    renderAt("/?panel=issues");
     await ready();
     await userEvent.type(
       screen.getByLabelText("Search building records"),
@@ -586,7 +577,7 @@ describe("one building workspace", () => {
     expect(scene.mount).toHaveBeenCalledTimes(1);
   });
   it("opens untracked components without inventing work or completion", async () => {
-    renderAt("/");
+    renderAt("/?panel=issues");
     await ready();
     await userEvent.click(
       screen.getByRole("button", { name: "Select untracked component" }),
@@ -602,7 +593,7 @@ describe("one building workspace", () => {
 });
 
 it("searches accepted work across the default attention filter and preserves search focus", async () => {
-  renderAt("/");
+  renderAt("/?panel=issues");
   await ready();
   const search = screen.getByLabelText("Search building records");
   await userEvent.type(search, "Kitchen sink");
@@ -659,7 +650,7 @@ it("previews a read-only customer and scoped field worker without remounting the
     screen.getByText(/Project-manager review is required/),
   ).toBeInTheDocument();
   await userEvent.click(screen.getByRole("button", { name: "Return to PM" }));
-  await menu("Project context");
+  await menu("View as");
   await userEvent.selectOptions(
     screen.getByLabelText("Preview user experience"),
     "worker",
@@ -675,7 +666,7 @@ it("previews a read-only customer and scoped field worker without remounting the
 });
 
 it("focuses the contextual panel and restores the invoking button on close", async () => {
-  renderAt("/");
+  renderAt("/?panel=issues");
   await ready();
   const trigger = screen.getByLabelText("Open work and issues");
   await userEvent.click(trigger);
@@ -859,7 +850,7 @@ it("walks the duct-blocking-panel report through manual PM assignment, crew corr
   expect(scene.last!.colors.get(duct.id)).toBe(COLORS.issue);
   expect(screen.queryByRole("button", { name: "Accept correction & resolve" })).not.toBeInTheDocument();
 
-  await menu("Project context");
+  await menu("View as");
   await userEvent.selectOptions(screen.getByLabelText("Preview user experience"), "subcontractor");
   await userEvent.click(screen.getByRole("button", { name: "New update" }));
   await userEvent.click(screen.getByLabelText("I confirm this is the correct work location."));
@@ -886,3 +877,53 @@ it("walks the duct-blocking-panel report through manual PM assignment, crew corr
   expect(scene.mount).toHaveBeenCalledTimes(1);
   expect(globalThis.fetch).not.toHaveBeenCalled(); // A local role preview is not a two-device handoff.
 }, 15000);
+
+
+it("uses the showroom as home, opens import directly and requires an explicit switch button", async () => {
+  renderAt("/");
+  await screen.findByRole("main", { name: "Choose building project" });
+  expect(screen.queryByRole("button", { name: "Back to building" })).not.toBeInTheDocument();
+  await userEvent.click(screen.getByRole("button", { name: "Add / import project" }));
+  expect(await screen.findByRole("main", { name: "Add or import project" })).toBeInTheDocument();
+  expect(screen.getByLabelText("Email")).toBeInTheDocument();
+  expect(screen.queryByTestId("project-scene")).not.toBeInTheDocument();
+  await userEvent.click(screen.getByRole("button", { name: "Back to projects" }));
+  await userEvent.click(screen.getByRole("button", { name: "Open project" }));
+  await ready();
+  const url = screen.getByTestId("url").textContent;
+  await userEvent.click(screen.getByRole("heading", { name: "Duplex Apartment" }));
+  expect(screen.getByTestId("url").textContent).toBe(url);
+  await userEvent.click(screen.getByLabelText("Open project menu"));
+  for (const name of ["Project pulse", "Project context", "Switch project", "Add / import project"])
+    expect(screen.queryByRole("menuitem", { name })).not.toBeInTheDocument();
+  await userEvent.click(screen.getByRole("button", { name: "Switch project" }));
+  expect(await screen.findByRole("main", { name: "Choose building project" })).toBeInTheDocument();
+});
+
+it("uses themed Sort and Team menus with keyboard selection and Escape without closing the issue panel", async () => {
+  renderAt("/?panel=issues"); await ready();
+  const sort = screen.getByRole("combobox", { name: "Sort work records" });
+  expect(sort.tagName).toBe("BUTTON");
+  await userEvent.click(sort);
+  await userEvent.keyboard("{ArrowDown}{Enter}");
+  expect(sort).toHaveTextContent("Due date");
+  expect(sort).toHaveFocus();
+  const team = screen.getByRole("combobox", { name: "Filter responsible team" });
+  await userEvent.click(team);
+  await userEvent.click(within(screen.getByRole("listbox", { name: "Filter responsible team" })).getByRole("option", { name: "River Plumbing · Nina Patel" }));
+  expect(team).toHaveTextContent("River Plumbing");
+  expect(screen.queryByRole("button", { name: /Bedroom door — placement review\./ })).not.toBeInTheDocument();
+  await userEvent.click(team); await userEvent.keyboard("{Escape}");
+  expect(team).toHaveFocus();
+  expect(screen.getByRole("complementary", { name: "Work & issues" })).toBeInTheDocument();
+  expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+});
+
+
+it.each(["summary", "project"])("retires the %s screen while preserving the selected project's context", async (old) => {
+  renderAt(`/?project=schependomlaan&panel=${old}#reference`);
+  await ready();
+  await waitFor(() => expect(screen.getByTestId("url").textContent).toBe("/?project=schependomlaan&panel=issues#reference"));
+  expect(screen.getByRole("complementary", { name: "Work & issues" })).toBeInTheDocument();
+  expect(scene.last!.data).toBe(apartment);
+});

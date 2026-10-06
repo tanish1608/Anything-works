@@ -2,11 +2,9 @@ import type { ModelDataset } from "../viewer/modelData";
 import type { WorkItem } from "./state";
 
 export const PANELS = [
-  "summary",
   "issues",
   "activity",
   "team",
-  "project",
   "capture",
   "record",
   "component",
@@ -58,7 +56,7 @@ export function initialNavigation(pathname: string, search: string) {
       "/report": "activity",
       "/activity": "activity",
       "/people": "team",
-      "/setup": "project",
+      "/setup": "issues",
       "/capture": "capture",
       "/evidence": "issues",
       "/handoffs": "issues",
@@ -76,6 +74,7 @@ export function initialNavigation(pathname: string, search: string) {
     params.delete("view");
     if (!/^[AB]$/.test(params.get("unit") || "")) params.delete("unit");
   }
+  if (["summary", "project"].includes(params.get("panel") || "")) params.set("panel", "issues");
   // Start with operations, while preserving an explicit close (`panel=none`) and deep links.
   if (!params.has("panel") && params.get("screen") !== "projects")
     params.set("panel", "issues");

@@ -36,11 +36,13 @@ npm run dev
 
 Open `http://localhost:5173`. Vite proxies API calls to port 8000.
 
+If public models work but connected projects show a gateway failure, verify the backend is running on port 8000 and that `/api/health` returns 200 through the Vite proxy. An unauthenticated `/api/projects` returning 401 is expected; do not disable API authorization to fix a gateway outage.
+
 ## Application surfaces
 
-- **`/`:** one building-centered website with optional right-side panels. It runs without backend/sign-in and stores testing records locally.
+- **`/`:** rotating project showroom/home; choose a building or Add / import project. Opening a project enters the building workspace with optional right-side panels. It runs without backend/sign-in and stores testing records locally.
 - **`/?panel=record&work=ISS-031`:** evidence/review/timeline for a component-linked record, focused on the shared model.
-- **`/?panel=issues`, `/?panel=activity`, `/?panel=team`, `/?panel=project`, `/?panel=capture`:** contextual workflows; no separate model pages.
+- **`/?panel=issues`, `/?panel=activity`, `/?panel=team`, `/?panel=capture`:** contextual workflows; no separate model pages.
 - **Old page and `/demo/...` bookmarks:** normalize to root panel state, preserving relevant work IDs/fragments. Private-project/QR/embed bookmarks no longer mount the retired UI. See [the UI handoff](BUILDING_WORKSPACE.md) and [frontend routes](../web/README.md).
 
 Seeded accounts use `demo-password` unless `DEMO_PASSWORD` is configured.

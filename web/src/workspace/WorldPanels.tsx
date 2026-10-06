@@ -1,3 +1,4 @@
+import SelectControl from "./SelectControl";
 import { useEffect, useRef, useState } from "react";
 import { api } from "../api/client";
 import type { ElementDetail } from "../api/types";
@@ -21,7 +22,6 @@ import {
   type Panel,
 } from "./spatialNavigation";
 import EvidenceImage from "./EvidenceImage";
-import { VIEW_ROLES, type ViewRole } from "./viewRoles";
 import WorldDialog from "./WorldDialog";
 import { plannedComponent, availabilityStorageKey } from "./projectState";
 
@@ -65,65 +65,6 @@ function WorkRow({ item, open }: { item: WorkItem; open: Open }) {
       </span>
       <Icon name="chevron" size={16} />
     </button>
-  );
-}
-export function SummaryPanel({ open }: { open: Open }) {
-  const { state, canCapture } = useWorkspace();
-  const issues = state.items.filter((i) => i.issue),
-    review = state.items.filter((i) =>
-      ["review", "evidence", "failed", "unsupported"].includes(i.status),
-    );
-  const complete = state.items.filter((i) =>
-    ["human", "ai"].includes(i.status),
-  );
-  return (
-    <>
-      <div className="world-panel-intro">
-        <span className="world-eyebrow">PROJECT PULSE</span>
-        <h2>The building, today.</h2>
-        <p>
-          {issues.length} open issues and {review.length} updates need
-          attention. {complete.length} of {state.items.length} tracked work
-          packages have recorded completion.
-        </p>
-      </div>
-      <div className="world-summary-grid">
-        <button onClick={() => open("issues")}>
-          <strong>{issues.length}</strong>
-          <span>Open issues</span>
-        </button>
-        <button onClick={() => open("issues")}>
-          <strong>{review.length}</strong>
-          <span>Awaiting review</span>
-        </button>
-      </div>
-      <div className="world-section-heading">
-        <h3>Start here</h3>
-        <button onClick={() => open("issues")}>
-          View all <Icon name="arrow" size={13} />
-        </button>
-      </div>
-      {[...new Map([...issues, ...review].map((i) => [i.id, i])).values()]
-        .slice(0, 4)
-        .map((i) => (
-          <WorkRow key={i.id} item={i} open={open} />
-        ))}
-      <div className="world-note">
-        <Icon name="spark" size={17} />
-        <p>
-          This summary follows the project records. New uploaded photos await
-          review; the live AI agent is not connected.
-        </p>
-      </div>
-      <button
-        className="world-primary world-wide"
-        onClick={() => open("capture")}
-        disabled={!canCapture}
-      >
-        <Icon name="camera" size={16} />
-        Add a daily update
-      </button>
-    </>
   );
 }
 export function IssuesPanel({ open, search }: { open: Open; search: string }) {
@@ -203,34 +144,18 @@ export function IssuesPanel({ open, search }: { open: Open; search: string }) {
         ))}
       </div>
       <div className="world-list-controls">
-        <label>
-          Sort
-          <select
-            aria-label="Sort work records"
-            value={sort}
-            onChange={(e) => setSort(e.target.value)}
-          >
-            <option value="priority">Issues first</option>
-            <option value="due">Due date</option>
-            <option value="owner">Responsible team</option>
-          </select>
-        </label>
-        <label>
-          Team
-          <select
-            aria-label="Filter responsible team"
-            value={owner}
-            onChange={(e) => {
-              setOwner(e.target.value);
-              setLimit(40);
-            }}
-          >
-            <option value="">All teams</option>
-            {[...new Set(state.items.map((i) => i.owner))].sort().map((o) => (
-              <option key={o}>{o}</option>
-            ))}
-          </select>
-        </label>
+        <div className="world-control-label">
+          <span>Sort</span>
+          <SelectControl label="Sort work records" value={sort} onChange={setSort} options={[
+            { value: "priority", label: "Issues first" }, { value: "due", label: "Due date" }, { value: "owner", label: "Responsible team" }
+          ]} />
+        </div>
+        <div className="world-control-label">
+          <span>Team</span>
+          <SelectControl label="Filter responsible team" value={owner} onChange={(next) => { setOwner(next); setLimit(40); }} options={[
+            { value: "", label: "All teams" }, ...[...new Set(state.items.map((i) => i.owner))].sort().map((o) => ({ value: o, label: o }))
+          ]} />
+        </div>
       </div>
       {search.trim() && <p className="world-muted">Searching all statuses.</p>}
       <span className="world-list-count">
@@ -1555,154 +1480,6 @@ export function TeamPanel() {
       <p className="world-muted">
         Sample contacts and reporting lines. Availability is saved locally.
       </p>
-    </>
-  );
-}
-export function ProjectPanel({
-  reset,
-  openImport,
-  owners = [],
-}: {
-  reset: () => void;
-  openImport?: () => void;
-  owners?: string[];
-}) {
-  const { model, state, act, view, previewOwner, changeView, canReview } =
-    useWorkspace();
-  const [name, setName] = useState(state.projectName);
-  return (
-    <>
-      <div className="world-panel-intro">
-        <span className="world-eyebrow">PROJECT CONTEXT</span>
-        <h2>A shared source of truth.</h2>
-        <p>
-          The design, spatial structure and work records behind this building.
-        </p>
-      </div>
-      {changeView && !model.source.apiProjectId && (
-        <section className="world-detail-section">
-          <h3>Preview a user experience</h3>
-          <label className="world-import-select">
-            View
-            <select
-              aria-label="Preview user experience"
-              value={view}
-              onChange={(e) =>
-                changeView(
-                  e.target.value as ViewRole,
-                  previewOwner || owners[0] || "",
-                )
-              }
-            >
-              {VIEW_ROLES.map((r) => (
-                <option value={r.id} key={r.id}>
-                  {r.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="world-import-select">
-            Crew for field / subcontractor preview
-            <select
-              aria-label="Preview crew"
-              value={previewOwner || owners[0] || ""}
-              onChange={(e) => changeView(view, e.target.value)}
-            >
-              {owners.map((o) => (
-                <option key={o}>{o}</option>
-              ))}
-            </select>
-          </label>
-          <p className="world-muted">
-            Public-sample presentation only. Customer: evidence and progress;
-            PM: decisions and coordination; subcontractor: assigned work and
-            corrections; field worker: assigned daily capture. These previews do
-            not grant private-project permissions.
-          </p>
-        </section>
-      )}
-      {openImport && (
-        <button className="world-primary world-wide" onClick={openImport}>
-          Add / import a project
-        </button>
-      )}
-      <form
-        className="world-update-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          act({ type: "project", name });
-        }}
-      >
-        <label>
-          Project name
-          <input
-            required
-            disabled={!canReview}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </label>
-        <button className="world-secondary" type="submit" disabled={!canReview}>
-          Save project name
-        </button>
-      </form>
-      <dl className="world-property-list">
-        <div>
-          <dt>Components</dt>
-          <dd>{model.elements.length.toLocaleString()}</dd>
-        </div>
-        <div>
-          <dt>Levels / spaces</dt>
-          <dd>
-            {model.plans.length} /{" "}
-            {model.plans.reduce((n, p) => n + p.rooms.length, 0)}
-          </dd>
-        </div>
-        <div>
-          <dt>Tracked work</dt>
-          <dd>{state.items.length} packages</dd>
-        </div>
-      </dl>
-      <section className="world-detail-section">
-        <h3>Model and location context</h3>
-        <p>{model.source.attribution}</p>
-        <p className="world-muted">
-          {model.source.apiProjectId
-            ? `Private upload · ${model.source.approvalStatus} reference. Model approval does not establish installed progress or inspection approval. Unit associations need project review.`
-            : `${model.source.license}. Public sample geometry; not an approved construction document. Unit display groups follow this sample's reviewed room associations.`}{" "}
-          Unknown locations remain unassigned.
-        </p>
-        <details className="world-source-details">
-          <summary>Revision & source</summary>
-          <p>{model.version}</p>
-          {model.source.repository && (
-            <a
-              href={`https://github.com/${model.source.repository}/tree/${model.source.revision}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              View original source
-            </a>
-          )}
-        </details>
-      </section>
-      <section className="world-detail-section">
-        <h3>Daily review</h3>
-        <p>
-          Each update keeps its work location, component IDs, source revision
-          and evidence together. New evidence awaits review; open issues close
-          only after an explicit resolution.
-        </p>
-        <p className="world-muted">
-          Public samples use local records and a sample PM identity. Private
-          model onboarding uses the connected account; its field records are
-          still pending integration.
-        </p>
-      </section>
-      <button className="world-danger" onClick={reset} disabled={!canReview}>
-        <Icon name="reset" size={15} />
-        Reset local workspace
-      </button>
     </>
   );
 }

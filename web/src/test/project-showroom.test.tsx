@@ -23,7 +23,7 @@ const deps = vi.hoisted(() => ({
 }));
 vi.mock("../api/client", () => ({
   api: deps.api,
-  tokenStore: { get: () => deps.token, subscribe: () => () => {} },
+  tokenStore: { get: () => deps.token, set: (t: unknown) => { deps.token = t; }, subscribe: () => () => {} },
 }));
 vi.mock("../viewer/modelData", async (original) => ({
   ...(await original<typeof import("../viewer/modelData")>()),
@@ -268,4 +268,18 @@ it("can stop default motion with the keyboard without adding preview buttons", a
     { key: " " },
   );
   expect(deps.scene!.autoRotate).toBe(false);
+});
+
+
+it("keeps samples usable when the connected service returns 502 and recovers on retry", async () => {
+  deps.token = { access_token: "session" };
+  deps.api.mockRejectedValueOnce(new Error("502 Bad Gateway")).mockResolvedValueOnce([{ id: "recovered", name: "Recovered site" }]);
+  mount("/");
+  expect(await screen.findByText("Connected projects are unavailable.")).toBeInTheDocument();
+  expect(screen.queryByText(/502 Bad Gateway/)).not.toBeInTheDocument();
+  expect(screen.getAllByRole("button", { name: /^Preview / })).toHaveLength(4);
+  expect(screen.getByRole("button", { name: "Open project" })).toBeEnabled();
+  await userEvent.click(screen.getByRole("button", { name: "Retry connection" }));
+  await waitFor(() => expect(screen.queryByText("Connected projects are unavailable.")).not.toBeInTheDocument());
+  expect(screen.getByText("1–4 of 5 buildings")).toBeInTheDocument();
 });

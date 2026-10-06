@@ -32,9 +32,7 @@ import {
   ComponentPanel,
   IssuesPanel,
   LocationsPanel,
-  ProjectPanel,
   RecordPanel,
-  SummaryPanel,
   TeamPanel,
   UpdatePanel,
 } from "./WorldPanels";
@@ -46,11 +44,9 @@ import { loadAuthorizedModel } from "../viewer/authorizedModel";
 import { tokenStore } from "../api/client";
 
 const TITLES: Record<Panel, string> = {
-  summary: "Project pulse",
   issues: "Work & issues",
   activity: "Progress history",
   team: "Project team",
-  project: "Project context",
   capture: "Daily update",
   record: "Work record",
   component: "Component details",
@@ -66,15 +62,16 @@ export default function Workspace() {
     : PUBLIC_PROJECTS.find((p) => p.id === requested)?.id || "duplex";
   const version = new URLSearchParams(location.search).get("version");
   const showroom =
-    new URLSearchParams(location.search).get("screen") === "projects";
+    new URLSearchParams(location.search).get("screen") === "projects" ||
+    (location.pathname === "/" && !location.search);
   const identity = `${project}:${version || "current"}`;
   useEffect(
     () =>
       tokenStore.subscribe((t) => {
-        if (!t && project.startsWith("api:"))
+        if (!t && project.startsWith("api:") && !showroom)
           navigate("/?panel=import", { replace: true });
       }),
-    [project, navigate],
+    [project, navigate, showroom],
   );
   const [loaded, setLoaded] = useState<{
       project: string;
@@ -211,9 +208,9 @@ function BuildingWorkspace({
     [scopedState, validDate],
   );
   useEffect(() => {
-    if (location.pathname !== "/")
+    if (location.pathname !== "/" || ["summary", "project"].includes(new URLSearchParams(location.search).get("panel") || ""))
       navigate(workspaceUrl(params) + location.hash, { replace: true });
-  }, [location.pathname, location.hash, params, navigate]);
+  }, [location.pathname, location.search, location.hash, params, navigate]);
   const go = (changes: Record<string, string | null>, replace = false) => {
     const next = new URLSearchParams(params);
     for (const [key, value] of Object.entries(changes)) {
@@ -438,8 +435,6 @@ function BuildingWorkspace({
   };
   const renderPanel = () => {
     switch (panel) {
-      case "summary":
-        return <SummaryPanel open={open} />;
       case "issues":
         return (
           <IssuesPanel
@@ -540,14 +535,6 @@ function BuildingWorkspace({
         ) : (
           <TeamPanel />
         );
-      case "project":
-        return (
-          <ProjectPanel
-            reset={() => setReset(true)}
-            openImport={() => open("import")}
-            owners={[...new Set(state.items.map((i) => i.owner))]}
-          />
-        );
       case "import":
         return (
           <ProjectImportPanel
@@ -585,29 +572,16 @@ function BuildingWorkspace({
         <header className="world-header">
           <button
             className="world-brand"
-            onClick={overview}
-            aria-label="Placeholder AI — building overview"
+            onClick={() => navigate("/")}
+            aria-label="Placeholder AI — project home"
           >
             <span>
               <BrandMark size={32} />
             </span>
-            <b>
-              Placeholder <em>AI</em>
-            </b>
+            <b>Placeholder AI</b>
           </button>
           <div className="world-project-title">
             <h1>{state.projectName}</h1>
-            <button
-              className="world-project-switch"
-              aria-label="Switch building project"
-              onClick={() =>
-                navigate(
-                  showroomUrl(workspaceUrl(params) + location.hash, project),
-                )
-              }
-            >
-              <Icon name="down" size={14} />
-            </button>
             <span>
               {model.source.apiProjectId
                 ? `${model.source.approvalStatus === "draft" ? "Draft reference" : model.source.approvalStatus === "missing" ? "Awaiting model" : "Connected model"} · work records pending`
@@ -631,6 +605,9 @@ function BuildingWorkspace({
             <kbd>⌘K</kbd>
           </div>
           <div className="world-header-actions">
+            <button className="world-switch-project" onClick={() => navigate(showroomUrl(workspaceUrl(params) + location.hash, project))}>
+              <Icon name="building" size={16} /> Switch project
+            </button>
             <button
               className={`world-issue-trigger ${panel === "issues" ? "active" : ""}`}
               onClick={() => open("issues")}
@@ -660,28 +637,12 @@ function BuildingWorkspace({
                 </span>
                 <Icon name="down" size={12} />
               </summary>
-              <div role="menu">
-                <button
-                  role="menuitem"
-                  onClick={() =>
-                    navigate(
-                      showroomUrl(
-                        workspaceUrl(params) + location.hash,
-                        project,
-                      ),
-                    )
-                  }
-                >
-                  <Icon name="building" size={16} />
-                  Switch project
-                </button>
+              <div>
+                <div role="menu">
                 {[
-                  ["summary", "spark", "Project pulse"],
                   ["activity", "clock", "Progress history"],
                   ["team", "people", "Project team"],
                   ["locations", "building", "Explore building"],
-                  ["project", "settings", "Project context"],
-                  ["import", "building", "Add / import project"],
                 ].map(([p, icon, text]) => (
                   <button
                     key={p}
@@ -692,6 +653,27 @@ function BuildingWorkspace({
                     {text}
                   </button>
                 ))}
+                </div>
+                {!model.source.apiProjectId && <div className="world-user-previews">
+                  <label>View as
+                    <select aria-label="Preview user experience" value={view} onChange={(e) => {
+                      setView(e.target.value as ViewRole);
+                      setPreviewOwner(previewOwner || state.items[0]?.owner || "");
+                      close(); menuRef.current?.removeAttribute("open");
+                    }}>
+                      {VIEW_ROLES.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
+                    </select>
+                  </label>
+                  <label>Crew
+                    <select aria-label="Preview crew" value={previewOwner || state.items[0]?.owner || ""} onChange={(e) => {
+                      setPreviewOwner(e.target.value); close(); menuRef.current?.removeAttribute("open");
+                    }}>
+                      {[...new Set(state.items.map((i) => i.owner))].map((owner) => <option key={owner}>{owner}</option>)}
+                    </select>
+                  </label>
+                  <small>Local user-view preview</small>
+                  <button disabled={view !== "pm"} onClick={() => { menuRef.current?.removeAttribute("open"); setReset(true); }}>Reset local workspace</button>
+                </div>}
               </div>
             </details>
           </div>
@@ -717,21 +699,6 @@ function BuildingWorkspace({
               onOverview={overview}
               onImport={() => open("import")}
             />
-            {!panel && (
-              <button
-                className="world-pulse-card"
-                onClick={() => open("summary")}
-              >
-                <span className="world-pulse-icon">
-                  <Icon name="spark" size={21} />
-                </span>
-                <span>
-                  <strong>The building, at a glance.</strong>
-                  <small>{issues} open issues · your next decisions</small>
-                </span>
-                <Icon name="arrow" size={17} />
-              </button>
-            )}
           </div>
           {panel && (
             <aside
