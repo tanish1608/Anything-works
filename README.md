@@ -41,7 +41,7 @@ A PM can review exceptions, confirm or dismiss a finding, and track a correction
 
 ## Agent implementation
 
-The review-only photo slice at `/agent` uses real backend accounts, approved drawing-extraction snapshots, saved assessments and manager decisions. A worker submits photos; the agent assesses visible component presence; the PM accepts/rejects the exact proposal; both see saved human progress on the authorized model. Recorded voice upload/transcription, author corrections, editable suggestions, explicitly refreshed cited daily briefings and the contextual Agent Isle chatbot are implemented on the iteration-2 workspace. LangGraph/MCP, LiDAR, calendar assignment, live transcription and external follow-ups remain later work. See [setup and demo steps](docs/DEVELOPMENT.md#placeholder-ai-agent-demo), [requirements](.kiro/specs/placeholder-agent/requirements.md), [architecture](docs/architecture.md) and [task evidence](docs/TASKS.md). Live field accuracy and the complete shared Home/Logs workflow remain unverified.
+The review-only photo slice at `/agent` uses real backend accounts, approved drawing-extraction snapshots, saved assessments and manager decisions. A worker submits photos; the agent assesses visible component presence; the PM accepts/rejects the exact proposal; both see saved human progress on the authorized model. Recorded voice upload/transcription, author corrections, editable suggestions, explicitly refreshed cited daily briefings and the contextual Project Copilot chatbot are implemented on the iteration-2 workspace. LangGraph/MCP, LiDAR, calendar assignment, live transcription and external follow-ups remain later work. See [setup and demo steps](docs/DEVELOPMENT.md#placeholder-ai-agent-demo), [requirements](.kiro/specs/placeholder-agent/requirements.md), [architecture](docs/architecture.md) and [task evidence](docs/TASKS.md). Live field accuracy and the complete shared Home/Logs workflow remain unverified.
 
 ## What exists today
 
@@ -49,7 +49,7 @@ The current website builds on the earlier **SiteMesh** prototype:
 
 - One large building workspace at `/`, with contextual panels for work/issues, evidence and decisions, daily updates, progress history, teams and project context. There are no separate Home/Logs/Building model pages.
 - A public duplex with 1,282 actual IFC components, exploded floors, exterior walls/roof initially hidden, source-system controls, component zoom, model pins and linked 2D silhouettes. Floor, reviewed Unit A/B and room locations share the original source geometry and IDs.
-- Browser-local capture, offline update identity, human review, corrections and progress replay on the same model. Agent Isle is a floating bottom-right assistant that opens against the current screen's local context without login; connecting is optional for scoped records and citations. Authenticated assessment, voice, helper and chat requests use the backend.
+- Browser-local capture, offline update identity, human review, corrections and progress replay on the same model. Project Copilot is a compact floating bottom-right chatbot that opens against the current screen's local context without login. Authenticated assessment, voice, helper and chat requests use the backend.
 - Retained backend foundations for model import, drawing review, photo uploads, permissions and Gemini analysis. These are not yet connected to the chosen public interface.
 
 These are foundations. The new daily quality-checking workflow, calibrated automatic completion, reliable plan comparison and broad real-site coverage are **not yet delivered or validated**. Existing “installed” verdicts do not establish correct installation.
@@ -79,4 +79,4 @@ See [current implementation and gaps](STATUS.md) and [design implementation note
 
 Follow the [developer guide](docs/DEVELOPMENT.md). The local frontend runs at `http://localhost:5173`; open `/` for the main website. One large building canvas is the main workspace. Issues, photos/review, daily updates, progress history, teams and project context open beside it. Old `/demo/...` and page bookmarks redirect into the corresponding root query-state panels. The previous login/project UI is retired from public routing; backend integration remains a separate work package.
 
-Documentation reset and designer UI implementation: October 5, 2026. Detailed BIM/inspection and Agent Isle work: October 6, 2026. Live provider, browser and field validation remain required.
+Documentation reset and designer UI implementation: October 5, 2026. Detailed BIM/inspection and Project Copilot work: October 6, 2026. Live provider, browser and field validation remain required.

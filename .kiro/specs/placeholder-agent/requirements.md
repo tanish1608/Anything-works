@@ -192,16 +192,16 @@ Manager approvals bind to the exact proposed action, revision and evidence snaps
 
 See [architecture](../../../docs/architecture.md), [framework decision](../../../docs/decisions/0001-placeholder-agent-harness.md), [draft OpenAPI](../../../contracts/openapi.yaml) and [tasks](../../../docs/TASKS.md).
 
-### Agent Isle — contextual assistance in iteration 2
+### Project Copilot — contextual assistance in iteration 2
 
 User-confirmed placement: a chatbot component at the top of the existing building workspace, available while contextual panels and the same model remain mounted.
 
-1. Keep `codex/design-iteration-2` building/camera/panel behavior. Opening or closing Agent Isle must not replace/remount the building or lose selection.
+1. Keep `codex/design-iteration-2` building/camera/panel behavior. Opening or closing Project Copilot must not replace/remount the building or lose selection.
 2. Show the current panel, selected work/component and local sample provenance. Sending requires real authentication and an explicitly selected authorized server project. Browser-local canvas data is untrusted context, never certified evidence or a silently matched database project.
 3. A bounded read-only chat request includes the question, page, display context and at most eight recent session turns. Server retrieval includes at most 25 authorized current model components and 20 visible issues; apply visibility before limits and revalidate scope/source snapshots after inference. Label partial coverage; never infer complete project totals, physical completion or assignment authority.
 4. Validate provider citations against server-supplied source keys and construct public references server-side. Unknown/duplicate citations, malformed responses or provider failures expose an unavailable result. No model tools, arbitrary URL retrieval or progress/assignment/message writes are allowed.
 5. Echo an input revision; discard late replies after identity, project or page/context changes. Clear conversation on sign-out/project/context change. Conversation memory is session-only for this slice; no durable chat-memory claim.
 6. Expand/collapse, connect/sign-in, send, suggested follow-up, clear, sign-out and context navigation controls have visible outcomes and meaningful handler tests. Browser tests must distinguish local UI checks from optional real-provider acceptance.
 
-7. Agent Isle opens without login for the currently displayed browser-local project/context. This public mode receives only explicitly labeled local display context and session turns; it has no project/database facts, citations, tools or write authority. Login is an optional “Connect project records” path that adds authorized server facts and citations after the user selects a project.
-8. The public Agent Isle endpoint returns an unavailable result when the provider is unavailable or attempts to cite a source. It must never invent a database-backed answer from local canvas text, expose project records, or imply that a sample status is an inspection result.
+7. Project Copilot opens without login for the currently displayed browser-local project/context. This public mode receives only explicitly labeled local display context and session turns; it has no project/database facts, citations, tools or write authority.
+8. The public Project Copilot endpoint returns an unavailable result when the provider is unavailable or attempts to cite a source. It must never invent a database-backed answer from local canvas text, expose project records, or imply that a sample status is an inspection result.

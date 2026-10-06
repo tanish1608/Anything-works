@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { api } from "../api/client";
 import type { ChatCreate, ChatResult } from "../api/agent.generated";
 import { Icon } from "../studio/Icon";
@@ -10,9 +10,9 @@ export default function ProjectCopilot(context: Context) {
   const [open, setOpen] = useState(false), [activated, setActivated] = useState(false);
   return <section className={`project-copilot ${open ? "is-open" : ""}`} aria-label="Project Copilot">
     {open && <div id="project-copilot-body" className="project-copilot-window">
-      <div className="project-copilot-window-head"><div className="project-copilot-brand"><img src="/placeholder-ai-logo.png" alt="Placeholder AI" /><div><strong>Placeholder AI</strong><span>{context.projectName || "Current project"}</span></div><b>Active</b></div>
+      <div className="project-copilot-window-head"><div className="project-copilot-brand"><img src="/project-copilot-avatar.png" alt="Project Copilot" /><div><strong>Placeholder AI</strong><span>{context.projectName || "Current project"}</span></div><b>Active</b></div>
         <button className="project-copilot-icon-button" aria-label="Close Project Copilot" onClick={() => setOpen(false)}><Icon name="close" size={16} /></button></div>
-      <Conversation {...context} publicMode />
+      <Conversation key={`public:${context.page}:${context.displayContext}`} {...context} publicMode />
     </div>}
     <button className="project-copilot-fab" aria-expanded={open} aria-controls="project-copilot-body"
       onClick={() => { setActivated(true); setOpen(value => !value); }}>
