@@ -334,9 +334,26 @@ function BuildingWorkspace({
           receive({ ...stateRef.current, draft: action.draft });
           return true;
         }
-        if (view === "customer" && action.type !== "sync")
+        if (action.type === "raise") {
+          // Anyone may point out a problem; only the PM assigns it as a confirmed issue.
+          action =
+            view === "pm"
+              ? { ...action, reporter: "Sarah Jenkins" }
+              : {
+                  ...action,
+                  owner: undefined,
+                  due: undefined,
+                  reporter: view === "customer" ? "Customer (preview)" : previewOwner || "Field crew",
+                };
+          if (action.item && view !== "pm")
+            action.item = {
+              ...action.item,
+              // Crew previews only list their own work, so their report stays visible to them.
+              owner: view === "customer" ? "Unassigned · PM triage" : previewOwner,
+            };
+        } else if (view === "customer" && action.type !== "sync")
           throw Error("The customer preview is read-only.");
-        if (view === "subcontractor" || view === "worker") {
+        else if (view === "subcontractor" || view === "worker") {
           if (!["draft", "submit", "sync"].includes(action.type))
             throw Error(
               "This preview sends evidence to the project manager for review.",
@@ -366,6 +383,10 @@ function BuildingWorkspace({
                 : "Update saved. Evidence awaits review."
               : action.type === "sync"
                 ? "Queued updates are ready for review."
+                : action.type === "raise"
+                  ? action.owner
+                    ? "Issue raised and pinned on the building."
+                    : "Problem reported. The project manager will triage it."
                 : "Saved. The building and records are up to date.",
           );
         return true;

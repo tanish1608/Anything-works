@@ -6,6 +6,12 @@ Updated October 6, 2026 after the shared daily workflow integration. This invent
 
 The root website/PWA now opens the project showroom. The workspace uses an explicit Switch project button, a non-interactive building name and a single wordmark. Project pulse/context are retired; user previews stay in the account menu and import starts from project home. Themed Sort/Team menus support keyboard selection and escape the scrolling panel; the preview-loading overlay stays inside the model area. A local 502 was reproduced with the API stopped; restarting port 8000 restored proxied health to 200 and protected project listing to the expected 401 without authentication. Connected-list failures also have sample-browsing/retry/disconnect recovery. Private APIs remain authorized.
 
+## Raise issue from the model and camera focus — October 6
+
+Selecting any component now offers **Raise issue here**. A PM records what is wrong, who fixes it and when; the component gets a pinned, assigned issue that uses the existing correction and resolution workflow (connected projects use the authorized work and confirm-decision APIs with the real actor). On public samples, customer and crew previews can **Report a problem here**: the report is pinned under the reporter and waits for PM triage, and is never a confirmed issue. Connected customer/trade reporting is not built yet; the server only lets PMs raise shared issues.
+
+Focusing a work record or component now cuts away floors, ceilings and roofs above it, frames a room-scale area centred on it, draws walls/slabs/roofs between the camera and the component see-through, and pins untracked selected components. This was checked with real WebGL screenshots (headless SwiftShader) on all four public buildings; phone and large-model performance checks remain open. Frontend: 135 tests, production build and lint (no warnings in changed files) pass.
+
 ## Shared daily workflow — October 6
 
 The main gap identified in the review is now connected for **manual review**: actual PM/crew accounts share assigned source work, daily photos, evidence requests, issue assignment, fresh corrections, explicit human acceptance, progress history and 3D status. The chosen UI loads authorized server projections, refreshes on foreground/reconnect and polls every ten seconds. Public samples remain browser-local; they are not silently migrated into a private project.

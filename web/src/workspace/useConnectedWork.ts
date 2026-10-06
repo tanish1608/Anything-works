@@ -92,6 +92,25 @@ export function useConnectedWork(model: ModelDataset, changed: (state: Workspace
         await api(`/projects/${project}/work`, { method: "POST", json: { id: item.id, title: item.title,
           assignee_id: item.assigneeId, element_id: item.location?.elements[0], model_version_id: model.version,
           capture_guidance: item.captureGuidance || "Context view and close-up of reported condition" } });
+      } else if (action.type === "raise") {
+        // Shared records only accept PM-assigned issues: plan the component, then confirm the issue.
+        if (!snapshot.permissions.review || !action.owner || !action.due)
+          throw Error("Only a project manager can raise a shared issue. Choose who fixes it and when.");
+        let id = action.id, revision = 1;
+        if (action.item) {
+          id = action.item.id;
+          await api(`/projects/${project}/work`, { method: "POST", json: { id, title: action.item.title,
+            assignee_id: action.owner, element_id: action.item.location?.elements[0], model_version_id: model.version,
+            capture_guidance: action.item.captureGuidance || "Context view and close-up of the reported condition" } });
+        } else {
+          const item = snapshot.state.items.find((i) => i.id === id);
+          if (!item) throw Error("Work item not found.");
+          revision = item.serverRevision || 1;
+          if (item.update) throw Error("Review this work's latest evidence, then confirm the issue from its record.");
+        }
+        await api(`/work/${id}/decisions`, { method: "POST", json: { type: "confirm", reason: action.description,
+          assignee_id: action.owner, due: action.due, expected_revision: revision, update_id: null } });
+        message("Issue raised under your account and pinned on the shared model.");
       } else if (action.type === "submit") {
         await queueWorkUpdate(snapshot.user.id, project, model.version, action.draft);
         draft.current = null;

@@ -207,6 +207,28 @@
   background: #469df9;
   border-color: #78b7ff;
 }
+.world-app .world-raise-issue {
+  background: #3a2229;
+  color: #ffc1bc;
+  border: 1px solid #7a3a44;
+  border-radius: 9px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 15px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+.world-app .world-raise-issue:hover {
+  background: #4a2a33;
+  border-color: #a24d58;
+}
+.world-app .world-raise-form h3 {
+  margin: 0;
+  font-size: 15px;
+}
 .world-app .world-secondary {
   background: #213349;
   display: inline-flex;

@@ -35,6 +35,8 @@ const viewer = vi.hoisted(() => ({
   setColors: vi.fn(),
   select: vi.fn(),
   frame: vi.fn(),
+  focusOn: vi.fn(() => true),
+  clearCutaway: vi.fn(),
   setMarkers: vi.fn(),
   setSection: vi.fn(),
   zoom: vi.fn(),

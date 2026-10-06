@@ -158,22 +158,25 @@ export default function ProjectScene({
             focus.point[1] + (offsets.get(focus.element || "") || 0),
             focus.point[2],
           ];
+          v.clearCutaway();
           v.flyTo({
             position: [p[0] + 3, p[1] + 2.5, p[2] + 3],
             target: p,
             section: null,
           });
-        } else
-          v.frame(
-            focus.elements?.length
-              ? focus.elements
-              : focus.element
-                ? [focus.element]
-                : [...visible],
-            direction,
-          );
-      } else if (orbitFit) v.frame([...visible], direction, true);
-      else v.frame([...visible], direction);
+        } else if (
+          !focus.element ||
+          !["iso", "overview"].includes(direction) ||
+          !v.focusOn(focus.element, (focus.elements?.length || 0) > 1)
+        ) {
+          v.clearCutaway();
+          v.frame(focus.elements?.length ? focus.elements : [...visible], direction);
+        }
+      } else {
+        v.clearCutaway();
+        if (orbitFit) v.frame([...visible], direction, true);
+        else v.frame([...visible], direction);
+      }
     });
     return () => {
       alive = false;

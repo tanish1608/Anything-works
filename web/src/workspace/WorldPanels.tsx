@@ -852,7 +852,14 @@ export function RecordPanel({
   );
 }
 export function ComponentPanel({ id, open }: { id: string; open: Open }) {
-  const { model, state, commit, canPlan, connected } = useWorkspace();
+  const { model, state, commit, canPlan, canReview, connected, view } = useWorkspace();
+  const [raising, setRaising] = useState(false),
+    [issueTitle, setIssueTitle] = useState(""),
+    [problem, setProblem] = useState(""),
+    [issueOwner, setIssueOwner] = useState(""),
+    [issueDue, setIssueDue] = useState(""),
+    [raiseError, setRaiseError] = useState(""),
+    [raiseBusy, setRaiseBusy] = useState(false);
   const [guidance, setGuidance] = useState("Context view and close-up of the reported condition");
   const [tracking, setTracking] = useState(false),
     [title, setTitle] = useState(""),
@@ -892,6 +899,8 @@ export function ComponentPanel({ id, open }: { id: string; open: Open }) {
       </div>
     );
   const work = state.items.filter((i) => i.location?.elements.includes(id));
+  // PMs assign issues directly; customers and crews report problems for PM triage.
+  const assigns = connected ? canReview : view === "pm";
   const plan = model.plans.find((p) => p.id === element.level_id),
     room = plan?.rooms.find((r) => r.id === element.zone_id),
     unit = unitForRoom(model, room?.code);
@@ -946,7 +955,112 @@ export function ComponentPanel({ id, open }: { id: string; open: Open }) {
           </p>
         </div>
       )}
-      {!work.length && plan && !tracking && canPlan && (
+      {plan && !raising && !tracking && (!connected || canReview) && !work.some((i) => i.issue) && (
+        <button
+          className="world-raise-issue"
+          onClick={() => {
+            setIssueTitle(`Problem at ${element.name || element.ifc_class}`);
+            setProblem("");
+            setRaiseError("");
+            setRaising(true);
+          }}
+        >
+          <Icon name="pin" size={16} />
+          {assigns ? "Raise issue here" : "Report a problem here"}
+        </button>
+      )}
+      {raising && (
+        <form
+          className="world-update-form world-raise-form"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            setRaiseError("");
+            setRaiseBusy(true);
+            try {
+              const base = work[0];
+              const item = base
+                ? undefined
+                : plannedComponent(model, element.id, issueTitle, assigns ? issueOwner || "PM" : "PM triage");
+              if (item && connected) item.assigneeId = issueOwner;
+              const ok = await commit({
+                type: "raise",
+                item,
+                id: base?.id,
+                description: problem,
+                reporter: "",
+                owner: assigns ? issueOwner : undefined,
+                due: assigns ? issueDue : undefined,
+              });
+              if (ok) {
+                setRaising(false);
+                open("record", base?.id || item!.id);
+              }
+            } catch (e) {
+              setRaiseError((e as Error).message);
+            } finally {
+              setRaiseBusy(false);
+            }
+          }}
+        >
+          <h3>{assigns ? "Raise an issue on this component" : "Report a problem"}</h3>
+          {!work.length && (
+            <label>
+              Short title
+              <input required value={issueTitle} onChange={(e) => setIssueTitle(e.target.value)} />
+            </label>
+          )}
+          <label>
+            What is wrong?
+            <textarea
+              autoFocus
+              required
+              rows={3}
+              value={problem}
+              onChange={(e) => setProblem(e.target.value)}
+              placeholder="e.g. Outlet box is on the wrong side of the door opening"
+            />
+          </label>
+          {assigns && (
+            <>
+              <label>
+                Who fixes it?
+                {connected ? (
+                  <select required value={issueOwner} onChange={(e) => setIssueOwner(e.target.value)}>
+                    <option value="">Select a project member</option>
+                    {eligibleMembers(connected.members, { trade: element.trade || element.discipline, location: { roomId: element.zone_id } } as WorkItem).map((m) => (
+                      <option key={m.user.id} value={m.user.id}>{m.user.name} · {m.user.email}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input required value={issueOwner} onChange={(e) => setIssueOwner(e.target.value)} placeholder="Responsible person or team" />
+                )}
+              </label>
+              <label>
+                Due date
+                <input required type="date" value={issueDue} onChange={(e) => setIssueDue(e.target.value)} />
+              </label>
+            </>
+          )}
+          <p className="world-muted">
+            {assigns
+              ? "The issue is pinned on this component and stays red until a correction is reviewed and resolved."
+              : "Your report is pinned on this component and sent to the project manager. It becomes an assigned issue only after they confirm it."}
+          </p>
+          {raiseError && <p role="alert">{raiseError}</p>}
+          <div className="world-action-pair">
+            <button type="button" onClick={() => setRaising(false)}>
+              Cancel
+            </button>
+            <button
+              className="world-primary"
+              disabled={raiseBusy || connected?.busy || !problem.trim() || (assigns && (!issueOwner.trim() || !issueDue))}
+            >
+              {assigns ? "Raise issue" : "Send report"}
+            </button>
+          </div>
+        </form>
+      )}
+      {!work.length && plan && !tracking && !raising && canPlan && (
         <button
           className="world-primary"
           onClick={() => {

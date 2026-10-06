@@ -9,6 +9,8 @@ export const DIRECTIONS: Record<ViewDirection, Point3> = {
   front: [0, 0, 1],
   side: [1, 0, 0],
 };
+/** Steeper than iso so a focused component is seen over the cut walls around it. */
+export const FOCUS_DIRECTION: Point3 = [1, 1.5, 1];
 
 /** Fit using both vertical and horizontal FOV; a 20mm fitting must not frame as a whole room. */
 export function fitBounds(

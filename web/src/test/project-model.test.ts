@@ -3,7 +3,7 @@ import { BoxGeometry, Group, Mesh, MeshBasicMaterial, Vector3 } from "three";
 import { describe, expect, it } from "vitest";
 import type { ModelDataset } from "../viewer/modelData";
 import { applyDisplayOffset, levelOffsets } from "../viewer/explosion";
-import { initialProjectState } from "../workspace/projectState";
+import { initialProjectState, plannedComponent } from "../workspace/projectState";
 import { projectModel } from "../workspace/modelProjection";
 import { transition, type Draft } from "../workspace/state";
 const model = JSON.parse(
@@ -24,6 +24,52 @@ const draft = (item: string): Draft => ({
   ],
 });
 describe("shared model and field workflow", () => {
+  it("lets a PM raise an assigned issue on an untracked component without inventing evidence", () => {
+    const state = initialProjectState(model);
+    const tracked = new Set(state.items.flatMap((i) => i.location!.elements));
+    const element = model.elements.find(
+      (e) => e.bbox && e.level_id && !tracked.has(e.id),
+    )!;
+    const item = plannedComponent(model, element.id, "Wrong pipe slope", "PM");
+    const next = transition(state, {
+      type: "raise",
+      item,
+      description: "Slope runs the wrong way.",
+      reporter: "Sarah Jenkins",
+      owner: "River Plumbing",
+      due: "2026-10-12",
+    });
+    const raised = next.items.find((i) => i.id === item.id)!;
+    expect(raised.issue).toMatch(/^ISS-/);
+    expect(raised.status).toBe("issue");
+    expect(raised.owner).toBe("River Plumbing");
+    expect(raised.photos).toHaveLength(0);
+    expect(raised.progress).toBe("Not assessed");
+    expect(next.events[0].actor).toBe("Sarah Jenkins");
+    expect(() =>
+      transition(next, { type: "raise", item, description: "Again", reporter: "x" }),
+    ).toThrow(/already has tracked work/);
+  });
+
+  it("keeps a customer or crew report in PM triage instead of confirming an issue", () => {
+    const state = initialProjectState(model);
+    const work = state.items.find((i) => !i.issue && i.status !== "issue")!;
+    const next = transition(state, {
+      type: "raise",
+      id: work.id,
+      description: "Paint is chipped at the door frame.",
+      reporter: "Customer (preview)",
+    });
+    const reported = next.items.find((i) => i.id === work.id)!;
+    expect(reported.issue).toBeUndefined();
+    expect(reported.status).toBe("review");
+    expect(reported.review).toMatch(/awaiting project-manager triage/);
+    expect(next.events[0].actor).toBe("Customer (preview)");
+    expect(() =>
+      transition(state, { type: "raise", id: work.id, description: " ", reporter: "x" }),
+    ).toThrow(/Describe the problem/);
+  });
+
   it("binds all work packages to existing components, source rooms, levels and one revision", () => {
     const state = initialProjectState(model);
     expect(state.items).toHaveLength(14);

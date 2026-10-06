@@ -8,6 +8,7 @@ import {
 import ProjectScene, { type SceneFocus } from "../viewer/ProjectScene";
 import ModelPlan from "../viewer/ModelPlan";
 import { visibleIds } from "../viewer/filters";
+import { ifcPointToViewer } from "../viewer/spatialMath";
 import { DISCIPLINE_COLORS, DISCIPLINE_LABELS } from "../viewer/colors";
 import type { SiteViewer } from "../viewer/Viewer";
 import { loadAuthorizedLayer } from "../viewer/authorizedModel";
@@ -26,6 +27,7 @@ const APARTMENT_LEVEL_TAGS: Record<string, string> = {
   "04 dak": "Roof",
 };
 
+const SELECTION_PIN = "selected-component:";
 export default function BuildingCanvas({
   items,
   work,
@@ -161,8 +163,20 @@ export default function BuildingCanvas({
         color: "#98c9ff",
         kind: "pin",
       });
+    // Pinpoint a selected component that has no work record yet, so small parts stay findable.
+    const picked = !active && selected && model.elements.find((e) => e.id === selected);
+    if (picked && picked.bbox && !pins.some((p) => p.elementId === selected)) {
+      const b = picked.bbox;
+      pins.push({
+        id: `${SELECTION_PIN}${picked.id}`,
+        elementId: picked.id,
+        position: ifcPointToViewer([(b[0] + b[3]) / 2, (b[1] + b[4]) / 2, (b[2] + b[5]) / 2]),
+        color: "#98c9ff",
+        kind: "pin",
+      });
+    }
     return pins;
-  }, [projection, visible, active]);
+  }, [projection, visible, active, selected, model]);
   const focus: SceneFocus | null = useMemo(() => {
     if (!selected) return null;
     const context =
@@ -225,7 +239,7 @@ export default function BuildingCanvas({
           direction={selected ? "iso" : "overview"}
           background="#131f2e"
           onReady={ready}
-          onMarker={onWork}
+          onMarker={(id) => !id.startsWith(SELECTION_PIN) && onWork(id)}
           onSelect={chooseElement}
         />
       </div>

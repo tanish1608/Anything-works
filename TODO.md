@@ -8,6 +8,27 @@ Owners are suggested contributor roles, not assignments. Each package needs a na
 
 The UI-only iteration backlog is [Design iteration 2](docs/UI_TODO_ITERATION_2.md). It tracks proportions/camera, four audited source projects, sample switching, component exploration and remaining visual acceptance.
 
+## Raise issues from the 3D model and component focus — October 6
+
+- [x] Add **Raise issue here** to the selected-component panel. A PM describes the problem, picks who fixes it and a due date; the component gets a pinned, red, assigned issue that follows the existing correction → review → resolve loop. Works on untracked components and on existing work without an open issue.
+- [x] Let customer and crew previews **Report a problem here** on public samples. Their report is pinned and recorded under the reporter, then waits for PM triage; it is never a confirmed issue until a PM confirms it.
+- [x] Connected projects: PM-raised issues use the existing authorized work + confirm-decision APIs with the real actor.
+- [ ] Let connected customer (`viewer`) and trade accounts report problems for PM triage. Needs a server-side "reported finding" permission and record; today only PMs can raise shared issues.
+- [ ] Let reporters attach a photo and a precise surface point when raising an issue (the viewer's pick/point support is a foundation).
+- [x] Fix component/record camera focus in every sample building: cut away everything above the component, frame a room-scale area centred on it, make walls/slabs/roofs between the camera and the component see-through, and pin selected untracked components. Verified with real WebGL (headless SwiftShader) screenshots on duplex, Schependomlaan, clinic and Esplan.
+- [ ] Check the focus cutaway and see-through occluders on physical phones and with very large models (raycast cost on the 16k-component clinic).
+
+## AI checks — next work package (branch `ai-checks`)
+
+The manual loop is connected; the AI plugs into it. Agree the contract first so the app and the AI side can be built in parallel.
+
+- [ ] **Contract:** define the check request (work item, confirmed location, approved reference revision and source details, required checks, photo IDs, worker note/claim) and the versioned result (per-check outcome: no discrepancy / potential discrepancy / insufficient evidence / unsupported / failed; evidence regions; source references; model, prompt, check and policy versions). Publish sample payloads in `docs/`.
+- [ ] **Job:** queue a check run when a work update is received (`app/jobs.py`), store each run with its inputs and outputs, retry/timeout, and never change completion when a run fails or returns malformed output.
+- [ ] **Shadow mode first:** show AI findings to the PM as suggestions on the work record (evidence request, potential issue, looks complete) — the PM still decides. No automatic completion until a check passes its evaluation gate.
+- [ ] **Retire the legacy path** for tracked work: `vision_jobs.py` skips done elements and can auto-approve by confidence; keep it isolated from the new flow.
+- [ ] **AI-raised issues** reuse the same pin/issue record as human-raised ones, marked as AI-suggested until a PM confirms.
+- [ ] **Evaluation:** extend `eval_vision.py` to report false completions, missed defects, false alerts and abstentions per check on labelled real photos.
+
 ## Shared daily integration — October 6
 
 - [x] Connect the chosen building UI to authorized server work packages, actual team assignment, private photos and shared manual evidence/review/correction records.

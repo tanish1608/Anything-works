@@ -13,6 +13,7 @@ import { PointerLockControls } from "three/examples/jsm/controls/PointerLockCont
 import { SELECTION_COLOR } from "./colors";
 import {
   DIRECTIONS,
+  FOCUS_DIRECTION,
   fitBounds,
   fitProjectedBounds,
   fitOrbitBounds,
@@ -60,6 +61,7 @@ type Events = {
 };
 
 const CONTEXT_OPACITY = 0.18;
+const OCCLUDER_OPACITY = 0.12;
 
 export class SiteViewer {
   readonly scene = new THREE.Scene();
@@ -85,7 +87,12 @@ export class SiteViewer {
     ids?: string[];
     direction: ViewDirection;
     orbitFit?: boolean;
+    focus?: { id: string; context: boolean };
   } | null = null;
+  /** Horizontal cut (world Y) hiding floors, ceilings and roofs above a focused component. */
+  private cutY: number | null = null;
+  /** Meshes between the camera and a focused component, drawn see-through while focused. */
+  private occluders = new Set<THREE.Mesh>();
   private ro: ResizeObserver;
   private pickMode = false;
   private downAt: { x: number; y: number } | null = null;
@@ -280,6 +287,7 @@ export class SiteViewer {
     this.disposeGroup(this.root);
     this.disposeGroup(this.markerGroup);
     this.meshes.clear();
+    this.occluders.clear();
     this.contextIds.clear();
     this.selected = null;
     this.flight = null;
@@ -344,6 +352,7 @@ export class SiteViewer {
     this.ghostContext = ghost;
     this.meshes.forEach((meshes) =>
       meshes.forEach((m) => {
+        if (this.occluders.has(m)) return;
         const mat = m.material as THREE.MeshLambertMaterial;
         const translucent = ghost && m.userData.context;
         mat.transparent = !!translucent;
@@ -414,6 +423,83 @@ export class SiteViewer {
     this.flyTo(fitted);
   }
 
+  /**
+   * Show one component where it actually is: cut away everything above it and frame a
+   * room-scale area around it (or the component alone for a close-up). Room/zone metadata is
+   * not used for framing because overlap-derived room associations can include whole slabs.
+   */
+  focusOn(id: string, context = true) {
+    const box = new THREE.Box3();
+    this.meshes.get(id)?.forEach((m) => box.expandByObject(m));
+    if (box.isEmpty()) return false;
+    this.cutY = Math.max(box.max.y + 0.3, box.min.y + 1.5);
+    this.applySection();
+    const subject = box.clone();
+    if (context) {
+      const c = box.getCenter(new THREE.Vector3());
+      const half = 2.5;
+      subject.expandByPoint(new THREE.Vector3(c.x - half, box.min.y, c.z - half));
+      subject.expandByPoint(new THREE.Vector3(c.x + half, box.min.y, c.z + half));
+    }
+    this.framedView = { direction: "iso", focus: { id, context } };
+    const fitted = fitBounds(subject, this.camera.fov, this.camera.aspect, FOCUS_DIRECTION);
+    this.revealFrom(new THREE.Vector3(...fitted.position), id, box);
+    this.camera.near = fitted.near;
+    this.camera.far = Math.max(
+      100,
+      this.bounds.getSize(new THREE.Vector3()).length() * 10,
+    );
+    this.camera.updateProjectionMatrix();
+    this.flyTo(fitted);
+    return true;
+  }
+
+  /** Remove the focus cutaway and show every visible level again. */
+  clearCutaway() {
+    this.setOccluders(new Set());
+    if (this.cutY === null) return;
+    this.cutY = null;
+    this.applySection();
+  }
+
+  /** Walls, ceilings or roofs that would hide the component from this viewpoint become see-through. */
+  private revealFrom(eye: THREE.Vector3, id: string, box: THREE.Box3) {
+    const own = new Set(this.meshes.get(id) || []);
+    const candidates = this.allMeshes().filter((m) => m.visible && !own.has(m));
+    const center = box.getCenter(new THREE.Vector3());
+    const points = [center];
+    for (const x of [box.min.x, box.max.x])
+      for (const y of [box.min.y, box.max.y])
+        for (const z of [box.min.z, box.max.z])
+          points.push(new THREE.Vector3(x, y, z).lerp(center, 0.2));
+    const hidden = new Set<THREE.Mesh>();
+    const ray = new THREE.Raycaster();
+    for (const p of points) {
+      const dir = p.clone().sub(eye);
+      const far = dir.length();
+      ray.set(eye, dir.normalize());
+      ray.far = far - 0.01;
+      for (const hit of ray.intersectObjects(candidates, false))
+        if (this.insideSection(hit.point)) hidden.add(hit.object as THREE.Mesh);
+    }
+    this.setOccluders(hidden);
+  }
+
+  private setOccluders(next: Set<THREE.Mesh>) {
+    const style = (m: THREE.Mesh, see: boolean) => {
+      const mat = m.material as THREE.MeshLambertMaterial;
+      const ghost = this.ghostContext && m.userData.context;
+      mat.transparent = see || !!ghost;
+      mat.opacity = see ? OCCLUDER_OPACITY : ghost ? CONTEXT_OPACITY : 1;
+      mat.depthWrite = !mat.transparent;
+      mat.needsUpdate = true;
+    };
+    this.occluders.forEach((m) => !next.has(m) && style(m, false));
+    next.forEach((m) => style(m, true));
+    this.occluders = next;
+    this.invalidate();
+  }
+
   zoom(factor: number) {
     this.framedView = null;
     const offset = this.camera.position
@@ -478,6 +564,8 @@ export class SiteViewer {
         );
       });
     }
+    if (this.cutY !== null)
+      this.clipPlanes.push(new THREE.Plane(new THREE.Vector3(0, -1, 0), this.cutY));
     this.invalidate();
   }
 
@@ -654,7 +742,9 @@ export class SiteViewer {
     this.renderer.setSize(w, h);
     // Keep the last fitted subject visible when its canvas narrows for a panel.
     // A manual orbit/zoom clears this, so resizing does not undo the user's camera.
-    if (this.framedView)
+    if (this.framedView?.focus)
+      this.focusOn(this.framedView.focus.id, this.framedView.focus.context);
+    else if (this.framedView)
       this.frame(
         this.framedView.ids,
         this.framedView.direction,

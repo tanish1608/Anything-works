@@ -7,6 +7,7 @@ import type { SiteViewer } from "../viewer/Viewer";
 const calls = vi.hoisted(() => ({
   load: vi.fn(async () => {}),
   frame: vi.fn(),
+  focus: vi.fn(() => true),
   offsets: vi.fn(async (_offsets: Map<string, number>) => {}),
   markers: vi.fn(),
   rotate: vi.fn(),
@@ -25,6 +26,8 @@ vi.mock("../viewer/ViewerCanvas", () => ({
         loadLayers: calls.load,
         setExplodedOffsets: calls.offsets,
         frame: calls.frame,
+        focusOn: calls.focus,
+        clearCutaway: () => {},
         setMarkers: calls.markers,
         setAutoRotate: calls.rotate,
         setVisible: () => {},
@@ -136,11 +139,10 @@ it("fits the whole model first, then waits for exploded floors before framing th
   await waitFor(() =>
     expect(calls.offsets.mock.calls.at(-1)![0].get("pipe")).toBe(3),
   );
-  expect(calls.frame).not.toHaveBeenCalled();
+  expect(calls.focus).not.toHaveBeenCalled();
   finish();
-  await waitFor(() =>
-    expect(calls.frame).toHaveBeenCalledWith(["pipe"], "iso"),
-  );
+  // A record focus cuts away what is above the component and frames it in place.
+  await waitFor(() => expect(calls.focus).toHaveBeenCalledWith("pipe", false));
   view.rerender(
     <ProjectScene
       data={data}

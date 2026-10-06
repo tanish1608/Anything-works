@@ -503,6 +503,17 @@ export type Action =
       due?: string;
     }
   | { type: "confirm"; id: string; owner: string; due: string; reason: string }
+  | {
+      /** A person points out a problem on a model component. A PM may assign it at once;
+       * anyone else's report waits for PM triage and is never a confirmed issue. */
+      type: "raise";
+      item?: WorkItem;
+      id?: string;
+      description: string;
+      reporter: string;
+      owner?: string;
+      due?: string;
+    }
   | { type: "project"; name: string }
   | { type: "report"; note: string; sign: boolean };
 
@@ -560,6 +571,62 @@ export function transition(
       item,
       `Planned work added: ${item.title}. No field evidence received.`,
     );
+    return next;
+  }
+  if (action.type === "raise") {
+    const text = action.description.trim();
+    if (!text) throw new Error("Describe the problem you see.");
+    const assign = !!(action.owner?.trim() && action.due);
+    let work: WorkItem | undefined;
+    if (action.item) {
+      const item = action.item;
+      if (!state.modelApproved || item.location?.version !== state.modelVersion)
+        throw new Error("Raise issues against the current project model.");
+      if (!item.location?.elements.length)
+        throw new Error("Select a model component for this issue.");
+      if (
+        next.items.some(
+          (i) =>
+            i.id === item.id ||
+            i.location?.elements.some((e) => item.location!.elements.includes(e)),
+        )
+      )
+        throw new Error("This component already has tracked work. Open it to raise the issue.");
+      work = structuredClone(item);
+      work.coverage = "No field evidence";
+      next.items.push(work);
+    } else {
+      work = next.items.find((i) => i.id === action.id);
+      if (!work) throw new Error("Work item not found.");
+    }
+    if (assign) {
+      if (work.issue) throw new Error("This work already has an open issue.");
+      work.issue = `ISS-${crypto.randomUUID().slice(0, 5).toUpperCase()}`;
+      work.status = "issue";
+      work.owner = action.owner!.trim();
+      work.due = action.due;
+      work.resolution =
+        "Fix the reported problem and submit correction photos for project-manager review.";
+      work.correction = false;
+      work.progress = "Not assessed";
+      work.review = `Issue raised from the model by ${action.reporter}`;
+      work.detail = text;
+      record(
+        work,
+        `Issue ${work.issue} raised from the 3D model: ${text} Assigned to ${work.owner}, due ${work.due}.`,
+        action.reporter,
+      );
+    } else {
+      if (!work.issue) work.status = "review";
+      work.detail = text;
+      work.progress = "Not assessed";
+      work.review = `Reported by ${action.reporter} · awaiting project-manager triage`;
+      record(
+        work,
+        `Problem reported from the 3D model: ${text} Awaiting project-manager triage.`,
+        action.reporter,
+      );
+    }
     return next;
   }
   if (action.type === "project") {

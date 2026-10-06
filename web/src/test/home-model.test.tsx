@@ -38,6 +38,8 @@ vi.mock("../viewer/ViewerCanvas", () => ({
         select: mock.select,
         flyTo: mock.fly,
         frame: mock.frame,
+        focusOn: () => false,
+        clearCutaway: () => {},
         on: (name: string, cb: (id: string) => void) =>
           mock.events.set(name, cb),
       } as unknown as SiteViewer);
