@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project Setup · Everything Works AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block" rel="stylesheet">
+<link rel="stylesheet" href="ew.css">
+<style>
+  .side { display: flex; flex-direction: column; gap: 2px; }
+  .side a { padding: 8px 12px; border-radius: var(--r); font-size: 13px; font-weight: 500; color: var(--ink-3); display: flex; gap: 8px; align-items: center; }
+  .side a.on { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+  .setup { display: grid; grid-template-columns: 220px minmax(0,1fr); gap: 20px; }
+  @media (max-width: 900px) { .setup { grid-template-columns: minmax(0,1fr); } .side { flex-direction: row; flex-wrap: wrap; } }
+</style>
+</head>
+<body>
+<div class="mock-strip"><span><b>Design mockup</b> · Hawthorne Tower is a fictional project · AI results are fixtures, not measured field accuracy</span><a href="index.html" style="text-decoration:underline">All screens</a></div>
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="index.html"><span class="brand-mark"><span class="ms sm">bolt</span></span>Everything Works AI</a>
+  <span class="project-pill"><span class="strong">Hawthorne Tower</span><span class="tag">Fictional</span><span class="ms sm faint">expand_more</span></span>
+  <nav class="nav"><a href="today.html">Today</a><a href="work.html">Work &amp; Issues <span class="count">3</span></a><a href="building.html">Building</a><a href="report.html">Daily Report</a><a href="setup.html" class="on">Setup</a></nav>
+  <div class="top-right"><div class="search"><span class="ms sm">search</span>Search rooms, items, issues<kbd>⌘K</kbd></div><span class="ms faint">notifications</span><span class="avatar">SJ</span><div class="who"><b>Sarah Jenkins</b><span>Project manager</span></div></div>
+</div></header>
+
+<main class="page">
+  <section class="page-head">
+    <div><div class="eyebrow">Project setup</div><h1 style="margin-top:4px">References, work items and checks</h1><p class="sub">The approved context every check compares against. Missing or unreviewed context creates a setup task — it doesn't get guessed.</p></div>
+  </section>
+
+  <div class="setup">
+    <nav class="side">
+      <a class="on" href="#refs"><span class="ms sm">description</span>Approved references</a>
+      <a href="#checks"><span class="ms sm">rule</span>Check catalog</a>
+      <a href="#model"><span class="ms sm">view_in_ar</span>Model &amp; drawings</a>
+      <a href="#work"><span class="ms sm">checklist</span>Work packages</a>
+      <a href="#"><span class="ms sm">groups</span>Members &amp; access</a>
+    </nav>
+
+    <div class="stack-lg">
+      <section class="card" id="refs">
+        <div class="card-head"><h2>Approved references</h2><button class="btn sm"><span class="ms">upload</span>Add revision</button></div>
+        <div class="table-wrap">
+        <table class="t">
+          <thead><tr><th>Sheet / document</th><th>Revision</th><th>Status</th><th>Applies to</th><th>Effect on decisions</th></tr></thead>
+          <tbody>
+            <tr><td><b>A-402</b> · L14 partition plan</td><td>Rev C<div class="xs muted">supersedes Rev B</div></td><td><span class="chip ok"><span class="ms">check</span>Approved Oct 5</span><div class="xs muted">S. Jenkins · AC-014</div></td><td>L14 framing</td><td><span class="chip review"><span class="ms">restart_alt</span>Reopened 1 item</span><div class="xs muted">Unit 407 — after dependency review</div></td></tr>
+            <tr><td><b>M-402</b> · L14 HVAC plan</td><td>Rev 3</td><td><span class="chip ok"><span class="ms">check</span>Approved Sep 22</span></td><td>L14 HVAC</td><td><span class="small muted">—</span></td></tr>
+            <tr><td><b>E-14</b> · L14 power plan</td><td>Rev B</td><td><span class="chip ok"><span class="ms">check</span>Approved Sep 20</span></td><td>L14 electrical</td><td><span class="small muted">Symbol positions schematic — no exact box heights</span></td></tr>
+            <tr><td><b>P-201</b> · Typical unit plumbing</td><td>Rev 2</td><td><span class="chip ok"><span class="ms">check</span>Approved Sep 18</span></td><td>All units, plumbing</td><td><span class="small muted">—</span></td></tr>
+            <tr><td><b>FP-214</b> · L14 sprinkler layout</td><td>Rev 1</td><td><span class="chip ok"><span class="ms">check</span>Approved Sep 18</span></td><td>L14 fire protection</td><td><span class="small muted">—</span></td></tr>
+            <tr><td><b>M-402</b> · L14 HVAC plan</td><td>Rev 4 (draft)</td><td><span class="chip review"><span class="ms">pending</span>Uploaded · not approved</span></td><td>—</td><td><span class="small muted">Not used by checks until approved</span></td></tr>
+          </tbody>
+        </table>
+        </div>
+      </section>
+
+      <section class="card" id="checks">
+        <div class="card-head"><h2>Check catalog</h2><span class="small muted">Automatic completion is enabled per check, per project, only after its evaluation gate</span></div>
+        <div class="table-wrap">
+        <table class="t">
+          <thead><tr><th>Check</th><th>Stages</th><th>Capture needed</th><th>Release state</th><th>Evaluation record</th></tr></thead>
+          <tbody>
+            <tr><td><b>Plumbing — visible components &amp; routing</b><div class="xs muted">plumb-visible-components v0.4 · policy PC-plumb 0.4</div></td><td>Rough-in</td><td>Each fixture wall, full height</td><td><span class="chip ai"><span class="ms">task_alt</span>Auto-completion on</span></td><td><span class="small">EV-07</span><div class="xs" style="color:var(--violet-ink)">Sample values — not measured</div></td></tr>
+            <tr><td><b>HVAC — duct presence</b><div class="xs muted">duct-presence v0.2 · policy PC-duct-presence 0.2</div></td><td>Rough-in</td><td>Ceiling from 2 angles</td><td><span class="chip ai"><span class="ms">task_alt</span>Auto-completion on</span></td><td><span class="small">EV-05</span><div class="xs" style="color:var(--violet-ink)">Sample values — not measured</div></td></tr>
+            <tr><td><b>Punch — marked item resolved (visual)</b><div class="xs muted">punch-visual v0.3 · policy PC-punch 0.3</div></td><td>Finishes, closeout</td><td>Close-up + context photo</td><td><span class="chip ai"><span class="ms">task_alt</span>Auto-completion on</span></td><td><span class="small">EV-06</span><div class="xs" style="color:var(--violet-ink)">Sample values — not measured</div></td></tr>
+            <tr><td><b>Electrical — box presence &amp; wall association</b><div class="xs muted">elec-box-presence v0.3</div></td><td>Rough-in</td><td>Each wall with boxes</td><td><span class="chip shadow"><span class="ms">visibility</span>Shadow mode</span><div class="xs muted">Results go to review</div></td><td><span class="small">EV-08 in progress</span></td></tr>
+            <tr><td><b>Framing — openings &amp; apparent placement</b><div class="xs muted">framing-openings v0.2</div></td><td>Framing</td><td>Each partition, both faces</td><td><span class="chip tag">Review only</span></td><td><span class="small muted">Not started</span></td></tr>
+            <tr><td><b>HVAC — apparent duct routing</b><div class="xs muted">duct-routing v0.2</div></td><td>Rough-in</td><td>Doorway + below chase</td><td><span class="chip tag">Review only</span></td><td><span class="small muted">Not started</span></td></tr>
+            <tr><td><b>Firestop at penetrations</b></td><td>Rough-in</td><td>—</td><td><span class="chip unsupported"><span class="ms">help</span>Not supported</span></td><td><span class="small muted">Routed to a qualified reviewer</span></td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="card-foot small muted">Each evaluation record reports false completions, missed supported defects, false alerts, abstention and coverage separately — not a single accuracy score. A model's self-reported confidence never enables auto-completion.</div>
+      </section>
+
+      <div class="grid g-1-1">
+        <section class="card card-pad stack" id="model">
+          <h2>Model &amp; drawings</h2>
+          <div class="row between small"><span>Architecture, HVAC, structure IFC</span><span class="chip ok"><span class="ms">check</span>Imported · reviewed Sep 28</span></div>
+          <div class="row between small"><span>L14 partition model from A-402 Rev C</span><span class="chip review"><span class="ms">pending</span>Draft · needs review</span></div>
+          <div class="row between small"><span>L14 units &amp; core mapped to model</span><span class="num strong">13 / 13</span></div>
+          <p class="xs muted">Converted drawings are reviewed before activation. Undrawn components aren't invented.</p>
+        </section>
+        <section class="card card-pad stack" id="work">
+          <h2>Work packages · Level 14</h2>
+          <div class="row between small"><span>Current stage</span><span class="chip tag">Rough-in</span></div>
+          <div class="row between small"><span>Required work items</span><span class="num strong">13</span></div>
+          <div class="row between small"><span>Items with an auto-completion check</span><span class="num strong">5</span></div>
+          <div class="row between small"><span>Dependencies defined</span><span class="small">Drywall close-in ← MEP issues</span></div>
+          <p class="xs muted">Completion denominators come from this list.</p>
+        </section>
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

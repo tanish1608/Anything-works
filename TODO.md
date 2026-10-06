@@ -40,6 +40,8 @@ Owners are suggested contributor roles, not assignments. Each package needs a na
 
 **Done when:** a teammate can explain the full workflow and the difference between AI completion and inspection approval from the prototype screens.
 
+Draft screens for review: [docs/design/ui](docs/design/ui/README.md). They don't complete these boxes until the team has reviewed them.
+
 ## P1 — Daily workflow
 
 ### P1.1 References and work context — backend + frontend (R1, R8)

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Work &amp; Issues · Everything Works AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block" rel="stylesheet">
+<link rel="stylesheet" href="ew.css">
+<style>
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .select { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px; border: 1px solid var(--line); border-radius: var(--r); background: #fff; font-size: 12.5px; color: var(--ink-3); }
+  .select b { color: var(--ink); font-weight: 500; }
+  table.t td .sub { font-size: 11.5px; color: var(--ink-3); margin-top: 2px; }
+  tr.sel td { background: var(--red-bg) !important; }
+</style>
+</head>
+<body>
+<div class="mock-strip"><span><b>Design mockup</b> · Hawthorne Tower is a fictional project · AI results are fixtures, not measured field accuracy</span><a href="index.html" style="text-decoration:underline">All screens</a></div>
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="index.html"><span class="brand-mark"><span class="ms sm">bolt</span></span>Everything Works AI</a>
+  <span class="project-pill"><span class="strong">Hawthorne Tower</span><span class="tag">Fictional</span><span class="ms sm faint">expand_more</span></span>
+  <nav class="nav"><a href="today.html">Today</a><a href="work.html" class="on">Work &amp; Issues <span class="count">3</span></a><a href="building.html">Building</a><a href="report.html">Daily Report</a><a href="setup.html">Setup</a></nav>
+  <div class="top-right"><div class="search"><span class="ms sm">search</span>Search rooms, items, issues<kbd>⌘K</kbd></div><span class="ms faint">notifications</span><span class="avatar">SJ</span><div class="who"><b>Sarah Jenkins</b><span>Project manager</span></div></div>
+</div></header>
+
+<main class="page">
+  <section class="page-head">
+    <div><div class="eyebrow">Work &amp; Issues</div><h1 style="margin-top:4px">Level 14 · rough-in</h1><p class="sub">13 current-stage work items · status from persisted assessments, reviews and issues</p></div>
+    <div class="row"><button class="btn"><span class="ms">print</span>Field sheet</button><button class="btn"><span class="ms">add</span>Add finding</button></div>
+  </section>
+
+  <div class="filters">
+    <span class="seg"><span class="on">All 13</span><span>Needs decision 3</span><span>Open issues 2</span><span>Waiting 2</span><span>Complete 4</span></span>
+    <span class="select">Level <b>14</b><span class="ms sm">expand_more</span></span>
+    <span class="select">Trade <b>All</b><span class="ms sm">expand_more</span></span>
+    <span class="select">Stage <b>Rough-in</b><span class="ms sm">expand_more</span></span>
+    <span class="select">Owner <b>Anyone</b><span class="ms sm">expand_more</span></span>
+  </div>
+
+  <div class="grid g-2-1">
+    <section class="card">
+      <div class="table-wrap">
+      <table class="t">
+        <thead><tr><th>Location · work item</th><th>Status</th><th>Latest evidence</th><th>Next action</th></tr></thead>
+        <tbody>
+          <tr class="sel"><td><b>Unit 405</b> · HVAC duct routing<div class="sub">Apex Mechanical</div></td><td><span class="chip issue-solid"><span class="ms">flag</span>Open issue</span><div class="sub">ISS-031 · correction submitted</div></td><td>Today 09:40<div class="sub">UPD-2293 · 2 photos</div></td><td><a class="btn primary sm" href="issue.html">Resolve?</a></td></tr>
+          <tr><td><b>Unit 411</b> · Framing — grab-bar backing<div class="sub">Titan Framing</div></td><td><span class="chip issue-solid"><span class="ms">flag</span>Open issue</span><div class="sub">ISS-029 · due Oct 9</div></td><td>Oct 5 15:20<div class="sub">UPD-2275 · 3 photos</div></td><td><span class="small muted">Waiting on Titan</span></td></tr>
+          <tr><td><b>Unit 403</b> · Framing — partitions<div class="sub">Titan Framing</div></td><td><span class="chip issue"><span class="ms">report</span>Potential discrepancy</span><div class="sub">F-118 · vs A-402 Rev C</div></td><td>Today 06:52<div class="sub">UPD-2291 · 3 photos</div></td><td><a class="btn primary sm" href="review.html">Decide</a></td></tr>
+          <tr><td><b>Unit 407</b> · Framing — partitions<div class="sub">Titan Framing</div></td><td><span class="chip review"><span class="ms">pending</span>Reopened · reference changed</span><div class="sub">Was AI-checked Oct 3 against Rev B</div></td><td>Oct 3 10:05<div class="sub">UPD-2236 · stale for Rev C</div></td><td><button class="btn sm">Request photos</button></td></tr>
+          <tr><td><b>Core</b> · Firestop at P-01–P-06<div class="sub">Alpha Firestop</div></td><td><span class="chip unsupported"><span class="ms">help</span>Unsupported check</span><div class="sub">Needs a qualified reviewer</div></td><td>Today 13:30<div class="sub">UPD-2297 · 6 photos</div></td><td><button class="btn sm">Assign reviewer</button></td></tr>
+          <tr><td><b>Unit 406</b> · Electrical rough-in<div class="sub">Volt Electric</div></td><td><span class="chip evidence"><span class="ms">add_a_photo</span>Needs evidence</span><div class="sub">North wall not visible · room-level pin</div></td><td>Today 08:15<div class="sub">UPD-2292 · 2 photos</div></td><td><span class="small muted">Requested · due 16:00</span></td></tr>
+          <tr><td><b>Unit 408</b> · Electrical sub-panel<div class="sub">Volt Electric</div></td><td><span class="chip failed"><span class="ms">error</span>Analysis failed</span><div class="sub">Retry 1 of 3 queued</div></td><td>Today 12:02<div class="sub">UPD-2296 · 3 photos</div></td><td><span class="small muted">System retry</span></td></tr>
+          <tr><td><b>Unit 402</b> · Plumbing rough-in<div class="sub">Apex Mechanical</div></td><td><span class="chip ai"><span class="ms">task_alt</span>AI-checked complete</span><div class="sub">Today · PC-plumb 0.4</div></td><td>Today 10:05<div class="sub">UPD-2294 · 4 photos</div></td><td><span class="small muted">—</span></td></tr>
+          <tr><td><b>Unit 401</b> · Plumbing rough-in<div class="sub">Apex Mechanical</div></td><td><span class="chip ai"><span class="ms">task_alt</span>AI-checked complete</span><div class="sub">Oct 5 · PC-plumb 0.4</div></td><td>Oct 5 11:40<div class="sub">UPD-2268 · 4 photos</div></td><td><span class="small muted">—</span></td></tr>
+          <tr><td><b>Unit 409</b> · HVAC branch ducting<div class="sub">Apex Mechanical</div></td><td><span class="chip ai"><span class="ms">task_alt</span>AI-checked complete</span><div class="sub">Oct 4 · PC-duct-presence 0.2</div></td><td>Oct 4 14:22<div class="sub">UPD-2255 · 3 photos</div></td><td><span class="small muted">—</span></td></tr>
+          <tr><td><b>Unit 404</b> · Plumbing rough-in<div class="sub">Apex Mechanical</div></td><td><span class="chip human"><span class="ms">how_to_reg</span>Human accepted</span><div class="sub">Oct 5 · S. Jenkins · site walk</div></td><td>Oct 4 16:05<div class="sub">UPD-2259 · 5 photos</div></td><td><span class="small muted">—</span></td></tr>
+          <tr><td><b>Unit 410</b> · Electrical rough-in<div class="sub">Volt Electric</div></td><td><span class="chip none"><span class="ms">radio_button_unchecked</span>Not assessed</span><div class="sub">No update received</div></td><td>—</td><td><span class="small muted">—</span></td></tr>
+          <tr><td><b>Unit 412</b> · Plumbing rough-in<div class="sub">Apex Mechanical</div></td><td><span class="chip none"><span class="ms">radio_button_unchecked</span>Not assessed</span><div class="sub">No update received</div></td><td>—</td><td><span class="small muted">—</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="card-foot small muted">Sorted by precedence: open issues, then decisions, then waiting, then complete. A completed item reopens if new evidence contradicts it or an approved revision affects it.</div>
+    </section>
+
+    <aside class="stack-lg">
+      <section class="card">
+        <div class="card-head"><h2>Open issues</h2><span class="count-badge" style="background:var(--red)">2</span></div>
+        <div class="list">
+          <a class="item" href="issue.html"><div class="ic red"><span class="ms">flag</span></div><div class="grow"><div class="item-title">ISS-031 · Unit 405 duct routing</div><div class="item-meta">Apex · due today 17:00 · correction submitted</div></div></a>
+          <div class="item"><div class="ic red"><span class="ms">flag</span></div><div class="grow"><div class="item-title">ISS-029 · Unit 411 grab-bar backing</div><div class="item-meta">Titan · due Oct 9 · no correction yet</div><div class="item-meta">Backing not visible where A-501 Rev A shows it</div></div></div>
+        </div>
+      </section>
+
+      <section class="card card-pad stack">
+        <h3>Blocked downstream work</h3>
+        <div class="row small" style="flex-wrap:nowrap;align-items:flex-start"><span class="ms sm" style="color:var(--red)">block</span><span><b>Drywall close-in, Unit 405</b> — open ISS-031</span></div>
+        <div class="row small" style="flex-wrap:nowrap;align-items:flex-start"><span class="ms sm" style="color:var(--red)">block</span><span><b>Drywall close-in, Unit 411</b> — open ISS-029</span></div>
+        <div class="row small" style="flex-wrap:nowrap;align-items:flex-start"><span class="ms sm" style="color:#b45309">schedule</span><span><b>MEP rough-in, Unit 403</b> — pending F-118 decision</span></div>
+        <p class="xs muted">Dependencies come from the project's work-package setup. Nothing here is a “ready to cover” approval.</p>
+      </section>
+
+      <section class="card card-pad stack">
+        <h3>Level 3 · finishes &amp; punch</h3>
+        <div class="row between small"><span>Punch items open</span><b class="num">11</b></div>
+        <div class="row between small"><span>AI-checked complete today</span><b class="num">1</b></div>
+        <div class="row between small"><span>Human accepted this week</span><b class="num">4</b></div>
+        <a class="small strong" href="#">Open Level 3 →</a>
+      </section>
+    </aside>
+  </div>
+</main>
+</body>
+</html>

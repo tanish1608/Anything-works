@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Today · Everything Works AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block" rel="stylesheet">
+<link rel="stylesheet" href="ew.css">
+</head>
+<body>
+<div class="mock-strip"><span><b>Design mockup</b> · Hawthorne Tower is a fictional project · AI results are fixtures, not measured field accuracy</span><a href="index.html" style="text-decoration:underline">All screens</a></div>
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="index.html"><span class="brand-mark"><span class="ms sm">bolt</span></span>Everything Works AI</a>
+  <span class="project-pill"><span class="strong">Hawthorne Tower</span><span class="tag">Fictional</span><span class="ms sm faint">expand_more</span></span>
+  <nav class="nav"><a href="today.html" class="on">Today</a><a href="work.html">Work &amp; Issues <span class="count">3</span></a><a href="building.html">Building</a><a href="report.html">Daily Report</a><a href="setup.html">Setup</a></nav>
+  <div class="top-right"><div class="search"><span class="ms sm">search</span>Search rooms, items, issues<kbd>⌘K</kbd></div><span class="ms faint">notifications</span><span class="avatar">SJ</span><div class="who"><b>Sarah Jenkins</b><span>Project manager</span></div></div>
+</div></header>
+
+<main class="page has-beaver">
+  <div class="context">
+    <div class="crumbs"><span class="ms sm">apartment</span><b>Hawthorne Tower</b><span class="sep">/</span>Active stages: <span class="chip tag">Level 14 · Rough-in</span><span class="chip tag">Level 3 · Finishes &amp; punch</span></div>
+    <div class="row"><span class="small muted">Tue, Oct 6, 2026</span><span class="seg"><span>Yesterday</span><span class="on">Today</span></span></div>
+  </div>
+
+  <section class="page-head">
+    <div>
+      <div class="eyebrow">PM daily overview</div>
+      <h1 style="margin-top:4px">Good morning, Sarah. 7 updates checked today — <span style="color:var(--red-ink)">3 need your decision.</span></h1>
+      <p class="sub">Every received update has an outcome below. Nothing is counted as passed unless a supported check had adequate evidence.</p>
+    </div>
+  </section>
+
+  <section class="grid g-4">
+    <div class="card kpi"><div class="row between"><span class="eyebrow">Received today</span><span class="ms faint">inbox</span></div><div class="v">7</div><div class="l">updates · 18 photos · 6 trades</div></div>
+    <div class="card kpi accent-red"><div class="row between"><span class="eyebrow" style="color:var(--red-ink)">Need your decision</span><span class="ms" style="color:var(--red)">gavel</span></div><div class="v">3</div><div class="l">1 potential discrepancy · 1 correction · 1 unsupported check</div></div>
+    <div class="card kpi accent-amber"><div class="row between"><span class="eyebrow" style="color:var(--amber-ink)">Waiting on others</span><span class="ms" style="color:#b45309">hourglass_top</span></div><div class="v">2</div><div class="l">1 evidence request · 1 analysis retry</div></div>
+    <div class="card kpi"><div class="row between"><span class="eyebrow" style="color:var(--green-ink)">Completed today</span><span class="ms" style="color:var(--green)">task_alt</span></div><div class="v">2</div><div class="l">AI-checked complete · 0 human accepted</div></div>
+  </section>
+
+  <div class="grid g-2-1">
+    <div class="stack-lg">
+      <!-- Exceptions inbox -->
+      <section class="card">
+        <div class="card-head">
+          <div class="row"><h2>Needs your decision</h2><span class="count-badge">3</span></div>
+          <div class="seg"><span class="on">By urgency</span><span>By location</span><span>By trade</span></div>
+        </div>
+        <div class="list">
+          <div class="item accent-red">
+            <div class="ic red"><span class="ms">report</span></div>
+            <div class="grow">
+              <div class="row"><span class="item-title">Unit 403 — door opening appears at the opposite end of the partition</span><span class="chip issue"><span class="ms">report</span>Potential discrepancy</span></div>
+              <div class="item-meta">Framing · Titan Framing (C. Diaz)<span class="dot"></span>vs A-402 Rev C<span class="dot"></span>Evidence adequate for this check<span class="dot"></span>UPD-2291 · 06:52</div>
+              <div class="row" style="margin-top:8px"><span class="chip tag"><span class="ms">schedule</span>MEP rough-in for 403 planned Oct 7</span><span class="chip fixture">FIXTURE RESULT</span></div>
+            </div>
+            <div class="row"><a class="btn primary sm" href="review.html"><span class="ms">compare</span>Compare &amp; decide</a></div>
+          </div>
+          <div class="item accent-red">
+            <div class="ic red"><span class="ms">build</span></div>
+            <div class="grow">
+              <div class="row"><span class="item-title">ISS-031 · Unit 405 duct routing — correction submitted</span><span class="chip issue-solid"><span class="ms">flag</span>Open issue</span><span class="chip proc"><span class="ms">published_with_changes</span>Correction rechecked</span></div>
+              <div class="item-meta">HVAC · Apex Mechanical (M. Rossi)<span class="dot"></span>Recheck: no discrepancy detected for routing vs M-402 Rev 3<span class="dot"></span>UPD-2293 · 09:40</div>
+              <div class="item-meta">The issue stays open until you record a resolution decision.</div>
+            </div>
+            <div class="row"><a class="btn primary sm" href="issue.html"><span class="ms">fact_check</span>Review correction</a></div>
+          </div>
+          <div class="item accent-amber">
+            <div class="ic slate"><span class="ms">help</span></div>
+            <div class="grow">
+              <div class="row"><span class="item-title">Level 14 core — firestop at penetrations P-01 to P-06</span><span class="chip unsupported"><span class="ms">help</span>Unsupported check</span></div>
+              <div class="item-meta">Firestop · Alpha Firestop (K. Lee)<span class="dot"></span>No released check for this work type — routed to a person<span class="dot"></span>UPD-2297 · 13:30</div>
+            </div>
+            <div class="row"><a class="btn sm" href="work.html"><span class="ms">person_search</span>Assign reviewer</a></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><div class="row"><h2>Waiting on others</h2><span class="count-badge" style="background:#b45309">2</span></div><span class="small muted">You don't need to act yet</span></div>
+        <div class="list">
+          <div class="item">
+            <div class="ic amber"><span class="ms">add_a_photo</span></div>
+            <div class="grow">
+              <div class="row"><span class="item-title">Unit 406 — electrical boxes, bedroom 2</span><span class="chip evidence"><span class="ms">add_a_photo</span>Needs evidence</span><span class="chip shadow"><span class="ms">visibility</span>Shadow mode check</span></div>
+              <div class="item-meta">2 of 4 expected boxes visible (E-14 Rev B); north wall not in frame<span class="dot"></span>Requested from Volt Electric 08:19 · due 16:00</div>
+              <div class="item-meta">Worker claim “Done” is stored as a claim, not as checked progress.</div>
+            </div>
+            <a class="btn ghost sm" href="result.html">View request</a>
+          </div>
+          <div class="item">
+            <div class="ic slate"><span class="ms">sync_problem</span></div>
+            <div class="grow">
+              <div class="row"><span class="item-title">Unit 408 — electrical sub-panel</span><span class="chip failed"><span class="ms">error</span>Analysis failed</span></div>
+              <div class="item-meta">Model timeout at 12:02<span class="dot"></span>Retry 1 of 3 queued 12:05<span class="dot"></span>Photos received and stored</div>
+            </div>
+            <a class="btn ghost sm" href="work.html">Details</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><div class="row"><h2>Completed today</h2><span class="count-badge" style="background:#047857">2</span></div><span class="small muted">Spot-check any result — you can accept or reopen it</span></div>
+        <div class="list">
+          <div class="item">
+            <div class="thumb"><img src="assets/plumbing-unit-402.jpg" alt="Unit 402 plumbing rough-in sample photo"></div>
+            <div class="grow">
+              <div class="row"><span class="item-title">Unit 402 — plumbing rough-in, bath</span><span class="chip ai"><span class="ms">task_alt</span>AI-checked complete</span><span class="chip inspect"><span class="ms">verified</span>Inspection requested Oct 8</span></div>
+              <div class="item-meta">Scope: visible supply &amp; drain components present, apparent routing matches P-201 Rev 2<span class="dot"></span>Policy PC-plumb 0.4<span class="dot"></span>UPD-2294</div>
+              <div class="item-meta">Not covered: pressure test (no record attached) · formal inspection</div>
+            </div>
+            <div class="row tight"><button class="btn sm"><span class="ms">how_to_reg</span>Accept</button><button class="btn ghost sm">Reopen</button></div>
+          </div>
+          <div class="item">
+            <div class="thumb placeholder" style="border-radius:6px"><span class="ms faint">image</span></div>
+            <div class="grow">
+              <div class="row"><span class="item-title">Unit 302 — punch item P-118, touch-up paint at hall closet</span><span class="chip ai"><span class="ms">task_alt</span>AI-checked complete</span></div>
+              <div class="item-meta">Finishes · Northline Finishes (A. Ortiz)<span class="dot"></span>Scope: marked area visible and no unfinished patch detected<span class="dot"></span>Policy PC-punch 0.3<span class="dot"></span>UPD-2295</div>
+            </div>
+            <div class="row tight"><button class="btn sm"><span class="ms">how_to_reg</span>Accept</button><button class="btn ghost sm">Reopen</button></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="stack-lg">
+      <section class="card card-pad stack">
+        <div class="row between"><h3>Level 14 coverage</h3><a class="small strong" href="building.html">Open in 3D →</a></div>
+        <p class="small muted">13 required work items in the rough-in stage</p>
+        <div class="covbar" aria-label="Coverage bar">
+          <span class="c-ai" style="width:23.1%"></span><span class="c-human" style="width:7.7%"></span><span class="c-issue" style="width:15.4%"></span><span class="c-review" style="width:23.1%"></span><span class="c-evidence" style="width:7.7%"></span><span class="c-unsupported" style="width:7.7%"></span><span class="c-none" style="width:15.3%"></span>
+        </div>
+        <dl class="kv">
+          <dt><span class="chip ai"><span class="ms">task_alt</span>AI-checked complete</span></dt><dd class="num">3</dd>
+          <dt><span class="chip human"><span class="ms">how_to_reg</span>Human accepted</span></dt><dd class="num">1</dd>
+          <dt><span class="chip issue-solid"><span class="ms">flag</span>Open issue</span></dt><dd class="num">2</dd>
+          <dt><span class="chip review"><span class="ms">pending</span>Needs review</span></dt><dd class="num">2</dd>
+          <dt><span class="chip evidence"><span class="ms">add_a_photo</span>Needs evidence</span></dt><dd class="num">1</dd>
+          <dt><span class="chip failed"><span class="ms">error</span>Analysis failed</span></dt><dd class="num">1</dd>
+          <dt><span class="chip unsupported"><span class="ms">help</span>Unsupported check</span></dt><dd class="num">1</dd>
+          <dt><span class="chip none"><span class="ms">radio_button_unchecked</span>Not assessed</span></dt><dd class="num">2</dd>
+        </dl>
+        <p class="xs muted">Counts work items, not labor hours, cost or schedule percentage.</p>
+      </section>
+
+      <section class="card card-pad stack">
+        <div class="row between"><h3>Reference changes</h3><span class="chip tag">1 this week</span></div>
+        <div class="inset stack" style="gap:6px">
+          <div class="row"><span class="ms sm" style="color:var(--violet)">difference</span><span class="strong small">A-402 Rev C approved Oct 5</span></div>
+          <p class="small muted">Supersedes Rev B for Level 14 partitions. Reopened 1 earlier decision: Unit 407 framing (AI-checked Oct 3) now needs review against Rev C. The earlier decision stays in history.</p>
+          <a class="small strong" href="work.html">See affected items →</a>
+        </div>
+      </section>
+
+      <section class="card card-pad stack">
+        <h3>Inspections &amp; tests</h3>
+        <p class="xs muted">Formal records only. Never inferred from AI results.</p>
+        <div class="row between small"><span>Level 14 rough-in inspection</span><span class="chip inspect"><span class="ms">event</span>Requested · Oct 8</span></div>
+        <div class="row between small"><span>Unit 404 water pressure test</span><span class="chip tag"><span class="ms">description</span>Record attached by trade</span></div>
+        <div class="row between small"><span>Unit 402 water pressure test</span><span class="chip none">Not recorded</span></div>
+      </section>
+
+      <section class="card card-pad stack">
+        <h3>Done by the system today</h3>
+        <ul class="small muted" style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px">
+          <li>Requested a north-wall photo from Volt Electric (Unit 406)</li>
+          <li>Rechecked the ISS-031 correction photos (Unit 405)</li>
+          <li>Queued a retry for failed analysis (Unit 408)</li>
+          <li>Reopened Unit 407 framing after A-402 Rev C</li>
+        </ul>
+        <p class="xs faint">Every action is in the history with its source records.</p>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<aside class="beaver" aria-label="Works Beaver assistant">
+  <div class="beaver-head"><img src="assets/works-beaver.jpg" alt="Works Beaver mascot"><div class="grow"><div class="strong">Works Beaver</div><div class="xs muted">Daily-update assistant</div></div><span class="chip ok"><span class="ms">bolt</span>Checking</span></div>
+  <div class="beaver-body">Three things need you today. The most time-sensitive is <b>Unit 403</b>: MEP is planned there tomorrow and the framed opening may not match A-402 Rev C.</div>
+  <div class="beaver-actions"><a class="btn primary sm" href="review.html">Open Unit 403</a><button class="btn sm"><span class="ms">pin_drop</span>Pinpoint issue</button></div>
+  <div class="beaver-note">Summarizes records and drafts requests. It can't accept work, close issues or record inspections.</div>
+</aside>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Issue Correction · Everything Works AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block" rel="stylesheet">
+<link rel="stylesheet" href="ew.css">
+<style>
+  .lifecycle { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+  .lc { padding: 14px 16px; border-right: 1px solid var(--line); position: relative; }
+  .lc:last-child { border-right: 0; }
+  .lc .n { width: 24px; height: 24px; border-radius: 999px; display: inline-grid; place-items: center; font-size: 12px; font-weight: 600; border: 1.5px solid var(--line-2); color: var(--ink-3); background: #fff; }
+  .lc.done .n { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .lc.now { background: var(--amber-bg); }
+  .lc.now .n { border-color: var(--amber); color: #b45309; }
+  .ba { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .ba .photo { height: 300px; }
+  .msg { border: 1px solid var(--line); border-radius: var(--r-lg); padding: 10px 12px; background: #fff; }
+  @media (max-width: 760px) { .lifecycle { grid-template-columns: 1fr 1fr; } .ba { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="mock-strip"><span><b>Design mockup</b> · Hawthorne Tower is a fictional project · AI results are fixtures, not measured field accuracy</span><a href="index.html" style="text-decoration:underline">All screens</a></div>
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="index.html"><span class="brand-mark"><span class="ms sm">bolt</span></span>Everything Works AI</a>
+  <span class="project-pill"><span class="strong">Hawthorne Tower</span><span class="tag">Fictional</span><span class="ms sm faint">expand_more</span></span>
+  <nav class="nav"><a href="today.html">Today</a><a href="work.html" class="on">Work &amp; Issues <span class="count">3</span></a><a href="building.html">Building</a><a href="report.html">Daily Report</a><a href="setup.html">Setup</a></nav>
+  <div class="top-right"><div class="search"><span class="ms sm">search</span>Search rooms, items, issues<kbd>⌘K</kbd></div><span class="ms faint">notifications</span><span class="avatar">SJ</span><div class="who"><b>Sarah Jenkins</b><span>Project manager</span></div></div>
+</div></header>
+
+<main class="page">
+  <div class="context">
+    <div class="crumbs"><a href="today.html" class="row tight"><span class="ms sm">arrow_back</span>Today</a><span class="sep">/</span>Hawthorne Tower<span class="sep">/</span>Level 14<span class="sep">/</span>Unit 405<span class="sep">/</span><b>ISS-031</b></div>
+    <div class="row"><span class="small muted">2 of 3 decisions</span><a class="btn sm" href="review.html"><span class="ms">arrow_back</span>Prev</a><a class="btn sm" href="work.html">Next <span class="ms">arrow_forward</span></a></div>
+  </div>
+
+  <section class="page-head">
+    <div>
+      <div class="row"><span class="chip issue-solid"><span class="ms">flag</span>Open issue</span><span class="chip proc"><span class="ms">published_with_changes</span>Correction submitted</span><span class="chip tag"><span class="ms">location_on</span>Unit 405 · Chase B ceiling</span><span class="chip tag">HVAC</span><span class="chip fixture">FIXTURE RESULT</span></div>
+      <h1 style="margin-top:10px">ISS-031 · Supply duct routed east of grid C-12; M-402 Rev 3 routes it west</h1>
+      <p class="sub">Owner Apex Mechanical (Marco Rossi) · due Tue, Oct 6 · 17:00 · confirmed by Sarah Jenkins on Oct 3</p>
+    </div>
+    <a class="btn" href="building.html"><span class="ms">view_in_ar</span>Locate in 3D</a>
+  </section>
+
+  <section class="card">
+    <div class="lifecycle">
+      <div class="lc done"><div class="row"><span class="n">1</span><span class="strong small">Potential finding</span></div><div class="xs muted" style="margin-top:6px">Oct 3 · 14:12 · check run CR-5310 on UPD-2240</div></div>
+      <div class="lc done"><div class="row"><span class="n">2</span><span class="strong small">Confirmed · open</span></div><div class="xs muted" style="margin-top:6px">Oct 3 · 15:58 · S. Jenkins assigned Apex Mechanical</div></div>
+      <div class="lc done"><div class="row"><span class="n">3</span><span class="strong small">Correction submitted</span></div><div class="xs muted" style="margin-top:6px">Oct 6 · 09:40 · UPD-2293 · rechecked 09:43</div></div>
+      <div class="lc now"><div class="row"><span class="n">4</span><span class="strong small">Resolution decision</span></div><div class="xs" style="margin-top:6px;color:var(--amber-ink)">Waiting on you — a new photo alone doesn't close an issue</div></div>
+    </div>
+  </section>
+
+  <div class="grid g-3-2">
+    <div class="stack-lg">
+      <section class="card">
+        <div class="card-head"><h2>Before and after</h2><div class="seg dark"><span class="on">Before / after</span><span>vs M-402 Rev 3</span><span>All 5 photos</span></div></div>
+        <div class="card-pad stack">
+          <div class="ba">
+            <figure class="photo" style="margin:0">
+              <img src="assets/duct-unit-405-before.jpg" alt="Ceiling duct in Unit 405 before correction">
+              <span class="label">Before · Oct 3 · UPD-2240</span>
+              <div class="region" style="left:44%;top:16%;width:52%;height:30%"><b>Duct east of C-12 (observed)</b></div>
+              <span class="gen">Generated sample image</span>
+            </figure>
+            <figure class="photo" style="margin:0">
+              <img src="assets/duct-unit-405-after.jpg" alt="Ceiling in Unit 405 after correction">
+              <span class="label">After · Oct 6 · UPD-2293</span>
+              <div class="region green" style="left:4%;top:22%;width:60%;height:26%"><b>Run now west of C-12 (apparent)</b></div>
+              <span class="gen">Generated sample image</span>
+            </figure>
+          </div>
+          <div class="inset small"><span class="strong">Requested views provided:</span> 2 of 2 (from doorway; from below chase). Location confirmed by QR at unit door.</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>Recheck on correction evidence</h2><span class="small muted">Check run CR-5602 · Oct 6 09:43</span></div>
+        <div class="table-wrap">
+        <table class="t">
+          <thead><tr><th>Check</th><th>Evidence</th><th>Before (Oct 3)</th><th>After (Oct 6)</th></tr></thead>
+          <tbody>
+            <tr><td><b>Apparent duct routing vs M-402 Rev 3</b><div class="xs muted">duct-routing v0.2 · review only</div></td><td><span class="chip ok"><span class="ms">check</span>Adequate</span></td><td><span class="chip issue"><span class="ms">report</span>Potential discrepancy</span></td><td><span class="chip ai"><span class="ms">check_circle</span>No discrepancy detected</span></td></tr>
+            <tr><td><b>Sprinkler branch FP-214 visible &amp; unobstructed</b><div class="xs muted">visual only</div></td><td><span class="chip evidence"><span class="ms">visibility_off</span>Partly visible</span></td><td><span class="chip evidence"><span class="ms">add_a_photo</span>Insufficient</span></td><td><span class="chip evidence"><span class="ms">add_a_photo</span>Insufficient</span></td></tr>
+            <tr><td><b>Clearance distance to sprinkler branch</b></td><td>—</td><td colspan="2"><span class="chip unsupported"><span class="ms">help</span>Unsupported — needs measurement on site</span></td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="card-foot small muted">“No discrepancy detected” is scoped to the routing check above. It isn't a clearance measurement, a code determination or a fire-protection sign-off.</div>
+      </section>
+
+      <section class="card card-pad stack">
+        <h2>Resolution requirements <span class="small muted" style="font-weight:400">· set when confirmed, Oct 3</span></h2>
+        <ol class="small" style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px">
+          <li>Reroute supply duct west of grid C-12 per M-402 Rev 3. <span class="chip ai" style="margin-left:4px"><span class="ms">check_circle</span>AI: no discrepancy detected</span></li>
+          <li>Photos from the doorway and from below Chase B. <span class="chip ok" style="margin-left:4px"><span class="ms">check</span>Provided</span></li>
+          <li>Fire-protection sub confirms branch line is clear. <span class="chip none" style="margin-left:4px">Not recorded</span></li>
+        </ol>
+      </section>
+
+      <section class="card card-pad stack">
+        <h2>Messages</h2>
+        <div class="msg"><div class="row between"><span class="strong small">Marco Rossi · Apex Mechanical</span><span class="xs muted">Oct 6 · 09:40 · with UPD-2293</span></div><p class="small" style="margin-top:4px">“Rehung west of C-12, moved trapeze H-14/H-15.” <span class="chip tag" style="margin-left:4px">Worker claim</span></p></div>
+        <div class="msg"><div class="row between"><span class="strong small">System</span><span class="xs muted">Oct 3 · 16:02</span></div><p class="small" style="margin-top:4px">In-app notification sent to Apex Mechanical. <span class="chip fixture" style="margin-left:4px">SIMULATED DELIVERY IN DEMO</span></p></div>
+      </section>
+    </div>
+
+    <aside class="stack-lg">
+      <section class="card card-pad stack">
+        <h2>Resolve this issue?</h2>
+        <p class="small muted">Requirement 3 isn't recorded yet. You can still resolve with a reason, or ask for it first.</p>
+        <button class="btn primary lg block"><span class="ms">task_alt</span>Accept correction &amp; resolve</button>
+        <label class="row small" style="gap:8px"><span class="ms sm" style="color:var(--ink)">check_box</span>Also record human acceptance of Unit 405 duct routing</label>
+        <div class="grid g-1-1" style="gap:8px">
+          <button class="btn"><span class="ms">add_a_photo</span>More evidence needed</button>
+          <button class="btn danger"><span class="ms">undo</span>Reject correction</button>
+        </div>
+        <div class="inset xs muted">Resolving keeps the Oct 3 finding, both check runs and this decision in history. It doesn't record an inspection. The Level 14 rough-in inspection is a separate record (requested Oct 8).</div>
+      </section>
+
+      <section class="card card-pad stack">
+        <h2>Blocking</h2>
+        <div class="row small" style="flex-wrap:nowrap;align-items:flex-start"><span class="ms sm" style="color:var(--red)">block</span><span><b>Drywall close-in, Unit 405</b> — Titan Drywall, planned Oct 7. Shown as blocked while this issue is open.</span></div>
+      </section>
+
+      <section class="card card-pad stack">
+        <h2>Assignment</h2>
+        <dl class="kv">
+          <dt>Owner</dt><dd>Apex Mechanical · M. Rossi</dd>
+          <dt>Due</dt><dd>Oct 6 · 17:00</dd>
+          <dt>Created from</dt><dd>F-097 → ISS-031</dd>
+          <dt>Reference</dt><dd>M-402 Rev 3 · FP-214 Rev 1</dd>
+        </dl>
+      </section>
+
+      <section class="card card-pad stack">
+        <h2>History</h2>
+        <div class="tl">
+          <div class="tl-item"><div class="tl-time">Oct 3 · 14:10</div><div class="small"><b>UPD-2240</b> received — 2 photos, M. Rossi</div></div>
+          <div class="tl-item red"><div class="tl-time">14:12</div><div class="small"><b>CR-5310</b> potential discrepancy (routing)</div></div>
+          <div class="tl-item ink"><div class="tl-time">15:58</div><div class="small"><b>Confirmed as ISS-031</b> by S. Jenkins · owner Apex, due Oct 6</div></div>
+          <div class="tl-item"><div class="tl-time">Oct 6 · 09:40</div><div class="small"><b>UPD-2293</b> correction photos received</div></div>
+          <div class="tl-item green"><div class="tl-time">09:43</div><div class="small"><b>CR-5602</b> no discrepancy detected (routing) — issue stays open</div></div>
+          <div class="tl-item amber"><div class="tl-time">now</div><div class="small">Awaiting resolution decision</div></div>
+        </div>
+      </section>
+    </aside>
+  </div>
+</main>
+</body>
+</html>

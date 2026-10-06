@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daily Update Capture · Everything Works AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block" rel="stylesheet">
+<link rel="stylesheet" href="ew.css">
+<style>
+  .opt { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: var(--r-lg); background: #fff; border: 1px solid var(--line); }
+  .opt.on { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+  .opt .ms { color: var(--ink-3); }
+  .need { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; }
+  .need .ms { font-size: 18px; }
+  .sync { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #fff; border: 1px solid var(--line); border-radius: var(--r-lg); }
+  .bar { height: 4px; border-radius: 999px; background: var(--line); overflow: hidden; margin-top: 6px; }
+  .bar span { display: block; height: 100%; background: var(--blue); }
+  .note { background: #fff; border: 1px solid var(--line); border-radius: var(--r-lg); padding: 10px 12px; font-size: 13px; color: var(--ink); min-height: 64px; }
+</style>
+</head>
+<body>
+<div class="mock-strip"><span><b>Design mockup</b> · Hawthorne Tower is a fictional project · AI results are fixtures, not measured field accuracy</span><a href="index.html" style="text-decoration:underline">All screens</a></div>
+
+<main class="page" style="max-width:1320px">
+  <section class="page-head">
+    <div><div class="eyebrow">Mobile · worker / foreman</div><h1 style="margin-top:4px">Daily update capture</h1><p class="sub">Capture first — no 3D navigation needed. Location and task, guided photos, a short note, then a clear sync state.</p></div>
+    <a class="btn" href="result.html">Submission result <span class="ms">arrow_forward</span></a>
+  </section>
+
+  <div class="phones">
+    <!-- 1. Location and task -->
+    <div>
+      <div class="phone">
+        <div class="phone-status"><span>8:12</span><span class="row tight"><span class="ms sm">signal_cellular_alt</span><span class="ms sm">wifi</span><span class="ms sm">battery_5_bar</span></span></div>
+        <div class="phone-bar"><span class="ms">close</span><div class="grow"><div class="strong">New update</div><div class="xs muted">Step 1 of 3 · Where and what</div></div><span class="chip tag">Hawthorne</span></div>
+        <div class="phone-body">
+          <div class="steps"><span class="on"></span><span></span><span></span></div>
+          <div class="eyebrow">Location</div>
+          <div class="opt on"><span class="ms" style="color:var(--green)">qr_code_scanner</span><div class="grow"><div class="strong">Unit 406 · Bedroom 2</div><div class="xs muted">Level 14 · from QR at unit door 8:11</div></div><span class="small strong">Change</span></div>
+          <div class="eyebrow">Task</div>
+          <div class="opt on"><span class="ms">electrical_services</span><div class="grow"><div class="strong">Electrical rough-in — boxes</div><div class="xs muted">Assigned to Volt Electric</div></div><span class="ms sm">check_circle</span></div>
+          <div class="opt"><span class="ms">cable</span><div class="grow"><div class="strong">Conduit runs</div><div class="xs muted">Add another task to this update</div></div><span class="ms sm faint">add_circle</span></div>
+          <div class="eyebrow">What the plan shows</div>
+          <div class="sheet" style="height:150px">
+            <span class="label">E-14 Rev B · Bedroom 2</span>
+            <svg viewBox="0 0 330 150" width="100%" height="100%" aria-label="Bedroom 2 plan with four expected box locations">
+              <rect x="70" y="30" width="190" height="105" fill="none" stroke="#0f172a" stroke-width="4"/>
+              <line x1="70" y1="100" x2="70" y2="130" stroke="#fff" stroke-width="6"/>
+              <text x="258" y="24" text-anchor="end" font-size="10" font-family="Inter" fill="#475569">NORTH WALL</text>
+              <g font-family="Inter" font-size="10" font-weight="600">
+                <rect x="120" y="33" width="12" height="9" fill="#2563eb"/><text x="126" y="54" text-anchor="middle" fill="#1e40af">1</text>
+                <rect x="198" y="33" width="12" height="9" fill="#2563eb"/><text x="204" y="54" text-anchor="middle" fill="#1e40af">2</text>
+                <rect x="248" y="78" width="9" height="12" fill="#2563eb"/><text x="240" y="88" text-anchor="end" fill="#1e40af">3</text>
+                <rect x="150" y="123" width="12" height="9" fill="#2563eb"/><text x="156" y="118" text-anchor="middle" fill="#1e40af">4</text>
+              </g>
+            </svg>
+          </div>
+          <p class="xs muted">4 boxes expected in this room. Symbol positions are schematic — not exact heights or dimensions.</p>
+        </div>
+        <div class="phone-foot"><button class="btn primary lg block">Next: photos <span class="ms">arrow_forward</span></button></div>
+      </div>
+      <p class="phone-caption">Location from QR or a list; ambiguous matches ask the worker to confirm instead of guessing.</p>
+    </div>
+
+    <!-- 2. Photos, note, claim -->
+    <div>
+      <div class="phone">
+        <div class="phone-status"><span>8:14</span><span class="row tight"><span class="ms sm">signal_cellular_alt</span><span class="ms sm">wifi</span><span class="ms sm">battery_5_bar</span></span></div>
+        <div class="phone-bar"><span class="ms">arrow_back</span><div class="grow"><div class="strong">Photos &amp; note</div><div class="xs muted">Step 2 of 3 · Unit 406 · Bedroom 2</div></div></div>
+        <div class="phone-body">
+          <div class="steps"><span class="on"></span><span class="on"></span><span></span></div>
+          <div class="inset stack" style="gap:8px;background:#fff">
+            <div class="strong small">Needed for this check</div>
+            <div class="need"><span class="ms" style="color:var(--green)">check_circle</span><span>Each wall with boxes, full height, from 2–3 m away</span></div>
+            <div class="need"><span class="ms" style="color:var(--green)">check_circle</span><span>East wall — box 3</span></div>
+            <div class="need"><span class="ms" style="color:#b45309">radio_button_unchecked</span><span><b>North wall — boxes 1 and 2</b></span></div>
+          </div>
+          <div class="shot-grid">
+            <div class="shot"><img src="assets/wall-unit-406.jpg" alt="Wall photo 1"></div>
+            <div class="shot"><img src="assets/framing-unit-403.jpg" alt="Wall photo 2" style="object-position:80% 50%"></div>
+            <div class="shot want"><div><span class="ms">add_a_photo</span><br>North wall</div></div>
+          </div>
+          <p class="xs" style="color:var(--violet-ink)">Images here are generated samples.</p>
+          <div class="eyebrow">Note</div>
+          <div class="note">Boxes in, bedroom 2. Moving to 410 next.</div>
+          <div class="eyebrow">Your status (optional)</div>
+          <div class="seg" style="width:100%"><span style="flex:1;text-align:center">Started</span><span style="flex:1;text-align:center">Partial</span><span class="on" style="flex:1;text-align:center">Done</span></div>
+          <p class="xs muted">Saved as your claim. Progress changes only after the photos are checked.</p>
+        </div>
+        <div class="phone-foot">
+          <button class="btn primary lg block"><span class="ms">send</span>Submit update</button>
+          <p class="xs muted" style="text-align:center">North-wall photo missing — you can still submit; it'll come back as a request.</p>
+        </div>
+      </div>
+      <p class="phone-caption">Capture guidance comes from the check definition. A worker's “done” is never enough to complete a task.</p>
+    </div>
+
+    <!-- 3. Sync states -->
+    <div>
+      <div class="phone">
+        <div class="phone-status"><span>12:40</span><span class="row tight"><span class="ms sm">signal_cellular_alt</span><span class="ms sm faint">wifi_off</span><span class="ms sm">battery_4_bar</span></span></div>
+        <div class="phone-bar"><span class="ms">menu</span><div class="grow"><div class="strong">My updates</div><div class="xs muted">Derrick Hall · Volt Electric</div></div><span class="avatar sm alt">DH</span></div>
+        <div class="phone-body">
+          <div class="inset row" style="background:var(--amber-bg);border-color:var(--amber-line);flex-wrap:nowrap;align-items:flex-start"><span class="ms" style="color:#b45309">cloud_off</span><div class="small"><b>You're offline.</b> 2 updates are on this phone and <b>not received yet</b>. It sends when you reconnect or reopen the app.</div></div>
+          <div class="sync"><span class="ms faint">draft</span><div class="grow"><div class="strong small">Unit 410 · Electrical rough-in</div><div class="xs muted">3 photos · saved 12:31</div></div><span class="chip none">On this phone</span></div>
+          <div class="sync"><span class="ms" style="color:var(--blue)">cloud_upload</span><div class="grow"><div class="strong small">Unit 412 · Conduit runs</div><div class="xs muted">Uploading photo 2 of 3 · paused</div><div class="bar"><span style="width:58%"></span></div></div><span class="chip proc">Queued</span></div>
+          <div class="sync"><span class="ms" style="color:var(--blue)">hourglass_top</span><div class="grow"><div class="strong small">Unit 408 · Sub-panel</div><div class="xs muted">Received 12:02 · check delayed, retrying</div></div><span class="chip proc">Received</span></div>
+          <div class="sync" style="border-color:var(--amber-line)"><span class="ms" style="color:#b45309">add_a_photo</span><div class="grow"><div class="strong small">Unit 406 · Bedroom 2</div><div class="xs muted">Checked 8:19 · 1 more photo needed</div></div><a class="chip review" href="result.html">Action needed</a></div>
+          <p class="xs muted">States: on this phone → queued → uploading → received → checking → result. Retries keep the same submission ID, so nothing is counted twice.</p>
+        </div>
+        <div class="phone-foot"><button class="btn lg block"><span class="ms">add</span>New update</button></div>
+      </div>
+      <p class="phone-caption">A local draft never appears as received or checked. Shown on reconnect, app open and a timer — no reliance on background sync.</p>
+    </div>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Submission Result · Everything Works AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block" rel="stylesheet">
+<link rel="stylesheet" href="ew.css">
+<style>
+  .res { background: #fff; border: 1px solid var(--line); border-radius: var(--r-lg); padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .res.amber { border-color: var(--amber-line); box-shadow: inset 3px 0 0 var(--amber); }
+  .res.green { border-color: var(--green-line); box-shadow: inset 3px 0 0 var(--green); }
+  .res.red { border-color: var(--red-line); box-shadow: inset 3px 0 0 var(--red); }
+  .line { display: flex; gap: 8px; font-size: 13px; align-items: flex-start; }
+  .line .ms { font-size: 17px; margin-top: 1px; }
+  .hero { text-align: center; padding: 6px 0 2px; }
+  .hero .ms { font-size: 36px; }
+</style>
+</head>
+<body>
+<div class="mock-strip"><span><b>Design mockup</b> · Hawthorne Tower is a fictional project · AI results are fixtures, not measured field accuracy</span><a href="index.html" style="text-decoration:underline">All screens</a></div>
+
+<main class="page" style="max-width:1320px">
+  <section class="page-head">
+    <div><div class="eyebrow">Mobile · worker / foreman</div><h1 style="margin-top:4px">Submission result</h1><p class="sub">What changed, what's needed and what wasn't checked — in plain language, for the person who sent the update.</p></div>
+    <a class="btn" href="capture.html"><span class="ms">arrow_back</span>Capture</a>
+  </section>
+
+  <div class="phones">
+    <!-- Evidence request -->
+    <div>
+      <div class="phone">
+        <div class="phone-status"><span>8:20</span><span class="row tight"><span class="ms sm">signal_cellular_alt</span><span class="ms sm">wifi</span><span class="ms sm">battery_5_bar</span></span></div>
+        <div class="phone-bar"><span class="ms">arrow_back</span><div class="grow"><div class="strong">Unit 406 · Bedroom 2</div><div class="xs muted">UPD-2292 · received 8:15 · checked 8:19</div></div></div>
+        <div class="phone-body">
+          <div class="hero"><span class="ms" style="color:#b45309">add_a_photo</span><h2>One more photo needed</h2><p class="small muted">We couldn't see the north wall.</p></div>
+          <div class="res amber">
+            <div class="strong small">Take this photo</div>
+            <div class="line"><span class="ms">photo_camera</span><span>Stand in the doorway, face the <b>north wall</b> (window on your right). Get the full wall height in frame.</span></div>
+            <button class="btn primary lg block"><span class="ms">add_a_photo</span>Add north-wall photo</button>
+            <p class="xs muted">Requested by the system · due 16:00 today</p>
+          </div>
+          <div class="res">
+            <div class="strong small">What we checked</div>
+            <div class="line"><span class="ms" style="color:var(--green)">check_circle</span><span>Boxes 3 and 4 visible where E-14 shows them</span></div>
+            <div class="line"><span class="ms" style="color:#b45309">visibility_off</span><span>Boxes 1 and 2 — north wall not in your photos</span></div>
+            <div class="line"><span class="ms faint">help</span><span>Box heights — not checked from photos</span></div>
+          </div>
+          <div class="res">
+            <div class="row between"><span class="strong small">Your status</span><span class="chip tag">You said: Done</span></div>
+            <p class="xs muted">Progress stays “partial” until the missing view is checked.</p>
+          </div>
+        </div>
+      </div>
+      <p class="phone-caption">Insufficient evidence is an explicit outcome with a precise request, never a pass.</p>
+    </div>
+
+    <!-- AI-checked complete -->
+    <div>
+      <div class="phone">
+        <div class="phone-status"><span>10:09</span><span class="row tight"><span class="ms sm">signal_cellular_alt</span><span class="ms sm">wifi</span><span class="ms sm">battery_4_bar</span></span></div>
+        <div class="phone-bar"><span class="ms">arrow_back</span><div class="grow"><div class="strong">Unit 402 · Bath</div><div class="xs muted">UPD-2294 · received 10:05 · checked 10:07</div></div></div>
+        <div class="phone-body">
+          <div class="hero"><span class="ms" style="color:var(--green)">task_alt</span><h2>AI-checked complete</h2><p class="small muted">Plumbing rough-in · visible components</p></div>
+          <div class="res green">
+            <div class="strong small">Checked against P-201 Rev 2</div>
+            <div class="line"><span class="ms" style="color:var(--green)">check_circle</span><span>Supply and drain stubs present at all 4 fixture locations</span></div>
+            <div class="line"><span class="ms" style="color:var(--green)">check_circle</span><span>Apparent routing matches the plan</span></div>
+          </div>
+          <div class="res">
+            <div class="strong small">Not covered by this result</div>
+            <div class="line"><span class="ms faint">water_drop</span><span>Pressure test — attach the test record separately</span></div>
+            <div class="line"><span class="ms" style="color:var(--violet)">verified</span><span>Rough-in inspection — requested for Oct 8</span></div>
+            <div class="line"><span class="ms faint">visibility_off</span><span>Hidden joints and connections</span></div>
+          </div>
+          <div class="res"><div class="row between"><span class="strong small">PM review</span><span class="chip none">Not requested</span></div><p class="xs muted">Your PM can still review or reopen this result.</p></div>
+        </div>
+      </div>
+      <p class="phone-caption">Green is scoped to the named checks. It doesn't mean inspected, tested or “ready to cover.”</p>
+    </div>
+
+    <!-- Potential discrepancy -->
+    <div>
+      <div class="phone">
+        <div class="phone-status"><span>06:55</span><span class="row tight"><span class="ms sm">signal_cellular_alt</span><span class="ms sm">wifi</span><span class="ms sm">battery_5_bar</span></span></div>
+        <div class="phone-bar"><span class="ms">arrow_back</span><div class="grow"><div class="strong">Unit 403 · Bedroom 2 partition</div><div class="xs muted">UPD-2291 · received 06:52 · checked 06:54</div></div></div>
+        <div class="phone-body">
+          <div class="hero"><span class="ms" style="color:var(--red)">report</span><h2>Possible mismatch with the plan</h2><p class="small muted">Your PM is reviewing it</p></div>
+          <div class="res red">
+            <div class="line"><span class="ms" style="color:var(--red)">report</span><span>The door opening looks like it's at the <b>east</b> end. A-402 Rev C (approved Oct 5) shows it at the <b>west</b> end.</span></div>
+            <div class="photo" style="height:150px"><img src="assets/framing-unit-403.jpg" alt="Your photo"><span class="label">Your photo 2</span><span class="gen">Generated sample image</span></div>
+          </div>
+          <div class="res">
+            <div class="strong small">What happens next</div>
+            <div class="line"><span class="ms faint">hourglass_top</span><span>No action needed yet. If it's confirmed, you'll get a task with what to fix and the photos to send.</span></div>
+          </div>
+          <div class="res">
+            <div class="strong small">Also checked</div>
+            <div class="line"><span class="ms" style="color:#b45309">visibility_off</span><span>Stud count, east wall — partly hidden</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="phone-caption">Potential findings go to review first. The worker isn't told it's wrong until a person confirms it.</p>
+    </div>
+  </div>
+</main>
+</body>
+</html>

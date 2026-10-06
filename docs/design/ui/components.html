@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Component Reference · Everything Works AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block" rel="stylesheet">
+<link rel="stylesheet" href="ew.css">
+<style>
+  .sec-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; color: var(--blue); text-transform: uppercase; }
+  .tok { display: flex; gap: 12px; align-items: center; padding: 12px; }
+  .tok i { width: 40px; height: 40px; border-radius: 10px; flex: none; border: 1px solid var(--line); }
+  .demo-beaver { position: static; width: 340px; max-width: 100%; }
+</style>
+</head>
+<body>
+<div class="mock-strip"><span><b>Design mockup</b> · component and vocabulary reference for all screens</span><a href="index.html" style="text-decoration:underline">All screens</a></div>
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="index.html"><span class="brand-mark"><span class="ms sm">bolt</span></span>Everything Works AI</a>
+  <span class="chip tag">Component reference</span>
+  <div class="top-right"><span class="small muted search" style="background:none;min-width:0">Follows PRODUCT_SPEC §5 and §7</span></div>
+</div></header>
+
+<main class="page">
+  <section class="page-head">
+    <div><h1>Status vocabulary &amp; components</h1><p class="sub">One vocabulary for mobile, model, lists and reports. Every state uses an icon and words, not color alone.</p></div>
+  </section>
+
+  <section class="stack">
+    <div class="sec-label">01 · Status chips</div>
+    <div class="card">
+      <div class="table-wrap">
+      <table class="t">
+        <thead><tr><th>Chip</th><th>Dimension</th><th>Means</th><th>Never means</th></tr></thead>
+        <tbody>
+          <tr><td><span class="chip ai"><span class="ms">task_alt</span>AI-checked complete</span></td><td>Observed progress</td><td>All required checks for the named item were supported, had adequate evidence and passed a released completion policy</td><td>Inspected, tested, code-compliant, accepted by a person</td></tr>
+          <tr><td><span class="chip human"><span class="ms">how_to_reg</span>Human accepted</span></td><td>Human review</td><td>A named reviewer accepted the item with a reason and scope</td><td>Formal inspection</td></tr>
+          <tr><td><span class="chip inspect"><span class="ms">verified</span>Inspection passed</span> <span class="chip inspect"><span class="ms">event</span>Requested · Oct 8</span></td><td>Formal inspection</td><td>A linked authoritative record</td><td>Anything inferred from AI or green status</td></tr>
+          <tr><td><span class="chip issue"><span class="ms">report</span>Potential discrepancy</span></td><td>Check result</td><td>A supported check saw something that may not match the approved reference</td><td>A confirmed mistake (needs review)</td></tr>
+          <tr><td><span class="chip issue-solid"><span class="ms">flag</span>Open issue</span></td><td>Issue</td><td>A person confirmed it; has owner, due date, resolution requirements. Overrides completion visually.</td><td>Closed by a new photo alone</td></tr>
+          <tr><td><span class="chip review"><span class="ms">pending</span>Needs review</span></td><td>Human review</td><td>Waiting on a decision: potential finding, reopened by a revision, shadow-mode result</td><td>—</td></tr>
+          <tr><td><span class="chip evidence"><span class="ms">add_a_photo</span>Needs evidence</span></td><td>Evidence coverage</td><td>Required area missing, occluded or unusable; a specific capture request is attached</td><td>Absent work</td></tr>
+          <tr><td><span class="chip unsupported"><span class="ms">help</span>Unsupported check</span></td><td>Check result</td><td>No released check exists for this condition; routed to a person</td><td>Passed</td></tr>
+          <tr><td><span class="chip failed"><span class="ms">error</span>Analysis failed</span></td><td>Processing</td><td>Evidence stored; analysis errored or timed out; retry state shown</td><td>Passed or failed work</td></tr>
+          <tr><td><span class="chip none"><span class="ms">radio_button_unchecked</span>Not assessed</span></td><td>Observed progress</td><td>No update or check yet</td><td>Not started</td></tr>
+          <tr><td><span class="chip shadow"><span class="ms">visibility</span>Shadow mode check</span></td><td>Release state</td><td>Check runs, but results go to review; can't complete work</td><td>—</td></tr>
+          <tr><td><span class="chip none">On this phone</span> <span class="chip proc">Queued</span> <span class="chip proc">Received</span> <span class="chip proc">Checking</span></td><td>Processing</td><td>Sync states for a submission; a local draft is never shown as received</td><td>—</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="stack">
+    <div class="sec-label">02 · Honesty labels</div>
+    <div class="card card-pad row" style="gap:12px">
+      <span class="chip fixture">FIXTURE RESULT</span>
+      <span class="photo" style="width:140px;height:70px;display:inline-block"><img src="assets/plumbing-unit-402.jpg" alt=""><span class="gen">Generated sample image</span></span>
+      <span class="chip fixture">SIMULATED DELIVERY IN DEMO</span>
+      <span class="chip tag">Worker claim</span>
+      <span class="xs" style="color:var(--violet-ink)">Sample values — not measured</span>
+      <span class="chip tag"><span class="ms">description</span>Record attached by trade</span>
+    </div>
+    <p class="small muted">Use whenever content is generated, simulated or self-reported. A claim is stored separately from checked progress.</p>
+  </section>
+
+  <section class="stack">
+    <div class="sec-label">03 · Decision actions</div>
+    <div class="grid g-3">
+      <div class="card card-pad stack"><h4>Findings</h4><div class="row"><button class="btn danger sm"><span class="ms">flag</span>Confirm issue</button><button class="btn sm"><span class="ms">add_a_photo</span>Request evidence</button><button class="btn sm"><span class="ms">link</span>Link approved change</button><button class="btn ghost sm">Dismiss with reason…</button></div></div>
+      <div class="card card-pad stack"><h4>Completed items</h4><div class="row"><button class="btn sm"><span class="ms">how_to_reg</span>Accept</button><button class="btn ghost sm">Reopen</button></div><p class="xs muted">Accept records a human decision; it doesn't replace the AI record.</p></div>
+      <div class="card card-pad stack"><h4>Corrections</h4><div class="row"><button class="btn primary sm"><span class="ms">task_alt</span>Accept correction &amp; resolve</button><button class="btn sm">More evidence needed</button><button class="btn danger sm">Reject</button></div></div>
+    </div>
+  </section>
+
+  <section class="stack">
+    <div class="sec-label">04 · Exception row</div>
+    <div class="card list">
+      <div class="item accent-red">
+        <div class="ic red"><span class="ms">report</span></div>
+        <div class="grow">
+          <div class="row"><span class="item-title">Unit 403 — door opening appears at the opposite end of the partition</span><span class="chip issue"><span class="ms">report</span>Potential discrepancy</span></div>
+          <div class="item-meta">Trade · owner<span class="dot"></span>vs reference + revision<span class="dot"></span>evidence coverage<span class="dot"></span>update ID · time</div>
+        </div>
+        <button class="btn primary sm"><span class="ms">compare</span>Compare &amp; decide</button>
+      </div>
+    </div>
+    <p class="small muted">Always show: location, what was compared with which revision, evidence coverage, source update. Rank by urgency (downstream work at risk), then age.</p>
+  </section>
+
+  <section class="grid g-1-1">
+    <div class="stack">
+      <div class="sec-label">05 · Works Beaver assistant</div>
+      <aside class="beaver demo-beaver">
+        <div class="beaver-head"><img src="assets/works-beaver.jpg" alt="Works Beaver mascot"><div class="grow"><div class="strong">Works Beaver</div><div class="xs muted">Daily-update assistant</div></div><span class="chip ok"><span class="ms">bolt</span>Checking</span></div>
+        <div class="beaver-body">Points to the next most useful decision, explains why, and drafts evidence requests.</div>
+        <div class="beaver-actions"><button class="btn primary sm">Open next decision</button><button class="btn sm"><span class="ms">pin_drop</span>Pinpoint issue</button></div>
+        <div class="beaver-note">Summarizes records and drafts requests. It can't accept work, close issues or record inspections.</div>
+      </aside>
+    </div>
+    <div class="stack">
+      <div class="sec-label">06 · Retired patterns from the Stitch export</div>
+      <div class="card table-wrap">
+        <table class="t">
+          <thead><tr><th>Was</th><th>Now</th></tr></thead>
+          <tbody>
+            <tr><td>“Auto-approve (1)”, “Approve &amp; Dispatch”</td><td>Explicit review decisions; automatic completion only per released check</td></tr>
+            <tr><td>“Verified”, “Cleared”, “Code compliant”, “Ready now for drywall”</td><td>Scoped AI-checked / Human accepted / Inspection; no “ready to cover”</td></tr>
+            <tr><td>LiDAR ±0.15″, “Spatial match 99.4%”, “3.2″ deficit”</td><td>Apparent placement vs reference; measurement marked unsupported</td></tr>
+            <tr><td>Autonomous trade negotiation, WhatsApp agreements, lockbox PINs</td><td>Assigned issue with owner, due date, resolution requirements</td></tr>
+            <tr><td>Telemetry, sensor PSI, $ delay preserved</td><td>Records actually received; nothing unreported is inferred</td></tr>
+            <tr><td>“Hold to speak jobsite note”</td><td>Photos + short note first; voice is a later extension</td></tr>
+            <tr><td>Element % as progress</td><td>Work-item coverage with a denominator and its limits</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="stack">
+    <div class="sec-label">07 · Tokens</div>
+    <div class="grid g-3">
+      <div class="card tok"><i style="background:#0f172a"></i><div><b class="small">Ink #0F172A</b><div class="xs muted">Primary actions, navigation, headings</div></div></div>
+      <div class="card tok"><i style="background:#10b981"></i><div><b class="small">Emerald #10B981</b><div class="xs muted">AI-checked complete; darker #047857 for human accepted</div></div></div>
+      <div class="card tok"><i style="background:#ef4444"></i><div><b class="small">Red #EF4444</b><div class="xs muted">Potential discrepancy, open issue</div></div></div>
+      <div class="card tok"><i style="background:#f59e0b"></i><div><b class="small">Amber #F59E0B</b><div class="xs muted">Review, evidence needed, pending</div></div></div>
+      <div class="card tok"><i style="background:#6d28d9"></i><div><b class="small">Violet #6D28D9</b><div class="xs muted">Formal inspection, reference revisions, fixture labels</div></div></div>
+      <div class="card tok"><i style="background:#2563eb"></i><div><b class="small">Blue #2563EB</b><div class="xs muted">Processing and sync states, record links</div></div></div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

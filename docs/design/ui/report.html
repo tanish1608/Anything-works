@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daily Report · Everything Works AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block" rel="stylesheet">
+<link rel="stylesheet" href="ew.css">
+<style>
+  .stmt { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; font-size: 13.5px; color: var(--ink); }
+  .stmt + .stmt { border-top: 1px solid var(--line-soft); }
+  .stmt .ms { margin-top: 1px; }
+  .refs { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .ref { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--blue-ink); background: var(--blue-bg); border: 1px solid var(--blue-line); border-radius: 4px; padding: 0 5px; }
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .split .photo { height: 170px; }
+  .rsec { padding: 16px 20px; }
+  .rsec + .rsec { border-top: 1px solid var(--line); }
+  .rsec h3 { margin-bottom: 2px; }
+</style>
+</head>
+<body>
+<div class="mock-strip"><span><b>Design mockup</b> · Hawthorne Tower is a fictional project · AI results are fixtures, not measured field accuracy</span><a href="index.html" style="text-decoration:underline">All screens</a></div>
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="index.html"><span class="brand-mark"><span class="ms sm">bolt</span></span>Everything Works AI</a>
+  <span class="project-pill"><span class="strong">Hawthorne Tower</span><span class="tag">Fictional</span><span class="ms sm faint">expand_more</span></span>
+  <nav class="nav"><a href="today.html">Today</a><a href="work.html">Work &amp; Issues <span class="count">3</span></a><a href="building.html">Building</a><a href="report.html" class="on">Daily Report</a><a href="setup.html">Setup</a></nav>
+  <div class="top-right"><div class="search"><span class="ms sm">search</span>Search rooms, items, issues<kbd>⌘K</kbd></div><span class="ms faint">notifications</span><span class="avatar">SJ</span><div class="who"><b>Sarah Jenkins</b><span>Project manager</span></div></div>
+</div></header>
+
+<main class="page">
+  <section class="page-head">
+    <div>
+      <div class="row"><span class="eyebrow">Daily report</span><span class="chip review"><span class="ms">edit_note</span>Draft · not shared</span></div>
+      <h1 style="margin-top:4px">Hawthorne Tower · Tue, Oct 6, 2026</h1>
+      <p class="sub">Built from today's records at 17:30. Every statement links to the update, check run, decision or issue behind it.</p>
+    </div>
+    <div class="row"><span class="seg"><span>‹ Oct 5</span><span class="on">Oct 6</span><span class="faint">Oct 7 ›</span></span><button class="btn"><span class="ms">picture_as_pdf</span>Export PDF</button><button class="btn primary"><span class="ms">share</span>Share with owner</button></div>
+  </section>
+
+  <div class="grid g-3-2">
+    <section class="card">
+      <div class="rsec">
+        <h3>Summary</h3>
+        <div class="stmt"><span class="ms faint">inbox</span><div>7 updates received from 6 trades across Level 14 (rough-in) and Level 3 (finishes). All 7 have a processing outcome.<div class="refs"><span class="ref">UPD-2291…2297</span></div></div></div>
+      </div>
+      <div class="rsec">
+        <h3>New completions</h3>
+        <div class="stmt"><span class="ms" style="color:var(--green)">task_alt</span><div><b>Unit 402 plumbing rough-in</b> — AI-checked complete for visible supply/drain components and apparent routing against P-201 Rev 2. Pressure test and inspection not covered.<div class="refs"><span class="ref">UPD-2294</span><span class="ref">CR-5588</span><span class="ref">PC-plumb 0.4</span></div></div></div>
+        <div class="stmt"><span class="ms" style="color:var(--green)">task_alt</span><div><b>Unit 302 punch P-118</b> — AI-checked complete: marked touch-up area visible, no unfinished patch detected.<div class="refs"><span class="ref">UPD-2295</span><span class="ref">CR-5591</span><span class="ref">PC-punch 0.3</span></div></div></div>
+      </div>
+      <div class="rsec">
+        <h3>Issues and potential findings</h3>
+        <div class="stmt"><span class="ms" style="color:var(--red)">report</span><div><b>New potential discrepancy, Unit 403</b> — door opening appears at the east end; A-402 Rev C shows west. Pending PM review.<div class="refs"><span class="ref">UPD-2291</span><span class="ref">CR-5521</span><span class="ref">F-118</span></div></div></div>
+        <div class="stmt"><span class="ms" style="color:var(--red)">flag</span><div><b>ISS-031, Unit 405</b> — correction photos received; recheck found no discrepancy for duct routing. Issue remains open pending a resolution decision.<div class="refs"><span class="ref">UPD-2293</span><span class="ref">CR-5602</span><span class="ref">ISS-031</span></div></div></div>
+        <div class="stmt"><span class="ms" style="color:var(--red)">flag</span><div><b>ISS-029, Unit 411</b> — open, no correction submitted; due Oct 9.<div class="refs"><span class="ref">ISS-029</span></div></div></div>
+      </div>
+      <div class="rsec">
+        <h3>Evidence gaps and unchecked work</h3>
+        <div class="stmt"><span class="ms" style="color:#b45309">add_a_photo</span><div><b>Unit 406 electrical boxes</b> — 2 of 4 expected boxes visible; north-wall photo requested from Volt Electric, not yet received.<div class="refs"><span class="ref">UPD-2292</span><span class="ref">ER-0412</span></div></div></div>
+        <div class="stmt"><span class="ms" style="color:var(--red-ink)">error</span><div><b>Unit 408 sub-panel</b> — analysis failed (timeout); retry queued. No result yet.<div class="refs"><span class="ref">UPD-2296</span><span class="ref">JOB-9931</span></div></div></div>
+        <div class="stmt"><span class="ms faint">help</span><div><b>Level 14 core firestop</b> — no released check for this work type; awaiting a qualified reviewer.<div class="refs"><span class="ref">UPD-2297</span></div></div></div>
+        <div class="stmt"><span class="ms faint">radio_button_unchecked</span><div>No updates received for Units 410 and 412 (current-stage items not assessed).</div></div>
+      </div>
+      <div class="rsec">
+        <h3>Reference changes</h3>
+        <div class="stmt"><span class="ms" style="color:var(--violet)">difference</span><div>A-402 Rev C (approved Oct 5) reopened Unit 407 framing for review; prior AI-checked decision retained in history.<div class="refs"><span class="ref">AC-014</span><span class="ref">CR-5240</span></div></div></div>
+      </div>
+      <div class="rsec">
+        <h3>Inspections and tests</h3>
+        <div class="stmt"><span class="ms" style="color:var(--violet)">event</span><div>Level 14 rough-in inspection requested for Oct 8. No inspection results recorded today.<div class="refs"><span class="ref">INSP-014</span></div></div></div>
+      </div>
+      <div class="card-foot small muted"><span class="ms sm">info</span> Not included because they weren't reported: labor hours, crew counts, weather, costs. Counts are work items, not schedule or budget percentages.</div>
+    </section>
+
+    <aside class="stack-lg">
+      <section class="card">
+        <div class="card-head"><div><h2>Unit 404 history</h2><div class="xs muted">Master bath &amp; kitchenette · all stages</div></div><span class="chip human"><span class="ms">how_to_reg</span>Human accepted</span></div>
+        <div class="card-pad stack">
+          <div class="split">
+            <figure class="photo" style="margin:0"><img src="assets/framing-unit-403.jpg" alt="Unit 404 framing stage"><span class="label">Oct 2 · framing</span><span class="gen">Generated sample</span></figure>
+            <figure class="photo" style="margin:0"><img src="assets/plumbing-unit-402.jpg" alt="Unit 404 plumbing rough-in stage"><span class="label">Oct 4 · plumbing rough-in</span><span class="gen">Generated sample</span></figure>
+          </div>
+          <div class="seg"><span>Photos</span><span class="on">Timeline</span><span>3D at date</span></div>
+          <div class="tl">
+            <div class="tl-item green"><div class="tl-time">Oct 2 · 11:20</div><div class="small"><b>Framing</b> — AI-checked complete (openings &amp; members, A-402 Rev B)</div><div class="xs muted">UPD-2201 · PC-frame 0.1 · unaffected by Rev C (404 not in AC-014)</div></div>
+            <div class="tl-item"><div class="tl-time">Oct 4 · 16:05</div><div class="small"><b>Plumbing rough-in</b> update — 5 photos, Apex Mechanical</div><div class="xs muted">UPD-2259</div></div>
+            <div class="tl-item amber"><div class="tl-time">16:08</div><div class="small">Components &amp; routing: no discrepancy detected · PEX manifold: <b>unsupported</b> → review</div><div class="xs muted">CR-5402 · no automatic completion</div></div>
+            <div class="tl-item ink"><div class="tl-time">Oct 5 · 09:15</div><div class="small"><b>Human accepted</b> by S. Jenkins — “Manifold checked on site walk.”</div><div class="xs muted">Scope: plumbing rough-in, Unit 404 · RD-0377</div></div>
+            <div class="tl-item"><div class="tl-time">Oct 5 · 14:40</div><div class="small">Pressure test record attached by Apex Mechanical</div><div class="xs muted">Document PT-404 · trade-provided, not assessed by AI</div></div>
+            <div class="tl-item violet"><div class="tl-time">Oct 8</div><div class="small">Rough-in inspection <b>requested</b></div><div class="xs muted">Result will be recorded from the inspection authority's record</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card card-pad stack">
+        <h3>Tomorrow's required actions</h3>
+        <div class="row between small"><span>Decide F-118 (Unit 403) before MEP starts</span><span class="chip issue">S. Jenkins</span></div>
+        <div class="row between small"><span>Resolve or return ISS-031</span><span class="chip issue">S. Jenkins</span></div>
+        <div class="row between small"><span>North-wall photo, Unit 406</span><span class="chip review">Volt Electric</span></div>
+        <div class="row between small"><span>Assign firestop reviewer</span><span class="chip review">S. Jenkins</span></div>
+      </section>
+    </aside>
+  </div>
+</main>
+</body>
+</html>

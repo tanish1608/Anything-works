@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finding Review · Everything Works AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block" rel="stylesheet">
+<link rel="stylesheet" href="ew.css">
+<style>
+  .cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .cmp .photo, .cmp .sheet { height: 330px; }
+  .decision { display: flex; flex-direction: column; gap: 10px; }
+  .field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--ink-3); }
+  .input { height: 34px; border: 1px solid var(--line); border-radius: var(--r); padding: 0 10px; display: flex; align-items: center; justify-content: space-between; color: var(--ink); font-size: 13px; background: #fff; }
+  .textarea { min-height: 54px; border: 1px solid var(--line); border-radius: var(--r); padding: 8px 10px; color: var(--ink); font-size: 13px; background: #fff; }
+  .state td:first-child { color: var(--ink-3); white-space: nowrap; }
+  @media (max-width: 760px) { .cmp { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="mock-strip"><span><b>Design mockup</b> · Hawthorne Tower is a fictional project · AI results are fixtures, not measured field accuracy</span><a href="index.html" style="text-decoration:underline">All screens</a></div>
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="index.html"><span class="brand-mark"><span class="ms sm">bolt</span></span>Everything Works AI</a>
+  <span class="project-pill"><span class="strong">Hawthorne Tower</span><span class="tag">Fictional</span><span class="ms sm faint">expand_more</span></span>
+  <nav class="nav"><a href="today.html">Today</a><a href="work.html" class="on">Work &amp; Issues <span class="count">3</span></a><a href="building.html">Building</a><a href="report.html">Daily Report</a><a href="setup.html">Setup</a></nav>
+  <div class="top-right"><div class="search"><span class="ms sm">search</span>Search rooms, items, issues<kbd>⌘K</kbd></div><span class="ms faint">notifications</span><span class="avatar">SJ</span><div class="who"><b>Sarah Jenkins</b><span>Project manager</span></div></div>
+</div></header>
+
+<main class="page">
+  <div class="context">
+    <div class="crumbs"><a href="today.html" class="row tight"><span class="ms sm">arrow_back</span>Today</a><span class="sep">/</span>Hawthorne Tower<span class="sep">/</span>Level 14<span class="sep">/</span>Unit 403<span class="sep">/</span><b>Finding F-118</b></div>
+    <div class="row"><span class="small muted">1 of 3 decisions</span><a class="btn sm" href="issue.html">Next <span class="ms">arrow_forward</span></a></div>
+  </div>
+
+  <section class="page-head">
+    <div>
+      <div class="row"><span class="chip issue"><span class="ms">report</span>Potential discrepancy</span><span class="chip review"><span class="ms">pending</span>Review pending</span><span class="chip tag"><span class="ms">location_on</span>Unit 403 · Bedroom 2 · confirmed by QR</span><span class="chip fixture">FIXTURE RESULT</span></div>
+      <h1 style="margin-top:10px">Door opening appears at the east end of the partition; A-402 Rev C shows it at the west end</h1>
+      <p class="sub">Framing · Titan Framing (Carlos Diaz) · update UPD-2291 received 06:52 · checked 06:54</p>
+    </div>
+    <a class="btn" href="building.html"><span class="ms">view_in_ar</span>Locate in 3D</a>
+  </section>
+
+  <div class="grid g-3-2">
+    <div class="stack-lg">
+      <section class="card">
+        <div class="card-head">
+          <h2>Evidence vs approved reference</h2>
+          <div class="seg dark"><span class="on">Side by side</span><span>Photo</span><span>Reference</span><span>Overlay</span></div>
+        </div>
+        <div class="card-pad stack">
+          <div class="cmp">
+            <figure class="photo" style="margin:0">
+              <img src="assets/framing-unit-403.jpg" alt="Steel stud partition framing in Unit 403">
+              <span class="label">Photo 2 of 3 · 06:49 · facing north</span>
+              <div class="region" style="left:1%;top:24%;width:19%;height:54%"><b>Framed opening (observed)</b></div>
+              <span class="gen">Generated sample image</span>
+            </figure>
+            <figure class="sheet" style="margin:0">
+              <span class="label">A-402 Rev C · approved Oct 5</span>
+              <svg viewBox="0 0 400 330" width="100%" height="100%" role="img" aria-label="Plan excerpt showing the bedroom partition with the door opening at the west end">
+                <defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#94a3b8" stroke-width="1.2"/></pattern></defs>
+                <g stroke="#0f172a" fill="none">
+                  <rect x="40" y="60" width="320" height="200" stroke-width="5"/>
+                  <!-- partition with opening at west end -->
+                  <line x1="40" y1="160" x2="70" y2="160" stroke-width="4"/>
+                  <line x1="140" y1="160" x2="360" y2="160" stroke-width="4"/>
+                  <path d="M70 160 A70 70 0 0 1 140 160" stroke="#64748b" stroke-dasharray="4 3" stroke-width="1.2"/>
+                  <line x1="70" y1="160" x2="70" y2="92" stroke="#64748b" stroke-width="1.2"/>
+                </g>
+                <rect x="140" y="156" width="220" height="8" fill="url(#hatch)"/>
+                <!-- expected opening highlight -->
+                <rect x="64" y="146" width="82" height="28" rx="4" fill="rgba(16,185,129,.12)" stroke="#10b981" stroke-width="2"/>
+                <text x="64" y="192" font-size="11" font-family="Inter" fill="#065f46" font-weight="600">Opening per Rev C (west)</text>
+                <!-- observed (mapped) location -->
+                <rect x="270" y="146" width="82" height="28" rx="4" fill="rgba(239,68,68,.10)" stroke="#ef4444" stroke-width="2" stroke-dasharray="5 3"/>
+                <text x="352" y="138" text-anchor="end" font-size="11" font-family="Inter" fill="#991b1b" font-weight="600">Observed (east), approx.</text>
+                <text x="190" y="110" font-size="12" font-family="Inter" fill="#475569">BEDROOM 2</text>
+                <text x="190" y="225" font-size="12" font-family="Inter" fill="#475569">BEDROOM 1</text>
+                <text x="40" y="300" font-size="10.5" font-family="JetBrains Mono, monospace" fill="#475569">A-402 · L14 partition plan · Rev C · grid C-D / 3-4</text>
+                <text x="40" y="44" font-size="10.5" font-family="Inter" fill="#7c3aed">△ Rev C: opening relocated west (approved change AC-014)</text>
+              </svg>
+            </figure>
+          </div>
+          <div class="inset small">
+            <span class="strong">How the photo was matched:</span> location confirmed by unit QR scan and worker selection (Bedroom 2). View direction from capture guidance (“stand at window, face partition”). The mapped position on the plan is approximate — this check compares <b>which end</b> of the partition has the opening, not dimensions.
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>Checks performed on this update</h2><span class="small muted">3 photos · 1 work item</span></div>
+        <div class="table-wrap">
+        <table class="t">
+          <thead><tr><th>Check</th><th>Evidence</th><th>Result</th><th>Release state</th></tr></thead>
+          <tbody>
+            <tr><td><b>Opening present in partition</b><div class="xs muted">framing-openings v0.2</div></td><td><span class="chip ok"><span class="ms">check</span>Adequate</span></td><td><span class="chip ai"><span class="ms">check_circle</span>No discrepancy detected</span></td><td><span class="chip tag">Review only</span></td></tr>
+            <tr><td><b>Apparent opening placement</b><div class="xs muted">framing-openings v0.2</div></td><td><span class="chip ok"><span class="ms">check</span>Adequate</span></td><td><span class="chip issue"><span class="ms">report</span>Potential discrepancy</span></td><td><span class="chip tag">Review only</span></td></tr>
+            <tr><td><b>Stud count, east wall</b><div class="xs muted">framing-members v0.1</div></td><td><span class="chip evidence"><span class="ms">visibility_off</span>Partly occluded</span></td><td><span class="chip evidence"><span class="ms">add_a_photo</span>Insufficient evidence</span></td><td><span class="chip tag">Review only</span></td></tr>
+            <tr><td><b>Header size &amp; fastening</b></td><td>—</td><td><span class="chip unsupported"><span class="ms">help</span>Unsupported</span></td><td><span class="chip none">No check</span></td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="card-foot small muted">Not established by this update: exact opening width or position (no measurement registration), structural adequacy, hidden connections.</div>
+      </section>
+
+      <section class="card card-pad stack">
+        <h2>Sources used <span class="small muted" style="font-weight:400">· snapshot taken at check time</span></h2>
+        <div class="grid g-3" style="gap:10px">
+          <div class="inset"><div class="row"><span class="ms sm">architecture</span><span class="strong small">A-402 Rev C</span></div><div class="xs muted" style="margin-top:4px">L14 partition plan · approved Oct 5 by S. Jenkins</div></div>
+          <div class="inset"><div class="row"><span class="ms sm">published_with_changes</span><span class="strong small">AC-014</span></div><div class="xs muted" style="margin-top:4px">Approved change: 403/407 openings relocated west</div></div>
+          <div class="inset"><div class="row"><span class="ms sm">tune</span><span class="strong small">framing-openings v0.2</span></div><div class="xs muted" style="margin-top:4px">Vision model vm-0926 · prompt p-17 · policy n/a (review only)</div></div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="stack-lg">
+      <section class="card">
+        <div class="card-head"><h2>Record state</h2><span class="xs muted">Each dimension is stored separately</span></div>
+        <div class="table-wrap"><table class="t state">
+          <tbody>
+            <tr><td>Processing</td><td><span class="chip ok"><span class="ms">check</span>Completed 06:54</span></td></tr>
+            <tr><td>Evidence coverage</td><td><span class="chip ok"><span class="ms">check</span>Adequate for placement check</span></td></tr>
+            <tr><td>Observed progress</td><td><span class="chip review"><span class="ms">timelapse</span>Partial — framing present</span></td></tr>
+            <tr><td>Check result</td><td><span class="chip issue"><span class="ms">report</span>Potential discrepancy</span></td></tr>
+            <tr><td>Human review</td><td><span class="chip review"><span class="ms">pending</span>Pending — you</span></td></tr>
+            <tr><td>Issue</td><td><span class="chip issue"><span class="ms">flag</span>Potential finding</span></td></tr>
+            <tr><td>Formal inspection</td><td><span class="chip none">Not recorded</span></td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section class="card card-pad decision">
+        <h2>Your decision</h2>
+        <p class="small muted">The AI result is kept whatever you decide. Your decision is recorded with your name, time and reason.</p>
+        <div class="inset decision">
+          <div class="row"><span class="ms" style="color:var(--red)">flag</span><span class="strong">Confirm as issue</span></div>
+          <label class="field">Owner<span class="input">Titan Framing — Carlos Diaz <span class="ms sm faint">expand_more</span></span></label>
+          <label class="field">Due<span class="input">Wed, Oct 7 · 07:00 (before MEP) <span class="ms sm faint">event</span></span></label>
+          <label class="field">Resolution requires<span class="textarea">Reframe opening at west end per A-402 Rev C. Submit photos from the window facing the partition and from the doorway.</span></label>
+          <button class="btn danger block"><span class="ms">flag</span>Confirm issue &amp; notify Titan</button>
+        </div>
+        <div class="grid g-1-1" style="gap:8px">
+          <button class="btn"><span class="ms">add_a_photo</span>Request evidence</button>
+          <button class="btn"><span class="ms">link</span>Link approved change</button>
+        </div>
+        <button class="btn ghost"><span class="ms">do_not_disturb_on</span>Dismiss with reason…</button>
+      </section>
+
+      <section class="card card-pad stack">
+        <h2>History</h2>
+        <div class="tl">
+          <div class="tl-item violet"><div class="tl-time">Oct 5 · 16:10</div><div class="small"><b>A-402 Rev C approved</b> by S. Jenkins (AC-014)</div></div>
+          <div class="tl-item"><div class="tl-time">Oct 6 · 06:52</div><div class="small"><b>UPD-2291 received</b> from C. Diaz — 3 photos, note “Partition framed, ready for MEP”</div></div>
+          <div class="tl-item red"><div class="tl-time">06:54</div><div class="small"><b>Check run CR-5521</b> — potential discrepancy (placement)</div></div>
+          <div class="tl-item amber"><div class="tl-time">06:54</div><div class="small"><b>Added to review queue</b> — no completion recorded</div></div>
+          <div class="tl-item"><div class="tl-time">07:30</div><div class="small">Opened by S. Jenkins</div></div>
+        </div>
+      </section>
+    </aside>
+  </div>
+</main>
+</body>
+</html>

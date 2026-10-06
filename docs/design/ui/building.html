@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Building · Everything Works AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block" rel="stylesheet">
+<link rel="stylesheet" href="ew.css">
+<style>
+  .viewport { position: relative; border-radius: var(--r-xl); border: 1px solid var(--line); overflow: hidden;
+    background: linear-gradient(#f8fafc, #eef2f7); min-height: 560px; }
+  .viewport::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(148,163,184,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,.12) 1px, transparent 1px); background-size: 32px 32px; }
+  .vp-tools { position: absolute; left: 14px; top: 14px; right: 14px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; z-index: 2; }
+  .vp-chip { background: #fff; border: 1px solid var(--line); border-radius: var(--r); padding: 5px 10px; font-size: 12px; font-weight: 500; display: inline-flex; gap: 6px; align-items: center; box-shadow: var(--shadow-1); }
+  .levels { position: absolute; right: 14px; top: 112px; z-index: 2; background: #fff; border: 1px solid var(--line); border-radius: var(--r-lg); padding: 6px; display: flex; flex-direction: column; gap: 2px; box-shadow: var(--shadow-1); }
+  .levels span { font-size: 12px; font-weight: 500; text-align: center; padding: 4px 10px; border-radius: 6px; color: var(--ink-3); }
+  .levels span.on { background: var(--ink); color: #fff; }
+  .vp-foot { position: absolute; left: 14px; right: 14px; bottom: 14px; z-index: 2; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  #iso { position: relative; z-index: 1; display: block; width: 100%; height: 560px; }
+  .lg-row { display: flex; align-items: center; gap: 10px; font-size: 12.5px; padding: 6px 0; }
+  .sw { width: 22px; height: 14px; border-radius: 4px; flex: none; border: 1.5px solid; }
+  .scrub { display: grid; grid-template-columns: repeat(6, 1fr); position: relative; padding-top: 14px; }
+  .scrub::before { content: ""; position: absolute; left: 8%; right: 8%; top: 21px; height: 2px; background: var(--line); }
+  .scrub div { text-align: center; position: relative; font-size: 11.5px; color: var(--ink-3); }
+  .scrub i { display: block; width: 16px; height: 16px; margin: 0 auto 6px; border-radius: 999px; border: 2px solid var(--line-2); background: #fff; position: relative; }
+  .scrub .on i { background: var(--ink); border-color: var(--ink); }
+  .scrub .rev i { border-color: var(--violet); background: var(--violet-bg); }
+</style>
+</head>
+<body>
+<div class="mock-strip"><span><b>Design mockup</b> · Hawthorne Tower is a fictional project · AI results are fixtures, not measured field accuracy</span><a href="index.html" style="text-decoration:underline">All screens</a></div>
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="index.html"><span class="brand-mark"><span class="ms sm">bolt</span></span>Everything Works AI</a>
+  <span class="project-pill"><span class="strong">Hawthorne Tower</span><span class="tag">Fictional</span><span class="ms sm faint">expand_more</span></span>
+  <nav class="nav"><a href="today.html">Today</a><a href="work.html">Work &amp; Issues <span class="count">3</span></a><a href="building.html" class="on">Building</a><a href="report.html">Daily Report</a><a href="setup.html">Setup</a></nav>
+  <div class="top-right"><div class="search"><span class="ms sm">search</span>Search rooms, items, issues<kbd>⌘K</kbd></div><span class="ms faint">notifications</span><span class="avatar">SJ</span><div class="who"><b>Sarah Jenkins</b><span>Project manager</span></div></div>
+</div></header>
+
+<main class="page has-beaver">
+  <div class="context">
+    <div class="crumbs"><span class="ms sm">apartment</span><b>Hawthorne Tower</b><span class="sep">/</span>Level 14<span class="sep">/</span>Rough-in stage<span class="sep">/</span><b>Unit 405</b></div>
+    <div class="row">
+      <span class="seg"><span>All trades</span><span class="on">HVAC</span><span>Plumbing</span><span>Electrical</span><span>Framing</span></span>
+      <span class="seg dark"><span class="on">3D</span><span>2D plan</span></span>
+    </div>
+  </div>
+
+  <div class="grid g-2-1">
+    <div class="stack">
+      <section class="viewport">
+        <div class="vp-tools">
+          <span class="vp-chip"><span class="ms sm">layers</span>Model: IFC import · reviewed Sep 28</span>
+          <span class="vp-chip"><span class="ms sm">architecture</span>A-402 Rev C · M-402 Rev 3</span>
+          <span class="vp-chip"><span class="ms sm">content_cut</span>Cutaway: L14 ceiling</span>
+          <span class="vp-chip"><span class="ms sm">filter_alt</span>Show: current-stage items</span>
+          <span class="vp-chip" style="margin-left:auto"><span class="ms sm">restart_alt</span>Reset view</span>
+        </div>
+        <div class="levels"><span>16</span><span>15</span><span class="on">14</span><span>13</span><span>12</span><span>…</span><span>3</span></div>
+        <svg id="iso" viewBox="0 0 900 560" role="img" aria-label="Isometric Level 14 floor plate colored by work-item status"></svg>
+        <div class="vp-foot">
+          <span class="vp-chip"><span class="ms sm" style="color:var(--ink-3)">info</span>Daily updates change status and evidence, never planned geometry.</span>
+          <span class="vp-chip"><span class="ms sm">touch_app</span>Select a unit or marker for evidence</span>
+        </div>
+      </section>
+
+      <section class="card card-pad stack">
+        <div class="row between"><h3>Level 14 coverage · 13 current-stage work items</h3><span class="xs muted">Counts work items, not labor, cost or schedule %</span></div>
+        <div class="covbar"><span class="c-ai" style="width:23.1%"></span><span class="c-human" style="width:7.7%"></span><span class="c-issue" style="width:15.4%"></span><span class="c-review" style="width:23.1%"></span><span class="c-evidence" style="width:7.7%"></span><span class="c-unsupported" style="width:7.7%"></span><span class="c-none" style="width:15.3%"></span></div>
+        <p class="small"><b>4 of 13 complete</b> (3 AI-checked, 1 human accepted) · <b style="color:var(--red-ink)">2 open issues</b> · 2 need review · 1 needs evidence · 1 analysis failed · 1 unsupported check · 2 not yet assessed</p>
+        <div class="scrub">
+          <div><i></i>Oct 1</div><div><i></i>Oct 2</div><div><i></i>Oct 3<br><span class="xs">ISS-031 opened</span></div><div><i></i>Oct 4</div><div class="rev"><i></i>Oct 5<br><span class="xs" style="color:var(--violet-ink)">A-402 Rev C</span></div><div class="on"><i></i><b style="color:var(--ink)">Today</b><br><span class="xs">7 updates</span></div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="stack-lg">
+      <section class="card">
+        <div class="card-head">
+          <div><h2>Unit 405</h2><div class="xs muted">1-bedroom · Level 14 east · grid C-D / 5-6</div></div>
+          <span class="chip issue-solid"><span class="ms">flag</span>Open issue</span>
+        </div>
+        <div class="card-pad stack">
+          <div class="inset small"><span class="strong">Why it's red:</span> ISS-031 is open. An open issue overrides earlier completion in the model until it's resolved.</div>
+          <div class="eyebrow">Current stage · rough-in</div>
+          <div class="list" style="border:1px solid var(--line);border-radius:var(--r-lg)">
+            <a class="item" href="issue.html" style="padding:10px 12px"><div class="grow"><div class="row between"><span class="strong small">HVAC duct routing</span><span class="chip issue-solid"><span class="ms">flag</span>ISS-031</span></div><div class="xs muted" style="margin-top:3px">Correction submitted 09:40 · recheck: no discrepancy detected · awaiting your decision</div></div></a>
+            <div class="item" style="padding:10px 12px"><div class="grow"><div class="row between"><span class="strong small">Plumbing rough-in</span><span class="chip ai"><span class="ms">task_alt</span>AI-checked complete</span></div><div class="xs muted" style="margin-top:3px">Oct 2 · visible components &amp; apparent routing · policy PC-plumb 0.4</div></div></div>
+            <div class="item" style="padding:10px 12px"><div class="grow"><div class="row between"><span class="strong small">Electrical rough-in</span><span class="chip human"><span class="ms">how_to_reg</span>Human accepted</span></div><div class="xs muted" style="margin-top:3px">Oct 4 · S. Jenkins · “Box check in shadow mode; checked on site walk”</div></div></div>
+          </div>
+          <div class="eyebrow">Earlier stages</div>
+          <div class="row between small"><span>Framing</span><span class="chip ai"><span class="ms">task_alt</span>AI-checked complete · Sep 29</span></div>
+          <div class="eyebrow">Formal records</div>
+          <div class="row between small"><span>Rough-in inspection</span><span class="chip inspect"><span class="ms">event</span>Requested · Oct 8</span></div>
+          <div class="row" style="margin-top:4px"><a class="btn primary sm" href="issue.html"><span class="ms">fact_check</span>Open ISS-031</a><a class="btn sm" href="report.html"><span class="ms">history</span>Unit history</a></div>
+        </div>
+      </section>
+
+      <section class="card card-pad">
+        <h3 style="margin-bottom:6px">Legend · precedence top to bottom</h3>
+        <div class="lg-row"><span class="sw" style="background:#fecaca;border-color:#ef4444"></span><span class="ms sm" style="color:var(--red)">flag</span><span><b>Open issue</b> — overrides earlier completion</span></div>
+        <div class="lg-row"><span class="sw" style="background:#fde68a;border-color:#f59e0b"></span><span class="ms sm" style="color:#b45309">pending</span><span><b>Needs review</b> — potential discrepancy, reopened or failed analysis</span></div>
+        <div class="lg-row"><span class="sw" style="background:repeating-linear-gradient(45deg,#fde68a 0 3px,#fff 3px 6px);border-color:#f59e0b;border-style:dashed"></span><span class="ms sm" style="color:#b45309">add_a_photo</span><span><b>Needs evidence</b></span></div>
+        <div class="lg-row"><span class="sw" style="background:#6ee7b7;border-color:#047857"></span><span class="ms sm" style="color:#047857">how_to_reg</span><span><b>Human accepted</b> — person, time, scope shown</span></div>
+        <div class="lg-row"><span class="sw" style="background:#d1fae5;border-color:#10b981"></span><span class="ms sm" style="color:var(--green)">task_alt</span><span><b>AI-checked complete</b> — named checks only</span></div>
+        <div class="lg-row"><span class="sw" style="background:repeating-linear-gradient(45deg,#cbd5e1 0 3px,#fff 3px 6px);border-color:#94a3b8;border-style:dashed"></span><span class="ms sm faint">help</span><span><b>Unsupported check</b> — needs a person</span></div>
+        <div class="lg-row"><span class="sw" style="background:#f1f5f9;border-color:#cbd5e1"></span><span class="ms sm faint">radio_button_unchecked</span><span><b>Planned</b> — not yet assessed</span></div>
+        <div class="lg-row"><span class="sw" style="background:#f5f3ff;border-color:#6d28d9"></span><span class="ms sm" style="color:var(--violet)">verified</span><span><b>Inspection</b> — separate badge, never inferred from green</span></div>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<aside class="beaver" aria-label="Works Beaver assistant">
+  <div class="beaver-head"><img src="assets/works-beaver.jpg" alt="Works Beaver mascot"><div class="grow"><div class="strong">Works Beaver</div><div class="xs muted">Daily-update assistant</div></div><span class="chip ok"><span class="ms">bolt</span>Checking</span></div>
+  <div class="beaver-body">Unit 406 has a <b>room-level pin</b>: one photo shows bedroom 2, but I couldn't tie it to a specific wall. A north-wall photo would let me check boxes 1 and 2.</div>
+  <div class="beaver-actions"><button class="btn primary sm"><span class="ms">add_a_photo</span>Re-send request</button><button class="btn sm"><span class="ms">pin_drop</span>Pinpoint issue</button></div>
+  <div class="beaver-note">Summarizes records and drafts requests. It can't accept work, close issues or record inspections.</div>
+</aside>
+
+<script>
+// Fixture data: one current-stage work item per unit plus the core.
+const units = [
+  { id: '401', x: 0,  y: 0,  w: 10, h: 9, s: 'ai' },
+  { id: '402', x: 10, y: 0,  w: 10, h: 9, s: 'ai' },
+  { id: '403', x: 20, y: 0,  w: 10, h: 9, s: 'review', note: 'F-118' },
+  { id: '404', x: 30, y: 0,  w: 10, h: 9, s: 'human' },
+  { id: '405', x: 40, y: 0,  w: 10, h: 9, s: 'issue', note: 'ISS-031', sel: true },
+  { id: '406', x: 50, y: 0,  w: 10, h: 9, s: 'evidence', note: 'room pin' },
+  { id: '407', x: 0,  y: 15, w: 10, h: 9, s: 'review', note: 'Rev C' },
+  { id: '408', x: 10, y: 15, w: 10, h: 9, s: 'failed' },
+  { id: '409', x: 20, y: 15, w: 10, h: 9, s: 'ai' },
+  { id: '410', x: 30, y: 15, w: 10, h: 9, s: 'none' },
+  { id: '411', x: 40, y: 15, w: 10, h: 9, s: 'issue', note: 'ISS-029' },
+  { id: '412', x: 50, y: 15, w: 10, h: 9, s: 'none' },
+  { id: 'Core', x: 25, y: 9.6, w: 10, h: 4.8, s: 'unsupported' },
+];
+const style = {
+  ai:          { fill: '#d1fae5', stroke: '#10b981', icon: 'task_alt', label: 'AI-checked', ink: '#065f46' },
+  human:       { fill: '#6ee7b7', stroke: '#047857', icon: 'how_to_reg', label: 'Human accepted', ink: '#064e3b' },
+  issue:       { fill: '#fecaca', stroke: '#ef4444', icon: 'flag', label: 'Open issue', ink: '#991b1b' },
+  review:      { fill: '#fde68a', stroke: '#f59e0b', icon: 'pending', label: 'Needs review', ink: '#92400e' },
+  failed:      { fill: '#fef3c7', stroke: '#f59e0b', icon: 'error', label: 'Analysis failed', ink: '#92400e', dash: '5 4' },
+  evidence:    { fill: 'url(#hAmber)', stroke: '#f59e0b', icon: 'add_a_photo', label: 'Needs evidence', ink: '#92400e', dash: '5 4' },
+  unsupported: { fill: 'url(#hGrey)', stroke: '#94a3b8', icon: 'help', label: 'Unsupported', ink: '#475569', dash: '4 3' },
+  none:        { fill: '#f1f5f9', stroke: '#cbd5e1', icon: 'radio_button_unchecked', label: 'Not assessed', ink: '#475569' },
+};
+const K = 10.6, C = Math.cos(Math.PI / 6) * K, S = Math.sin(Math.PI / 6) * K, OX = 300, OY = 78, T = 14;
+const P = (x, y) => [OX + (x - y) * C, OY + (x + y) * S];
+const svg = document.getElementById('iso');
+const NS = 'http://www.w3.org/2000/svg';
+const el = (tag, attrs, parent = svg) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; };
+const pts = a => a.map(p => p.join(',')).join(' ');
+
+const defs = el('defs', {});
+for (const [id, c] of [['hAmber', '#f59e0b'], ['hGrey', '#94a3b8']]) {
+  const p = el('pattern', { id, width: 7, height: 7, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' }, defs);
+  el('rect', { width: 7, height: 7, fill: '#fff' }, p);
+  el('line', { x1: 0, y1: 0, x2: 0, y2: 7, stroke: c, 'stroke-width': 2.5, opacity: .55 }, p);
+}
+
+// Slab with thickness
+const [a, b, c, d] = [P(-1, -1), P(61, -1), P(61, 25), P(-1, 25)];
+el('polygon', { points: pts([d, c, [c[0], c[1] + T], [d[0], d[1] + T]]), fill: '#cbd5e1' });
+el('polygon', { points: pts([c, b, [b[0], b[1] + T], [c[0], c[1] + T]]), fill: '#94a3b8' });
+el('polygon', { points: pts([a, b, c, d]), fill: '#ffffff', stroke: '#94a3b8', 'stroke-width': 1 });
+// Corridor
+el('polygon', { points: pts([P(0, 9), P(60, 9), P(60, 15), P(0, 15)]), fill: '#f8fafc', stroke: '#e2e8f0' });
+const cm = P(6, 12); el('text', { x: cm[0], y: cm[1] + 4, 'font-size': 10, 'font-family': 'Inter', fill: '#94a3b8', 'text-anchor': 'middle' }).textContent = 'CORRIDOR';
+
+const labels = [];
+for (const u of units) {
+  const st = style[u.s];
+  const i = 0.35;
+  const poly = [P(u.x + i, u.y + i), P(u.x + u.w - i, u.y + i), P(u.x + u.w - i, u.y + u.h - i), P(u.x + i, u.y + u.h - i)];
+  // short wall extrusion on the two far edges for depth
+  const H = 7;
+  el('polygon', { points: pts([poly[0], poly[1], [poly[1][0], poly[1][1] - H], [poly[0][0], poly[0][1] - H]]), fill: '#e2e8f0', stroke: '#cbd5e1', 'stroke-width': .8 });
+  el('polygon', { points: pts([poly[3], poly[0], [poly[0][0], poly[0][1] - H], [poly[3][0], poly[3][1] - H]]), fill: '#f1f5f9', stroke: '#cbd5e1', 'stroke-width': .8 });
+  el('polygon', { points: pts(poly), fill: st.fill, stroke: st.stroke, 'stroke-width': u.sel ? 3.2 : 1.6, 'stroke-dasharray': st.dash || '' });
+  if (u.sel) el('polygon', { points: pts(poly), fill: 'none', stroke: '#0f172a', 'stroke-width': 1.2, 'stroke-dasharray': '3 3', transform: 'translate(0,-2)' });
+  const ctr = P(u.x + u.w / 2, u.y + u.h / 2);
+  labels.push({ u, st, ctr });
+}
+// Labels on top of all tiles
+for (const { u, st, ctr } of labels) {
+  const txt = `${u.id === 'Core' ? 'Core' : u.id} · ${st.label}`;
+  const w = 26 + txt.length * 6.1, h = 20, x = ctr[0] - w / 2, y = ctr[1] - h / 2 - (u.y < 9 ? 6 : 0);
+  el('rect', { x, y, width: w, height: h, rx: 10, fill: '#fff', stroke: st.stroke, 'stroke-width': 1 });
+  const ic = el('text', { x: x + 7, y: y + 15, 'font-size': 14, 'font-family': 'Material Symbols Outlined', fill: st.ink });
+  ic.textContent = st.icon;
+  const t = el('text', { x: x + 24, y: y + 14, 'font-size': 10.5, 'font-family': 'Inter', 'font-weight': 600, fill: st.ink });
+  t.textContent = txt;
+  if (u.note) {
+    const nt = el('text', { x: ctr[0], y: y + h + 13, 'font-size': 9.5, 'font-family': 'Inter', fill: '#475569', 'text-anchor': 'middle' });
+    nt.textContent = u.note;
+  }
+}
+// Issue pins and the room-level pin
+function pin(x, y, color, glyph) {
+  const [px, py] = P(x, y);
+  el('line', { x1: px, y1: py, x2: px, y2: py - 44, stroke: color, 'stroke-width': 2 });
+  el('circle', { cx: px, cy: py, r: 3, fill: color });
+  el('circle', { cx: px, cy: py - 56, r: 13, fill: color, stroke: '#fff', 'stroke-width': 2 });
+  const g = el('text', { x: px, y: py - 49, 'font-size': 15, 'font-family': 'Material Symbols Outlined', fill: '#fff', 'text-anchor': 'middle' });
+  g.textContent = glyph;
+}
+pin(48.6, 1.4, '#ef4444', 'flag');
+pin(48.6, 16.4, '#ef4444', 'flag');
+pin(58.6, 1.4, '#f59e0b', 'location_on');
+</script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UI Mockups · Everything Works AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block" rel="stylesheet">
+<link rel="stylesheet" href="ew.css">
+<style>
+  .shot-thumb { height: 170px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: var(--field); }
+  .shot-thumb img { width: 100%; display: block; }
+  .flow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; }
+  .flow .ms { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="mock-strip"><span><b>Design mockups</b> · Hawthorne Tower is a fictional project · AI results are fixtures, not measured field accuracy</span></div>
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="index.html"><span class="brand-mark"><span class="ms sm">bolt</span></span>Everything Works AI</a>
+  <span class="chip tag">UI mockups · Oct 6, 2026</span>
+</div></header>
+
+<main class="page">
+  <section class="page-head">
+    <div>
+      <h1>Daily update → check → complete or issue → correct → 3D</h1>
+      <p class="sub">The Stitch screens reworked for the October 5 product reset. Static HTML; no backend. See README.md for what changed and why.</p>
+    </div>
+  </section>
+
+  <section class="card card-pad stack">
+    <h3>Demo story — one day, three outcomes, two stages</h3>
+    <div class="flow">
+      <a class="chip tag" href="capture.html">Worker captures</a><span class="ms">arrow_forward</span>
+      <a class="chip proc" href="capture.html">Received · checking</a><span class="ms">arrow_forward</span>
+      <a class="chip ai" href="result.html">Unit 402: AI-checked complete</a>
+      <a class="chip evidence" href="result.html">Unit 406: needs evidence</a>
+      <a class="chip issue" href="review.html">Unit 403: potential discrepancy</a><span class="ms">arrow_forward</span>
+      <a class="chip review" href="today.html">PM exceptions</a><span class="ms">arrow_forward</span>
+      <a class="chip issue-solid" href="issue.html">ISS-031 correction → recheck → resolve</a><span class="ms">arrow_forward</span>
+      <a class="chip tag" href="building.html">3D status</a><span class="ms">arrow_forward</span>
+      <a class="chip tag" href="report.html">Daily report</a>
+    </div>
+  </section>
+
+  <section class="grid g-3">
+    <a class="card screen-card" href="today.html"><div class="shot-thumb"><img src="screenshots/today.png" alt="Today screen"></div><h3>Today · PM daily overview</h3><p class="small muted">Exceptions inbox: needs your decision, waiting on others, completed today, coverage, reference changes.</p><span class="from">Replaces: Today (approvals, communication resolution, navigation flow)</span></a>
+    <a class="card screen-card" href="work.html"><div class="shot-thumb"><img src="screenshots/work.png" alt="Work and issues screen"></div><h3>Work &amp; Issues</h3><p class="small muted">Every current-stage work item with separate status dimensions, open issues and blocked downstream work.</p><span class="from">Replaces: Work &amp; Blockers</span></a>
+    <a class="card screen-card" href="review.html"><div class="shot-thumb"><img src="screenshots/review.png" alt="Finding review screen"></div><h3>Finding review · comparison panel</h3><p class="small muted">Photo vs approved reference, checks performed, record state, decision with owner and reason.</p><span class="from">Replaces: Approval detail Unit 405</span></a>
+    <a class="card screen-card" href="issue.html"><div class="shot-thumb"><img src="screenshots/issue.png" alt="Issue correction screen"></div><h3>Issue &amp; correction</h3><p class="small muted">Lifecycle, before/after evidence, recheck, explicit resolution decision.</p><span class="from">Replaces: Unit 405 subcontractor communication resolution</span></a>
+    <a class="card screen-card" href="building.html"><div class="shot-thumb"><img src="screenshots/building.png" alt="Building 3D screen"></div><h3>Building · 3D / plan workspace</h3><p class="small muted">Status projection with precedence legend, issue pins, room-level pins, coverage with denominator.</p><span class="from">Replaces: Building</span></a>
+    <a class="card screen-card" href="report.html"><div class="shot-thumb"><img src="screenshots/report.png" alt="Daily report screen"></div><h3>Daily report &amp; history</h3><p class="small muted">Record-linked statements; per-unit history across stages; nothing unreported is inferred.</p><span class="from">Replaces: Evidence, Unit 404 spatial progression</span></a>
+    <a class="card screen-card" href="capture.html"><div class="shot-thumb"><img src="screenshots/capture.png" alt="Mobile capture screens"></div><h3>Mobile · daily update capture</h3><p class="small muted">Location and task, guided photos, worker claim, offline queue and sync states.</p><span class="from">New</span></a>
+    <a class="card screen-card" href="result.html"><div class="shot-thumb"><img src="screenshots/result.png" alt="Mobile result screens"></div><h3>Mobile · submission result</h3><p class="small muted">What was checked, what's needed, what wasn't covered.</p><span class="from">New</span></a>
+    <a class="card screen-card" href="setup.html"><div class="shot-thumb"><img src="screenshots/setup.png" alt="Project setup screen"></div><h3>Project setup</h3><p class="small muted">Approved revisions, check catalog with release state, model review, work packages.</p><span class="from">New</span></a>
+    <a class="card screen-card" href="components.html"><div class="shot-thumb"><img src="screenshots/components.png" alt="Component reference"></div><h3>Component reference</h3><p class="small muted">Status vocabulary, honesty labels, decision actions, retired patterns, tokens.</p><span class="from">Replaces: Unified component reference guide</span></a>
+  </section>
+</main>
+</body>
+</html>

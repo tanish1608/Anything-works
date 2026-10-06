@@ -13,6 +13,10 @@ For teammates, continue with the [product specification](PRODUCT_SPEC.md), [buil
 - [Repository guidance](../CLAUDE.md): implementation invariants.
 - [Sample data](../samples/README.md): source attribution and existing evaluation data.
 
+## Design
+
+- [UI mockups](design/ui/README.md): static screens for the daily-update workflow (P0.3 draft), reworked from the earlier Stitch export. Design only; not wired to the application.
+
 ## Research
 
 - [Construction pain research — October 5, 2026](CONSTRUCTION_PAIN_RESEARCH_2026-10-05.md)
