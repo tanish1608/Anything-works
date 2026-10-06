@@ -28,6 +28,9 @@ const model = JSON.parse(
 const apartment = JSON.parse(
   readFileSync("public/bim-schependomlaan/model.json", "utf8"),
 ) as ModelDataset;
+const clinic = JSON.parse(
+  readFileSync("public/bim-clinic/model.json", "utf8"),
+) as ModelDataset;
 const scene = vi.hoisted(() => ({
   mount: vi.fn(),
   dispose: vi.fn(),
@@ -37,11 +40,11 @@ vi.mock("../viewer/modelData", async (original) => ({
   ...(await original<typeof import("../viewer/modelData")>()),
   loadDemoModel: async () => model,
   loadPublicProject: async (id: string) =>
-    id === "duplex" ? model : apartment,
+    id === "duplex" ? model : id === "clinic" ? clinic : apartment,
 }));
 vi.mock("../workspace/photoInput", () => ({
   readPhoto: async (file: File) => ({
-    id: "uploaded-photo",
+    id: file.name === "field-photo.jpg" ? "uploaded-photo" : file.name,
     url: "data:image/jpeg;base64,dGVzdA==",
     sample: false,
     name: file.name,
@@ -824,3 +827,62 @@ it("keeps scene colors and pins stable while writing a daily-update draft", asyn
   expect(scene.last!.markers).toBe(markers);
   expect(saved().draft?.note).toBe("Finished the connection.");
 });
+
+
+it("walks the duct-blocking-panel report through manual PM assignment, crew correction and explicit review on a real clinic source component", async () => {
+  const duct = clinic.elements.find((e) => e.id === "35e450d9-72b7-5280-9247-b941e0d03b1e")!;
+  expect(duct.discipline).toBe("hvac");
+  const planned = plannedComponent(clinic, duct.id, "Duct blocks panel installation", "HVAC crew");
+  const key = projectStorageKey(clinic);
+  localStorage.setItem(key, JSON.stringify({ ...initialProjectState(clinic), items: [planned] }));
+  const originalBounds = [...duct.bbox!];
+  renderAt(`/?project=clinic&panel=capture&work=${planned.id}`);
+  await ready();
+  await addEvidence();
+  await userEvent.clear(screen.getByLabelText("What changed?"));
+  await userEvent.type(screen.getByLabelText("What changed?"), "Panel installer reports: duct is not well installed; I cannot install the panel.");
+  await userEvent.click(screen.getByRole("button", { name: "Submit for review" }));
+  const read = () => JSON.parse(localStorage.getItem(key)!) as WorkspaceState;
+  expect(read().items[0].status).toBe("review");
+  expect(read().events[0].text).toContain("cannot install the panel");
+  expect(read().assessmentJobs![0].modelVersion).toBe(clinic.version);
+  expect(scene.last!.focus!.elements).toContain(duct.id);
+
+  await userEvent.click(screen.getByRole("button", { name: "Confirm an issue" }));
+  await userEvent.clear(screen.getByLabelText("Assignee"));
+  await userEvent.type(screen.getByLabelText("Assignee"), "HVAC crew");
+  fireEvent.change(screen.getByLabelText("Due date"), { target: { value: "2026-10-08" } });
+  await userEvent.type(screen.getByLabelText("Decision reason"), "Adjust duct clearance, submit overview and close-up; panel crew waits for PM recheck.");
+  await userEvent.click(screen.getByRole("button", { name: "Save decision" }));
+  const issue = read().items[0].issue;
+  expect(read().items[0]).toMatchObject({ status: "issue", owner: "HVAC crew", due: "2026-10-08", correction: false });
+  expect(scene.last!.colors.get(duct.id)).toBe(COLORS.issue);
+  expect(screen.queryByRole("button", { name: "Accept correction & resolve" })).not.toBeInTheDocument();
+
+  await menu("Project context");
+  await userEvent.selectOptions(screen.getByLabelText("Preview user experience"), "subcontractor");
+  await userEvent.click(screen.getByRole("button", { name: "New update" }));
+  await userEvent.click(screen.getByLabelText("I confirm this is the correct work location."));
+  await userEvent.upload(screen.getByLabelText("Upload evidence photos"), new File(["correction"], "duct-correction.jpg", { type: "image/jpeg" }));
+  await userEvent.type(screen.getByLabelText("What changed?"), "Duct adjusted; panel crew must verify installation can continue.");
+  await userEvent.click(screen.getByRole("button", { name: "Submit for review" }));
+  expect(read().items[0]).toMatchObject({ issue, status: "issue", correction: true });
+  expect(scene.last!.colors.get(duct.id)).toBe(COLORS.issue);
+  expect(screen.getByRole("img", { name: "duct-correction.jpg" })).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Accept correction & resolve" })).not.toBeInTheDocument();
+
+  await userEvent.click(screen.getByRole("button", { name: "Return to PM" }));
+  await userEvent.click(screen.getByRole("button", { name: `Model pin ${planned.id}` }));
+  await userEvent.click(screen.getByRole("button", { name: "Accept correction & resolve" }));
+  await userEvent.type(screen.getByLabelText("Decision reason"), "Reviewed correction and confirmed clearance. Panel installation still requires its own evidence.");
+  await userEvent.click(screen.getByRole("button", { name: "Save decision" }));
+  expect(read().items[0]).toMatchObject({ status: "human", inspection: "Not recorded" });
+  expect(read().items[0].issue).toBeUndefined();
+  expect(read().items[0].photos.map((p) => p.name)).toEqual(["field-photo.jpg", "duct-correction.jpg"]);
+  expect(read().events.some((e) => e.text.includes("panel crew waits"))).toBe(true);
+  expect(scene.last!.colors.get(duct.id)).toBe(COLORS.human);
+  expect(scene.last!.data).toBe(clinic);
+  expect(duct.bbox).toEqual(originalBounds);
+  expect(scene.mount).toHaveBeenCalledTimes(1);
+  expect(globalThis.fetch).not.toHaveBeenCalled(); // A local role preview is not a two-device handoff.
+}, 15000);

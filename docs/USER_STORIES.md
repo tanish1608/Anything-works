@@ -67,12 +67,17 @@ For a private project, the current issues panel states that field records are no
 - Empty source projects explain how to create planned work. Empty Attention offers All work rather than suggesting there are no tracked records. Empty private records expose the integration boundary rather than declaring the site clear.
 - The clinic's explicit building/floor aliases and Esplan's survey-coordinate precision fix preserve source identity/geometry. Both additions have reproducible source manifests and import audits; neither ships invented field progress or unit numbers.
 
+## Story 4 — a duct blocks the panel installer
+
+The user-supplied slide is now assessed in [the tested duct-blocker story](DUCT_BLOCKER_STORY_TEST.md). The manual PM → HVAC correction → PM review loop is exercised on an actual clinic source component in DOM tests, and retained backend assignment/evidence/status handoff is tested separately. Cross-trade reporting and a linked panel-task blocker are not delivered. The assessment records a fixed backend warning-count bug, capability boundaries and the next two-crew acceptance.
+
 ## Highest-value gaps to cover next
 
 | Priority | Missing connection / inefficiency | Concrete acceptance |
 |---|---|---|
 | P0 | Real crew update → chosen PM evidence queue → crew correction response | Two authenticated users on separate devices complete the same issue/correction journey, with server IDs and real actor history |
 | P0 | Reliable account-scoped phone capture/offline recovery | Camera/gallery failures, reload, network timeout, duplicate retry, logout/account change and revision conflicts preserve evidence without leaking or duplicating it |
+| P0 | Cross-trade blocker with separate reporter/fixer and downstream task | Panel crew reports against its task/location; PM links a duct issue to HVAC; correction review resumes panel work without marking it complete |
 | P0 | Work and evidence setup before crews start | PM defines a trade/location package and required views once; crew sees that assigned work without re-entering project/owner data |
 | P1 | One daily update can cover several supported work items | Each selected item gets its own supported/unsupported/insufficient outcome; one visible component cannot complete an entire room |
 | P1 | Reviewed import federation and room reconciliation | Show source units, file origins, building/floor aliases and duplicate-space candidates; mappings require review and affected old progress reopens |

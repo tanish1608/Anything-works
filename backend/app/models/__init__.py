@@ -304,7 +304,9 @@ class IssueStatus(enum.StrEnum):
     closed = "closed"
 
 
-OPEN_ISSUE_STATUSES = (IssueStatus.open, IssueStatus.in_progress)
+# A subcontractor's resolved claim still awaits explicit closure/review.
+# Keep the model warning until the issue is actually closed.
+OPEN_ISSUE_STATUSES = (IssueStatus.open, IssueStatus.in_progress, IssueStatus.resolved)
 
 
 class Priority(enum.StrEnum):

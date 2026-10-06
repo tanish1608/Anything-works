@@ -50,6 +50,10 @@ See [the client demo walkthrough](docs/CLIENT_DEMO.md) for current capability bo
 
 ### Next integration priorities from the stories
 
+- [x] Test the [duct-blocks-panel story](docs/DUCT_BLOCKER_STORY_TEST.md): local PM/crew/correction/review on an actual clinic component, plus retained API assignment/evidence/notifications and cross-trade scope boundary. Keep backend warnings until explicit issue closure.
+- [ ] Add scoped cross-trade obstruction reports and linked blocked work, preserving reporter, correcting crew and affected task owner separately. Acceptance: HVAC correction/review resumes the panel task with reporter confirmation/notification; it never completes panel installation.
+- [ ] Enforce fresh correction evidence/review requirements on connected issue closure, including original-reporter permissions; do not rely solely on UI gates.
+
 - [ ] Connect authenticated crew uploads to the chosen PM queue and return correction requests to the actual assignee. Acceptance: two accounts on separate devices complete one traceable issue journey with server IDs and real actors.
 - [ ] Define reusable trade/location work packages and required capture views before crews begin. Avoid asking crews to recreate title/owner/context on each daily update.
 - [ ] Support one update covering multiple work items, with outcomes/evidence scoped per item; a single photo cannot complete an entire room.

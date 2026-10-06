@@ -5,7 +5,7 @@ from app.models import OPEN_ISSUE_STATUSES, Issue, ProjectMember, Role
 
 
 def open_issue_counts(db: Session, project_id: str) -> dict[str, int]:
-    """element_id -> number of open (open/in progress) issues. Drives the red status color."""
+    """element_id -> number of unclosed (including resolved awaiting closure) issues. Drives the red status color."""
     rows = db.execute(select(Issue.element_id, func.count()).where(
         Issue.project_id == project_id, Issue.element_id.is_not(None), Issue.status.in_(OPEN_ISSUE_STATUSES))
         .group_by(Issue.element_id)).all()

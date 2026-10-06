@@ -50,6 +50,8 @@ The building is the main workspace. Use one renderer per selected project, with 
 
 ## Client-demo preparation
 
+- [x] Test the supplied [duct-blocker story](DUCT_BLOCKER_STORY_TEST.md); record cross-trade/dependency gaps and preserve backend warning counts until final closure. Latest verification: 122 frontend tests, 14 issue/progress/model-workflow backend tests, production build and Ruff pass.
+
 - [x] Write a concrete walkthrough, capability boundaries, rehearsal checklist and pilot priorities in [CLIENT_DEMO.md](CLIENT_DEMO.md).
 - [x] Keep private API responses out of shared URL-keyed service-worker caches; clear historical API/model caches on session changes.
 - [ ] Rehearse a browser-rendered IFC upload and correction journey with a teammate on the intended backend/devices.
@@ -61,7 +63,7 @@ The building is the main workspace. Use one renderer per selected project, with 
 
 Verified October 6, 2026:
 
-- Frontend DOM/CPU checks: **121 passing tests**; production compilation succeeds. Showroom browsing/paging/open/cancel, source interiors, authorized previews, motion handling, defaults/empty states and precise source bounds/picking are covered.
+- Frontend DOM/CPU checks: **122 passing tests**; production compilation succeeds. Showroom browsing/paging/open/cancel, source interiors, authorized previews, motion handling, defaults/empty states and precise source bounds/picking are covered.
 - Targeted backend model/detail/project/seed checks: **22 passing tests**, including reviewed floor aliases and centimetre detail at large survey coordinates. Clinic and Esplan were imported/exported through the real IFC CLI in isolated database/storage. The earlier apartment API upload acceptance remains recorded in its sample report; that long API test was not rerun in this pass. New samples' browser-upload/physical-device acceptance remains open.
 - Disposable SQLite migration upgrade/downgrade/upgrade passes. The local development database was backed up and upgraded to `0008`; no project reset was performed. PostgreSQL migration execution was not tested in this session.
 - Ruff passes on modified backend code/tests. Active iteration files have no frontend lint warnings; retained legacy warnings remain.
