@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Icon } from "../studio/Icon";
 import Agent from "./Agent";
+import AgentIsle from "./AgentIsle";
 import {
   loadDemoModel,
   loadPublicProject,
@@ -52,7 +53,6 @@ const TITLES: Record<Panel, string> = {
 };
 export default function Workspace() {
   const location = useLocation();
-  const location = useLocation();
   const requested = new URLSearchParams(location.search).get("project");
   const project: PublicProjectId =
     PUBLIC_PROJECTS.find((p) => p.id === requested)?.id || "duplex";
@@ -81,6 +81,7 @@ export default function Workspace() {
   }, [project, retry]);
   const errorMessage =
     error?.project === project && error.retry === retry ? error.message : "";
+  if (location.pathname === "/agent") return <Agent />;
   if (!loaded || loaded.project !== project)
     return (
       <div className="world-loading">
@@ -397,13 +398,13 @@ function BuildingWorkspace({
           <button
             className="world-brand"
             onClick={overview}
-            aria-label="Everything Works AI — building overview"
+            aria-label="Placeholder AI — building overview"
           >
             <span>
               <Icon name="cube" size={24} />
             </span>
             <b>
-              Everything Works <em>AI</em>
+              Placeholder <em>AI</em>
             </b>
           </button>
           <div className="world-project-title">
@@ -502,6 +503,12 @@ function BuildingWorkspace({
             </details>
           </div>
         </header>
+        <AgentIsle page={panel || "overview"} label={panel ? TITLES[panel] : "Building overview"}
+          displayContext={JSON.stringify({ provenance: "browser-local sample; not authenticated project evidence",
+            sampleProject: state.projectName, modelRevision: model.version,
+            selectedWork: work ? { id: work.id, title: work.title, trade: work.trade, status: work.status,
+              update: work.update, issue: work.issue, scope: work.scope, limits: work.limits } : null,
+            selectedComponent: element, level, unit, room, date: validDate }).slice(0, 6000)} />
         <main
           id="workspace-main"
           className={`world-stage ${panel ? "has-panel" : ""}`}

@@ -191,3 +191,14 @@ Manager approvals bind to the exact proposed action, revision and evidence snaps
 6. Demo size is resolved: at least two people, one PM and one worker. Broader rollout workload and performance targets remain deferred; no multi-service infrastructure is required just to illustrate that future path.
 
 See [architecture](../../../docs/architecture.md), [framework decision](../../../docs/decisions/0001-placeholder-agent-harness.md), [draft OpenAPI](../../../contracts/openapi.yaml) and [tasks](../../../docs/TASKS.md).
+
+### Agent Isle — contextual assistance in iteration 2
+
+User-confirmed placement: a chatbot component at the top of the existing building workspace, available while contextual panels and the same model remain mounted.
+
+1. Keep `codex/design-iteration-2` building/camera/panel behavior. Opening or closing Agent Isle must not replace/remount the building or lose selection.
+2. Show the current panel, selected work/component and local sample provenance. Sending requires real authentication and an explicitly selected authorized server project. Browser-local canvas data is untrusted context, never certified evidence or a silently matched database project.
+3. A bounded read-only chat request includes the question, page, display context and at most eight recent session turns. Server retrieval includes at most 25 authorized current model components and 20 visible issues; apply visibility before limits and revalidate scope/source snapshots after inference. Label partial coverage; never infer complete project totals, physical completion or assignment authority.
+4. Validate provider citations against server-supplied source keys and construct public references server-side. Unknown/duplicate citations, malformed responses or provider failures expose an unavailable result. No model tools, arbitrary URL retrieval or progress/assignment/message writes are allowed.
+5. Echo an input revision; discard late replies after identity, project or page/context changes. Clear conversation on sign-out/project/context change. Conversation memory is session-only for this slice; no durable chat-memory claim.
+6. Expand/collapse, connect/sign-in, send, suggested follow-up, clear, sign-out and context navigation controls have visible outcomes and meaningful handler tests. Browser tests must distinguish local UI checks from optional real-provider acceptance.

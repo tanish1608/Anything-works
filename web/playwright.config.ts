@@ -5,11 +5,11 @@ export default defineConfig({
   testDir: 'e2e',
   testIgnore: '**/legacy/**',
   timeout: 60_000,
-  use: { baseURL: 'http://localhost:5174', screenshot: 'only-on-failure' },
+  use: { baseURL: 'http://127.0.0.1:5174', screenshot: 'only-on-failure' },
   outputDir: 'e2e/.results',
   webServer: {
-    command: 'npx vite --port 5174 --strictPort',
-    url: 'http://localhost:5174',
-    reuseExistingServer: false,
+    command: 'npx vite --host 127.0.0.1 --port 5174 --strictPort',
+    url: 'http://127.0.0.1:5174',
+    reuseExistingServer: !process.env.CI,
   },
 })

@@ -9,10 +9,10 @@ from app.main import app
 CONTRACT = yaml.safe_load((Path(__file__).resolve().parents[2] / "contracts/openapi.yaml").read_text())
 IMPLEMENTED = {"listAgentRuns", "createAgentRun", "getAgentRun", "cancelAgentRun", "decideAgentAction",
                "suggestAgentInput", "getAgentDailySummary", "refreshAgentDailySummary", "createAgentVoice",
-               "getAgentVoice", "correctAgentVoice", "getAgentVoiceFile", "listAgentVoice"}
+               "getAgentVoice", "correctAgentVoice", "getAgentVoiceFile", "listAgentVoice", "answerAgentChat"}
 SCHEMAS = {"RunCreate", "Run", "CheckResult", "SourceRef", "ProposedAction", "DecisionCreate", "Decision", "Error",
            "SuggestionCreate", "Suggestion", "SuggestionResult", "SummaryStatement", "DailySummary", "SummaryRefresh",
-           "VoiceCreate", "VoiceCorrection", "VoiceNote"}
+           "VoiceCreate", "VoiceCorrection", "VoiceNote", "ChatTurn", "ChatCreate", "ChatResult"}
 
 
 def normalize(value):

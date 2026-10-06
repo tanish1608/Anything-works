@@ -26,7 +26,7 @@ class StrictModel(BaseModel):
 
 
 class SourceRef(StrictModel):
-    kind: Literal["drawing", "specification", "approved_change", "model", "event"]
+    kind: Literal["drawing", "specification", "approved_change", "model", "event", "issue"]
     id: str
     revision: str
     locator: str | None
@@ -194,3 +194,25 @@ class VoiceNote(StrictModel):
     model: str | None
     original_url: str
     error: Error | None
+
+
+class ChatTurn(StrictModel):
+    role: Literal["user", "assistant"]
+    text: str = Field(min_length=1, max_length=2000)
+
+
+class ChatCreate(StrictModel):
+    input_revision: str = Field(min_length=1, max_length=128)
+    message: str = Field(min_length=1, max_length=2000)
+    page: Literal["overview", "summary", "record", "issues", "activity", "team", "project", "capture", "component", "locations"]
+    display_context: str = Field(default="", max_length=6000)
+    history: list[ChatTurn] = Field(default_factory=list, max_length=8)
+
+
+class ChatResult(StrictModel):
+    input_revision: str = Field(min_length=1, max_length=128)
+    status: Literal["available", "unavailable"]
+    message: str = Field(min_length=1, max_length=4000)
+    sources: list[SourceRef] = Field(max_length=12)
+    suggested_questions: list[Annotated[str, Field(min_length=1, max_length=200)]] = Field(max_length=3)
+    partial_context: bool

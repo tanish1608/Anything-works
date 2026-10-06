@@ -456,6 +456,50 @@ paths:
         '404': *id003
         '409': *id004
         '422': *id005
+  /projects/{project_id}/agent/chat:
+    post:
+      operationId: answerAgentChat
+      summary: Answer a contextual question without changing project records
+      description: Authenticated read-only assistance. Display context/history are untrusted
+        browser-local data. Retrieve at most 25 authorized current components and 20
+        visible issues, scoped before limits. Validate server-owned citations and source/scope
+        freshness after inference. No tools, writes, URLs or durable chat memory. Partial
+        coverage is explicit.
+      tags:
+      - Agent
+      x-implementation-status: implemented
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatCreate'
+      responses:
+        '200':
+          description: Scoped answer or explained unavailable result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResult'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Invalid'
+        '429':
+          $ref: '#/components/responses/Limited'
 components:
   securitySchemes:
     bearerAuth:
@@ -490,6 +534,7 @@ components:
           - approved_change
           - model
           - event
+          - issue
         id: &id010
           type: string
         revision: *id010
@@ -917,6 +962,98 @@ components:
           - unsupported_check
           - analysis_failed
         message: *id010
+    ChatTurn:
+      type: object
+      additionalProperties: false
+      required:
+      - role
+      - text
+      properties:
+        role:
+          type: string
+          enum:
+          - user
+          - assistant
+        text:
+          type: string
+          minLength: 1
+          maxLength: 2000
+    ChatCreate:
+      type: object
+      additionalProperties: false
+      required:
+      - input_revision
+      - message
+      - page
+      properties:
+        input_revision:
+          type: string
+          minLength: 1
+          maxLength: 128
+        message:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        page:
+          type: string
+          enum:
+          - overview
+          - summary
+          - record
+          - issues
+          - activity
+          - team
+          - project
+          - capture
+          - component
+          - locations
+        display_context:
+          type: string
+          maxLength: 6000
+          default: ''
+        history:
+          type: array
+          maxItems: 8
+          items:
+            $ref: '#/components/schemas/ChatTurn'
+    ChatResult:
+      type: object
+      additionalProperties: false
+      required:
+      - input_revision
+      - status
+      - message
+      - sources
+      - suggested_questions
+      - partial_context
+      properties:
+        input_revision:
+          type: string
+          minLength: 1
+          maxLength: 128
+        status:
+          type: string
+          enum:
+          - available
+          - unavailable
+        message:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        sources:
+          type: array
+          maxItems: 12
+          items:
+            $ref: '#/components/schemas/SourceRef'
+        suggested_questions:
+          type: array
+          maxItems: 3
+          items:
+            type: string
+            minLength: 1
+            maxLength: 200
+        partial_context:
+          type: boolean
   responses:
     Forbidden:
       description: Project member lacks the required permission

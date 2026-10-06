@@ -6,6 +6,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 
 from app.agent.schemas import (
+    ChatCreate,
+    ChatResult,
     DailySummary,
     Decision,
     DecisionCreate,
@@ -39,7 +41,7 @@ def ts(schema):
 
 schemas = {}
 for model in (Run, RunCreate, Decision, DecisionCreate, SuggestionCreate, SuggestionResult, DailySummary,
-              SummaryRefresh, VoiceCreate, VoiceCorrection, VoiceNote):
+              SummaryRefresh, VoiceCreate, VoiceCorrection, VoiceNote, ChatCreate, ChatResult):
     schema = model.model_json_schema()
     schemas.update(schema.pop("$defs", {}))
     schemas[model.__name__] = schema

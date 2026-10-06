@@ -8,8 +8,10 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app import jobs
-from app.agent import helpers, service, voice
+from app.agent import chat, helpers, service, voice
 from app.agent.schemas import (
+    ChatCreate,
+    ChatResult,
     DailySummary,
     Decision,
     DecisionCreate,
@@ -160,3 +162,8 @@ _audio_content = {mime: {"schema": {"type": "string", "format": "binary"}} for m
 def voice_file(voice_id: UUIDString, user: User = Depends(current_user), db: Session = Depends(get_db)):
     note = voice.load(db, voice_id, user.id)
     return Response(content=voice.original(note), media_type=note.mime_type, headers={"X-Content-Type-Options": "nosniff"})
+
+
+@router.post("/projects/{project_id}/agent/chat", response_model=ChatResult, operation_id="answerAgentChat")
+def answer_chat(project_id: UUIDString, body: ChatCreate, user: User = Depends(current_user), db: Session = Depends(get_db)):
+    return chat.answer(db, project_id, user.id, body)
