@@ -30,5 +30,7 @@ export function AppRoutes() {
 }
 
 export default function App() {
+  // Temporary public testing workspace: no AuthProvider or sign-in gate.
+  // Restore scoped sign-in here when the chosen UI connects to private project APIs.
   return <BrowserRouter><AppRoutes /></BrowserRouter>
 }

@@ -19,6 +19,8 @@ Public routing lives in [App.tsx](src/App.tsx); workspace pages and aliases live
 
 The UI still uses public sample geometry, fictional work records and local storage. Saved records retain their existing keys across the URL change. Generated evidence and simulated checks stay labeled. Backend auth, import, offline queue and connected components remain in source for integration; their older screens are no longer public routes.
 
+Authentication is intentionally disabled on the website for testing; open any workspace page without signing in. Backend APIs retain authentication and project scope. The current UI is the PM sample view; customer, contractor/PM, subcontractor and worker experiences are planned in [TODO.md](../TODO.md). Restore scoped sign-in in this interface when connecting private project data.
+
 ## Run and check
 
 From `web/`:

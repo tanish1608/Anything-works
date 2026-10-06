@@ -31,6 +31,8 @@ The 3D model helps people find and understand the work. AI helps interpret the u
 
 Our initial customer hypothesis is US residential and multifamily general contractors and developer-builders. The product direction includes structure, MEP, interiors and closeout; individual checks will be introduced and validated in stages.
 
+The planned interface serves customers/clients, contractors/project managers, subcontractor leads and field crews through different views of the same project and building model. Their visibility and actions will follow project roles; see the [user-view backlog](TODO.md). The current website is a PM-oriented local testing experience with sign-in disabled.
+
 ## Example
 
 A crew submits three updates: framing in one room, electrical installation in another, and painting in a third. The system may find a possible placement mismatch, request a missing close-up, and mark an adequately evidenced painting task AI-checked complete. Each result appears at the correct location, with the source evidence and the checks actually performed.

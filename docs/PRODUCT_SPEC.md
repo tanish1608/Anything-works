@@ -1,6 +1,6 @@
 # Product specification — Everything Works AI
 
-Status: target product, not a list of shipped features. Updated October 5, 2026.
+Status: target product, not a list of shipped features. Updated October 6, 2026 with the planned user views.
 
 ## 1. Product definition
 
@@ -16,6 +16,7 @@ The long-term dream is an agentic construction operating system. The current pro
 
 | Person | Needs | Product responsibility |
 |---|---|---|
+| Customer / client / homeowner | Understand shared project progress and decisions without managing crews | Simple customer summary, shared milestones/evidence and read-only model context; questions and explicitly requested customer decisions |
 | Worker / foreman | Submit work once and understand follow-up requests | Fast mobile capture, clear location, minimal typing, visible sync state |
 | Trade lead | Know what is incomplete or needs correction | Assigned findings with exact context, due dates and correction evidence |
 | Superintendent / PM | Understand actual progress and concentrate review effort | Exception inbox, evidence comparison, visible coverage and accepted corrections |
@@ -23,6 +24,8 @@ The long-term dream is an agentic construction operating system. The current pro
 | Inspector / specialist | Access relevant records without confusing AI with approval | Read-only evidence and separately recorded formal decisions |
 
 Initial buyer hypothesis: US residential and multifamily GCs or developer-builders. Confirm the buyer, daily user and party bearing rework costs through interviews.
+
+These users receive different views of the same project, model and recorded progress. Customer access does not imply administrative project ownership; trade/worker access follows assigned locations and work. The [role-view backlog](../TODO.md) defines the planned surfaces and permission work. The current website is the PM sample view with sign-in disabled for local testing; the separate user views are not shipped yet.
 
 ## 3. Product boundaries
 

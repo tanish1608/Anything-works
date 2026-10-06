@@ -1,16 +1,30 @@
 # Implementation backlog — Everything Works AI
 
-Updated October 6, 2026 after the designer UI and detailed BIM work. Checked items identify completed work and explicitly state when it is limited to a test/demo. Unchecked items remain open; existing foundations and verification limits are in [STATUS.md](STATUS.md).
+Updated October 6, 2026 after choosing the main website, confirming sign-in-free testing and planning user-specific views. Checked items identify completed work and explicitly state when it is limited to local samples or retained components. Unchecked items remain open; existing foundations and verification limits are in [STATUS.md](STATUS.md).
 
 Product scope: AI checking daily updates across construction stages, identifying mistakes and incomplete work, and updating completion and issues in 3D. Before-drywall checking is one use case.
 
 Owners are suggested contributor roles, not assignments. Each package needs a named owner when coding begins. Requirements R1–R10 are defined in the [product specification](docs/PRODUCT_SPEC.md).
 
+## Current testing setup and next priorities
+
+The chosen website is `/`, with Home, Work & Issues, Building, Logs, People, Setup and capture. Authentication is disabled for this browser-local testing experience: no account, token or sign-in is required. The current view uses a sample PM identity and public model. Backend APIs retain their existing authentication and project permissions; the website does not bypass them or load private projects anonymously.
+
+- [x] Open the root website and its pages without an authentication provider or sign-in gate; redirect the retired `/login` URL to Home.
+- [x] Preserve saved browser records when moving from `/demo` to root URLs.
+- [ ] Build and review the customer, contractor/PM and subcontractor views described below; keep PM as the default testing view until then.
+- [ ] Connect real project creation/selection, import/review and work records inside this chosen UI. Retained backend components are foundations, not active website screens.
+- [ ] Replace the sample PM identity with the signed-in project member when connected; record the actual actor on decisions, uploads and history.
+- [ ] Restore sign-in, invitations and server-enforced project/role scopes in this UI before enabling real multi-user project data; keep any sample-only preview explicitly separate from private records.
+- [ ] Connect traceable assessment jobs after persisted evidence, reference revisions, review and correction workflows are working.
+
+Suggested order: role/view design → project storage and approved-model onboarding → capture/review/correction persistence → scoped user access → assessment integration → field/device acceptance. Role screens are still planned; the existing website is the shared PM testing experience.
+
 ## Completed in the designer implementation
 
 - [x] Implement Home, Work & Issues, review, correction, Building, Logs, People, Setup, capture and result screens in React; now the main website at `/`.
 - [x] Apply the designer's typography, colors and navigation; bundle fonts and supplied sample images locally.
-- [x] Add an authenticated Home overview at `/p/:pid/home` (legacy `/today` redirects) using existing authorized API records.
+- [x] Implement retained connected Home components using authorized API records; their former `/p/:pid/home` route is retired from the public website.
 - [x] Verify the redesigned frontend with 76 passing tests, production compilation and lint completion with warnings. Tests use mocked APIs and a stubbed 3D renderer; browser/device verification remains open.
 - [x] Document routes, interactions, fixture boundaries and implementation files in [the implementation guide](docs/design/ui/IMPLEMENTATION.md).
 
@@ -75,6 +89,32 @@ The detailed completed demo interactions are checked in the packages below. No p
 - [x] Split the frontend inspection routes and 3D engine into separate bundles; the production build no longer reports an oversized main bundle.
 - [ ] Resolve the remaining route-menu reset and WebGL-fallback lint warnings.
 
+## Role-specific user views — planned, not implemented
+
+Use one project, one model revision and the same work/evidence records, with different summaries, navigation and permitted actions. A role view filters the shared model and pins; it must not create a different building or a second progress history.
+
+| User | Home and main views | Intended actions and scope |
+|---|---|---|
+| Customer / client / homeowner | Simple project summary, shared milestones, approved photos, shared issues and a read-only building/progress view | Read project information explicitly shared with the customer; ask questions and make customer decisions only when requested. No internal review queue, team administration, private contractor notes or installation approval. |
+| General contractor / project manager / superintendent | Current Home layout: project summary, full building with work pins, exceptions, Logs and People; project/model setup where permitted | Plan and assign work, review evidence, request corrections, accept or reject proposals, explicitly resolve issues and approve design baselines where authorized. Contractor business administration is separate from day-to-day PM review. |
+| Subcontractor / trade lead | Assigned trade work, affected rooms/floors, due corrections, relevant plans, own-team updates and progress | Submit evidence, coordinate the assigned crew and respond to findings within assigned trade/location scope. No cross-trade approval, unrelated commercial data, membership administration or baseline release. |
+| Field worker / crew member | Mobile-first assigned tasks, reference/location confirmation, capture, drafts, queue status and follow-up requests | Upload photos/notes and correction evidence for assigned work; see whether an update is queued, received or awaiting review. No project administration or approval actions. |
+| Invited architect / engineer / inspector — later | Relevant drawings, assigned technical questions, inspection/evidence context and a scoped model | Comment or record a technical/formal decision only within the granted scope. AI results remain distinct from an authoritative inspection record. |
+| Company / project administrator — later | Projects, invitations, teams, role/location scope and settings | Manage access and configuration explicitly granted to the administrator; do not implicitly grant construction acceptance authority. |
+
+- [ ] Agree on the initial role/action matrix and customer-visible fields with the team; ship customer, contractor/PM and subcontractor experiences first.
+- [ ] Design role-specific Home summaries and navigation; provide a compact field-worker mode rather than exposing the PM dashboard on a phone.
+- [ ] Reuse Building, Logs, People, capture and review components with role-aware projections; retain consistent pin selection, evidence links and completion provenance across views.
+- [ ] Define customer sharing/release controls, customer questions and requested decisions; identify which milestones and evidence are visible before sharing them.
+- [ ] Scope subcontractor and worker work lists, model components, plans, evidence and contacts by project membership, trade and assigned locations.
+- [ ] Distinguish client/customer access from the existing backend `owner` role. Existing roles are `owner`, `pm`, `trade` and `viewer`; design any new role/permission migrations explicitly rather than giving clients administrative owner permissions.
+- [ ] Add a sample-only role preview for teammate testing; changing the preview must not grant backend access, change geometry or fabricate a signed-in reviewer.
+- [ ] Connect role and identity selection to authorized project membership once authentication returns; preserve the chosen interface and root routes.
+- [ ] Enforce scopes in APIs and model/evidence/source-file access as well as in UI actions. Hiding a menu alone is not permission enforcement.
+- [ ] Verify allowed and denied actions, direct/deep links and shared-device behavior for every role; ensure no cross-project or cross-trade data leaks.
+
+**Done when:** each initial user can complete their own daily journey in the same project, all views agree on recorded progress, and the server enforces the documented scope when connected. A sample role preview alone does not complete this package.
+
 ## P0 — Define and prepare
 
 ### P0.1 Product and field examples — product + construction reviewer
@@ -112,7 +152,7 @@ The detailed completed demo interactions are checked in the packages below. No p
 
 Design references and screens awaiting team review: [docs/design/ui](docs/design/ui/README.md). Completed implementation tasks above do not close the package's usability acceptance.
 
-The designer screens now have an interactive React implementation at `/demo`; see [implementation notes](docs/design/ui/IMPLEMENTATION.md). Local review/correction/capture behavior and a real-data connected overview are available. Backend persistence, live checking, field validation and teammate review remain separate acceptance work.
+The designer screens now form the website at `/`; see [implementation notes](docs/design/ui/IMPLEMENTATION.md). Local review/correction/capture behavior is available. Retained connected components are available for integration into this UI. Backend persistence, live checking, role-specific views, field validation and teammate review remain separate acceptance work.
 
 ## P1 — Daily workflow
 
@@ -193,10 +233,10 @@ The designer screens now have an interactive React implementation at `/demo`; se
 
 ## P3 — 3D and corrections
 
-Detailed import results, viewer choice, reproduction steps and verification limits: [BIM audit](docs/BIM_AUDIT.md). `/bim-lab` uses the real imported duplex geometry; its progress/pins are local test records. The connected project uses actual authorized API persistence. Visual/device acceptance and live automatic AI completion remain open.
+Detailed import results, viewer choice, reproduction steps and verification limits: [BIM audit](docs/BIM_AUDIT.md). The website at `/building` uses the real imported duplex with local work/progress records. The retained detailed workbench and connected components are implementation foundations; `/bim-lab` now redirects to Building, and older connected routes are retired. Visual/device acceptance and live automatic AI completion remain open.
 
-- [x] Integrate the real BIM viewer as the default `/demo/building` view with shared navigation and a public-project identity; use the same model in Home and Logs; old illustrated-unit bookmarks open an unselected overview.
-- [x] Simplify the default Building page to a full-width canvas with floating Level, View and Layers controls; remove both inspection sidebars and switch 3D/2D through a corner preview. Preserve filters and the mounted renderer, support touch plan zoom and retain detailed authoring at `/bim-lab`.
+- [x] Integrate the real BIM viewer as the default `/building` view with shared navigation and a project identity; use the same model in Home and Logs; old illustrated-unit bookmarks open an unselected overview.
+- [x] Simplify the default Building page to a full-width canvas with floating Level, View and Layers controls; remove both inspection sidebars and switch 3D/2D through a corner preview. Preserve filters and the mounted renderer, support touch plan zoom and retain detailed authoring code for future integration.
 - [x] Default both imported and connected views to solid architecture with exterior walls/roof hidden; preserve shared/untagged walls, reveal selected shell components and offer restoration/transparency controls. Verify real source tags and API hints, including the roof slab's IFC predefined type.
 
 ### P3.0 Real-project import and viewer audit — backend + frontend
@@ -259,7 +299,7 @@ Detailed import results, viewer choice, reproduction steps and verification limi
 
 - [ ] Project persisted assessments and issues into viewer colors and badges.
 - [x] Add demo floor/unit selection, discipline layers, selected-unit evidence and approximate room-context pins; keep core records separate from apartments.
-- [ ] Connect viewer locations and pins to actual work-package/model associations, including uncertain matches.
+- [ ] Persist viewer locations and pins against real work-package/model associations, including uncertain matches; current sample work items already bind to source component IDs.
 - [x] Show fixture AI-checked versus human-accepted completion, issue color precedence and inspection separately.
 - [x] Show demo work-item coverage with its denominator; distinguish work counts from labor, cost and schedule percentages.
 - [x] Update the demo daily summary, lists, model colors and report from the same local records.
