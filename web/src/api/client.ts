@@ -68,6 +68,8 @@ async function refresh(): Promise<boolean> {
 async function errorMessage(r: Response): Promise<string> {
   try {
     const body = await r.json()
+    if (typeof body.message === 'string') return body.message
+    if (body.detail && typeof body.detail.message === 'string') return body.detail.message
     if (typeof body.detail === 'string') return body.detail
     if (Array.isArray(body.detail)) return body.detail.map((d: { msg: string }) => d.msg).join('; ')
   } catch {
@@ -83,7 +85,8 @@ export async function api<T = unknown>(path: string, init: RequestInit & { json?
     const t = tokenStore.get()
     if (t) headers.set('Authorization', `Bearer ${t.access_token}`)
     if (json !== undefined) headers.set('Content-Type', 'application/json')
-    return fetch(`/api${path}`, { ...rest, headers, body: json !== undefined ? JSON.stringify(json) : rest.body })
+    return fetch(`/api${path}`, { ...rest, cache: rest.cache ?? (t ? 'no-store' : 'default'), headers,
+      body: json !== undefined ? JSON.stringify(json) : rest.body })
   }
   let r = await doFetch()
   if (r.status === 401 && tokenStore.get() && (await refresh())) r = await doFetch()

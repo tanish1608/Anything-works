@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Icon } from "../studio/Icon";
+import Agent from "./Agent";
 import {
   loadDemoModel,
   loadPublicProject,
@@ -50,6 +51,7 @@ const TITLES: Record<Panel, string> = {
   locations: "Explore building",
 };
 export default function Workspace() {
+  const location = useLocation();
   const location = useLocation();
   const requested = new URLSearchParams(location.search).get("project");
   const project: PublicProjectId =

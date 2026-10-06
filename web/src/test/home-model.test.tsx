@@ -183,3 +183,25 @@ describe("minimal authorized Home model", () => {
     await waitFor(() => expect(mock.markers).toHaveBeenLastCalledWith([]));
   });
 });
+
+it("pins saved agent records to their model revision and links component selection", async () => {
+  const select = vi.fn(), selectElement = vi.fn();
+  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  element.bbox = [0, 2, 4, 2, 4, 6];
+  render(<QueryClientProvider client={qc}><MemoryRouter>
+    <ProjectModelContext projectId="p" issues={[]} selected={null} onSelect={select}
+      onElementSelect={selectElement} showNavigation={false}
+      records={[{ id: "run", modelVersionId: "v1", elementIds: ["pipe"] },
+        { id: "wrong-revision", modelVersionId: "v2", elementIds: ["pipe"] }]}
+      focus={{ id: "run", elements: ["pipe"], modelVersionId: "v1" }} focusToken={1} />
+  </MemoryRouter></QueryClientProvider>);
+  await waitFor(() => expect(mock.markers).toHaveBeenLastCalledWith([
+    { id: "run", elementId: "pipe", position: [1, 5, -3], color: "#1b3325" },
+  ]));
+  expect(mock.api).toHaveBeenCalledWith("/projects/p/viewer?version=v1");
+  expect(screen.queryByRole("link", { name: "Open model ↗" })).not.toBeInTheDocument();
+  act(() => mock.events.get("marker")!("run"));
+  expect(select).toHaveBeenCalledWith("run");
+  act(() => mock.events.get("select")!("pipe"));
+  expect(selectElement).toHaveBeenCalledWith("pipe");
+});

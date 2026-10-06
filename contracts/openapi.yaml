@@ -1,0 +1,956 @@
+openapi: 3.1.0
+info:
+  title: Placeholder AI Agent API
+  version: 0.1.0
+  description: Scoped agent additions against origin/main aa3692b. Assessment operations
+    are implemented in review-only mode; recorded voice, read-only suggestions and scoped daily briefings are implemented. Existing authentication, project, upload, drawing and progress
+    APIs remain unchanged and are not enumerated here. The runtime uses the existing provider adapter and durable database state; no LangGraph SDK is installed.
+servers:
+- url: /api
+security:
+- bearerAuth: []
+tags:
+- name: Agent
+  description: Review-only photo-assessment slice; follow-up, assignments and scan ingestion
+    need separate reviewed contracts.
+paths:
+  /projects/{project_id}/agent/runs:
+    get:
+      operationId: listAgentRuns
+      summary: List assessments visible to the current project member
+      description: Used by the PM review inbox and worker history. Apply current
+        project/trade/zone scope before limiting results; never expose private run context.
+      tags: [Agent]
+      x-implementation-status: implemented
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 50
+          minimum: 1
+          maximum: 100
+      responses:
+        '200':
+          description: Assessments ordered newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Run'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/Invalid'
+    post:
+      operationId: createAgentRun
+      summary: Queue a revision-bound assessment of a received photo update
+      description: Requires authorized upload scope and progress-upload permission.
+        The upload and model must belong to this project and its approved capture
+        baseline. Source revisions/check catalog are frozen server-side; clients cannot
+        supply tools, approval history or arbitrary reference URLs. First slice is
+        photo updates; voice/LiDAR asset intake is a later contract. Only one active
+        run per submission/policy/input snapshot; a new assessment is explicit and
+        may supersede an old one.
+        Execution uses application-owned prompts, bounded source context and hard
+        model/tool/time/usage limits. The first check is visible_component_presence in review-only mode. Approved drawing context
+        consists of immutable reviewed extraction primitives linked by SheetId/PlanId
+        to the approved converted model; this is not visual inspection of a raw DXF/PDF
+        sheet. Imported models without such approved drawing snapshots return explicit
+        insufficient evidence. Working state is persisted before review;
+        resumption rechecks current authorization and source revisions. The model
+        cannot change its workflow budget or authorize an action through memory.
+      tags:
+      - Agent
+      x-implementation-status: implemented
+      parameters:
+      - &id009
+        name: project_id
+        in: path
+        required: true
+        description: ''
+        schema: &id001
+          type: string
+          format: uuid
+      - &id008
+        name: Idempotency-Key
+        in: header
+        required: true
+        description: Scoped to actor, project, operation and target resource. Replay with the same
+          normalized body returns the original result; a different body yields 409.
+          A cancelled run is not restarted by replay.
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      responses:
+        '202':
+          description: Successful result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Run'
+        '401': &id002
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404': &id003
+          $ref: '#/components/responses/NotFound'
+        '409': &id004
+          $ref: '#/components/responses/Conflict'
+        '422': &id005
+          $ref: '#/components/responses/Invalid'
+        '429': &id006
+          $ref: '#/components/responses/Limited'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunCreate'
+  /agent/runs/{run_id}:
+    get:
+      operationId: getAgentRun
+      summary: Read authorized run state and public results
+      description: Recheck project/trade/zone and evidence scope. Unauthorized identifiers
+        return 404. No provider credentials or private model reasoning are returned.
+        Completed means assessment processing completed, not that all work passed
+        or actions were accepted.
+      tags:
+      - Agent
+      x-implementation-status: implemented
+      parameters:
+      - &id007
+        name: run_id
+        in: path
+        required: true
+        description: ''
+        schema: *id001
+      responses:
+        '200':
+          description: Successful result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Run'
+        '401': *id002
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404': *id003
+        '409': *id004
+        '422': *id005
+        '429': *id006
+  /agent/runs/{run_id}/cancel:
+    post:
+      operationId: cancelAgentRun
+      summary: Cancel pending execution
+      description: Authorized initiator or manager may cancel nonterminal execution.
+        Cancellation is rechecked before domain side effects. Repeated cancellation
+        returns the cancelled run; other terminal states yield 409. Previously applied
+        actions are not undone.
+      tags:
+      - Agent
+      x-implementation-status: implemented
+      parameters:
+      - *id007
+      - *id008
+      responses:
+        '200':
+          description: Successful result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Run'
+        '401': *id002
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404': *id003
+        '409': *id004
+        '422': *id005
+        '429': *id006
+  /agent/actions/{action_id}/decision:
+    post:
+      operationId: decideAgentAction
+      summary: Record a manager decision on an immutable proposed action
+      description: Owner/PM only. Load proposal from server storage and bind the decision
+        to its fingerprint and expected revision. Recheck project authorization, evidence,
+        newer submissions, model/source versions and policy before atomic application/event
+        recording. Invalid or superseded actions yield 409. Accepting a proposal cannot
+        create formal inspection approval or bypass evidence rules.
+      tags:
+      - Agent
+      x-implementation-status: implemented
+      parameters:
+      - name: action_id
+        in: path
+        required: true
+        description: ''
+        schema: *id001
+      - *id008
+      responses:
+        '200':
+          description: Successful result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Decision'
+        '401': *id002
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404': *id003
+        '409': *id004
+        '422': *id005
+        '429': *id006
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecisionCreate'
+  /projects/{project_id}/agent/suggestions:
+    post:
+      operationId: suggestAgentInput
+      summary: Return editable read-only suggestions
+      description: Scope all context to the actor and approved model. No side effects
+        or invented evidence. Echo input_revision; clients discard stale revisions.
+        Provider timeout returns unavailable and an empty suggestions array. Assignment
+        candidates are deferred to the qualified-member/calendar contract.
+      tags:
+      - Agent
+      x-implementation-status: implemented
+      parameters:
+      - *id009
+      responses:
+        '200':
+          description: Successful result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestionResult'
+        '401': *id002
+        '404': *id003
+        '409': *id004
+        '422': *id005
+        '429': *id006
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuggestionCreate'
+  /projects/{project_id}/agent/summary:
+    get:
+      operationId: getAgentDailySummary
+      summary: Read a persisted and cited daily summary
+      description: No generation on GET. Serve only a summary computed for the authorized
+        scope, selected date and validated IANA timezone; never filter the prose of
+        a broader privileged summary after generation. Missing summary returns unavailable
+        with empty statements. Stored summary freshness includes event/source watermarks.
+        Record capture and receipt times distinctly; partial history is explicit.
+      tags:
+      - Agent
+      x-implementation-status: implemented
+      parameters:
+      - *id009
+      - name: date
+        in: query
+        required: true
+        description: ''
+        schema:
+          type: string
+          format: date
+      - name: timezone
+        in: query
+        required: true
+        description: IANA timezone name, e.g. America/Los_Angeles.
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 100
+      responses:
+        '200':
+          description: Successful result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailySummary'
+        '401': *id002
+        '404': *id003
+        '409': *id004
+        '422': *id005
+        '429': *id006
+  /projects/{project_id}/agent/summary/refresh:
+    post:
+      operationId: refreshAgentDailySummary
+      summary: Generate and persist a cited summary for the caller's current scope
+      description: Explicit bounded generation from at most 100 eligible saved events.
+        Model selects/orders server-extracted facts; the server renders their statements.
+        No physical or labor completion percentage is inferred. Scope/source changes
+        during generation reject the result. GET summary never generates.
+      tags: [Agent]
+      x-implementation-status: implemented
+      parameters: [*id009]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SummaryRefresh'
+      responses:
+        '200':
+          description: Saved summary or explained provider-unavailable result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailySummary'
+        '401': *id002
+        '404': *id003
+        '409': *id004
+        '422': *id005
+        '429': *id006
+  /projects/{project_id}/agent/voice:
+    get:
+      operationId: listAgentVoice
+      summary: List saved recorded updates in the caller's current project/trade/zone scope
+      description: Filter authorized scope before limiting; newest received first.
+      tags: [Agent]
+      x-implementation-status: implemented
+      parameters:
+      - *id009
+      - name: limit
+        in: query
+        schema: {type: integer, default: 30, minimum: 1, maximum: 100}
+      responses:
+        '200':
+          description: Saved recordings including processing/failure states
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/VoiceNote'}
+        '401': *id002
+        '404': *id003
+        '422': *id005
+    post:
+      operationId: createAgentVoice
+      summary: Preserve a recorded update and queue transcription
+      description: Author must have progress-upload permission for the selected zone/trade.
+        Store original bytes independently of transcription. Supported WAV/MP3/M4A/Ogg/WebM
+        files are at most 8 MiB; base64 transport keeps the same contract for web/mobile.
+        Idempotency is scoped to actor/project; changed replay bodies conflict. Audio alone
+        does not claim or complete components. At most two total attempts are allowed,
+        including the initial attempt and one expired-lease recovery.
+      tags: [Agent]
+      x-implementation-status: implemented
+      parameters:
+      - *id009
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: {type: string, minLength: 1, maxLength: 128}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoiceCreate'
+      responses:
+        '202':
+          description: Persisted voice update; processing may already have finished
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoiceNote'
+        '401': *id002
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': *id003
+        '409': *id004
+        '422': *id005
+        '429': *id006
+  /agent/voice/{voice_id}:
+    get:
+      operationId: getAgentVoice
+      summary: Read an authorized transcript and processing state
+      tags: [Agent]
+      x-implementation-status: implemented
+      parameters:
+      - &voice_id
+        name: voice_id
+        in: path
+        required: true
+        schema: *id001
+      responses:
+        '200':
+          description: Current transcript with original text preserved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoiceNote'
+        '401': *id002
+        '404': *id003
+        '422': *id005
+    patch:
+      operationId: correctAgentVoice
+      summary: Author corrects the current transcript without erasing the original
+      description: Requires a completed transcript, current project/trade/zone authorization
+        and the original author. Apply expected_revision by compare-and-set; stale revisions
+        and non-completed states return 409. Preserve original audio and provider text.
+      tags: [Agent]
+      x-implementation-status: implemented
+      parameters: [*voice_id]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoiceCorrection'
+      responses:
+        '200':
+          description: Saved correction with incremented revision and audit event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoiceNote'
+        '401': *id002
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': *id003
+        '409': *id004
+        '422': *id005
+  /agent/voice/{voice_id}/file:
+    get:
+      operationId: getAgentVoiceFile
+      summary: Read original recorded bytes under current project scope
+      tags: [Agent]
+      x-implementation-status: implemented
+      parameters: [*voice_id]
+      responses:
+        '200':
+          description: Original audio with its validated MIME type; no public storage URL
+          content:
+            application/octet-stream:
+              schema: {type: string, format: binary}
+            audio/wav:
+              schema: {type: string, format: binary}
+            audio/mpeg:
+              schema: {type: string, format: binary}
+            audio/m4a:
+              schema: {type: string, format: binary}
+            audio/mp4:
+              schema: {type: string, format: binary}
+            audio/ogg:
+              schema: {type: string, format: binary}
+            audio/webm:
+              schema: {type: string, format: binary}
+        '401': *id002
+        '404': *id003
+        '409': *id004
+        '422': *id005
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    RunCreate:
+      type: object
+      additionalProperties: false
+      required:
+      - upload_id
+      - model_version_id
+      properties:
+        upload_id: *id001
+        model_version_id: *id001
+    SourceRef:
+      type: object
+      additionalProperties: false
+      required:
+      - kind
+      - id
+      - revision
+      - locator
+      - sha256
+      properties:
+        kind:
+          type: string
+          enum:
+          - drawing
+          - specification
+          - approved_change
+          - model
+          - event
+        id: &id010
+          type: string
+        revision: *id010
+        locator:
+          type:
+          - string
+          - 'null'
+          description: Sheet/page/detail/component identifier, not a model-supplied
+            arbitrary URL.
+        sha256:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+    CheckResult:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - check_code
+      - check_version
+      - element_ids
+      - outcome
+      - observation
+      - evidence_ids
+      - sources
+      - limitations
+      - completion_eligible
+      properties:
+        id: *id001
+        check_code: *id010
+        check_version: *id010
+        element_ids:
+          type: array
+          items: *id001
+          minItems: 1
+          uniqueItems: true
+        outcome:
+          type: string
+          enum:
+          - pass
+          - potential_discrepancy
+          - insufficient_evidence
+          - unsupported
+          - failed
+        observation: *id010
+        evidence_ids:
+          type: array
+          items: *id001
+          uniqueItems: true
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/SourceRef'
+        limitations:
+          type: array
+          items: *id010
+        completion_eligible:
+          type: boolean
+          description: Computed by server policy, never taken from a model confidence
+            field.
+    ProposedAction:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - kind
+      - status
+      - expected_revision
+      - fingerprint
+      - check_ids
+      - element_ids
+      - description
+      - requires_review
+      properties:
+        id: *id001
+        kind:
+          type: string
+          enum:
+          - record_progress
+          - request_evidence
+          - open_review
+        status:
+          type: string
+          enum:
+          - proposed
+          - applied
+          - rejected
+          - superseded
+          - failed
+        expected_revision:
+          type: integer
+          minimum: 0
+        fingerprint:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        check_ids:
+          type: array
+          items: *id001
+          minItems: 1
+          uniqueItems: true
+        element_ids:
+          type: array
+          items: *id001
+          minItems: 1
+          uniqueItems: true
+        description: *id010
+        requires_review:
+          type: boolean
+    Run:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - project_id
+      - upload_id
+      - model_version_id
+      - status
+      - created_at
+      - updated_at
+      - policy_version
+      - prompt_version
+      - model
+      - sources
+      - checks
+      - actions
+      - error
+      properties:
+        id: *id001
+        project_id: *id001
+        upload_id: *id001
+        model_version_id: *id001
+        status:
+          type: string
+          enum:
+          - queued
+          - running
+          - awaiting_review
+          - completed
+          - failed
+          - cancelled
+          - superseded
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        policy_version: *id010
+        prompt_version: *id010
+        model:
+          type:
+          - string
+          - 'null'
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/SourceRef'
+        checks:
+          type: array
+          items:
+            $ref: '#/components/schemas/CheckResult'
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProposedAction'
+        error:
+          oneOf:
+          - $ref: '#/components/schemas/Error'
+          - type: 'null'
+    DecisionCreate:
+      type: object
+      additionalProperties: false
+      required:
+      - decision
+      - expected_revision
+      - fingerprint
+      - reason
+      properties:
+        decision:
+          type: string
+          enum:
+          - accept
+          - reject
+        expected_revision:
+          type: integer
+          minimum: 0
+        fingerprint:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 2000
+    Decision:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - action_id
+      - actor_id
+      - decision
+      - reason
+      - created_at
+      - action
+      properties:
+        id: *id001
+        action_id: *id001
+        actor_id: *id001
+        decision:
+          type: string
+          enum:
+          - accept
+          - reject
+        reason: *id010
+        created_at:
+          type: string
+          format: date-time
+        action:
+          $ref: '#/components/schemas/ProposedAction'
+    SuggestionCreate:
+      type: object
+      additionalProperties: false
+      required:
+      - kind
+      - input_revision
+      - text
+      - model_version_id
+      - element_ids
+      properties:
+        kind:
+          type: string
+          enum:
+          - note
+          - location
+          - evidence_request
+        input_revision:
+          type: string
+          minLength: 1
+          maxLength: 128
+        text:
+          type: string
+          maxLength: 2000
+        model_version_id: *id001
+        element_ids:
+          type: array
+          items: *id001
+          maxItems: 50
+          uniqueItems: true
+    Suggestion:
+      type: object
+      additionalProperties: false
+      required:
+      - text
+      - reason
+      - element_ids
+      - sources
+      properties:
+        text: *id010
+        reason: *id010
+        element_ids:
+          type: array
+          items: *id001
+          uniqueItems: true
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/SourceRef'
+    SuggestionResult:
+      type: object
+      additionalProperties: false
+      required:
+      - input_revision
+      - status
+      - reason
+      - suggestions
+      properties:
+        input_revision: *id010
+        status:
+          type: string
+          enum:
+          - available
+          - unavailable
+        reason:
+          type:
+          - string
+          - 'null'
+        suggestions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Suggestion'
+          maxItems: 5
+    SummaryStatement:
+      type: object
+      additionalProperties: false
+      required:
+      - text
+      - event_ids
+      - run_ids
+      properties:
+        text: *id010
+        event_ids:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+          minItems: 1
+          uniqueItems: true
+        run_ids:
+          type: array
+          items: *id001
+          uniqueItems: true
+    DailySummary:
+      type: object
+      additionalProperties: false
+      required:
+      - project_id
+      - date
+      - timezone
+      - status
+      - generated_at
+      - partial_history
+      - statements
+      - reason
+      properties:
+        project_id: *id001
+        date:
+          type: string
+          format: date
+        timezone: *id010
+        status:
+          type: string
+          enum:
+          - available
+          - unavailable
+          - stale
+        generated_at:
+          anyOf:
+          - {type: string, format: date-time}
+          - {type: 'null'}
+        partial_history:
+          type: boolean
+        statements:
+          type: array
+          items:
+            $ref: '#/components/schemas/SummaryStatement'
+        reason:
+          type:
+          - string
+          - 'null'
+    SummaryRefresh:
+      type: object
+      additionalProperties: false
+      required: [date, timezone]
+      properties:
+        date: {type: string, format: date}
+        timezone: {type: string, minLength: 1, maxLength: 100}
+    VoiceCreate:
+      type: object
+      additionalProperties: false
+      required: [zone_id, trade, filename, mime_type, captured_at, audio_base64]
+      properties:
+        zone_id: *id001
+        trade: {type: string, minLength: 1, maxLength: 30}
+        filename: {type: string, minLength: 1, maxLength: 200}
+        mime_type:
+          type: string
+          enum: [audio/wav, audio/mpeg, audio/m4a, audio/mp4, audio/ogg, audio/webm]
+        captured_at:
+          anyOf:
+          - {type: string, format: date-time}
+          - {type: 'null'}
+        audio_base64: {type: string, minLength: 1, maxLength: 11184812}
+    VoiceCorrection:
+      type: object
+      additionalProperties: false
+      required: [text, expected_revision]
+      properties:
+        text: {type: string, minLength: 1, maxLength: 5000}
+        expected_revision: {type: integer, minimum: 0}
+    VoiceNote:
+      type: object
+      additionalProperties: false
+      required: [id, project_id, actor_id, zone_id, trade, filename, mime_type, captured_at, created_at, status, original_text, text, revision, model, original_url, error]
+      properties:
+        id: *id001
+        project_id: *id001
+        actor_id: *id001
+        zone_id: *id001
+        trade: {type: string}
+        filename: {type: string}
+        mime_type: {type: string}
+        captured_at:
+          anyOf:
+          - {type: string, format: date-time}
+          - {type: 'null'}
+        created_at: {type: string, format: date-time}
+        status: {type: string, enum: [queued, running, completed, failed]}
+        original_text: {type: [string, 'null']}
+        text: {type: [string, 'null']}
+        revision: {type: integer, minimum: 0}
+        model: {type: [string, 'null']}
+        original_url: {type: string}
+        error:
+          anyOf:
+          - {$ref: '#/components/schemas/Error'}
+          - {type: 'null'}
+    Error:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      properties:
+        code:
+          type: string
+          enum:
+          - unauthenticated
+          - forbidden
+          - not_found
+          - stale_revision
+          - superseded
+          - idempotency_conflict
+          - invalid_input
+          - rate_limited
+          - provider_unavailable
+          - unsupported_check
+          - analysis_failed
+        message: *id010
+  responses:
+    Forbidden:
+      description: Project member lacks the required permission
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Missing or expired authentication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource absent or outside authorized scope
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Conflict:
+      description: Stale revision, superseded/terminal state or idempotency mismatch
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Invalid:
+      description: Invalid input or unavailable required evidence/reference
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Limited:
+      description: Workflow request budget exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

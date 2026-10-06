@@ -472,3 +472,88 @@ class Verification(Base):
     override_reason: Mapped[str | None] = mapped_column(Text)
     created_by: Mapped[str | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class AgentReference(Base):
+    """Immutable drawing extraction frozen when its candidate model is built."""
+    __tablename__ = "agent_references"
+    __table_args__ = (UniqueConstraint("version_id", "sheet_id"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    version_id: Mapped[str] = mapped_column(ForeignKey("model_versions.id", ondelete="CASCADE"), index=True)
+    sheet_id: Mapped[str] = mapped_column(ForeignKey("drawing_sheets.id", ondelete="CASCADE"))
+    sha256: Mapped[str] = mapped_column(String(64))
+    snapshot: Mapped[dict] = mapped_column(JSON)
+
+
+class AgentRun(Base):
+    __tablename__ = "agent_runs"
+    __table_args__ = (UniqueConstraint("upload_id", "input_hash"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    upload_id: Mapped[str] = mapped_column(ForeignKey("uploads.id", ondelete="CASCADE"), index=True)
+    actor_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    model_version_id: Mapped[str] = mapped_column(ForeignKey("model_versions.id"))
+    idempotency_key: Mapped[str] = mapped_column(String(128))
+    input_hash: Mapped[str] = mapped_column(String(64))
+    request_hash: Mapped[str] = mapped_column(String(64))
+    status: Mapped[str] = mapped_column(String(20), default="queued", index=True)
+    context: Mapped[dict] = mapped_column(JSON)
+    result: Mapped[dict] = mapped_column(JSON, default=dict)
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    lease_token: Mapped[str | None] = mapped_column(String(36))
+    lease_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class AgentAction(Base):
+    __tablename__ = "agent_actions"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    run_id: Mapped[str] = mapped_column(ForeignKey("agent_runs.id", ondelete="CASCADE"), index=True)
+    status: Mapped[str] = mapped_column(String(20), default="proposed")
+    payload: Mapped[dict] = mapped_column(JSON)
+    decision: Mapped[dict | None] = mapped_column(JSON)
+
+
+class AgentRequest(Base):
+    """Scoped idempotency aliases; several request keys can refer to one assessment."""
+    __tablename__ = "agent_requests"
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    run_id: Mapped[str] = mapped_column(ForeignKey("agent_runs.id", ondelete="CASCADE"), index=True)
+    request_hash: Mapped[str] = mapped_column(String(64))
+
+
+class AgentVoice(Base):
+    __tablename__ = "agent_voice"
+    __table_args__ = (UniqueConstraint("project_id", "actor_id", "idempotency_key"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    actor_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    zone_id: Mapped[str] = mapped_column(ForeignKey("zones.id"))
+    trade: Mapped[str] = mapped_column(String(30))
+    idempotency_key: Mapped[str] = mapped_column(String(128))
+    input_hash: Mapped[str] = mapped_column(String(64))
+    filename: Mapped[str] = mapped_column(String(200))
+    mime_type: Mapped[str] = mapped_column(String(40))
+    storage_key: Mapped[str] = mapped_column(String(500))
+    sha256: Mapped[str] = mapped_column(String(64))
+    captured_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    status: Mapped[str] = mapped_column(String(20), default="queued", index=True)
+    original_text: Mapped[str | None] = mapped_column(Text)
+    text: Mapped[str | None] = mapped_column(Text)
+    revision: Mapped[int] = mapped_column(Integer, default=0)
+    model: Mapped[str | None] = mapped_column(String(100))
+    error: Mapped[dict | None] = mapped_column(JSON)
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    lease_token: Mapped[str | None] = mapped_column(String(36))
+    lease_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class AgentSummary(Base):
+    __tablename__ = "agent_summaries"
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    actor_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    input_hash: Mapped[str] = mapped_column(String(64))
+    payload: Mapped[dict] = mapped_column(JSON)

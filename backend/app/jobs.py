@@ -18,6 +18,7 @@ log = logging.getLogger("jobs")
 Handler = Callable[[Session, Job], dict | None]
 HANDLERS: dict[str, Handler] = {}
 ON_FAIL: dict[str, Callable[[Session, Job], None]] = {}
+RECOVER: list[Callable[[Session], None]] = []
 
 
 def handler(kind: str):
@@ -70,6 +71,9 @@ def run_job(make_session: sessionmaker, job_id: str) -> None:
 
 def run_pending(make_session: sessionmaker) -> int:
     """Run every queued job now. Used by tests/inline mode and by the worker loop."""
+    with make_session() as db:
+        for recover in RECOVER:
+            recover(db)
     n = 0
     while True:
         with make_session() as db:

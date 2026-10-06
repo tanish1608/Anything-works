@@ -8,6 +8,8 @@ For teammates, continue with the [product specification](PRODUCT_SPEC.md), [buil
 
 ## Understand the implementation
 
+- [Placeholder AI requirements](../.kiro/specs/placeholder-agent/requirements.md), [architecture](architecture.md), [harness/MCP research decision](decisions/0001-placeholder-agent-harness.md), [agent API](../contracts/openapi.yaml) and [Placeholder AI task ledger](TASKS.md): review-only photo/runtime slice against upstream `aa3692b`; voice, scans, assignment/connectors and Home/Logs synchronization remain tracked work.
+
 - [Current status](../STATUS.md): source-based foundations, limitations and migration gaps.
 - [Developer guide](DEVELOPMENT.md): setup, test commands and repository map.
 - [Repository guidance](../CLAUDE.md): implementation invariants.

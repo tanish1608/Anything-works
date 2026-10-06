@@ -26,6 +26,11 @@ log = logging.getLogger(__name__)
 
 
 def maybe_enqueue_analysis(db: Session, upload: Upload) -> None:
+    from app.config import get_settings
+
+    if get_settings().agent_enabled:
+        upload.analysis_status = "none"
+        return
     if vision.mode() == "off":
         upload.analysis_status = "off"
         return

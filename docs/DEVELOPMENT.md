@@ -1,6 +1,6 @@
 # Developer guide
 
-This guide runs the existing SiteMesh implementation. Read the [product specification](PRODUCT_SPEC.md) for the intended Everything Works AI workflow and [current status](../STATUS.md) for gaps.
+This guide runs Placeholder AI and its retained SiteMesh foundations. Read the [product specification](PRODUCT_SPEC.md) for the intended workflow and [current status](../STATUS.md) for gaps.
 
 ## Local setup
 
@@ -38,6 +38,8 @@ Open `http://localhost:5173`. Vite proxies API calls to port 8000.
 
 ## Application surfaces
 
+- **`/agent`:** authenticated assessments, recorded voice and text helpers; integration into the top-of-page Agent Isle is in progress.
+
 - **`/`:** one building-centered website with optional right-side panels. It runs without backend/sign-in and stores testing records locally.
 - **`/?panel=record&work=ISS-031`:** evidence/review/timeline for a component-linked record, focused on the shared model.
 - **`/?panel=issues`, `/?panel=activity`, `/?panel=team`, `/?panel=project`, `/?panel=capture`:** contextual workflows; no separate model pages.
@@ -71,12 +73,83 @@ Backend configuration is defined in [config.py](../backend/app/config.py). When 
 | CORS_ORIGINS | JSON array, default includes localhost:5173 |
 | GEMINI_API_KEY | Credentials for real vision calls |
 | VISION_MODE | auto, gemini, off or mock |
-| VISION_MODEL | Configurable; check source for the current default and provider availability before a live run |
-| VISION_EFFORT | Current integration's thinking-level setting |
+| VISION_MODEL | `gemini-3.8-flash` default; verify this account's access before a live run |
+| VISION_EFFORT | Thinking level for legacy vision and the new agent; low, medium or high; default high |
+| AGENT_ENABLED | false by default; true isolates new uploads from legacy auto-approval and enables the review-only agent |
+| AGENT_TIMEOUT_SECONDS | Provider timeout, 1–300 seconds, default 60 |
+| AGENT_TEXT_MODEL | `gemini-3.5-flash-lite`, for editable suggestions and selecting daily-briefing facts |
+| AGENT_TEXT_TIMEOUT_SECONDS | 1–60 seconds, default 15 |
+| AGENT_VOICE_MODEL | `gemini-3.5-transcribe`, recorded files via Interactions; live streaming is not implemented |
+| AGENT_VOICE_TIMEOUT_SECONDS | 1–300 seconds, default 120; at most two total leased-job attempts |
 
 Use `VISION_MODE=off` for manual review without analysis or `mock` to exercise the pipeline without live inference. Mock returns uncertain results; it does not demonstrate detection accuracy.
 
 The legacy project-level auto-approval setting is not the new scoped completion policy. Do not enable it as a shortcut for implementing the new product.
+
+## Placeholder AI agent demo
+
+Use the **agent worktree**, `Anything-works-agent`, branch `codex/placeholder-agent-design`. The original `Anything-works/dev` worktree is separate and does not contain this implementation. Install this worktree's backend/web dependencies as above. Reusing the old Python environment for local checks requires `PYTHONPATH=.` from this worktree's `backend/`; its editable installation otherwise resolves the original code.
+
+For an isolated local demo, use a separate database and storage so existing development records remain untouched. From this worktree's `backend/`, with its `.venv` installed and a persistent `JWT_SECRET` configured:
+
+```bash
+export DATABASE_URL=sqlite:///./data/agent-demo.db
+export STORAGE_DIR=./storage-agent-demo
+export AGENT_ENABLED=true
+.venv/bin/alembic upgrade head
+VISION_MODE=off .venv/bin/python -m app.seed
+VISION_MODE=gemini .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8010
+```
+
+Configure `GEMINI_API_KEY` locally for live assessment; never put it in chat/Git. Check the adapter from `backend/`:
+
+For the two-person demo, set `VISION_MODEL=gemini-3.8-flash` and `VISION_EFFORT=medium` in `backend/.env`. This is a stable multimodal model with structured-output support. Medium is an initial latency/cost choice, not a field-accuracy result; evaluate it with representative photos before changing the review policy. The provider records model identity and token usage, including thinking tokens. See [the model decision](decisions/0001-placeholder-agent-harness.md#gemini-selection-for-the-two-person-demo).
+
+```bash
+.venv/bin/python ../scripts/check_agent_provider.py --check
+.venv/bin/python ../scripts/check_agent_provider.py
+```
+
+`--check` validates only local configuration/DNS. The second command makes one live structured-output request with empty work scope, sends no project data and writes no progress. It distinguishes typed-output connectivity from field accuracy. If the configured model is unavailable, `--list-models` lists accessible models; choose `VISION_MODEL` from the account's actual capabilities. Failure output excludes raw SDK errors and credentials. `VISION_MODEL` must be a model available to that account and support typed image responses. Missing/unavailable provider access creates a saved failure and leaves work incomplete. `off`/`mock` cannot produce a live agent verdict. The legacy project auto-approval toggle does not authorize the new check.
+
+In a second terminal, from this worktree's `web/`:
+
+```bash
+npm install
+API_URL=http://127.0.0.1:8010 npm run dev -- --host 127.0.0.1 --port 5174 --strictPort
+```
+
+Open `http://127.0.0.1:5174/agent`. Use two separate browser profiles (or one normal and one private window): `plumber@example.com` for the worker, `pm@example.com` for the PM. **Fresh seed accounts** default to `demo-password` unless `DEMO_PASSWORD` was set at creation. Seed does not reset passwords of existing accounts.
+
+1. Both identities select **Maple Court (demo)**, which the seed converts from explicitly sample DXF drawings. The imported IFC-only sample projects have no approved drawing extraction and deliberately abstain.
+2. Worker selects an allowed room, plumbing components, photos and a note, then submits. Intake is saved before assessment; a failed create request can retry without uploading photos again. This view requires connectivity; it does not implement a new offline queue.
+3. PM opens the saved run/pin, inspects photos, cited sources and limitations, optionally previews the drawing, enters a reason and accepts/rejects the exact proposal. Accepted work records human completion, never AI inspection certification.
+4. Worker sees the saved decision and model status after polling. Refreshing/restarting keeps assessment records. Cancel/retry and stale references are guarded server-side.
+
+Existing converted projects created before migration `0008` have no snapshots. Create a new conversion through `POST /api/projects/{project_id}/conversions`, then approve its returned version through `POST /api/models/{version_id}/approve`, using authorized existing drawing/setup APIs. Do not fabricate historical snapshot approval or modify a production project for a demo.
+
+The root Home/Logs remain the public sample workspace; their shared authenticated projections are remaining BEAV-003 work. A drawing preview is the current rendered extraction, while acceptance validates that the source still matches the saved revision. Recorded voice and text helpers now run at `/agent`; LiDAR/calendar/MCP/phone and live streaming remain unimplemented. Provider test doubles exercise workflow correctness only, not real-site accuracy.
+
+### Teammate test walkthrough
+
+Start the API and Vite using the commands above, with `VISION_MODE=gemini` and your key in this worktree's `backend/.env`. Keep both terminals running. The correct page is **`http://127.0.0.1:5174/agent`**. If a port is occupied, identify its listener with `lsof -nP -iTCP:8010 -sTCP:LISTEN` or the equivalent for 5174; choose another port and update `API_URL` consistently. There is no reference server.
+
+1. Open a normal browser window as `plumber@example.com` and a private window as `pm@example.com`; fresh seeded accounts use `demo-password`. Select **Maple Court** in both. This sample has approved converted drawing context; an IFC-only import without that binding correctly abstains from photo checks.
+2. In the worker session select a permitted room and Plumbing. Under **Voice updates**, click **Record voice**, allow microphone access, say a short update such as “The sink is positioned in the bathroom; the connections are still pending,” then **Stop recording** and **Transcribe recording**. Alternatively upload a real WAV/MP3/M4A/Ogg/WebM recording up to 8 MiB. Expected: saved queued/running → completed transcript, original playback and provider name. `getUserMedia` needs localhost or HTTPS; a plain HTTP LAN address may disable recording. Saved-file uploads still work.
+3. Correct one word in **Transcript**, click **Save transcript correction**, then open **Original transcript**. The original text must remain. Click **Use transcript in update**; the daily note changes only on this explicit click. In the PM window, select the same file in **Saved voice updates**: its corrected text/audio are shared, and PM cannot overwrite the worker's transcript. Refresh the browser and select it again to prove persistence.
+4. Choose relevant **Work components**, enter a short factual note (up to 2,000 characters for assistance), then **Suggest update**. Select Update wording, Work components or Evidence request. Expected: editable suggestions with explanations; **Use suggestion** explicitly applies text or component selection. Changing the draft while a request is pending hides its old response. Suggestions never assign people or complete work.
+5. Attach real photos of the selected work and **Submit for assessment**. Review the result in the PM session. Missing/irrelevant evidence may correctly yield insufficient evidence; acceptance is always a human decision. Do not describe seeded geometry or an unrelated photo as successful construction inspection.
+6. In either session choose the local date/timezone at the top and **Refresh AI briefing**. Expected: a saved briefing citing event numbers and links to source assessments where available. The model chooses important saved facts; the server renders actual statuses/times. New updates make the previous briefing stale and require refresh; reading the page does not generate it automatically. Each identity gets a separately scoped briefing.
+7. Stop the API briefly and try a request: the UI must show failure, not fabricate a transcript or result. Provider errors retain received audio and leave work incomplete. Restart the API; persisted queued/expired jobs recover under the attempt bound. Check `/docs` for the voice, suggestion and summary operations.
+
+For provider 401/403 check key/account permissions; 404 means that configured model is not available to this account; 429 means quota/rate limiting. This sandbox could not verify the key or run browser microphone/WebGL checks. A working local UI plus successful provider output in your terminal is the live acceptance step, separate from the automated tests.
+
+Regenerate web agent DTOs from the contract-tested schemas after approved changes:
+
+```bash
+.venv/bin/python ../scripts/generate_agent_types.py
+.venv/bin/pytest tests/test_agent.py tests/test_agent_helpers.py tests/test_agent_contract.py tests/test_agent_provider.py tests/test_agent_migration.py -q
+```
 
 ## Docker
 

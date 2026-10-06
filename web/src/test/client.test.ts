@@ -16,6 +16,7 @@ describe('api client', () => {
     await api('/projects')
     const headers = f.mock.calls[0][1]!.headers as Headers
     expect(headers.get('Authorization')).toBe('Bearer old')
+    expect(f.mock.calls[0][1]!.cache).toBe('no-store')
   })
 
   it('refreshes once on 401 and retries', async () => {
@@ -41,5 +42,10 @@ describe('api client', () => {
   it('surfaces FastAPI error details', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(json(409, { detail: 'Already a member' }))
     await expect(api('/x')).rejects.toThrow('Already a member')
+  })
+
+  it('surfaces the scoped agent error message', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(json(409, { code: 'stale_revision', message: 'Approved drawing changed' }))
+    await expect(api('/agent/runs/x')).rejects.toThrow('Approved drawing changed')
   })
 })

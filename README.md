@@ -1,8 +1,8 @@
-# Everything Works AI
+# Placeholder AI
 
 **Every daily update becomes a check on work quality and a clearer picture of progress.**
 
-Everything Works AI is being built to check construction photos and daily updates against approved project information, flag potential mistakes, and update completion and issues in a shared 3D model.
+Placeholder AI is being built to check construction photos and daily updates against approved project information, flag potential mistakes, and update completion and issues in a shared 3D model.
 
 The product covers daily work across construction stages. Catching a misplaced electrical box before drywall is one example of the value, not the boundary of the product.
 
@@ -31,13 +31,17 @@ The 3D model helps people find and understand the work. AI helps interpret the u
 
 Our initial customer hypothesis is US residential and multifamily general contractors and developer-builders. The product direction includes structure, MEP, interiors and closeout; individual checks will be introduced and validated in stages.
 
-The planned interface serves customers/clients, contractors/project managers, subcontractor leads and field crews through different views of the same project and building model. Their visibility and actions will follow project roles; see the [user-view backlog](TODO.md). The current website is a PM-oriented local testing experience with sign-in disabled.
+The planned interface serves customers/clients, contractors/project managers, subcontractor leads and field crews through different views of the same project and building model. Their visibility and actions will follow project roles; see the [user-view backlog](TODO.md). The public workspace is a PM-oriented local testing experience; `/agent` now supports authenticated worker/PM assessment and review. Full shared Home/Logs and broader user views remain tracked work.
 
 ## Example
 
 A crew submits three updates: framing in one room, electrical installation in another, and painting in a third. The system may find a possible placement mismatch, request a missing close-up, and mark an adequately evidenced painting task AI-checked complete. Each result appears at the correct location, with the source evidence and the checks actually performed.
 
 A PM can review exceptions, confirm or dismiss a finding, and track a correction. A green progress marker never silently means “passed every code requirement” or “officially inspected.”
+
+## Agent implementation
+
+The review-only photo slice at `/agent` uses real backend accounts, approved drawing-extraction snapshots, saved assessments and manager decisions. A worker submits photos; the agent assesses visible component presence; the PM accepts/rejects the exact proposal; both see saved human progress on the authorized model. Recorded voice upload/transcription, author corrections, editable suggestions and explicitly refreshed cited daily briefings are also implemented at `/agent`. LangGraph/MCP, LiDAR, calendar assignment, live transcription and external follow-ups remain later work. See [setup and demo steps](docs/DEVELOPMENT.md#placeholder-ai-agent-demo), [requirements](.kiro/specs/placeholder-agent/requirements.md), [architecture](docs/architecture.md) and [task evidence](docs/TASKS.md). Live field accuracy and the complete shared Home/Logs workflow remain unverified.
 
 ## What exists today
 

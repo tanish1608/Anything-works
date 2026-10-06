@@ -6,7 +6,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import Response
 from PIL import Image, ImageOps
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from app import jobs
@@ -86,6 +86,9 @@ async def create_upload(project_id: str, zone_id: str = Form(...), trade: str = 
     m = require(db, project_id, user.id, Perm.progress_upload)
     existing = db.scalar(select(Upload).where(Upload.project_id == project_id, Upload.client_uuid == client_uuid))
     if existing:
+        _load_upload(db, existing.id, user)
+        if m.role == Role.trade and existing.user_id != user.id:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Upload not found")
         return _upload_out(db, existing)
     z = db.get(Zone, zone_id)
     if z is None or project_of_zone(db, z) != project_id or not zone_visible(m, zone_id):
@@ -147,6 +150,10 @@ async def create_upload(project_id: str, zone_id: str = Form(...), trade: str = 
         if 0 < len(ref) <= MAX_PHOTO:
             up.reference_key = get_storage().put_bytes(f"projects/{project_id}/photos/{up.id}/reference.jpg", ref)
     db.flush()
+    from app.config import get_settings
+
+    if get_settings().agent_enabled:
+        db.execute(update(Project).where(Project.id == project_id).values(name=Project.name))
     progress.claim(db, up, claimed, user.id)
     events.record(db, project_id=project_id, actor_id=user.id, type="upload.created", entity_type="upload",
                   entity_id=up.id, zone_id=zone_id, evidence_ids=[p.id for p in photos],
@@ -158,7 +165,7 @@ async def create_upload(project_id: str, zone_id: str = Form(...), trade: str = 
                                                               ProjectMember.role.in_([Role.pm, Role.owner])))
     notify(db, managers, actor_id=user.id, project_id=project_id, kind="progress.submitted",
            title=f"{user.name}: {len(claimed)} item(s) to review in {z.name}", body=note[:200],
-           link=f"/p/{project_id}/progress?upload={up.id}")
+           link="/agent" if get_settings().agent_enabled else f"/p/{project_id}/progress?upload={up.id}")
     from app.services.vision_jobs import maybe_enqueue_analysis  # M5
 
     maybe_enqueue_analysis(db, up)
@@ -186,7 +193,7 @@ def _load_upload(db: Session, upload_id: str, user: User) -> tuple[Upload, Proje
     if u is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Upload not found")
     m = require(db, u.project_id, user.id, Perm.history_view)
-    if m.role == Role.trade and u.user_id != user.id and (u.trade not in m.trades or (u.zone_id and not zone_visible(m, u.zone_id))):
+    if m.role == Role.trade and (u.trade not in m.trades or (u.zone_id and not zone_visible(m, u.zone_id))):
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Upload not found")
     return u, m
 

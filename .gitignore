@@ -4,6 +4,7 @@ __pycache__/
 .env
 backend/data/
 backend/storage/
+backend/storage-agent-demo/
 node_modules/
 web/dist/
 .pytest_cache/

@@ -130,8 +130,12 @@ def build_version(db: Session, project: Project, actor_id: str | None, message: 
                                           for x in s.plan.get(k, []) if x.get("confidence", 1) < 0.7)}
                    for s in sheets],
     }
-    return create_version(db, project, items, spaces, actor_id=actor_id, message=message, source="conversion",
-                          extra_files={"ifc": [key]}, stats={"report": report})
+    version = create_version(db, project, items, spaces, actor_id=actor_id, message=message, source="conversion",
+                             extra_files={"ifc": [key]}, stats={"report": report})
+    from app.agent.context import freeze_references
+
+    freeze_references(db, version, sheets)
+    return version
 
 
 def latest_conversion(db: Session, project_id: str) -> ModelVersion | None:

@@ -2,7 +2,7 @@ import secrets
 import warnings
 from functools import lru_cache
 
-from pydantic import model_validator
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -26,6 +26,12 @@ class Settings(BaseSettings):
     vision_model: str = "gemini-3.8-flash"
     vision_effort: str = "high"  # Gemini thinking_level: low | medium | high
     gemini_api_key: str = ""
+    agent_enabled: bool = False  # isolates new review-only uploads from legacy auto-approval
+    agent_timeout_seconds: int = Field(default=60, ge=1, le=300)
+    agent_text_model: str = "gemini-3.5-flash-lite"
+    agent_text_timeout_seconds: int = Field(default=15, ge=1, le=60)
+    agent_voice_model: str = "gemini-3.5-transcribe"
+    agent_voice_timeout_seconds: int = Field(default=120, ge=1, le=300)
     cors_origins: list[str] = ["http://localhost:5173"]
 
     @model_validator(mode="after")

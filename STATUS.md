@@ -1,12 +1,12 @@
-# Current status — Everything Works AI
+# Current status — Placeholder AI
 
-Updated October 6, 2026 after the designer UI and detailed BIM implementation. This inventory describes source and verification; it does not certify live AI accuracy.
+Updated October 6, 2026 after the designer UI, detailed BIM, review-only assessments and recorded-voice/text-helper implementation. This inventory describes source and verification; it does not certify live AI accuracy.
 
 ## Current direction
 
 AI checks daily construction updates against approved project context, flags mistakes or incomplete work, and updates progress and issues in 3D. The product spans construction stages; pre-drywall electrical review is one example.
 
-The original implementation was built as SiteMesh. The UI now uses Everything Works AI branding and the designer's visual system. Internal identifiers and existing backend behavior remain in place.
+The original implementation was built as SiteMesh. The UI now uses Placeholder AI branding and the designer's visual system. Internal identifiers and existing backend behavior remain in place.
 
 ## Design iteration 2 — October 6
 
@@ -40,11 +40,19 @@ The workspace header uses separate identity/action and navigation rows, with con
 
 ## Single public website
 
-The former `/demo` UI is now the main website at `/`. All workspace links use root URLs. Old `/demo/...` bookmarks redirect with their query and fragment intact; old login/private-project/QR/embed screens are retired. The public app no longer mounts an authentication provider or imports the older page tree. Existing local storage keys are unchanged, so records survive the move. The PWA starts at Home; production Nginx already supports SPA deep links.
+The former `/demo` UI is now the main website at `/`. All workspace links use root URLs. Old `/demo/...` bookmarks redirect with their query and fragment intact; old login/private-project/QR/embed screens are retired. The public sample routes do not mount an authentication provider or import the older page tree; `/agent` supplies its own authenticated workflow. Existing local storage keys are unchanged, so records survive the move. The PWA starts at Home; production Nginx already supports SPA deep links.
 
 Canonical routing, navigation, bookmark preservation, saved-record persistence and retired-screen behavior are covered by DOM tests. Browser smoke tests now target the chosen website; previous connected-app tests are archived and excluded. The smoke suite has not been run under the saved browser restriction. The URL change does not make browser-local records a connected production service.
 
-Authentication is intentionally disabled for current website testing: no account or token is required, including on direct page visits. The local view uses the sample PM identity. Existing backend authentication and project permissions remain active. Customer/client, contractor/PM, subcontractor and field-worker views are now specified in [TODO.md](TODO.md) as planned work; they are not implemented or enforced by the current local PM interface. Real-user sign-in, role scopes and attribution must be integrated into this chosen UI when connecting private project data.
+The public sample workspace runs without sign-in. The new `/agent` page requires existing backend authentication and scoped project membership. The local view uses the sample PM identity. Existing backend authentication and project permissions remain active. Customer/client, contractor/PM, subcontractor and field-worker views are now specified in [TODO.md](TODO.md) as planned work; they are not implemented or enforced by the current local PM interface. The agent page now uses real-user sign-in, role scopes and reviewer attribution; the other sample pages still need shared backend integration.
+
+## Placeholder AI agent slice
+
+Implemented in branch `codex/placeholder-agent-design`, worktree `Anything-works-agent`, on upstream `aa3692b`. `/agent` supports distinct worker/PM accounts, authorized project/model data, received photos, persisted assessment history, exact-proposal review, model-linked pins and refreshed human completion. Migration `0008` adds immutable drawing-extraction references, leased runs, actions and scoped idempotency claims. No original-dev merge or database rewrite was performed.
+
+The only new check is `visible_component_presence`, using approved converted drawing primitives, **always review-only**. The provider adapter requests typed Gemini output; unknown/duplicated citations and stale context fail. Missing drawing snapshots abstain, missing provider access fails visibly, relevant issues block human completion, cancellation fences late writes, and expired leases have a two-attempt recovery bound. Existing legacy auto-approval is skipped for new uploads when `AGENT_ENABLED=true`. Human acceptance remains distinct from AI completion/inspection.
+
+Thirteen scoped assessment, recorded-voice, suggestion and summary operations are implemented and contract-tested in [OpenAPI](contracts/openapi.yaml). Voice intake preserves authenticated original audio and the original transcript; author corrections use revision checks. Suggestions remain editable and do not write progress. Explicit briefing refresh selects saved source-event IDs and renders server-owned statements, with partial coverage and stale results labeled. Client DTOs are generated from the contract-tested backend schemas. The first runtime uses SQL state and existing jobs, with no LangGraph/checkpointer or MCP connector installed. Live voice streaming, scans, calendar assignment, external follow-ups and root Home/Logs synchronization remain [tracked tasks](docs/TASKS.md). The full two-person acceptance and real model accuracy are not certified. See [local agent setup](docs/DEVELOPMENT.md#placeholder-ai-agent-demo).
 
 ## Implemented foundations
 
@@ -75,7 +83,7 @@ IFC2x3 type classification, property truncation and duplicate room-name merging 
 3. **Quality beyond presence.** Recognizing a visible component does not prove that its installation matches the plan, required measurements or code.
 4. **Reference provenance.** The new flow requires per-assessment source snapshots, applicable approved changes and stale-result handling.
 5. **Progress denominators.** Existing summaries count elements; this is not automatically physical, labor or schedule completion.
-6. **Demo versus connected product.** The new daily workflow persists locally. Retained connected components use the existing API; full assessment and correction synchronization still requires integration.
+6. **Demo versus connected product.** The public sample workflow persists locally; the agent assessment/review subset now uses shared SQL/storage. Retained connected components use the existing API; full assessment and correction synchronization still requires integration.
 7. **Field validation.** Real-site detection performance, user effort, customer savings and willingness to pay are not established.
 
 ## Remaining production work
@@ -92,6 +100,10 @@ IFC2x3 type classification, property truncation and duplicate room-name merging 
 
 The frontend passes 85 tests and production compilation. Frontend lint completes with existing warnings. Initial targeted import/progress verification passed 16 backend tests; final workflow/progress/history/legacy-vision regression verification passed 20 tests, with AI mocked/off. Ruff passes for the changed backend files. Tests include source hierarchy bindings, shared model projections, reversible floor expansion, camera sequencing, first-upload onboarding, offline revision identity, fresh-evidence reopening and stale submission/approval rejection. Browser visual acceptance remains unverified under the saved local-URL preference. No live AI evaluations were run.
 
-Retained connected onboarding components implement a guided upload → review → approve flow, but are no longer exposed as website routes. Field queues retain their checklist revision; immutable upload audit events record revision, element and photo IDs. Old received retries stay idempotent. Evidence against a superseded baseline cannot approve work on the new model. The local demo prepares structured assessment requests; new agent execution is deferred. See [the model workflow](docs/MODEL_WORKFLOW.md).
+Current agent-worktree verification: **188 backend tests and 86 frontend tests passed**; TypeScript compilation and changed backend/script Ruff checks passed. Migration upgrade/downgrade/re-upgrade retained a pre-existing user in disposable SQLite. Independent review found and verified fixes for original-photo freshness and unrelated-component supersession. Frontend lint completes with warnings. Production Vite bundling is blocked by missing font packages and registry DNS; browser/live-provider/field evaluation and PostgreSQL concurrency remain unverified. See exact scope in [TASKS.md](docs/TASKS.md#implementation-review-and-evidence--beav-002003).
+
+Historical designer/BIM checks before this agent slice: 76 frontend tests and production compilation passed; targeted backend runs passed 16 and 20 tests with AI mocked/off. Tests included source hierarchy bindings, shared model projections, reversible floor expansion, camera sequencing, first-upload onboarding, offline revision identity, fresh-evidence reopening and stale submission/approval rejection. Those earlier build results do not certify the current worktree's production bundle.
+
+Retained connected onboarding components implement a guided upload → review → approve flow, but are no longer exposed as website routes. Field queues retain their checklist revision; immutable upload audit events record revision, element and photo IDs. Old received retries stay idempotent. Evidence against a superseded baseline cannot approve work on the new model. The local demo prepares structured assessment requests; the first review-only execution is now exposed separately at `/agent`. See [the model workflow](docs/MODEL_WORKFLOW.md).
 
 Begin with **P0** in [TODO.md](TODO.md): examples, state contract, completion policy and screen flow. Follow [PLAN.md](PLAN.md) for dependencies. Update this file with actual checks and known limitations as implementation progresses.

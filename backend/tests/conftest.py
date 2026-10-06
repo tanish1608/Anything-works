@@ -6,6 +6,7 @@ os.environ.setdefault("BCRYPT_ROUNDS", "4")
 os.environ["JOBS_MODE"] = "inline"
 # Never call the real vision API from tests, even when backend/.env has a key; vision tests opt in with a fake client.
 os.environ["VISION_MODE"] = "off"
+os.environ["AGENT_ENABLED"] = "false"  # legacy tests stay independent of local agent configuration
 
 from pathlib import Path
 
