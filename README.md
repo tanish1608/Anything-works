@@ -1,148 +1,70 @@
-# SiteMesh
+# Everything Works AI
 
-3D construction coordination for small builders:
-- turns 2D drawings (DXF, vector PDF) into a 3D model;
-- gives each trade its own layer;
-- pins issues to the model;
-- tracks daily progress from photos, with AI checks and PM approval;
-- keeps a git-like history of every change.
+**Every daily update becomes a check on work quality and a clearer picture of progress.**
 
-> SiteMesh is a working name. See `PLAN.md` for the architecture, decisions and build notes.
+Everything Works AI is being built to check construction photos and daily updates against approved project information, flag potential mistakes, and update completion and issues in a shared 3D model.
 
-## Quick start (local, no Docker)
+The product covers daily work across construction stages. Catching a misplaced electrical box before drywall is one example of the value, not the boundary of the product.
 
-Requirements: Python 3.11+, Node 22+, and [uv](https://docs.astral.sh/uv/) (or plain `pip`).
+## The problem
 
-```bash
-# 1. Backend (SQLite by default; data goes to backend/data/, files to backend/storage/)
-cd backend
-uv venv && uv pip install -e ".[dev]"        # or: python -m venv .venv && .venv/bin/pip install -e ".[dev]"
-cp .env.example .env                          # then set JWT_SECRET (see the comment in the file)
-.venv/bin/alembic upgrade head
-.venv/bin/python -m app.seed                  # demo projects and users (about 10 s: it runs the real converter)
-.venv/bin/uvicorn app.main:app --reload       # http://localhost:8000/docs
+Crews send photos, messages and progress reports. A superintendent still has to work out where the work happened, what should have been built, whether the visible work matches the latest plan, and what actually counts as complete. Those decisions are scattered across site walks, drawings, calls and spreadsheets.
 
-# 2. Web app (in a second terminal)
-cd web
-npm install
-npm run dev                                   # http://localhost:5173 (proxies /api to :8000)
-```
+An update saying “finished” can hide an incorrect installation, an incomplete task or simply a photo that does not show enough. Errors discovered later can create repeat visits, delays, failed inspections and rework.
 
-### Demo logins (after `python -m app.seed`)
+## The intended daily workflow
 
-All demo accounts use the password `demo-password`.
+1. **Set the reference:** upload and review plans, identify rooms and work items, and establish applicable requirements.
+2. **Submit daily work:** the crew selects its location and task, adds photos and a short update, and submits. Guided capture asks for missing views when needed.
+3. **Check the evidence:** AI identifies visible work, compares supported conditions with the approved reference, and separates mistakes, incomplete work and insufficient evidence.
+4. **Update progress:** adequately supported items can automatically become **AI-checked complete**. Partial work stays partial; uncertainty goes to review. A worker's claim alone cannot complete a task.
+5. **Locate and resolve issues:** findings appear at the relevant room or element in 3D, with evidence, ownership and correction history.
+6. **Keep the model current:** new evidence updates progress and findings. Human acceptance, required tests and official inspection approval remain separate records.
 
-| Email | Role | Try this |
-|---|---|---|
-| pm@example.com | Project manager | **Maple Court**: 3D model, Drawings → review editor, Progress → approve, History → replay |
-| plumber@example.com | Trade (plumbing; baths + living/kitchens only) | **Field app** (top bar) → Maple Court → UNIT 101 BATH → tick items, add photos, submit (works offline) |
-| owner@example.com | Owner | Everything, including switching on AI auto-approval (Progress page) |
-| electrician@example.com | Trade (electrical) | Sees only zones and layers for their trade |
-| inspector@example.com | Viewer | Read-only: model, evidence, history |
+The system checks every submitted update, but can only judge the conditions supported by the evidence and implemented checks. Unseen work stays unverified.
 
-The two demo projects:
-- **Maple Court (demo)**: a two-storey duplex built by the real pipeline from `samples/dxf` (DXF → detection → IFC → approved model).
-- **Sample House**: the buildingSMART IFC sample (CC BY 4.0).
+## What makes this worth building
 
-## Full stack with Docker (Postgres)
+The intended value is the connection between **field evidence → comparison with plans → a supported completion decision or actionable issue → updated 3D context → correction**.
 
-```bash
-JWT_SECRET=$(python3 -c "import secrets;print(secrets.token_urlsafe(48))") docker compose up --build -d
-docker compose exec api python -m app.seed
-# web: http://localhost:8080   API docs: http://localhost:8000/docs
-```
+The 3D model helps people find and understand the work. AI helps interpret the update. The product succeeds if the complete workflow catches useful mistakes and reduces coordination effort.
 
-Behind a TLS-intercepting corporate proxy, add `EXTRA_CA_FILE=/path/to/ca.pem` to the build so pip and npm trust it.
+Our initial customer hypothesis is US residential and multifamily general contractors and developer-builders. The product direction includes structure, MEP, interiors and closeout; individual checks will be introduced and validated in stages.
 
-## AI photo checks (M5)
+## Example
 
-Photo analysis uses Google Gemini and switches on when `GEMINI_API_KEY` (or `GOOGLE_API_KEY`) is set. Otherwise uploads simply go to manual PM review.
+A crew submits three updates: framing in one room, electrical installation in another, and painting in a third. The system may find a possible placement mismatch, request a missing close-up, and mark an adequately evidenced painting task AI-checked complete. Each result appears at the correct location, with the source evidence and the checks actually performed.
 
-| Variable | Default | What it does |
-|---|---|---|
-| `VISION_MODE` | `auto` | `auto` (on when credentials exist), `gemini`, `off`, or `mock` |
-| `VISION_MODEL` | `gemini-3.8-flash` | Any image-capable Gemini model (e.g. `gemini-3.1-pro-preview`) |
-| `VISION_EFFORT` | `high` | Gemini thinking level: `low`, `medium` or `high` |
+A PM can review exceptions, confirm or dismiss a finding, and track a correction. A green progress marker never silently means “passed every code requirement” or “officially inspected.”
 
-**How a check works:**
-1. Each upload sends the photos, the zone's reference render (a snapshot from the field app's 3D view) and the expected elements.
-2. Structured outputs force a strict JSON verdict per element.
-3. Verdicts map as follows:
-   - **installed** at or above the project threshold → amber. It turns green after PM approval, or immediately if an owner enabled auto-approve.
-   - **missing** → keeps its colour and is flagged "possibly missed"; the worker and PM are notified.
-   - **not visible / uncertain** → flagged "retake photo".
-4. Anyone can override a verdict with a reason.
+## What exists today
 
-**Evaluation:** `samples/photos/README.md` explains the labeled-set layout. Run:
+This repository contains an earlier **SiteMesh** prototype:
 
-```bash
-cd backend && .venv/bin/python -m app.vision.eval_vision ../samples/photos   # precision/recall per element type → RESULTS.csv
-```
+- A browser-local interactive 3D demo at `/demo`, with fictional units, tasks, evidence, approvals and handoffs.
+- A connected application with model import, drawing review, 3D viewing, issues, photo uploads, progress review and event history.
+- An offline field upload queue and an existing Gemini photo-analysis integration.
 
-## Conversion (M3, M7)
+These are foundations. The new daily quality-checking workflow, calibrated automatic completion, reliable plan comparison and broad real-site coverage are **not yet delivered or validated**. Existing “installed” verdicts do not establish correct installation.
 
-- **DXF:** upload on the Drawings page, review it, then build a draft and approve it in 3D. DWG isn't supported; export to DXF first.
-- **Vector PDF:** architectural plans only for now. The scale comes from the title-block note.
-- **Evaluation:**
+See [current implementation and gaps](STATUS.md). Package names and UI branding still say SiteMesh; this documentation update does not rename application code.
 
-```bash
-cd backend
-.venv/bin/python -m app.conversion.eval_conversion ../samples/dxf --csv ../samples/dxf/RESULTS.csv
-.venv/bin/python -m app.conversion.eval_conversion ../samples/pdf
-.venv/bin/python -m app.conversion.eval_conversion ../samples/dxf --db   # + manual-correction counts from real uploads
-```
+## Read and share
 
-## Tests
-
-```bash
-cd backend && .venv/bin/pytest -q && .venv/bin/ruff check app tests          # 122 tests (SQLite)
-TEST_DATABASE_URL=postgresql+psycopg://postgres:pg@localhost:5433/sitemesh_test .venv/bin/pytest -q   # same suite on Postgres
-cd web && npm test && npm run lint && npm run build                           # unit tests
-cd web && npx playwright test                                                 # end-to-end, starts its own backend + dev server
-```
-
-To run a throwaway Postgres for the second command:
-`docker run -d --name pgtest -e POSTGRES_PASSWORD=pg -e POSTGRES_DB=sitemesh_test -p 5433:5432 postgres:16-alpine`
-
-## Configuration
-
-All configuration comes from environment variables (or `backend/.env`). Secrets never go in code.
-
-| Variable | Default | Notes |
-|---|---|---|
-| `APP_ENV` | `dev` | `prod` refuses to start without `JWT_SECRET` |
-| `DATABASE_URL` | `sqlite:///./data/app.db` | e.g. `postgresql+psycopg://user:pass@host/db` |
-| `JWT_SECRET` | none | Required in prod |
-| `STORAGE_DIR` | `./storage` | Uploaded drawings, photos, generated IFC and GLB |
-| `JOBS_MODE` | `thread` | Background worker in the API process (`inline` is used by tests) |
-| `CORS_ORIGINS` | `["http://localhost:5173"]` | JSON list |
-| `GEMINI_API_KEY`, `VISION_*` | | See "AI photo checks" above |
-
-## Repo layout
-
-```
-backend/app/
-  api/          REST routers (auth, projects, structure, models, issues, drawings, progress, history)
-  bim/          IFC import (IfcOpenShell) → elements, zones, per-discipline GLB
-  conversion/   DXF/PDF reader, wall/opening/room/MEP detection, review edits, IFC writer, SVG, eval
-  vision/       photo-check prompt, client, eval harness
-  services/     domain rules (events, progress/evidence, history, notifications)
-web/src/
-  viewer/       three.js viewer with a command/event API + postMessage bridge (embeddable)
-  field/        mobile field app, offline upload queue (IndexedDB)
-  pages/        office app
-samples/        IFC (buildingSMART), generated DXF/PDF with ground truth, labeled-photo layout
-```
-
-## Milestone status
-
-| Milestone | Status |
+| Document | Purpose |
 |---|---|
-| M0 Foundations | ✅ |
-| M1 Viewer | ✅ |
-| M2 Issues | ✅ |
-| M3 DXF → 3D conversion | ✅ |
-| M4 Daily progress (manual) | ✅ |
-| M5 Daily progress (AI-assisted) | ✅ (needs an API key and a real photo set to measure) |
-| M6 History | ✅ (branch UI partial) |
-| M7 Vector PDF | ✅ architectural; raster scoped in PLAN.md |
+| [Product specification](docs/PRODUCT_SPEC.md) | Full concept, users, screens, AI behavior and acceptance requirements |
+| [Pitch](docs/PITCH.md) | Shareable narrative, economics, competition and references |
+| [Build plan](PLAN.md) | Architecture, delivery sequence and decisions |
+| [Task backlog](TODO.md) | Detailed work packages for contributors |
+| [Current status](STATUS.md) | What is implemented versus planned |
+| [Developer guide](docs/DEVELOPMENT.md) | Setup, configuration, tests and repository map |
+| [Research index](docs/README.md) | Supporting customer-pain and competitor research |
+
+**For friends joining the project:** read this page, then the specification and backlog. Choose a work package with a clear acceptance condition. The next step is to define and demonstrate the complete daily-update loop before expanding the check catalog.
+
+## Running the existing prototype
+
+Follow the [developer guide](docs/DEVELOPMENT.md). The local frontend runs at `http://localhost:5173`; visit `/demo` for the interactive example or use the seeded accounts for the connected workspace.
+
+Documentation reset: October 5, 2026. Application code is unchanged by this reset.

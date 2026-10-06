@@ -1,315 +1,180 @@
-# SiteMesh — what's left to do
+# Implementation backlog — Everything Works AI
 
-Last updated: Oct 4, 2026
+Reset October 5, 2026. This is the new backlog, replacing the old TODO. All boxes below represent future work; existing foundations are in [STATUS.md](STATUS.md).
 
-## Where we are
+Product scope: AI checking daily updates across construction stages, identifying mistakes and incomplete work, and updating completion and issues in 3D. Before-drywall checking is one use case.
 
-The codebase covers the original eight-milestone brief. Checked today:
+Owners are suggested contributor roles, not assignments. Each package needs a named owner when coding begins. Requirements R1–R10 are defined in the [product specification](docs/PRODUCT_SPEC.md).
 
-| Check | Result |
-| --- | --- |
-| Backend tests (SQLite) | 122 passed |
-| Backend tests (Postgres 16) | 121 passed, 1 skipped (the SQLite-only migration check) |
-| Backend lint (ruff) | Clean |
-| Web unit tests (Vitest) | 16 passed |
-| Web lint (oxlint) | 0 errors, 14 warnings (mostly setState inside an effect: `SheetReviewPage.tsx`, `HistoryPage.tsx`) |
-| Web build | OK |
-| End-to-end (Playwright) | 9 of 9 in two full runs today. `m4.spec.ts` was flaky earlier; keep an eye on it |
-| Conversion eval | 100% on our generated samples. **Fails on the first real set** (`drawings2d.pdf`, 12 NIST sheets): see 2.11a |
-| Vision eval | Now on **Google Gemini** (`gemini-3.8-flash`). First real API run: 1 synthetic case, 3/3 installed found, missing caught, 0 false greens. No real photos yet |
+## P0 — Define and prepare
 
-What the product now is (the final pitch):
+### P0.1 Product and field examples — product + construction reviewer
 
-1. The whole job sits on a 3D model of the building.
-2. Tasks and problems are pinned to the exact room, wall or fixture, with an owner and a due date, and tracked until done.
-3. Crews update from their phones with a photo. That spot turns green only with proof and PM approval.
-4. The daily report writes itself from the day's updates, photos and voice notes.
-5. You can see when a room is clear for the next trade.
+- [ ] Interview prospective GCs, superintendents and trade leads about their actual daily-update/review process.
+- [ ] Confirm buyer, field user, cost bearer, current tools and the most costly recurring mistakes.
+- [ ] Collect permissioned examples from more than one construction stage; include correct, partial, defective and uncheckable work.
+- [ ] Select a small initial check catalog based on evidence quality and repeatability, without defining the product as one trade or one milestone.
+- [ ] Record what each photo can and cannot establish and what needs testing or in-person review.
+- [ ] Agree on pilot access and evidence retention; do not put private jobsite data into public samples.
 
-What the code already has vs. what this needs:
+**Done when:** each candidate check has an explicit requirement, capture instructions and expert-labeled examples, and unresolved assumptions are recorded.
 
-| Need | In the code today? |
-| --- | --- |
-| 3D model viewer with trade layers, floors, section box | Yes |
-| IFC import, re-import keeps elements matched by IFC GUID | Yes (needs testing on real architect models) |
-| Problems (issues) pinned in 3D with viewpoint, owner, priority, due date, comments | Yes |
-| **Planned work (tasks) assigned to crews and zones by day** | **No.** Only issues exist |
-| **Subcontractor companies and crews** | **No.** Trades are text labels on a project member |
-| Photo uploads from the field, offline queue, QR codes per room | Yes |
-| Photo check against expected elements (Gemini vision), PM approval, green only with evidence | Yes (untested on real photos) |
-| **Guided capture (required photo angles per zone)** | **No** |
-| **Voice notes** | **No** (skipped earlier) |
-| **AI daily log** | **No** |
-| **Zone readiness and trade handoffs** | **No** |
-| History, versions, timeline replay | Yes |
-| **Owner dashboard across projects** | **No** |
-| **Push notifications, email/SMS invites, sub access without an account** | **No.** In-app notifications only |
-| 2D-to-3D conversion (DXF, vector PDF) | Works on our generated samples only; real PDF sheets fail (see 2.11a). Now a fallback rather than the main feature |
-| **Hosting, real storage (S3), backups, monitoring** | **No.** Local disk and SQLite by default |
-| **Polished 3D look and dashboard (concept render)** | **No.** Flat grey viewer, plain admin UI. See 2.10 |
+### P0.2 State and completion contract — backend + AI + product
 
----
+- [ ] Map current Upload/Verification/Element/Issue data to proposed update, assessment and review records.
+- [ ] Define processing, coverage, observed progress, check results, human acceptance and inspection as separate states.
+- [ ] Define automatic completion eligibility per check and required-item aggregation.
+- [ ] Specify how issues override completion visually and how contradictory evidence reopens review.
+- [ ] Plan migration of legacy `done` and confidence-based auto-approval records without inventing human acceptance.
+- [ ] Design versioned result schemas and sample API payloads for frontend work.
 
-## Phase 0 — Clean up the repo (1–2 days)
+**Done when:** R1–R8 can be traced through example state transitions, including incomplete evidence, stale plans and an already-complete item.
 
-- [x] Commit `CLAUDE.md`.
-- [ ] Commit the Gemini switch (vision client, config, tests, docs) and the test guard that keeps tests from calling the real API.
-- [ ] Stop tracking `backend/sitemesh_backend.egg-info/` and `web/e2e/.results/*.png`. Add both to `.gitignore` (they change on every install or test run).
-- [ ] Watch `e2e/m4.spec.ts` (passed in two full runs on 2026-10-04, flaky before). If it fails again, fix it. Likely a timing issue with the offline queue sync or the shared seeded database between specs. Wait on a real signal (the network response or a UI state), not a timer.
-- [ ] Fix the oxlint warnings (14 today) (derive the value during render instead of setting state in an effect).
-- [ ] Fix the 25 pytest warnings (mostly deprecations). Treat warnings as errors in CI once they're clean.
-- [x] Push to GitHub (`tanish1608/Anything-works`). Check that CI goes green there.
-- [ ] Update `PLAN.md` and `STATUS.md` with the new direction: 3D task and progress tracking for mid-size builders; conversion becomes a fallback.
-- [ ] Rename the product if "SiteMesh" stays a working name. Check the domain and trademark before the pilot.
+### P0.3 UX and demo script — design + frontend
 
-## Phase 1 — Prove the idea with real people before building much more (2–4 weeks, runs alongside Phase 2)
+- [ ] Design mobile submission, update result, exception inbox, comparison panel and issue correction views.
+- [ ] Define shared labels, icons, 3D color precedence and accessible 2D fallback.
+- [ ] Script a daily update with a supported completion, a mistake and an evidence request across at least two stages.
+- [ ] Inventory reusable Studio components and distinguish local demo behavior from connected features.
+- [ ] Label sample evidence, fixture AI and simulated notifications in the demo.
 
-These are the questions that decide whether the build is worth it. Each one gets a number we write down.
+**Done when:** a teammate can explain the full workflow and the difference between AI completion and inspection approval from the prototype screens.
 
-- [ ] **Interview 10–15 superintendents and PMs** at mid-size builders ($20M–$300M a year). Ask:
-  - How do you track who's working where today?
-  - How long does the daily report take, and who reads it?
-  - How often does a crew show up to a room that isn't ready? What does that cost?
-  - How do you check a sub's progress before paying them?
-  - What tools do you pay for now (Procore, Raken, Fieldwire, OpenSpace, WhatsApp, spreadsheets)? What do you hate about them?
-- [ ] **Count how many jobs actually have a usable 3D model (IFC/Revit) from the architect.** Ask every interviewee and every architect we know. If it's under ~30%, the 2D conversion fallback moves back up the list.
-- [ ] **Collect 3–5 real IFC models** from real projects (family business first). These become test data.
-- [ ] **Collect 2–3 real drawing sets** (DXF/PDF) for the conversion fallback.
-- [ ] **Shadow one superintendent for a day** on the family business site. Write down every phone call, text, photo and report. This becomes the "before" picture.
-- [ ] **Track trade handoffs on one building for a month.** Count how many times a crew arrived and the room wasn't ready, and how many hours or days that lost. This is the proof for the handoff feature.
-- [ ] **Look at Smartapp, OpenSpace Field, Fieldwire, Dalux and Raken hands-on** (free trials or demos). Write one page on what each does well and badly for a mid-size job.
-- [ ] **Decide US first or India first.** Competition is much denser in the US. Write down the reasons and pick one.
-- [ ] **Test pricing in conversations.** Would you pay $1,000–2,500 per project per month? Per project, or per year across all projects?
+## P1 — Daily workflow
 
-## Phase 2 — Build what the pitch promises (6–10 weeks)
+### P1.1 References and work context — backend + frontend (R1, R8)
 
-Build in this order. Each item ends with tests, a commit and a short report, per the working agreement.
+- [ ] Store applicable approved plan/detail revisions, specifications and approved changes for each check.
+- [ ] Add explicit work-package and room/element associations.
+- [ ] Expose a source comparison view; show missing dimensions or ambiguous references.
+- [ ] Require location confirmation when automatic mapping is uncertain.
+- [ ] Define affected-check invalidation for approved drawing changes.
 
-### 2.1 Tasks (planned work) — P0
+**Done when:** every assessable work item has a retrievable source snapshot; ambiguous or stale references cannot complete work.
 
-- [ ] Add a `Task` model: title, description, project, zone, elements (many), trade, assigned company or crew, assignee, start date, due date, status (not started / in progress / done / blocked), priority, created by. Use the same pin-and-viewpoint approach as issues.
-- [ ] Decide whether tasks and issues share one table with a `kind` field, or stay separate. (Suggestion: one "work item" table with kind = task | issue. Same list, filters, comments and pins; less code.)
-- [ ] Migration `0007_tasks`, plus tests on SQLite and Postgres.
-- [ ] Events for every task change (created, assigned, status, due date moved). The append-only log rule still applies.
-- [ ] API: create, update, list with filters (zone, trade, crew, assignee, status, due this week, late), bulk-create (e.g. "plumbing rough-in for every unit on Level 3").
-- [ ] Web: create a task by clicking an element or room in 3D; a task list with filters; a "my tasks today" view.
-- [ ] Viewer overlay: color elements by task status (late = red outline, due today, done).
-- [ ] Field app: a crew sees today's tasks for their zones, updates status, attaches photos.
-- [ ] Link a task to progress: finishing a task with photos creates the upload that the PM approves. No separate flow.
-- [ ] Tests: permissions (a trade sees only their tasks and zones), the events are written, no task marks an element green without evidence.
+### P1.2 Capture and synchronization — frontend + backend (R2, R9)
 
-### 2.2 Companies and crews — P0
+- [ ] Build photo-and-text daily submissions with multiple work items and worker claims.
+- [ ] Add check-specific capture guidance and retake requests.
+- [ ] Persist local drafts and stable client submission IDs.
+- [ ] Reconcile queued, uploading, received, checking and failed states.
+- [ ] Make upload/job retries idempotent and preserve partial upload recovery.
+- [ ] Test mobile camera/file selection, reconnect, duplicate submission and interrupted upload.
+- [ ] Verify access control for every attachment, location and derived result.
 
-- [ ] Add `Company` (subcontractor firm) and `Crew` (a named group under a company, with a foreman). Project members belong to a company.
-- [ ] Assign tasks and issues to a company or crew, not only a person.
-- [ ] Crew check-in per zone per day (a tap in the field app or a QR scan). This is the "who worked where" record for the daily log.
-- [ ] Update RBAC: a foreman manages their crew's tasks; a company admin sees all their crews on the project. Keep all checks in `app/rbac.py`.
-- [ ] Tests for every new permission.
+**Done when:** a submission survives network loss, appears once on the server, and never appears checked while only stored locally.
 
-### 2.3 Sub access without friction — P0
+### P1.3 Review foundation — frontend + backend (R3, R5)
 
-- [ ] Invite by email and SMS with a magic link. No password needed for trades.
-- [ ] Let a sub open one task from a link and reply with photos without creating a full account (a scoped, expiring token tied to that task).
-- [ ] Rate-limit login and magic-link endpoints.
-- [ ] Tests: expired links fail, a token can't read other tasks or zones.
+- [ ] Build daily update detail and exception inbox against deterministic assessment fixtures.
+- [ ] Show evidence alongside the plan/detail with source revision and check scope.
+- [ ] Add request-evidence, confirm-finding, dismiss-with-reason and human-accept actions.
+- [ ] Persist decision actors and timestamps; preserve superseded results.
 
-### 2.4 Guided capture — P0 (fixes the biggest weakness in photo checks)
+**Done when:** a reviewer can reach a decision with context and the history explains how it was made.
 
-- [ ] Per zone and trade, define required photo angles (e.g. "bathroom wet wall, full height", "under the sink"). Start with templates per room type.
-- [ ] Field app walks the worker through each required shot, with an example picture and an overlay hint.
-- [ ] The vision check only says "complete" when every required angle is present. Otherwise the elements stay "not visible" and the worker is asked for the missing shot.
-- [ ] Capture the reference render from the viewer for each angle (the `reference_key` field exists; wire it to required angles).
-- [ ] Add a coverage number to the vision eval: what share of expected elements appeared in at least one photo.
+## P2 — AI assessment and progress
 
-### 2.5 Voice notes — P0 (the daily log needs them)
+### P2.1 Analysis pipeline — AI + backend (R1, R3, R9)
 
-- [ ] Record audio in the field app, queue it offline like photos.
-- [ ] Transcribe on the server (pick a speech-to-text API; model name and keys in env vars).
-- [ ] Attach the transcript to the upload, task or issue. Show the audio and text in the UI.
-- [ ] Support Spanish (and Hindi/Telugu if India first). Check transcription quality on real site audio with background noise.
+- [ ] Reuse the current model adapter behind a new check-oriented structured result contract.
+- [ ] Add capture-quality and visibility outcomes.
+- [ ] Validate returned item IDs, evidence references, source references and result enums server-side.
+- [ ] Distinguish absence from occlusion and unsupported checks from no discrepancy detected.
+- [ ] Include approved changes in comparison context.
+- [ ] Treat instructions found in uploaded documents or images as data, not system instructions.
+- [ ] Store model, prompt, check and policy versions with each run.
+- [ ] Add retry, timeout and failed-analysis states; prohibit failure-to-complete fallbacks.
+- [ ] Detect stale jobs and allow relevant reassessment of previously completed elements.
 
-### 2.6 AI daily log — P0
+**Done when:** all configured checks yield traceable outcomes and malformed, stale or failed analysis cannot change completion.
 
-- [ ] Add a `DailyLog` model: project, date, status (draft / signed), body (structured sections), signed by, signed at, sources (the events, uploads, photos and transcripts it used).
-- [ ] A nightly job (and a "draft now" button) gathers the day's events, check-ins, task changes, issues, uploads and transcripts, and asks Gemini for a structured draft:
-  - weather
-  - crews and headcount by company and zone
-  - work completed
-  - issues opened and closed
-  - delays
-  - inspections
-  - safety notes
-  - tomorrow's plan
-- [ ] Every line in the draft links back to its evidence (photo, task, transcript). No claims without a source.
-- [ ] The super edits and signs. A signed log is locked; corrections become a new event.
-- [ ] Export the signed log as PDF and send it to the owner by email.
-- [ ] Pull weather automatically from a weather API using the project address.
-- [ ] Eval harness: for 10+ real site days, compare the AI draft with the super's own report. Measure missing facts, wrong facts (must be zero) and minutes saved.
+### P2.2 Completion policy — backend + AI (R4, R5, R8)
 
-### 2.7 Zone readiness and trade handoffs — P1 (our sharpest differentiator)
+- [ ] Replace/isolate legacy project-wide confidence auto-approval in the new workflow.
+- [ ] Add AI-checked completion separately from human acceptance and formal inspection.
+- [ ] Require adequate evidence and passing supported checks for all required parts of a work item.
+- [ ] Keep new checks in shadow/review mode until their evaluation gate is met.
+- [ ] Implement per-check/project enablement with a recorded policy version.
+- [ ] Block completion on relevant unresolved issues, missing evidence and ambiguous references.
+- [ ] Reopen affected work on contradictory evidence or changed requirements.
+- [ ] Add tests for false completion pathways, mixed supported/unsupported checks and unauthorized overrides.
 
-- [ ] Define prerequisites per zone and trade. Example: drywall in Unit 304 needs plumbing rough-in, electrical rough-in and fire sprinklers all verified, the inspection passed and no open issues. Start with templates per building type.
-- [ ] Compute a readiness state per zone (ready / blocked by X / not started) from verified elements, inspections and open issues.
-- [ ] Show readiness on the 3D model (a "ready for drywall" view) and in a list.
-- [ ] When a zone becomes ready, notify the next trade's foreman and create or unblock their task.
-- [ ] Add an `Inspection` record (type, zone, date, inspector, pass/fail, photo of the signed card).
-- [ ] Tests: a zone is never "ready" while any prerequisite lacks evidence.
+**Done when:** automatic progress is scoped, reproducible and auditable; no AI action fabricates a human or official approval.
 
-### 2.8 Owner dashboard — P1
+### P2.3 Evaluation — AI + construction reviewer (R10)
 
-- [ ] Portfolio page: every project with % complete by trade, late tasks, open issues, and the last signed daily log.
-- [ ] A project summary page that works on a phone.
-- [ ] A weekly email summary.
+- [ ] Extend the existing presence/absence harness to assess plan discrepancy and completion decisions.
+- [ ] Add expert-reviewed real captures with permission and separate project/site evaluation splits.
+- [ ] Cover correct work, visible defects, partial work, occlusion, poor lighting, wrong rooms, revisions and approved changes.
+- [ ] Measure false completions, missed defects, false alerts, abstention and evidence coverage per check.
+- [ ] Record sample sizes, limitations, model/prompt versions and total review burden.
+- [ ] Agree on release thresholds; keep checks failing the gate advisory-only.
 
-### 2.9 Notifications — P1
+**Done when:** results support the specific capability claims made in the UI, with no synthetic score presented as field accuracy.
 
-- [ ] Web push for the installed PWA (Android, desktop, iOS 16.4+ from the home screen).
-- [ ] SMS for subs who never open the app (task assigned, zone ready, retake requested).
-- [ ] Email digests. Per-user notification settings.
+## P3 — 3D and corrections
 
-### 2.10 Look and feel: match the concept render — P0 for the demo and pitch, P1 for the product
+### P3.1 Shared model status — frontend + backend (R4, R7)
 
-Target: `docs/design/concept-render.jpg`. It shows an x-ray glass building with glowing pipes by system, an exploded floor stack, a room cutaway, red/amber/green map pins on a pipe segment, and a dark dashboard around the 3D view.
+- [ ] Project persisted assessments and issues into viewer colors and badges.
+- [ ] Add floor/room/trade filtering, selected-item evidence and room-level pins for uncertain element matches.
+- [ ] Show AI-checked versus human-accepted completion, issue overrides and inspection separately.
+- [ ] Show required-item coverage and explain completion denominators.
+- [ ] Update daily summary and model from the same source of truth.
+- [ ] Ensure captures never silently modify approved geometry.
 
-Today the viewer has flat grey Lambert boxes on a light background, two lights, and sphere markers. The UI is a plain light admin layout (`web/e2e/.results/m1-model.png`).
+**Done when:** model, list and daily report agree after refresh, and every completion/issue is traceable.
 
-**What's realistic.** About 80% of the look is reachable in real time in the browser with three.js. The rest is the photoreal interior (furniture, warm room lighting, soft bounce light). That needs either content we don't have (furniture models) or offline rendering. Plan for "looks like the concept" in the live app, and use a path-traced still or video for marketing shots.
+### P3.2 Correction loop — frontend + backend (R5, R6)
 
-**A. Demo content (do first: the renderer can't make a duplex look like a 4-storey building)**
-- [ ] A 4–5 storey apartment demo building with full MEP: cold, hot and waste water, electrical, HVAC ducts and sprinklers. Either extend `samples/dxf/generate.py` to stack a typical apartment floor with risers, or find a CC-licensed IFC with MEP. Seed it as the main demo project.
-- [ ] Real pipe geometry: elbows and tees at fittings (today pipes are straight cylinders), real diameters, insulation on hot lines. Ducts as rectangular sections with bends.
-- [ ] Fixture models instead of boxes: a small CC0 glTF library (toilet, basin, shower, tub, kitchen sink, water heater, outlet, switch, light), placed by fixture `kind` at the detected position and rotation.
-- [ ] Element properties the info card needs: system (domestic cold, hot, waste), material, diameter, location breadcrumb. IFC import already carries some of these; make the converter fill them from layer names and defaults (editable in the review editor).
-- [ ] Optional "dressing" layer: furniture per room type, purely visual, never part of progress or the checklist. Off by default; on for demos.
+- [ ] Convert a confirmed finding into an assigned issue with due date and clear resolution requirements.
+- [ ] Link before/after evidence and recheck the affected items.
+- [ ] Support accepted correction, more evidence needed and rejected correction.
+- [ ] Require an explicit issue-resolution decision; do not close issues merely because a new photo arrived.
+- [ ] Preserve prior evidence, AI results, assignment changes and review reasons.
+- [ ] Add in-app follow-ups using existing notification infrastructure; label any simulated delivery.
 
-**B. Renderer (`web/src/viewer/`)**
-- [ ] PBR materials (`MeshStandardMaterial`/`MeshPhysicalMaterial`), ACES tone mapping, sRGB output, and an environment map (`RoomEnvironment` or a small HDRI) so surfaces read as glass, metal and plastic.
-- [ ] X-ray architecture: walls and slabs as tinted glass, with crisp edge lines (`EdgesGeometry`) so floors and rooms stay legible; MEP opaque and saturated on top. This is the main look in the concept.
-- [ ] Colour by system, not just by discipline: cold = blue, hot = red/orange, waste = purple, HVAC = teal, electrical = yellow. Status colours still win (red > amber > green), per `PLAN.md`.
-- [ ] Glow for status: emissive plus a selective bloom pass on green, amber and red elements, and a soft green fill light inside rooms that are done (the green floors in the concept). Use the `postprocessing` library (pmndrs) for bloom, SSAO/N8AO and SMAA.
-- [ ] Ground and shadows: a dark gradient backdrop, a contact shadow under the building, and soft shadows from one key light.
-- [ ] Exploded floor view: animate levels apart vertically, with a floor picker (4F / 3F / 2F / 1F) to lift out one level. Levels and zones already exist in the data.
-- [ ] Room cutaway: on selecting a zone, fly the camera in, hide the ceiling and the walls facing the camera, and ghost the rest of the building. Reuses `flyTo`, the section box and zone filters.
-- [ ] 3D map-pin markers (pin plus ring around the element) for issues and status, replacing the spheres. Pulse on new events.
-- [ ] Smooth camera transitions everywhere: fly-to, floor focus, and a "return to building" button.
-- [ ] Quality tiers: auto-detect GPU and phone. Low tier = no bloom or SSAO, simpler materials. The field app must stay fast on older Android phones.
-- [ ] "Beauty mode" for marketing stills: `three-gpu-pathtracer` to render the current view photoreal, exported as PNG. Not used in the daily flow.
+**Done when:** another teammate can follow an issue from discovery to resolution and understand every decision.
 
-**C. App shell (office app)**
-- [ ] Dark theme with design tokens (colours, radius, spacing), also usable in light mode for the field app outdoors.
-- [ ] Layout from the concept: an icon sidebar (Building view, Systems, Issues, Analytics, Reports, Settings), a full-bleed 3D view, the floor stack on the left, and system toggle pills along the bottom (Water pipes, Electrical, HVAC ducts, Sprinklers, Gas lines).
-- [ ] Right panel: breadcrumb (Building › 3rd Floor › Unit 3B › Bathroom), tabs **3D view / 2D plan / Isolate**, a room close-up viewport, an element card (system, location, material, diameter, status), and a per-element **status timeline** (issue detected → under review → resolved, with times) built from the event log.
-- [ ] Icons (Lucide or similar), one typeface, consistent empty, loading and error states in plain site language.
-- [ ] A simpler field app: big buttons, works with gloves, readable in sunlight, three taps to report.
-- [ ] An onboarding flow: create project → upload IFC → see the model split into floors and rooms → invite crews. Target: under 15 minutes.
+### P3.3 Daily report and integrated demo — frontend + product (R7, R10)
 
-**D. The story (the top half of the concept is a storyboard)**
-- [ ] A "guided replay" mode: whole building → zoom into a unit → pipe flagged red → amber after photo check → green after approval → pull back to the building turning green floor by floor. Build it on the existing timeline replay (`src/lib/replay.ts`) plus scripted camera moves.
-- [ ] Export the replay as a video (MediaRecorder on the canvas) for the pitch deck and outreach.
+- [ ] Summarize new completions, partial work, open issues, evidence gaps and required actions.
+- [ ] Link each summary statement to records; do not infer unreported hours, costs or weather.
+- [ ] Adapt the detailed Studio building to the multi-stage daily-check narrative.
+- [ ] Provide repeatable reset/seed behavior and explicitly identified fixtures.
+- [ ] Run the full capture → check → completion/issue → correction → 3D update demonstration.
+- [ ] Verify mobile layout, keyboard navigation, readable legends and key empty/error states.
 
-**E. Checks**
-- [ ] Visual regression screenshots of the main views (Playwright) so the look doesn't silently break.
-- [ ] Frame-rate budget: 60 fps on a mid-range laptop and at least 30 fps on a 3-year-old Android phone with the demo building. Measure before and after each renderer step.
-- [ ] Keep the viewer's command/event API (`selectElement`, `setColors`, `flyTo`, `snapshot`) unchanged. Add new commands (`explodeFloors`, `focusZone`, `setQuality`) to the same API, with unit tests.
+**Done when:** a new person can test the full story without guidance and identify what is simulated.
 
-### 2.11 Integrations — P2
+## P4 — Pilot and hardening
 
-- [ ] Procore: two-way sync of tasks and issues, push signed daily logs into Procore's daily log.
-- [ ] Import photos from OpenSpace or other 360° tools where the customer already uses them.
-- [ ] Import the schedule from MS Project or P6 to create tasks.
-- [ ] Optional: photo intake over WhatsApp (a sub sends photos to a number and they land on the right task).
+- [ ] Recruit design partners and establish baseline capture/review effort.
+- [ ] Run shadow-mode assessments alongside qualified site review before enabling automatic completion.
+- [ ] Measure combined capture, retake, review and correction time.
+- [ ] Document actionable early detections and evidence-backed avoided-cost estimates separately.
+- [ ] Test production offline behavior on actual field devices.
+- [ ] Review storage access, backup/restore, retention, rate limits, job reliability and monitoring.
+- [ ] Measure AI cost per update, support/onboarding burden and willingness to keep using the product.
+- [ ] Set pricing from customer value and operating costs rather than illustrative pitch arithmetic.
+- [ ] Update pitch and status only with observed results.
 
-### 2.11a Conversion on real drawings — P1 (moves to P0 if Phase 1 finds most jobs have no IFC)
+**Done when:** the team has evidence of repeatable customer value and knows which checks can safely remain automatic versus advisory.
 
-First real test, 2026-10-04: `drawings2d.pdf` (12 vector sheets from NIST: house, duplex, apartments, office, retail, school, restaurant). Every sheet "converts" but none is usable. On sheet 2 (house, first floor): 55 wall pieces, 0 doors, 3 rooms named "W", "M", "H", scale guessed. Fix in this order and track each step with the eval:
+## P5 — Expansion backlog
 
-- [ ] Make it an eval set: split into one PDF per sheet under `samples/pdf/real_nist/`, record the true scale, room names, door and window counts in `expected.json` for at least the house sheets (2–4). Check and note the licence in `samples/README.md` (US government work).
-- [ ] Filter the sheet border and title block. Today only lines on the page edge are dropped; these sheets have an inset frame, which became walls and a 47 m² "room".
-- [ ] Read rotated text. The plans are drawn sideways, and pdfminer splits rotated labels into single letters. Group characters by their matrix/direction before matching room labels and scale notes.
-- [ ] Find the scale. Notes are tiny and rotated. Also try dimension strings (e.g. `15' - 2 1/4"`) against measured line lengths.
-- [ ] Split a sheet into its separate drawings (main plan, enlarged kitchen and restroom plans, schedules) by viewport or title ("FIRST FLOOR PLAN"). Today they are merged into one level.
-- [ ] Interior walls: most are missed (thin double lines). Revisit the line-weight rule.
-- [ ] Doors: 0 found on all 12 sheets. Check the arc and swing shapes these sheets use.
-- [ ] Read all pages of a multi-page PDF (today only page 1 is read), with the PM picking which sheets are plans.
+- [ ] Expand supported check coverage across trades and stages using the same evaluation gate.
+- [ ] Add voice transcription and editable structured notes.
+- [ ] Evaluate short-video capture and extraction of useful evidence frames.
+- [ ] Prototype native supported-device LiDAR capture and alignment to project coordinates.
+- [ ] Validate measurements against instruments; store units, tolerances and uncertainty.
+- [ ] Add expert-reviewed jurisdiction-specific code/checklist assistance.
+- [ ] Investigate requested project-system integrations; Procore is a potential integration, not shipped synchronization.
+- [ ] Explore agent follow-ups and broader coordination after the daily loop proves useful.
 
-### 2.12 Park for later (don't build now)
+These are future options, not dependencies for showing the core product.
 
-- [ ] Payments tied to verified progress, lender draws, materials and deliveries. The data model leaves room for them.
-- [ ] Raster or scanned drawing conversion. Scoped in `PLAN.md` §9.
-- [ ] Branch-and-merge UI for design changes (the API supports it).
+## Contributor handoff
 
-## Phase 3 — Production readiness (2–3 weeks, before the first paid pilot)
-
-- [ ] Choose hosting (AWS, GCP or a simpler platform). Write it in `PLAN.md` §8.
-- [ ] Postgres in production with daily backups and a tested restore.
-- [ ] Move photo, IFC and GLB storage to S3-compatible storage (`Storage` interface exists; add the S3 backend).
-- [ ] Replace the DB job queue only if it can't keep up. Measure first.
-- [ ] Secrets in a secret manager; nothing in code (non-negotiable 6).
-- [ ] HTTPS, CORS, secure cookies, CSP headers.
-- [ ] Error tracking (e.g. Sentry) for backend and web, plus uptime monitoring.
-- [ ] Structured logs, with no photos or personal data in the logs.
-- [ ] Security review: auth, magic links, file uploads (type and size checks, image re-encoding), permission checks on every file download.
-- [ ] Data policy: who owns photos, how long we keep them, how a customer exports or deletes their data. Write terms of service and a privacy policy.
-- [ ] Cost tracking for Gemini vision and transcription per project per day. Set limits and alerts.
-- [ ] Load test: one project with 500 photos a day, 50 users, a 200 MB IFC model.
-
-## Phase 4 — Testing plan
-
-### Automated tests (run on every commit in CI)
-
-- [ ] Keep all backend tests green on both SQLite and Postgres.
-- [ ] New tests for every feature above, including permission tests for every new endpoint.
-- [ ] Contract tests for the viewer's message bridge, if we wrap the app in a native shell later.
-- [ ] An end-to-end test per main flow:
-  - [ ] PM creates a task in 3D and assigns it to a crew.
-  - [ ] Foreman completes it with guided photos, offline, then syncs.
-  - [ ] PM approves; the element turns green.
-  - [ ] Super opens the drafted daily log, edits it and signs.
-  - [ ] Zone becomes ready; the next trade is notified.
-  - [ ] Sub replies to a task through a magic link with no account.
-- [ ] Visual regression screenshots for the viewer and main pages.
-- [ ] A test that fails if anything turns green without linked evidence (exists; keep it).
-
-### Accuracy tests (run whenever a prompt or model changes; record the numbers)
-
-- [ ] **Photo checks:** label 300+ real photos from the family business site (zone, trade, expected elements, true status). Fill `samples/photos/`. Report precision and recall per element type, plus false greens.
-  - Target before auto-approve can be turned on: precision ≥ 0.95 and zero false greens on the labeled set.
-- [ ] **Coverage:** with guided capture, what share of expected elements appear in at least one photo? Target ≥ 90%.
-- [ ] **Daily log:** compare against the super's own report for 10+ days. Wrong facts must be zero.
-- [ ] **Voice transcription:** word error rate on 30+ real site recordings, including noisy ones.
-- [ ] **IFC import:** run on every real model we collect. Check floors, rooms and trades are detected correctly, and time the import.
-- [ ] **IFC re-import:** take two versions of the same real project. Check that tasks and progress carry over and changed elements are flagged.
-- [ ] **Conversion fallback:** run the eval on the real drawing sets (first one: `drawings2d.pdf`, see 2.11a). Record how much manual fixing each sheet needed.
-- [ ] Keep a results log (date, model name, prompt version, numbers) in `samples/RESULTS.md`.
-
-### Field tests (real phones, real site)
-
-- [ ] Test the PWA on the phones crews actually carry: older Android, iPhone, with gloves, in bright sun.
-- [ ] Offline test on site: airplane mode for a full shift, then sync. Nothing lost, nothing duplicated.
-- [ ] Battery and data use over a full day of photo uploads.
-- [ ] QR codes: print them, post them in rooms, and check they survive a week of site dust.
-- [ ] Decide PWA vs. native app based on these results (iOS push and background upload are the usual reasons to go native).
-
-### Pilot test (the real proof)
-
-- [ ] Run a 6–8 week pilot on one family-business building.
-- [ ] Before the pilot, record the baseline: daily report time, handoff misses per month, time spent chasing subs, how progress is checked before paying.
-- [ ] Measure weekly:
-  - [ ] Minutes per daily log (before vs. after).
-  - [ ] Share of crews updating from their phones.
-  - [ ] Photo checks the PM accepted vs. overrode.
-  - [ ] False greens (must stay at zero).
-  - [ ] Handoff misses (before vs. after).
-  - [ ] How often the PM and owner open the 3D view without being asked.
-- [ ] Weekly 20-minute feedback call with the super and PM. Keep a running list of what they hate.
-- [ ] At the end, write a one-page case study with the numbers.
-- [ ] Then: 3–5 paid pilots with outside builders.
-
-## Phase 5 — Business tasks (in parallel)
-
-- [ ] Rewrite the memo around the corrected competitor picture (add Smartapp, Fieldwire, Doxel, Cupix and DroneDeploy; remove "no one does this").
-- [ ] Make the pitch deck from the four-line pitch, the walkthrough demo and the pilot numbers.
-- [ ] Record a 60-second screen capture of the walkthrough demo for outreach.
-- [ ] Decide on company formation, founder roles and equity split.
-- [ ] Build a list of 50 target mid-size builders in the chosen market.
-- [ ] Ask architects and MEP consultants we know whether they'd share IFC models with their builders through us.
+For each selected package, record an owner, dependencies, interface contract, acceptance evidence and limitations. Coordinate shared schema changes before parallel implementation. Keep [STATUS.md](STATUS.md) current as work ships. Do not mark a package done solely because its screen exists.

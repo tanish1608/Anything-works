@@ -1,97 +1,194 @@
-# SiteMesh
+# Everything Works AI
 
-**Catch unfinished work before it becomes expensive rework.**
+**Turn every daily construction update into checked progress and actionable issues.**
 
-SiteMesh helps builders catch incomplete work before inspections and wall closure, coordinate the next trade, and keep photo evidence of every approved handoff—from a phone.
+## The cost of doing work twice
 
-On a busy construction project, a small gap in communication can become an expensive problem. A crew reports that a room is finished. The next trade is scheduled. An unresolved issue or missing check surfaces only when an inspector arrives, a crew cannot start, or finished work has to be opened again.
+**At 5% rework, a $20 million construction project spends $1 million doing work again. Across ten projects of that size, that is $10 million.**
 
-The information needed to catch the problem earlier may already exist—in a photo, a message, a drawing, or someone's memory. The project team needs that information connected to the right location, the person responsible, and the decision that must happen next.
+This is an illustrative scenario using a historical research benchmark, not a verified current US residential average. Hwang and colleagues' 2009 paper cites earlier CII research at that level. [Research paper, introduction](https://www.pdhexpress.com/wp-content/themes/pdhexpress/pdf-courses/impact-of-rework-in-construction-cost.pdf).
 
-SiteMesh is being built to make that connection.
+A misplaced component, incomplete installation or missed detail can become more expensive to correct as other work proceeds. The opportunity is to turn daily field updates into earlier checks and a clearer record of actual progress.
 
-## The problem
+## One-line description
 
-Builders discover incomplete or incorrect work too late because progress claims, evidence, and trade handoffs are disconnected.
+**Everything Works AI checks construction photos and daily updates against approved project information, flags potential mistakes, and updates completion and issues in a shared 3D model.**
 
-A superintendent needs to know: What is actually finished? What still needs attention? Who owns the correction? Can the next crew start?
+## The pitch
 
-Answering those questions can require walking the site, calling subcontractors, searching messages, and reconciling conflicting updates. A reported percentage complete rarely explains whether a particular room is ready for the next stage.
+Construction teams already send photos, messages and daily reports. Project managers still have to connect those updates to the correct location and latest plan, decide whether the work is correct and complete, and coordinate any fixes.
 
-The consequences can include wasted crew visits, inspection delays, repeated coordination, and physical rework. SiteMesh focuses on helping the team act while there is still time to avoid those costs.
+We are building Everything Works AI to do that first layer of checking after each daily update.
 
-## The product
+A crew submits photos and a short description of its work. AI identifies the relevant work items, compares visible conditions with the approved project reference, and separates supported completion, potential mistakes and missing evidence.
 
-SiteMesh connects planned work, field evidence, issues, and approvals to the room or building element where the work happens. The building's 3D model gives PMs and owners a visual map. Crews can reach their work through a task list, a floor plan, or a QR code posted in the room.
+When the required evidence and supported checks are satisfied, the system updates the item to **AI-checked complete**. When it finds a possible mistake, it pins the finding to the room or element in 3D. When the update is insufficient, it asks for the missing view or information.
 
-The proposed workflow is simple:
+The PM gets a shared view of progress and an exception queue. The responsible trade sees where the issue is, why it was flagged and what needs correction. New evidence carries the issue through rechecking and resolution.
 
-1. **Define the work and its completion criteria.** The PM assigns a task to a crew and location, with a due date and the evidence or checks needed for approval.
-2. **Capture progress at the source.** A foreman submits the required photos and a short update from a phone. Uploads queue when the site has no signal.
-3. **Surface what needs attention.** SiteMesh shows missing evidence, unresolved issues, and incomplete prerequisites. AI assists by organizing updates and flagging possible omissions for review.
-4. **Resolve and approve.** The responsible person corrects the issue and adds evidence. The PM or superintendent reviews the work and records the approval.
-5. **Coordinate the next trade.** A room becomes ready for the next stage when its configured prerequisites are approved. The next crew can see where it can start and what remains blocked.
+The direction covers daily work across structure, MEP, interiors and closeout. We will validate and release individual checks in stages. Catching an electrical mistake before drywall is one example of the value, not the full product.
 
-The same activity creates a record of who did what, where, and when. AI-assisted daily reports summarize those updates for the superintendent to review and sign.
+## Customer pain points
 
-## A concrete example
+Initial customer hypothesis: US residential and multifamily general contractors and developer-builders. Superintendents and PMs review work; foremen and subcontractors submit evidence and resolve findings.
 
-Drywall is scheduled for Unit 304. Plumbing rough-in has been reported complete, but a required check has not been recorded and an issue remains open.
+| Pain point | Consequence | Intended product response |
+|---|---|---|
+| Daily updates describe activity without proving correct completion | PMs repeat checks and follow-up conversations | Compare the evidence with explicit work requirements |
+| Photos, drawings and messages are disconnected | Teams struggle to identify the right room, reference and responsible person | Link each update to location, work item and approved revision |
+| Mistakes are discovered after other work proceeds | Repeat visits, disruption, failed inspections and rework | Surface supported discrepancies during daily review |
+| “Done” means different things to different people | Claimed progress is confused with verified work or inspection approval | Separate claims, AI-checked progress, human acceptance and inspection |
+| Random photos leave gaps | Hidden or unseen work may be assumed complete | Show coverage and request missing evidence |
+| Issues lack ownership and a visible resolution trail | Problems persist across trades and shifts | Pin, assign, recheck and track corrections |
+| Progress must be entered again into another dashboard | Duplicate administration and stale status | Derive model and daily summary updates from the same evidence records |
 
-SiteMesh shows Unit 304 as blocked for drywall, identifies the missing prerequisite, and assigns the outstanding correction. The foreman submits updated evidence, and the superintendent reviews it. Once all required approvals are recorded, the room is released for the next trade.
+## The product loop
 
-The value is in the earlier action: giving the team an opportunity to correct the problem before the next crew arrives or the wall is closed.
+**1. Establish the reference.** Review the project model or plans, confirm locations, attach approved details and changes, and define work items and their required checks.
 
-## What verification means
+**2. Submit daily work.** A worker captures photos and a short note. The app guides capture where needed and queues uploads offline. Voice and video are planned extensions.
 
-SiteMesh distinguishes between work that is reported installed, evidence that has been reviewed, required checks that have been completed, and work that has been approved for handoff.
+**3. Check the update.** AI processes every received submission. For each supported check, it reports no discrepancy detected, a potential discrepancy or insufficient evidence. Unsupported requirements remain explicit.
 
-A photo can support a claim that something is visibly installed. Readiness may also require test results, an inspection record, or another explicit approval. AI suggestions support the responsible person's review; they do not certify workmanship or replace inspections.
+**4. Update completion.** Adequately evidenced work can become AI-checked complete under a validated check-specific policy. Partial, uncertain or conflicting evidence cannot automatically complete it. New checks begin in review mode until validated.
 
-Every status should make clear what was approved, by whom, when, and against which evidence. Missing or outdated evidence should remain visible.
+**5. Locate and resolve mistakes.** The PM reviews findings with the evidence and approved reference. Confirmed issues get an owner and correction requirements. The trade submits new evidence, and the issue follows an explicit resolution workflow.
 
-## Who we serve first
+**6. Keep everyone looking at the same project.** The 3D view, work list and daily report reflect the same persisted assessments and decisions.
 
-Our initial customer is a mid-size general contractor or developer-builder delivering multifamily or mixed-use projects. Repeated units, multiple floors, and recurring handoffs between trades provide a focused starting point.
+AI-checked complete describes the scope of checks performed. It does not replace human acceptance, required testing or formal inspection.
 
-The PM and superintendent use SiteMesh to coordinate work and review readiness. Foremen use it to see assignments, report progress, and resolve issues. Owners get a view of progress and blockers grounded in the team's recorded evidence.
+## What AI checks
 
-We will begin with projects that have a usable IFC model and a team willing to test one specific workflow, such as pre-drywall readiness. Where a model is unavailable, a floor plan and manually defined rooms can support the intended workflow; automatic drawing conversion remains a separate capability to validate.
+The product can expand across stages, while the released check catalog remains explicit.
 
-## Why teams would choose SiteMesh
+| Candidate check | Example | What must be established |
+|---|---|---|
+| Visible presence and count | Required visible components appear in a room | Correct location, adequate views and an explicit expected set |
+| Placement and arrangement | A component appears on a different wall from the approved detail | Reliable reference and correspondence; schematic drawings cannot establish exact dimensions |
+| Incomplete work | A defined finish or punch-list item still has visible unfinished areas | Clear task boundaries and sufficient coverage |
+| Correction evidence | A previously flagged visible condition has changed | Matched issue, location and resolution criteria |
+| Selected measurements, later | A measurable position differs from a specified dimension | Validated method, registration, tolerance and uncertainty |
+| Code/checklist assistance, later | An observable condition needs review against an applicable rule | Jurisdiction, adopted edition, amendments and an expert-reviewed cited rule |
 
-Construction teams already have software choices. Our opportunity is to make a specific workflow easier to adopt and valuable enough to use every day.
+Checking every update does not mean checking every hidden or functional condition. A photo cannot establish unseen connections, electrical performance or structural adequacy. “Not visible” must remain unknown.
 
-We aim for a foreman to open an assigned task and submit evidence with minimal setup, and for a superintendent to see exactly what blocks the next trade. Phone capture, clear ownership, guided evidence collection, and accessible pricing should make participation practical across the project team.
+Plan discrepancies and potential code concerns are different findings. Approved design changes must be considered before flagging an installation as wrong. Code applicability depends on local adoption and amendments. [ICC adoption guidance](https://www.iccsafe.org/advocacy/code-adoption-resources/).
 
-The 3D view helps users understand location and status. AI reduces the effort of organizing evidence and preparing reports. The customer outcome is earlier correction, clearer handoffs, and less time chasing information.
+## How daily updates change the 3D model
 
-## Business model
+The model is a shared view of planned work, observed progress and unresolved issues. Select a floor, unit, room or trade to see the relevant work, evidence and reference.
 
-Our starting pricing hypothesis is a subscription per active project with unlimited users, so inviting another subcontractor does not add a seat charge. Portfolio pricing can support customers expanding across projects.
+| Visual state | Meaning |
+|---|---|
+| Neutral / trade color | Planned work without supported completion |
+| Amber | Review or additional evidence is needed |
+| Green — AI-checked complete | Evidence satisfies the released checks for the named work item |
+| Green — human accepted badge | A reviewer accepted the specified work; actor and evidence are recorded |
+| Red issue marker / override | A relevant unresolved issue remains |
+| Separate inspection badge | A formal result has been recorded from the appropriate source |
 
-The proposed range of $1,000–2,500 per project per month is a hypothesis to test, not a validated price. We will assess it against demonstrated value and the full cost of onboarding, model preparation, field capture, review, support, and AI processing.
+The UI shows what was checked and what was not. New evidence can reopen an earlier completion decision. A room with several completed items can still contain unresolved work.
 
-For customers keeping their existing construction platform, SiteMesh must justify its additional cost through a clearly improved workflow.
+Daily updates change **observations, completion, evidence and issues**. They do not quietly change approved geometry to match an incorrect installation. Geometry changes require an approved design revision.
 
-## How we prove the value
+## Example: one update, three useful outcomes
 
-Start with a six-to-eight-week pilot on one live project, focused on a few trades and one recurring handoff.
+A foreman submits daily photos from several rooms:
 
-Before the pilot, establish how the team currently checks readiness, how much time it spends chasing updates, and how often crews encounter unexpected blockers. During the pilot, measure participation, total capture and review effort, issues corrected earlier, and handoff failures.
+- A framing item has a possible mismatch against an approved detail. AI locates the finding for review.
+- An electrical photo does not show the relevant wall clearly. The app requests another angle instead of marking the task complete.
+- A defined finish item has adequate evidence for all its supported checks. Its status becomes AI-checked complete in 3D.
 
-For each potential avoided-rework incident, record the evidence, when the problem was discovered, what action followed, and the superintendent's assessment of the likely consequence. Cost estimates should be labeled as estimates and separated from directly observed savings.
+The superintendent confirms the framing issue, assigns it and reviews the correction evidence later. The model and daily report update from those decisions.
 
-The strongest proof is a team that uses SiteMesh consistently, can identify concrete improvements, and pays to continue. Follow the first design-partner pilot with three to five paid pilots at independent builders.
+A misplaced electrical box discovered before drywall is another example: earlier detection may avoid opening and refinishing a wall. Required inspections remain separate; for example, Englewood requires rough-inspection approval before covering work with insulation or drywall. [City inspection guidance](https://www.englewoodco.gov/government/city-departments/building-division/inspections/rough-inspections).
 
-## Where we are today
+These are intended demonstration scenarios, not claims that the present prototype reliably detects these conditions. Simulated AI results must be labeled.
 
-The prototype includes IFC import, a 3D viewer, location-linked issues, offline photo uploads, PM approval, AI photo-analysis plumbing, and an event history. Planned tasks, crew coordination, readiness rules, guided capture, and AI daily reports remain to be built or completed.
+## Phone photos and LiDAR
 
-Real-site accuracy, adoption, and cost savings have not yet been established. The next milestone is to prove one complete field workflow with real crews and real evidence.
+Photos are the first input. Supported-device LiDAR may later add spatial context and selected measurements. Apple's RoomPlan demonstrates camera-and-LiDAR room capture; it is not a complete construction quality-checking system. [Apple RoomPlan](https://developer.apple.com/documentation/roomplan).
 
-## The vision
+We must validate each measurement method against the required tolerance and realistic site conditions. When uncertainty is too large, request an appropriate physical measurement. Apple's Measure guidance describes its measurements as approximate; that does not establish the accuracy of our future implementation. [Apple measurement guidance](https://support.apple.com/guide/iphone/measure-dimensions-iphd8ac2cfea/ios).
 
-Give every builder a reliable answer to three questions: What is finished? What needs attention? Where can the next crew start?
+The core workflow should work without every worker owning a LiDAR-equipped phone.
 
-By connecting work, evidence, and decisions to the building itself, SiteMesh aims to help teams catch problems earlier and move through each stage with a clearer record of what is ready.
+## Competition and positioning
+
+US-headquartered businesses retained from our research are below. This describes public positioning and the comparison we need to test. It does not claim that features omitted from marketing materials do not exist.
+
+| Alternative | Public product emphasis | Comparison still to establish | Our intended focus |
+|---|---|---|---|
+| OpenSpace Field | Visual capture, photo/voice issue creation and location-linked field records | Its autolocation uses prior 360° capture; compare the full daily-check and completion workflow in practice | Phone evidence connected to supported quality checks, progress and corrections in 3D |
+| Fieldwire | Plans, mobile tasks, photos, checklists and BIM viewing | BIM is in a higher paid tier; compare setup and review effort for this sequence | Reduce repeated manual interpretation of daily updates |
+| Trunk Tools | AI-assisted construction document search, drawing review, RFIs and submittals | Equivalent physical-installation assessment and completion workflow was not verified | Compare captured work with approved context and update observed progress |
+| Site walks, messages and spreadsheets | Experienced judgment and familiar communication | Evidence, references, decisions and status must be reconciled manually | Support that judgment with located findings and an evidence-backed progress record |
+
+Sources reviewed October 5, 2026: [OpenSpace Field](https://www.openspace.ai/products/field/), [Fieldwire](https://www.fieldwire.com/pricing/), [Trunk Tools](https://trunktools.com/).
+
+Our differentiation thesis is **daily evidence → supported quality assessment → completion or issue → correction → shared 3D status**. It must earn its place through useful detections and lower total effort. A 3D viewer or an AI label alone is not a defensible advantage.
+
+Procore is a complementary project platform and potential integration destination, outside this direct chart. It has overlapping observations and AI capabilities. No integration is currently promised as shipped. [Procore capabilities](https://www.procore.com/ai/agents).
+
+This is a focused comparison, not an exhaustive review of every construction AI or inspection-automation competitor.
+
+## Illustrative project economics
+
+These are arithmetic scenarios, not measured customer results. The base is construction expenditure, excluding land value and home sale price. The 1% case tests sensitivity; it is not presented as another researched industry average.
+
+| Construction expenditure | Rework at an assumed 1% | Rework at an assumed 5% |
+|---|---:|---:|
+| $5 million project | $50,000 | $250,000 |
+| $20 million project | $200,000 | $1 million |
+| $100 million portfolio | $1 million | $5 million |
+
+**A small share of a large cost can still matter.** In the $20 million / 5% scenario, suppose 20% of the $1 million rework cost involves problems our supported checks could address, and earlier detection prevents 25% of that portion. The illustrative avoided cost is **$50,000**:
+
+**$20,000,000 × 5% rework × 20% addressable share × 25% prevented = $50,000.**
+
+The 20% and 25% inputs are hypothetical and need pilot evidence. At a 1% rework rate, the same assumptions yield $10,000 instead. These are gross avoided costs before software, capture, review and implementation expenses—not profit or demonstrated savings. Benefits may accrue to different parties depending on who bears the correction cost.
+
+For a purely illustrative $10,000 project subscription, $50,000 of avoided cost would be **5× the subscription fee**, not 5× net ROI. After that fee, $40,000 would remain before other implementation and operating costs. This fee is an arithmetic assumption, not our price commitment. The lower $10,000-benefit scenario would only cover the fee before those other costs.
+
+The product targets a subset of rework. Owner changes, redesigns, material failures and defects invisible in the capture cannot all be prevented by our initial workflow.
+
+## Starting customer and business model
+
+Start customer discovery with US residential and multifamily builders managing repeated work across rooms and trades. Choose the first released checks based on real evidence, customer pain and reliable evaluation. The initial customer hypothesis does not restrict the product to electrical rough-in.
+
+A proposed business model is a subscription per active project with field participation included. Validate price against the full costs of onboarding, capture, review, support and AI processing.
+
+We aim to reduce administrative effort, identify useful mistakes earlier and keep project progress current. Reduced rework and inspection delays are outcomes to measure, not guarantees.
+
+## Current stage and next milestone
+
+The repository includes a browser-local 3D demo and connected foundations for model import, drawing review, issues, offline photos, progress proposals, PM approval, Gemini analysis and event history.
+
+Reliable plan comparison, a check-specific automatic-completion policy, separate acceptance records and the integrated multi-stage daily loop need development and validation. The legacy confidence-based auto-approval option is not evidence that the new behavior is already delivered.
+
+The next milestone is a complete daily-update demonstration with a supported completion, a potential mistake, an evidence request and a correction reflected in 3D. Use clearly labeled fixtures where live checks are not validated.
+
+Then evaluate permissioned real-site examples with qualified reviewers. Measure false completions, missed defects, false alerts, coverage, abstention and combined capture/review time. Seek design partners and repeat use before making broad accuracy or savings claims.
+
+Detailed scope and implementation work are in the [product specification](PRODUCT_SPEC.md), [build plan](../PLAN.md) and [backlog](../TODO.md).
+
+## Long-term vision
+
+Build a trusted record of what was reported, what was checked, what was completed and what needed correction. Expand check coverage across construction stages as evidence supports it.
+
+That context can eventually support agents coordinating follow-ups and project operations. The operating-system vision grows from a useful, trusted daily workflow.
+
+## 30-second spoken pitch
+
+At an illustrative 5% rework rate, a $20 million project spends $1 million doing work again. Everything Works AI turns daily construction photos and updates into checks against approved plans. It flags potential mistakes, marks supported work AI-checked complete and updates a shared 3D model. Project managers see where attention is needed, and trades can track fixes through resolution. We are building the daily quality-and-progress loop across construction stages, starting with a validated set of observable checks.
+
+## References and assumptions behind the opening
+
+**Historical support, not a universal rate.** Hwang, Thomas, Haas and Caldas (2009), *Measuring the Impact of Rework on Construction Cost Performance*, analyzed 359 CII projects. Its introduction cites a 5% direct-rework benchmark from earlier CII research. Its own industry-group tables report different owner and contractor averages, approximately 5.4% and 2.2%; the sample was predominantly industrial. Do not describe 5% as the measured average across all 359 projects or a current US housing statistic. [Full paper](https://www.pdhexpress.com/wp-content/themes/pdhexpress/pdf-courses/impact-of-rework-in-construction-cost.pdf), [bibliographic record and abstract](https://trid.trb.org/view/884832).
+
+**Newer counterevidence.** A January 2026 ASCE summary reports 0.38% measured precompletion field rework in one contractor study. Assuming an equal amount of postcompletion corrections yields an estimated 0.76%. This illustrates the importance of definitions and the customer sample; it is not a universal residential benchmark either. [ASCE research summary](https://www.asce.org/publications-and-news/civil-engineering-source/article/2026/01/22/how-much-does-field-rework-in-construction-actually-cost).
+
+**Use in a presentation.** Keep “illustrative scenario; historical 5% benchmark” next to the dollar figure and keep the citation visible. No source verified here establishes a general 5–6% rate for current US home construction. The project sizes, portfolio count, addressable share, prevention rate and fee are scenario inputs. Replace them with customer records and pilot results as evidence becomes available.
+
+Product statements describe the intended experience; the current-stage section governs what is available or validated today.
