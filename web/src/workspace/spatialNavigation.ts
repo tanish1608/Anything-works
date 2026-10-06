@@ -2,15 +2,14 @@ import type { ModelDataset } from "../viewer/modelData";
 import type { WorkItem } from "./state";
 
 export const PANELS = [
-  "summary",
   "issues",
   "activity",
   "team",
-  "project",
   "capture",
   "record",
   "component",
   "locations",
+  "import",
 ] as const;
 export type Panel = (typeof PANELS)[number];
 export const floorName = (name: string) => name.replace(/^Building\s*·\s*/, "");
@@ -29,6 +28,7 @@ export function unitForRoom(
     return null;
   if (model.source.slug === "schependomlaan")
     return model.source.room_units?.[code || ""] || null;
+  if (model.source.slug && model.source.slug !== "duplex") return null;
   return /^([AB])\d{3}$/.exec(code || "")?.[1] || null;
 }
 export function workPath(model: ModelDataset, work: WorkItem) {
@@ -56,7 +56,7 @@ export function initialNavigation(pathname: string, search: string) {
       "/report": "activity",
       "/activity": "activity",
       "/people": "team",
-      "/setup": "project",
+      "/setup": "issues",
       "/capture": "capture",
       "/evidence": "issues",
       "/handoffs": "issues",
@@ -74,6 +74,10 @@ export function initialNavigation(pathname: string, search: string) {
     params.delete("view");
     if (!/^[AB]$/.test(params.get("unit") || "")) params.delete("unit");
   }
+  if (["summary", "project"].includes(params.get("panel") || "")) params.set("panel", "issues");
+  // Start with operations, while preserving an explicit close (`panel=none`) and deep links.
+  if (!params.has("panel") && params.get("screen") !== "projects")
+    params.set("panel", "issues");
   return params;
 }
 export function workspaceUrl(params: URLSearchParams) {

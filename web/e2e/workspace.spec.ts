@@ -3,17 +3,15 @@ import { expect, test } from "@playwright/test";
 test("one building viewer remains mounted across contextual workflows", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?panel=issues");
   await expect(
     page.getByRole("region", { name: "Building workspace" }),
   ).toBeVisible();
   const canvas = page.getByTestId("viewer");
   await expect(canvas.locator("canvas")).toBeVisible();
   for (const name of [
-    "Project pulse",
     "Progress history",
     "Project team",
-    "Project context",
   ]) {
     await page.getByLabel("Open project menu").click();
     await page.getByRole("menuitem", { name, exact: true }).click();
@@ -49,7 +47,7 @@ test("mobile work selection opens the contextual panel with the building still v
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
+  await page.goto("/?panel=issues");
   await page.getByLabel("Open work and issues").click();
   await expect(
     page.getByRole("complementary", { name: "Work & issues" }),

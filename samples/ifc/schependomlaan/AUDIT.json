@@ -1355,7 +1355,7 @@
           "elevation": 12000.0
         }
       ],
-      "seconds": 13.261,
+      "seconds": 51.886,
       "by_discipline": {
         "structure": 206,
         "other": 303,
@@ -1368,8 +1368,8 @@
   ],
   "elements": 3504,
   "levels": 6,
-  "rooms": 99,
-  "assigned_to_room": 995,
+  "rooms": 100,
+  "assigned_to_room": 1004,
   "triangles": 260094,
   "vertices": 141229,
   "by_discipline": {
@@ -1378,7 +1378,7 @@
     "architecture": 2935,
     "plumbing": 60
   },
-  "export_seconds": 1.981,
+  "export_seconds": 4.203,
   "mesh_bytes": 4734560,
   "bedroom_fitting": null
 }

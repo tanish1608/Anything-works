@@ -179,3 +179,67 @@ it('retains all turns and minimization history without pulling readers away from
   expect(screen.getByText('Question 0')).toBeVisible();
   expect(screen.getByText(/Long answer 7/)).toBeVisible();
 });
+
+
+it('resizes with keyboard controls, stays inside the viewport and retains size after minimizing', async () => {
+  render(<ProjectCopilot {...context} />); await open();
+  const widget = document.getElementById('project-copilot-body')!;
+  vi.spyOn(widget, 'getBoundingClientRect').mockImplementation(() => ({
+    x: Number.parseFloat(widget.style.left) || 100, y: Number.parseFloat(widget.style.top) || 100,
+    left: Number.parseFloat(widget.style.left) || 100, top: Number.parseFloat(widget.style.top) || 100,
+    width: Number.parseFloat(widget.style.width) || 360, height: Number.parseFloat(widget.style.height) || 430,
+    right: 460, bottom: 530, toJSON: () => ({}),
+  }));
+  const handle = screen.getByRole('button', { name: 'Resize Project Copilot' });
+  fireEvent.keyDown(handle, { key: 'ArrowRight' });
+  fireEvent.keyDown(handle, { key: 'ArrowDown' });
+  expect(widget).toHaveStyle({ width: '380px', height: '450px' });
+  fireEvent.click(screen.getByRole('button', { name: 'Close Project Copilot' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Open Project Copilot' }));
+  expect(widget).toHaveStyle({ width: '380px', height: '450px' });
+  for (let index = 0; index < 70; index++) {
+    fireEvent.keyDown(handle, { key: 'ArrowRight' });
+    fireEvent.keyDown(handle, { key: 'ArrowDown' });
+  }
+  expect(Number.parseFloat(widget.style.left) + Number.parseFloat(widget.style.width)).toBeLessThanOrEqual(window.innerWidth - 12);
+  expect(Number.parseFloat(widget.style.top) + Number.parseFloat(widget.style.height)).toBeLessThanOrEqual(window.innerHeight - 12);
+  for (let index = 0; index < 70; index++) {
+    fireEvent.keyDown(handle, { key: 'ArrowLeft' });
+    fireEvent.keyDown(handle, { key: 'ArrowUp' });
+  }
+  expect(widget).toHaveStyle({ width: '280px', height: '340px' });
+});
+
+
+it('keeps a resized minimized window inside a smaller viewport when reopened', async () => {
+  const widthDescriptor = Object.getOwnPropertyDescriptor(window, 'innerWidth')!;
+  const heightDescriptor = Object.getOwnPropertyDescriptor(window, 'innerHeight')!;
+  try {
+    render(<ProjectCopilot {...context} />); await open();
+    const widget = document.getElementById('project-copilot-body')!;
+    vi.spyOn(widget, 'getBoundingClientRect').mockImplementation(() => ({
+      x: 500, y: 100, left: widget.hidden ? 0 : 500, top: widget.hidden ? 0 : 100,
+      width: widget.hidden ? 0 : 360, height: widget.hidden ? 0 : 430, right: 860, bottom: 530, toJSON: () => ({}),
+    }));
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Resize Project Copilot' }), { key: 'ArrowRight' });
+    fireEvent.click(screen.getByRole('button', { name: 'Close Project Copilot' }));
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 400 });
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 450 });
+    fireEvent(window, new Event('resize'));
+    fireEvent.click(screen.getByRole('button', { name: 'Open Project Copilot' }));
+    expect(widget).toHaveStyle({ left: '12px', top: '12px', width: '376px', height: '426px' });
+  } finally {
+    Object.defineProperty(window, 'innerWidth', widthDescriptor);
+    Object.defineProperty(window, 'innerHeight', heightDescriptor);
+  }
+});
+
+
+it('restores usable chat when a role change removes assignment controls', async () => {
+  const view = render(<ProjectCopilot {...context} renderCoordination={() => <p>Manager assignment controls</p>} />); await open();
+  fireEvent.click(screen.getByRole('button', { name: 'Assign' }));
+  expect(screen.getByText('Manager assignment controls')).toBeVisible();
+  view.rerender(<ProjectCopilot {...context} />);
+  expect(screen.queryByText('Manager assignment controls')).not.toBeInTheDocument();
+  expect(screen.getByLabelText('Message Placeholder AI')).toBeVisible();
+});

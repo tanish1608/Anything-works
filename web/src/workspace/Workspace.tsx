@@ -1,16 +1,17 @@
+import { BrandMark } from "../branding/BrandMark";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Icon } from "../studio/Icon";
 import Agent from "./Agent";
 import ProjectCopilot from "./ProjectCopilot";
-import CopilotCoordination from "./CopilotCoordination";
+import CopilotAssignment from "./CopilotAssignment";
 import { copilotContext } from "./copilotContext";
 import {
   loadDemoModel,
   loadPublicProject,
   PUBLIC_PROJECTS,
-  type PublicProjectId,
   type ModelDataset,
+  type PublicProjectId,
 } from "../viewer/modelData";
 import { WorkspaceContext, type Decision } from "./context";
 import {
@@ -22,6 +23,8 @@ import {
 import { transition, type Action, type Photo } from "./state";
 import { itemsAt } from "./history";
 import BuildingCanvas from "./BuildingCanvas";
+import ProjectShowroom from "./ProjectShowroom";
+import { showroomUrl } from "./propertyCatalog";
 import {
   PANELS,
   initialNavigation,
@@ -33,33 +36,49 @@ import {
   ComponentPanel,
   IssuesPanel,
   LocationsPanel,
-  ProjectPanel,
   RecordPanel,
-  SummaryPanel,
   TeamPanel,
   UpdatePanel,
 } from "./WorldPanels";
 import "./world.css";
 import WorldDialog from "./WorldDialog";
+import { VIEW_ROLES, viewState, type ViewRole } from "./viewRoles";
+import ProjectImportPanel from "./ProjectImportPanel";
+import { loadAuthorizedModel } from "../viewer/authorizedModel";
+import { tokenStore } from "../api/client";
 
 const TITLES: Record<Panel, string> = {
-  summary: "Project pulse",
   issues: "Work & issues",
   activity: "Progress history",
   team: "Project team",
-  project: "Project context",
   capture: "Daily update",
   record: "Work record",
   component: "Component details",
   locations: "Explore building",
+  import: "Project & model setup",
 };
 export default function Workspace() {
   const location = useLocation();
   const requested = new URLSearchParams(location.search).get("project");
-  const project: PublicProjectId =
-    PUBLIC_PROJECTS.find((p) => p.id === requested)?.id || "duplex";
+  const navigate = useNavigate();
+  const project = requested?.startsWith("api:")
+    ? requested
+    : PUBLIC_PROJECTS.find((p) => p.id === requested)?.id || "duplex";
+  const version = new URLSearchParams(location.search).get("version");
+  const showroom =
+    new URLSearchParams(location.search).get("screen") === "projects" ||
+    (location.pathname === "/" && !location.search);
+  const identity = `${project}:${version || "current"}`;
+  useEffect(
+    () =>
+      tokenStore.subscribe((t) => {
+        if (!t && project.startsWith("api:") && !showroom)
+          navigate("/?panel=import", { replace: true });
+      }),
+    [project, navigate, showroom],
+  );
   const [loaded, setLoaded] = useState<{
-      project: PublicProjectId;
+      project: string;
       model: ModelDataset;
     } | null>(null),
     [error, setError] = useState<{
@@ -69,22 +88,31 @@ export default function Workspace() {
     } | null>(null);
   const [retry, setRetry] = useState(0);
   useEffect(() => {
+    if (showroom) return;
     let alive = true;
-    (project === "duplex" ? loadDemoModel() : loadPublicProject(project))
+    (project.startsWith("api:")
+      ? loadAuthorizedModel(project.slice(4), version, true).then(
+          (r) => r.model,
+        )
+      : project === "duplex"
+        ? loadDemoModel()
+        : loadPublicProject(project as PublicProjectId)
+    )
       .then((m) => {
-        if (alive) setLoaded({ project, model: m });
+        if (alive) setLoaded({ project: identity, model: m });
       })
       .catch((e) => {
-        if (alive) setError({ project, retry, message: e.message });
+        if (alive) setError({ project: identity, retry, message: e.message });
       });
     return () => {
       alive = false;
     };
-  }, [project, retry]);
+  }, [project, version, identity, retry, showroom]);
   const errorMessage =
-    error?.project === project && error.retry === retry ? error.message : "";
+    error?.project === identity && error.retry === retry ? error.message : "";
   if (location.pathname === "/agent") return <Agent />;
-  if (!loaded || loaded.project !== project)
+  if (showroom) return <ProjectShowroom current={project} />;
+  if (!loaded || loaded.project !== identity)
     return (
       <div className="world-loading">
         <div className="world-loading-mark">
@@ -99,22 +127,36 @@ export default function Workspace() {
           {errorMessage || "Preparing the shared model and project records…"}
         </p>
         {errorMessage && (
-          <button onClick={() => setRetry((n) => n + 1)}>Try again</button>
+          <>
+            <button onClick={() => setRetry((n) => n + 1)}>Try again</button>
+            <button onClick={() => navigate("/?panel=import")}>
+              Return to public workspace
+            </button>
+          </>
         )}
       </div>
     );
   return (
-    <BuildingWorkspace key={project} model={loaded.model} project={project} />
+    <BuildingWorkspace
+      key={`${identity}:${loaded.model.version}:${loaded.model.source.approvalStatus || "sample"}`}
+      model={loaded.model}
+      project={project}
+      reload={() => setRetry((n) => n + 1)}
+    />
   );
 }
 function BuildingWorkspace({
   model,
   project,
+  reload,
 }: {
   model: ModelDataset;
-  project: PublicProjectId;
+  project: string;
+  reload: () => void;
 }) {
   const storageKey = projectStorageKey(model);
+  const [view, setView] = useState<ViewRole>("pm");
+  const [previewOwner, setPreviewOwner] = useState("");
   const [state, setState] = useState(() => loadProjectState(model)),
     stateRef = useRef(state);
   const [online, setOnline] = useState(navigator.onLine),
@@ -124,6 +166,9 @@ function BuildingWorkspace({
     [reset, setReset] = useState(false);
   const [closeup, setCloseup] = useState(false);
   const [photoHandoffRevision, setPhotoHandoffRevision] = useState(0);
+  const panelRef = useRef<HTMLElement>(null);
+  const previousFocus = useRef<HTMLElement | null>(null);
+  const previousPanel = useRef(false);
   const searchRef = useRef<HTMLInputElement>(null),
     menuRef = useRef<HTMLDetailsElement>(null);
   const location = useLocation(),
@@ -136,12 +181,26 @@ function BuildingWorkspace({
   const panel = PANELS.includes(requestedPanel as Panel)
     ? (requestedPanel as Panel)
     : null;
+  useEffect(() => {
+    if (panel) {
+      if (!previousPanel.current)
+        previousFocus.current = document.activeElement as HTMLElement;
+      if (document.activeElement !== searchRef.current)
+        panelRef.current?.focus();
+    } else if (previousPanel.current && previousFocus.current?.isConnected)
+      previousFocus.current.focus();
+    previousPanel.current = !!panel;
+  }, [panel]);
+  const scopedState = useMemo(
+    () => viewState(state, view, previewOwner),
+    [state, view, previewOwner],
+  );
   const workId =
       params.get("work") ||
       (panel === "capture"
-        ? state.draft?.item ||
-          state.items.find((i) => i.status === "none")?.id ||
-          state.items[0]?.id
+        ? scopedState.draft?.item ||
+          scopedState.items.find((i) => i.status === "none")?.id ||
+          scopedState.items[0]?.id
         : null),
     element = params.get("element");
   const level = params.get("level"),
@@ -149,15 +208,15 @@ function BuildingWorkspace({
     room = params.get("room");
   const date = panel === "activity" ? params.get("date") : null;
   const validDate = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null;
-  const work = state.items.find((i) => i.id === workId);
+  const work = scopedState.items.find((i) => i.id === workId);
   const items = useMemo(
-    () => (validDate ? itemsAt(state, validDate) : state.items),
-    [state, validDate],
+    () => (validDate ? itemsAt(scopedState, validDate) : scopedState.items),
+    [scopedState, validDate],
   );
   useEffect(() => {
-    if (location.pathname !== "/")
+    if (location.pathname !== "/" || ["summary", "project"].includes(new URLSearchParams(location.search).get("panel") || ""))
       navigate(workspaceUrl(params) + location.hash, { replace: true });
-  }, [location.pathname, location.hash, params, navigate]);
+  }, [location.pathname, location.search, location.hash, params, navigate]);
   const go = (changes: Record<string, string | null>, replace = false) => {
     const next = new URLSearchParams(params);
     for (const [key, value] of Object.entries(changes)) {
@@ -168,12 +227,18 @@ function BuildingWorkspace({
     menuRef.current?.removeAttribute("open");
   };
   const open = (next: Panel, id?: string) => {
+    if (document.activeElement !== searchRef.current) {
+      previousFocus.current = document.activeElement as HTMLElement;
+      if (next === panel) panelRef.current?.focus();
+    }
     const target =
       id ||
       (next === "capture"
-        ? stateRef.current.draft?.item ||
-          stateRef.current.items.find((i) => i.status === "none")?.id ||
-          stateRef.current.items[0]?.id
+        ? viewState(stateRef.current, view, previewOwner).draft?.item ||
+          viewState(stateRef.current, view, previewOwner).items.find(
+            (i) => i.status === "none",
+          )?.id ||
+          viewState(stateRef.current, view, previewOwner).items[0]?.id
         : null);
     go({
       panel: next,
@@ -228,18 +293,62 @@ function BuildingWorkspace({
       date: null,
     });
   };
+  const openModel = useCallback(
+    (id: string, version?: string) => {
+      const next = new URLSearchParams({
+        project: `api:${id}`,
+        panel: "import",
+      });
+      if (version) next.set("version", version);
+      navigate(workspaceUrl(next));
+      reload();
+    },
+    [navigate, reload],
+  );
+  const overviewUrl = useCallback(() => {
+    const next = new URLSearchParams();
+    if (project !== "duplex") next.set("project", project);
+    next.set("panel", "issues");
+    if (model.source.apiProjectId && params.get("version"))
+      next.set("version", params.get("version")!);
+    return workspaceUrl(next);
+  }, [project, params, model.source.apiProjectId]);
   const overview = () => {
     setSearch("");
-    navigate(project === "duplex" ? "/" : `/?project=${project}`);
+    navigate(overviewUrl());
     menuRef.current?.removeAttribute("open");
   };
   const close = () => {
-    go({ panel: null, work: null, element: null, date: null });
+    go({ panel: "none", work: null, element: null, date: null });
     setSearch("");
   };
   const act = useCallback(
     (action: Action) => {
       try {
+        if (model.source.apiProjectId)
+          throw Error(
+            "Private work records are not connected yet. Use a public sample to test this flow.",
+          );
+        if (view === "customer" && action.type !== "sync")
+          throw Error("The customer preview is read-only.");
+        if (view === "subcontractor" || view === "worker") {
+          if (!["draft", "submit", "sync"].includes(action.type))
+            throw Error(
+              "This preview sends evidence to the project manager for review.",
+            );
+          const id =
+            action.type === "submit"
+              ? action.draft.item
+              : action.type === "draft"
+                ? action.draft?.item
+                : null;
+          if (
+            id &&
+            stateRef.current.items.find((i) => i.id === id)?.owner !==
+              previewOwner
+          )
+            throw Error("Choose work assigned to this crew.");
+        }
         const next = transition(stateRef.current, action);
         localStorage.setItem(storageKey, JSON.stringify(next));
         stateRef.current = next;
@@ -264,7 +373,7 @@ function BuildingWorkspace({
         return false;
       }
     },
-    [storageKey],
+    [storageKey, model.source.apiProjectId, view, previewOwner],
   );
   useEffect(() => {
     const update = () => {
@@ -294,10 +403,18 @@ function BuildingWorkspace({
         e.preventDefault();
         searchRef.current?.focus();
       }
-      if (e.key === "Escape") {
+      if (
+        e.key === "Escape" &&
+        !e.defaultPrevented &&
+        !document.querySelector("dialog[open]")
+      ) {
         if (reset) setReset(false);
         else {
-          navigate(project === "duplex" ? "/" : `/?project=${project}`);
+          const dismissed = new URLSearchParams(
+            new URL(overviewUrl(), window.location.origin).search,
+          );
+          dismissed.set("panel", "none");
+          navigate(workspaceUrl(dismissed));
           setSearch("");
           menuRef.current?.removeAttribute("open");
         }
@@ -305,14 +422,25 @@ function BuildingWorkspace({
     };
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
-  }, [navigate, reset, project]);
+  }, [navigate, reset, project, overviewUrl]);
   const decide = (item: Decision["item"]) => selectWork(item.id);
-  const issues = state.items.filter((i) => i.issue).length;
-  const context = { model, state, act, decide, online };
+  const issues = scopedState.items.filter((i) => i.issue).length;
+  const context = {
+    model,
+    state: scopedState,
+    act,
+    decide,
+    online,
+    view,
+    previewOwner,
+    changeView: (role: ViewRole, owner: string) => {
+      setView(role);
+      setPreviewOwner(owner);
+      close();
+    },
+  };
   const renderPanel = () => {
     switch (panel) {
-      case "summary":
-        return <SummaryPanel open={open} />;
       case "issues":
         return (
           <IssuesPanel
@@ -358,7 +486,25 @@ function BuildingWorkspace({
           />
         ) : null;
       case "capture":
-        if (!state.items.length)
+        if (view === "customer" || model.source.apiProjectId)
+          return (
+            <div className="world-empty">
+              <h2>
+                {model.source.apiProjectId
+                  ? "Field records are not connected yet."
+                  : "Customer progress view"}
+              </h2>
+              <p>
+                {model.source.apiProjectId
+                  ? "Use a public sample to test the daily evidence flow."
+                  : "Browse work evidence and progress. Your project manager records decisions."}
+              </p>
+              <button onClick={() => open("issues")}>
+                Browse work records
+              </button>
+            </div>
+          );
+        if (!scopedState.items.length)
           return (
             <div className="world-empty">
               <Icon name="pin" size={28} />
@@ -384,9 +530,26 @@ function BuildingWorkspace({
           />
         );
       case "team":
-        return <TeamPanel />;
-      case "project":
-        return <ProjectPanel reset={() => setReset(true)} />;
+        return model.source.apiProjectId ? (
+          <div className="world-empty">
+            <h2>Team view pending integration</h2>
+            <p>
+              The account uses server project permissions. No sample contacts
+              are shown for private projects.
+            </p>
+          </div>
+        ) : (
+          <TeamPanel />
+        );
+      case "import":
+        return (
+          <ProjectImportPanel
+            projectId={model.source.apiProjectId}
+            versionId={model.version || undefined}
+            onOpen={openModel}
+            onPublic={() => navigate("/")}
+          />
+        );
       default:
         return null;
     }
@@ -394,39 +557,43 @@ function BuildingWorkspace({
   return (
     <WorkspaceContext.Provider value={context}>
       <div className="world-app">
+        {view !== "pm" && (
+          <div className="world-view-banner" role="status">
+            Preview: {VIEW_ROLES.find((r) => r.id === view)!.label}
+            {previewOwner ? ` · ${previewOwner}` : ""} · public sample
+            experience
+            <button
+              onClick={() => {
+                setView("pm");
+                close();
+              }}
+            >
+              Return to PM
+            </button>
+          </div>
+        )}
         <a className="world-skip" href="#workspace-main">
           Skip to building
         </a>
         <header className="world-header">
           <button
             className="world-brand"
-            onClick={overview}
-            aria-label="Placeholder AI — building overview"
+            onClick={() => navigate("/")}
+            aria-label="Placeholder AI — project home"
           >
-            <img className="world-brand-logo" src="/placeholder-ai-logo.png" alt="" />
+            <span>
+              <BrandMark size={32} />
+            </span>
+            <b>Placeholder AI</b>
           </button>
           <div className="world-project-title">
             <h1>{state.projectName}</h1>
-            <select
-              aria-label="Switch building project"
-              value={project}
-              onChange={(e) => {
-                setSearch("");
-                navigate(
-                  e.target.value === "duplex"
-                    ? "/"
-                    : `/?project=${e.target.value}`,
-                );
-              }}
-            >
-              {PUBLIC_PROJECTS.map((p) => (
-                <option value={p.id} key={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
             <span>
-              {online ? "Project workspace" : "Offline · device storage"}
+              {model.source.apiProjectId
+                ? `${model.source.approvalStatus === "draft" ? "Draft reference" : model.source.approvalStatus === "missing" ? "Awaiting model" : "Connected model"} · work records pending`
+                : online
+                  ? "Project workspace"
+                  : "Offline · device storage"}
             </span>
           </div>
           <div className="world-search">
@@ -444,6 +611,9 @@ function BuildingWorkspace({
             <kbd>⌘K</kbd>
           </div>
           <div className="world-header-actions">
+            <button className="world-switch-project" onClick={() => navigate(showroomUrl(workspaceUrl(params) + location.hash, project))}>
+              <Icon name="building" size={16} /> Switch project
+            </button>
             <button
               className={`world-issue-trigger ${panel === "issues" ? "active" : ""}`}
               onClick={() => open("issues")}
@@ -456,6 +626,7 @@ function BuildingWorkspace({
             <button
               className="world-primary"
               aria-label="New update"
+              disabled={view === "customer" || !!model.source.apiProjectId}
               onClick={() => open("capture", work?.id)}
             >
               <Icon name="plus" size={17} />
@@ -463,30 +634,21 @@ function BuildingWorkspace({
             </button>
             <details className="world-project-menu" ref={menuRef}>
               <summary aria-label="Open project menu">
-                <span className="world-profile">SJ</span>
+                <span className="world-profile">
+                  {model.source.apiProjectId ? (
+                    <Icon name="building" size={15} />
+                  ) : (
+                    "SJ"
+                  )}
+                </span>
                 <Icon name="down" size={12} />
               </summary>
-              <div role="menu">
-                {PUBLIC_PROJECTS.map((p) => (
-                  <button
-                    key={p.id}
-                    role="menuitem"
-                    onClick={() => {
-                      menuRef.current?.removeAttribute("open");
-                      navigate(p.id === "duplex" ? "/" : `/?project=${p.id}`);
-                    }}
-                  >
-                    <Icon name="building" size={16} />
-                    {p.name}
-                    {p.id === project ? " · current" : ""}
-                  </button>
-                ))}
+              <div>
+                <div role="menu">
                 {[
-                  ["summary", "spark", "Project pulse"],
                   ["activity", "clock", "Progress history"],
                   ["team", "people", "Project team"],
                   ["locations", "building", "Explore building"],
-                  ["project", "settings", "Project context"],
                 ].map(([p, icon, text]) => (
                   <button
                     key={p}
@@ -497,16 +659,38 @@ function BuildingWorkspace({
                     {text}
                   </button>
                 ))}
+                </div>
+                {!model.source.apiProjectId && <div className="world-user-previews">
+                  <label>View as
+                    <select aria-label="Preview user experience" value={view} onChange={(e) => {
+                      setView(e.target.value as ViewRole);
+                      setPreviewOwner(previewOwner || state.items[0]?.owner || "");
+                      close(); menuRef.current?.removeAttribute("open");
+                    }}>
+                      {VIEW_ROLES.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
+                    </select>
+                  </label>
+                  <label>Crew
+                    <select aria-label="Preview crew" value={previewOwner || state.items[0]?.owner || ""} onChange={(e) => {
+                      setPreviewOwner(e.target.value); close(); menuRef.current?.removeAttribute("open");
+                    }}>
+                      {[...new Set(state.items.map((i) => i.owner))].map((owner) => <option key={owner}>{owner}</option>)}
+                    </select>
+                  </label>
+                  <small>Local user-view preview</small>
+                  <button disabled={view !== "pm"} onClick={() => { menuRef.current?.removeAttribute("open"); setReset(true); }}>Reset local workspace</button>
+                </div>}
               </div>
             </details>
           </div>
         </header>
         <ProjectCopilot projectName={state.projectName} onAction={action => open(action, work?.id)}
-          renderCoordination={(note, close) => <CopilotCoordination selectedId={work?.id} note={note} close={close} />}
-          onFieldCapture={() => navigate("/field-capture")}
+          renderCoordination={view === "pm" && !model.source.apiProjectId ? (_note, close) => <CopilotAssignment selectedId={work?.id} close={close} /> : undefined}
+          onFieldCapture={() => navigate(model.source.apiProjectId ? `/field-capture?project=${encodeURIComponent(model.source.apiProjectId)}` : "/field-capture")}
           onAttachPhotos={(photos: Photo[], note: string) => {
             const currentState = stateRef.current;
-            const target = work?.id || currentState.draft?.item || currentState.items[0]?.id;
+            const visible = viewState(currentState, view, previewOwner);
+            const target = work?.id || visible.draft?.item || visible.items[0]?.id;
             if (!target) throw new Error("Create a work record before attaching photos.");
             const draft = currentState.draft?.item === target ? currentState.draft : { item: target, photos: [], note: "", claim: "", step: 1 };
             if (draft.photos.length + photos.length > 6) throw new Error("This update already has photos. Use up to six photos per update.");
@@ -514,9 +698,9 @@ function BuildingWorkspace({
               throw new Error("Could not save the photo draft. Please try again.");
             setPhotoHandoffRevision(value => value + 1);
             open("capture", target);
-          }} page={panel || "overview"} label={panel ? TITLES[panel] : "Building overview"}
-          displayContext={copilotContext(state, work, { modelRevision: model.version,
-            component: element, level, unit, room, date: validDate })} />
+          }} page={panel === "import" ? "project" : panel || "overview"} label={panel ? TITLES[panel] : "Building overview"}
+          displayContext={copilotContext(scopedState, work, { modelRevision: model.version,
+            component: element, level, unit, room, date: validDate }, view === "pm" && !model.source.apiProjectId)} />
         <main
           id="workspace-main"
           className={`world-stage ${panel ? "has-panel" : ""}`}
@@ -536,25 +720,16 @@ function BuildingWorkspace({
               onElement={selectElement}
               onScope={scope}
               onOverview={overview}
+              onImport={() => open("import")}
             />
-            {!panel && (
-              <button
-                className="world-pulse-card"
-                onClick={() => open("summary")}
-              >
-                <span className="world-pulse-icon">
-                  <Icon name="spark" size={21} />
-                </span>
-                <span>
-                  <strong>The building, at a glance.</strong>
-                  <small>{issues} open issues · your next decisions</small>
-                </span>
-                <Icon name="arrow" size={17} />
-              </button>
-            )}
           </div>
           {panel && (
-            <aside className="world-drawer" aria-label={TITLES[panel]}>
+            <aside
+              ref={panelRef}
+              tabIndex={-1}
+              className="world-drawer"
+              aria-label={TITLES[panel]}
+            >
               <div className="world-drawer-bar">
                 {["record", "component", "capture"].includes(panel) ? (
                   <button

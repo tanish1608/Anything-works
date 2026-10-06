@@ -13,9 +13,19 @@ Placeholder AI extends the daily evidence-to-progress workflow in [PRODUCT_SPEC]
 
 ## Requested capabilities and acceptance
 
-### Immediate local communication demo
+### Current product scope
+
+User clarification, October 6, 2026: daily crew photos/notes are checked against the approved reference for the selected location. Incomplete or mistaken work becomes a tracked 3D issue; supported correct work becomes progress on the same model. The responsible trade supplies correction evidence, the check is repeated and the PM signs off, retaining the full history. Design authoring, scheduling, budgets and replacing official inspection are out of scope. A visible-presence check alone does not establish installation correctness.
+
+Responsibility assignment SHALL be possible without importing a calendar or inventing a deadline. The local demo SHALL require explicit PM confirmation, keep completion unchanged and audit the recorded owner/instruction. Public sample actions remain browser-local; shared membership and writes are enforced by the authenticated backend when connected.
+
+### Historical local coordination experiment
+
+Calendar-based scheduling below was implemented for an earlier demo request; it is outside the current core product scope and is not required for responsibility assignment.
 
 The public CAD workspace remains a browser-local sample, separate from authenticated shared records. It SHALL provide actionable coordination alongside read-only chat: select the work, state duration/prerequisites, import a bounded calendar free/busy export, propose a non-conflicting slot, and confirm an eligible owner. Confirmation SHALL persist a local assignment and an in-app follow-up; explicit recipient replies, cancellation and manager escalation SHALL retain an audit trail. These actions SHALL NOT mark evidence complete or claim external delivery. Calendar coverage requires explicit user confirmation; unsupported recurrence, stale coverage, missing qualifications and conflicting assignments SHALL block a confirmed slot. Unavailable calendar data SHALL remain unknown.
+
+The floating chat SHALL support pointer and keyboard resizing within the viewport and retain its size across minimization. Replies SHOULD lead with an actionable answer in at most 80 words unless more detail is requested. Daily-summary requests SHALL use dated project-wide visible activity, distinguish the current day from historical dates, and never relabel older events as today.
 
 Chat history SHALL remain readable with keyboard/wheel scrolling, retain earlier turns and survive minimization. New messages SHALL not force a reader away from older text; a Latest control SHALL return to the newest content. No HTTP mutation is added to the public read-only chat contract by this demo.
 
@@ -26,12 +36,12 @@ The mobile browser slice SHALL reuse existing authenticated photo/run/voice inta
 | BEAV-R1 | Receive image, text and recorded voice daily updates. | Preserve original assets, transcript, author, capture/receipt times, project, submission identity and location; offline retries produce one received submission. Voice can suggest scope but cannot itself prove installed work. Transcription errors can be corrected without erasing the original. |
 | BEAV-R2 | Inspect updates against approved architectural drawings and project context; update progress and linked 3D components. | Pin the approved model revision, component IDs and applicable drawing/specification revisions. Store per-check observations, evidence references, limitations and outcomes. Unsupported, stale, occluded, unregistered or failed assessments never pass. Only a released check-specific policy may authorize scoped AI completion. Human acceptance and formal inspection remain separate. Model geometry never changes during a daily check. |
 | BEAV-R3 | Offer autocomplete suggestions. | Suggest note wording, work roles, project locations and follow-up evidence from the authorized project. Suggestions are editable, contain stable IDs where relevant, never silently apply a mutation, and stop showing when the input or revision changes. Return an explained empty state when unavailable. |
-| BEAV-R4 | Help assign work. | Return eligible project members by explicit work role, reporting hierarchy, authorized calendar availability and existing workload, with reasons and unknown/no-match states. Do not confuse owner/PM/trade access permissions with work qualifications. Assignment requires current membership and schedule checks at write time; manager-selected automatic routing is a separate persisted policy. |
+| BEAV-R4 | Help assign work. | Return eligible project members by explicit work role, reporting hierarchy, recorded trade and existing workload, with reasons and unknown/no-match states. Calendar scheduling is outside the current product scope. Do not confuse owner/PM/trade access permissions with work qualifications. Assignment requires current membership and source-revision checks at write time; manager-selected automatic routing is a separate persisted policy. |
 | BEAV-R5 | Follow up through messages and phone. | Persist a due follow-up linked to work, recipient and purpose. Recheck unresolved work, membership, channel permission and quiet hours before dispatch; retries and provider callbacks do not duplicate actions. Support pause, cancellation, recipient opt-out and escalation to a manager. Channel delivery states are explicit; provider acceptance does not mean a person read it. External delivery is disabled until a configured channel policy authorizes it. |
 | BEAV-R6 | Use iPhone LiDAR exports as evidence. | Identify supported export formats explicitly; preserve original files, units, coordinate frame, source app, capture time and registration method/error against the pinned model. Only registered, adequately covered geometry can support released geometric checks. A surface scan cannot prove concealed work or measured performance. Unsupported exports remain unsupported. |
 | BEAV-R7 | Analyze project data. | Answer progress/change/workload questions from authorized persisted records using bounded deterministic aggregations and source links; distinguish capture time from receipt time, partial history from full history, and unknown from zero. AI prose cannot invent counts or equate component counts to physical/labor completion. |
 | BEAV-R8 | Use open-source integrations through MCP. | Connect approved MCP servers through a native client with credentials bound to the correct user/project. Discover only allowlisted tools; enable minimum account scopes. Calendar/communication connectors must pass a real authentication and read/write-boundary test before being called ready. Connector downtime cannot bypass business policy or lose updates. |
-| BEAV-R9 | Support concurrent crews and multiple projects. | Isolate organization/project/actor memory, checkpoints, assets and connector identity; accept updates while assessment workers are busy; enforce configured fair-share processing and limits. Concurrent submissions/reviews cannot overwrite newer evidence, duplicate actions or double-book an enforced assignment. Measure the agreed pilot workload, queue age, response/result latency, failures and cost before claiming capacity. |
+| BEAV-R9 | Support concurrent crews and multiple projects. | Isolate organization/project/actor memory, checkpoints, assets and connector identity; accept updates while assessment workers are busy; enforce configured fair-share processing and limits. Concurrent submissions/reviews cannot overwrite newer evidence, duplicate actions or overwrite a confirmed responsibility assignment. Measure the agreed pilot workload, queue age, response/result latency, failures and cost before claiming capacity. |
 
 ## Business use cases
 
@@ -56,7 +66,7 @@ The required demonstration is PA-UC-01 → PA-UC-02 → PA-UC-03, with the saved
 
 ### Teammate demonstration extension — voice and text helpers
 
-User prioritized recorded transcription, autocomplete and routine summaries after the initial photo slice. BEAV-005 implements recorded audio now; LiDAR remains deferred. BEAV-006 implements note/location/evidence wording and summaries now; assignment/calendar ranking remains deferred.
+User prioritized recorded transcription, autocomplete and routine summaries after the initial photo slice. BEAV-005 implements recorded audio now; LiDAR remains deferred. BEAV-006 implements note/location/evidence wording and summaries now; shared qualified-owner assignment remains deferred; scheduling is outside current scope.
 
 1. An authorized worker SHALL upload or record WAV, MP3, M4A, Ogg or WebM audio (at most 8 MiB), confirming project, zone and trade. Intake SHALL retain original bytes/checksum, author, receipt time, optional capture time and scoped retry identity independently of provider success.
 2. Transcription SHALL run as a bounded persisted job. Failure SHALL remain visible; execution SHALL allow at most two total attempts (initial plus one expired-lease recovery) and reject late results. Reading original audio/transcripts SHALL recheck project/trade/zone permissions.
@@ -110,11 +120,11 @@ User prioritized recorded transcription, autocomplete and routine summaries afte
 
 **Actor:** PM or trade lead with assignment permission. **Priority:** Next. **Requirements:** BEAV-R4/R8/R9.
 
-**Story:** As a manager, I want eligible people suggested by work role, team hierarchy, calendars and existing commitments so I can assign work without searching every contact manually.
+**Story:** As a manager, I want a responsible trade/person suggested from the work role, project team and recorded workload so I can route corrections without searching every contact manually.
 
-**Flow:** define task, location, required role and time → filter eligible project members → rank using current authorized availability/workload → explain candidates → manager confirms, or a manager-enabled routing policy assigns → notify the assignee.
+**Flow:** select the work/location → identify the responsible qualified project member → state correction instructions and required evidence → PM confirms → record ownership and notify the assignee through an authorized channel.
 
-**Acceptance:** Permission role and work qualification SHALL be separate. Missing duration, skills or calendar coverage SHALL appear as unknown and SHALL NOT be presented as guaranteed availability. Before assignment, the system SHALL recheck membership and current schedule. If two assignments contend for the same enforced exclusive time slot, only one SHALL commit. Authorized free/busy may incorporate cross-project commitments without revealing another project's private task details. Automatic routing SHALL run only under a persisted manager-selected policy; suggestions alone SHALL NOT assign work.
+**Acceptance:** Permission role and work qualification SHALL be separate. Before assignment, recheck project membership and source/owner freshness. No calendar import or invented due date SHALL be required to establish responsibility. Confirmation SHALL preserve evidence/progress, record the actor and instructions, and retain prior ownership history. Automatic routing SHALL run only under a persisted manager-selected policy; suggestions alone SHALL NOT assign work. Scheduling and budgets are outside current scope.
 
 ### PA-UC-06 — Follow up and escalate unresolved work
 

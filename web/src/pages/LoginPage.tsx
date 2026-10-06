@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
-import { Icon } from '../studio/Icon'
+import { BrandMark } from '../branding/BrandMark'
 import { useAuth } from '../auth/AuthContext'
 
 export default function LoginPage() {
@@ -32,7 +32,7 @@ export default function LoginPage() {
   return (
     <div className="auth-wrap">
       <form className="panel auth-card stack" onSubmit={submit}>
-        <div className="connected-brand"><span className="connected-brand-mark"><Icon name="bolt" size={17} /></span><h1 style={{ margin: 0, fontSize: 22 }}>Everything Works AI</h1></div>
+        <div className="connected-brand"><span className="connected-brand-mark"><BrandMark size={22} /></span><h1 style={{ margin: 0, fontSize: 22 }}>Placeholder AI</h1></div>
         <p className="muted" style={{ margin: 0 }}>
           {mode === 'login' ? 'Sign in to your projects.' : 'Create an account for your company.'}
         </p>

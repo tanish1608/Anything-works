@@ -81,3 +81,41 @@ export function fitProjectedBounds(
     distance,
   };
 }
+
+/** Fit the entire horizontal orbit envelope so a rotating long building never clips. */
+export function fitOrbitBounds(
+  box: Box3,
+  fov: number,
+  aspect: number,
+  direction: Point3 = DIRECTIONS.overview,
+  padding = 1.12,
+) {
+  const center = box.getCenter(new Vector3()),
+    size = box.getSize(new Vector3());
+  const towardsCamera = new Vector3(...direction).normalize();
+  const s = towardsCamera.y,
+    c = Math.hypot(towardsCamera.x, towardsCamera.z);
+  const radius = Math.max(Math.hypot(size.x, size.z) / 2, 0.005),
+    halfHeight = size.y / 2;
+  const v = Math.tan(MathUtils.degToRad(fov / 2)),
+    h = v * Math.max(aspect, 0.1);
+  const horizontal =
+    Math.abs(s) * halfHeight + radius * Math.hypot(c, padding / h);
+  let vertical = 0.01;
+  for (const y of [-halfHeight, halfHeight])
+    for (const r of [-radius, radius])
+      vertical = Math.max(
+        vertical,
+        r * c + y * s + (padding * Math.abs(y * c - r * s)) / v,
+      );
+  const distance = Math.max(horizontal, vertical);
+  return {
+    position: center
+      .clone()
+      .addScaledVector(towardsCamera, distance)
+      .toArray() as Point3,
+    target: center.toArray() as Point3,
+    near: Math.max(0.0001, Math.min(0.02, size.length() / 200)),
+    distance,
+  };
+}

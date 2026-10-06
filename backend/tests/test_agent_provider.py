@@ -87,3 +87,20 @@ def test_transcription_rest_inline_audio_preserves_text_and_normalizes_m4a(monke
     monkeypatch.setattr(get_settings(), "gemini_api_key", "explicit-test-credential")
     with httpx.Client(transport=httpx.MockTransport(transport)) as client:
         assert provider.transcribe(b"explicit audio fixture", "audio/mp4", client=client) == ("Sink positioned", "gemini-3.5-transcribe")
+
+
+def test_chat_prompt_prioritizes_the_question_and_bounded_daily_activity(monkeypatch):
+    captured = []
+    def step(instruction, context, schema):
+        captured.append((instruction, context, schema))
+        return provider.DraftChat(message="No updates recorded today.", source_ids=[], suggested_questions=[])
+    monkeypatch.setattr(provider, "_text_step", step)
+    context = {"question": "Give me today's updates", "dailyActivity": {"visibleEventCount": 0}}
+    result = provider.chat(context)
+    instruction, packet, schema = captured[0]
+    assert "at most 80 words" in instruction
+    assert "project-wide dailyActivity" in instruction
+    assert "never present old activity as today's work" in instruction
+    assert "no" in instruction and "write authority" in instruction
+    assert packet is context and schema is provider.DraftChat
+    assert result.message == "No updates recorded today."

@@ -1,4 +1,5 @@
 import pytest
+from tests_helpers import jpeg
 
 
 @pytest.fixture
@@ -120,3 +121,43 @@ def test_notifications_read(client, proj):
     assert client.get("/api/notifications?unread=true", headers=ht).json() == []
     # No self-notifications
     assert client.get("/api/notifications", headers=h).json() == []
+
+
+def test_panel_blocked_by_duct_needs_pm_routing_and_keeps_issue_until_review(client, api, proj):
+    """Cross-trade reporting is a known boundary; correction pending closure must stay prominent."""
+    pid, pm, hvac = proj["pid"], proj["h"], proj["ht"]
+    panel = api.register("panel@example.com", "Panel installer")
+    assert api.add_member(pm, pid, "panel@example.com", "trade", trades=["framing"]).status_code == 201
+    duct = _el(proj, "IfcDuctSegment")
+    report = {"title": "Duct blocks panel installation", "element_id": duct["id"],
+              "description": "Duct is not well installed; I cannot install the panel."}
+    # The retained API cannot attach another trade's source element to this reporter's issue.
+    rejected = client.post(f"/api/projects/{pid}/issues", headers=panel, json=report)
+    assert rejected.status_code == 422 and rejected.json()["detail"] == "Unknown element"
+    # Manual PM triage can place the issue and route it to the HVAC subcontractor.
+    response = client.post(f"/api/projects/{pid}/issues", headers=pm,
+                           json={**report, "assignee_id": proj["uid"]["hvac@example.com"],
+                                 "due_date": "2026-10-08", "priority": "high"})
+    assert response.status_code == 201, response.text
+    issue = response.json()
+    assert issue["trade"] == "hvac" and issue["model_version_id"]
+    assert any(n["kind"] == "issue.assigned" for n in client.get("/api/notifications", headers=hvac).json())
+    assert client.patch(f"/api/issues/{issue['id']}", headers=hvac,
+                        json={"status": "in_progress"}).status_code == 200
+    comment = client.post(f"/api/issues/{issue['id']}/comments", headers=hvac,
+                          json={"body": "Duct adjusted. Ready for PM clearance review; panel work is still separate."})
+    assert comment.status_code == 201 and comment.json()["author"]["name"] == "Hank"
+    attachment = client.post(f"/api/issues/{issue['id']}/attachments", headers=hvac,
+                             files=[("files", ("duct-correction.jpg", jpeg(22), "image/jpeg"))])
+    assert attachment.status_code == 201
+    assert client.patch(f"/api/issues/{issue['id']}", headers=hvac,
+                        json={"status": "resolved"}).status_code == 200
+    assert client.patch(f"/api/issues/{issue['id']}", headers=hvac,
+                        json={"status": "closed"}).status_code == 403
+    current = client.get(f"/api/elements/{duct['id']}", headers=pm).json()
+    assert current["open_issues"] == 1
+    assert client.patch(f"/api/issues/{issue['id']}", headers=pm,
+                        json={"status": "closed"}).status_code == 200
+    assert client.get(f"/api/elements/{duct['id']}", headers=pm).json()["open_issues"] == 0
+    history = client.get(f"/api/projects/{pid}/events?entity_id={issue['id']}", headers=pm).json()
+    assert {e["type"] for e in history} >= {"issue.created", "issue.updated", "issue.commented", "issue.attachments_added"}

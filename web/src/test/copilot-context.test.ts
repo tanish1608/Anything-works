@@ -1,4 +1,4 @@
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import { copilotContext } from "../workspace/copilotContext";
 import { initialState } from "../workspace/state";
 
@@ -38,4 +38,24 @@ it("uses the latest coordination activity and recorded reply instead of the olde
   const packet = JSON.parse(copilotContext(state, work, screen));
   expect(packet.recentActivity.map((event: { text: string }) => event.text)).toEqual(["Activity 5", "Activity 4", "Activity 3"]);
   expect(packet.selectedWork.followUps[0]).toMatchObject({ status: "replied", reply: "Access confirmed" });
+});
+
+
+it("includes today's activity across the project even when a different component is selected", () => {
+  vi.useFakeTimers(); vi.setSystemTime(new Date(2030, 0, 3, 12));
+  try {
+    const state = initialState(), selected = state.items[0], other = state.items[1];
+    state.events = [
+      { id: 'today', item: other.id, at: new Date(2030, 0, 3, 10).toISOString(), actor: 'Worker', text: 'Submitted site photos', tone: 'evidence' },
+      { id: 'old', item: selected.id, at: new Date(2030, 0, 2, 10).toISOString(), actor: 'Worker', text: 'Old work', tone: 'none' },
+    ];
+    const packet = JSON.parse(copilotContext(state, selected, screen));
+    expect(packet.dailyActivity).toMatchObject({ today: '2030-01-03', reportDay: '2030-01-03', visibleEventCount: 1 });
+    expect(packet.dailyActivity.events).toEqual([expect.objectContaining({ workId: other.id, text: 'Submitted site photos' })]);
+    const historic = JSON.parse(copilotContext(state, selected, { ...screen, date: '2030-01-02' }));
+    expect(historic.dailyActivity).toMatchObject({ today: '2030-01-03', reportDay: '2030-01-02', visibleEventCount: 1 });
+    expect(historic.dailyActivity.events[0].text).toBe('Old work');
+    state.events = [state.events[1]];
+    expect(JSON.parse(copilotContext(state, selected, screen)).dailyActivity.visibleEventCount).toBe(0);
+  } finally { vi.useRealTimers(); }
 });

@@ -15,3 +15,5 @@ e2e/.results/
 *.bundle
 samples/ifc/duplex/*.ifc
 samples/ifc/schependomlaan/*.ifc
+samples/ifc/clinic/*.ifc
+samples/ifc/esplan/*.ifc

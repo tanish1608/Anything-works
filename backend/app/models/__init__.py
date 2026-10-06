@@ -145,6 +145,7 @@ class Zone(TimestampMixin, Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
     level_id: Mapped[str] = mapped_column(ForeignKey("levels.id", ondelete="CASCADE"), index=True)
     name: Mapped[str] = mapped_column(String(200))  # "Unit 304, Master Bedroom"
+    ifc_guid: Mapped[str | None] = mapped_column(String(22), index=True)
     code: Mapped[str | None] = mapped_column(String(50))  # "304-MB"
     kind: Mapped[str] = mapped_column(String(30), default="room")  # room | unit | area | lot
     polygon: Mapped[list | None] = mapped_column(JSON)  # [[x, y], ...] in level coordinates (m)
@@ -303,7 +304,9 @@ class IssueStatus(enum.StrEnum):
     closed = "closed"
 
 
-OPEN_ISSUE_STATUSES = (IssueStatus.open, IssueStatus.in_progress)
+# A subcontractor's resolved claim still awaits explicit closure/review.
+# Keep the model warning until the issue is actually closed.
+OPEN_ISSUE_STATUSES = (IssueStatus.open, IssueStatus.in_progress, IssueStatus.resolved)
 
 
 class Priority(enum.StrEnum):

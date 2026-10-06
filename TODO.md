@@ -1,4 +1,4 @@
-# Implementation backlog — Everything Works AI
+# Implementation backlog — Placeholder AI
 
 Updated October 6, 2026 after rebuilding the website around one central building and contextual workflow panels. Checked items identify completed work and explicitly state when it is limited to local samples or retained components. Unchecked items remain open; existing foundations and verification limits are in [STATUS.md](STATUS.md).
 
@@ -6,9 +6,21 @@ Product scope: AI checking daily updates across construction stages, identifying
 
 Owners are suggested contributor roles, not assignments. Each package needs a named owner when coding begins. Requirements R1–R10 are defined in the [product specification](docs/PRODUCT_SPEC.md).
 
-The UI-only iteration backlog is [Design iteration 2](docs/UI_TODO_ITERATION_2.md). It tracks proportions/camera, the second apartment project, sample switching, component exploration and remaining visual acceptance.
+The UI-only iteration backlog is [Design iteration 2](docs/UI_TODO_ITERATION_2.md). It tracks proportions/camera, four audited source projects, sample switching, component exploration and remaining visual acceptance.
 
 ## Building-centered workspace — current UI, October 6
+
+- [x] Make the showroom home, add explicit Switch project, keep the title non-interactive, move Add/import to standalone home setup, retire pulse/context screens and retain user previews in the account menu. Theme Sort/Team popups, contain preview loading and recover connected-list outages. Restore local API for the reproduced 502 without bypassing authentication.
+
+- [x] Rebrand to Placeholder AI using the supplied angular P: workspace/showroom wordmarks, browser/PWA identity and app icons, current docs and mobile handoff. Keep saved project identities and workflows stable.
+
+- [x] Fit the showroom to the viewport with four visible cards, default interior/rotation and no preview buttons. Open Work & issues by default; preserve explicit panel dismissal and deep links.
+- [x] Import/audit clinic (16,071 components) and Esplan (1,958 components), with project isolation, explicit federation labels, preserved survey-coordinate precision and real GLB identity/bounds/picking tests.
+- [x] Write [customer stories and workflow review](docs/USER_STORIES.md); improve empty-site and empty-attention guidance from the walkthroughs.
+
+- [x] Add a rotating source-building project showroom with property facts, viewport selection grid, explicit open/cancel and authorized private previews; preserve project-local records and show only one WebGL scene at a time.
+- [x] Write the standalone [subcontractor mobile build prompt](docs/SUBCONTRACTOR_MOBILE_BUILD_PROMPT.md) for a minimal daily-update PWA with 3D context and actual API contracts.
+- [ ] Build/test that mobile companion on physical phones and integrate its authenticated evidence into the chosen PM panels; the handoff document does not complete this integration.
 
 This supersedes the earlier tab-based Home/Logs/Building layout. The building is the website: one persistent model canvas with optional contextual panels on the right (below the canvas on small screens). The earlier implementation sections below describe retained foundations, not the current navigation.
 
@@ -27,14 +39,35 @@ This supersedes the earlier tab-based Home/Logs/Building layout. The building is
 - [x] Redirect old page bookmarks to root query-state panels, preserving work selections and fragments.
 - [x] Add DOM workflow tests for the persistent viewer, source hierarchy, capture target changes, review/history and offline handoffs; verify pin body/centre picking with real three.js CPU ray tests. All 85 frontend tests and production compilation pass.
 - [ ] Review the dark theme, real WebGL camera paths/pins and responsive layout on desktop and physical phones. Renderer-stub/CPU tests do not establish visual acceptance.
-- [ ] Finish keyboard access to untracked model components and assistive-technology review of the spatial explorer.
-- [ ] Bring real project/model import, reviewed unit metadata, permissions and persistence into this canvas/panel interface; keep customer and trade views on the same model rather than adding separate model pages.
+- [x] Connect model reference approval to source-location invalidation: a changed room/floor association reopens prior completion even when geometry is unchanged.
+- [ ] Integrate precise surface-point pin placement into the chosen capture/record UI; current public work pins use component centers. Retained viewer/API point support is a foundation.
+- [x] Add searchable/paged keyboard access to source components and contextual panel focus/restoration.
+- [ ] Complete physical keyboard/screen-reader acceptance of the spatial explorer.
+- [x] Connect optional authenticated project creation/IFC import, draft preview and explicit model approval in this interface.
+- [ ] Bring reviewed unit metadata and persistent evidence/review/correction records with real actor/role scopes into this canvas/panel interface; keep customer and trade views on the same model rather than adding separate model pages.
 
 See [the building workspace handoff](docs/BUILDING_WORKSPACE.md) for UI behavior, source files and remaining integration boundaries.
 
+See [the client demo walkthrough](docs/CLIENT_DEMO.md) for current capability boundaries and rehearsal checks.
+
+### Next integration priorities from the stories
+
+- [x] Test the [duct-blocks-panel story](docs/DUCT_BLOCKER_STORY_TEST.md): local PM/crew/correction/review on an actual clinic component, plus retained API assignment/evidence/notifications and cross-trade scope boundary. Keep backend warnings until explicit issue closure.
+- [ ] Add scoped cross-trade obstruction reports and linked blocked work, preserving reporter, correcting crew and affected task owner separately. Acceptance: HVAC correction/review resumes the panel task with reporter confirmation/notification; it never completes panel installation.
+- [ ] Enforce fresh correction evidence/review requirements on connected issue closure, including original-reporter permissions; do not rely solely on UI gates.
+
+- [ ] Connect authenticated crew uploads to the chosen PM queue and return correction requests to the actual assignee. Acceptance: two accounts on separate devices complete one traceable issue journey with server IDs and real actors.
+- [ ] Define reusable trade/location work packages and required capture views before crews begin. Avoid asking crews to recreate title/owner/context on each daily update.
+- [ ] Support one update covering multiple work items, with outcomes/evidence scoped per item; a single photo cannot complete an entire room.
+- [ ] Add reviewed client-facing federation, unit/room association and duplicate-space reconciliation. Expose aliases/units/source coverage during draft review; never silently merge room identities or retain affected old green.
+- [ ] Attach actual approved sheets/details/spec revisions and requested evidence views; model-derived silhouettes are contextual references, not those authoritative documents.
+- [ ] Add traceable safety/impact/dependency prioritization and actual correction notifications; evaluate them with qualified site users.
+- [ ] Measure large-model loading/memory on target devices. The clinic has about 59 MB of detailed metadata and 52 MB of meshes; consider lazy properties/layers and LOD from measured results.
+
+
 ## Current testing setup and next priorities
 
-The chosen website is `/`, with one building canvas and contextual project pulse, work/issues, history, team, project context and capture panels. Authentication is disabled for this browser-local testing experience: no account, token or sign-in is required. The current view uses a sample PM identity and public model. Backend APIs retain their existing authentication and project permissions; the website does not bypass them or load private projects anonymously.
+The chosen website is `/`, with one building canvas and contextual project pulse, work/issues, history, team, project context and capture panels. Authentication is disabled for this browser-local testing experience: no account, token or sign-in is required. The public view uses a sample PM identity/model and offers user-experience previews. Optional private model onboarding connects an account inside the same UI. Backend APIs retain their existing authentication and project permissions; the website does not bypass them or load private projects anonymously.
 
 - [x] Open the root website and its pages without an authentication provider or sign-in gate; redirect the retired `/login` URL to Home.
 - [x] Preserve saved browser records when moving from `/demo` to root URLs.
@@ -44,7 +77,7 @@ The chosen website is `/`, with one building canvas and contextual project pulse
 - [ ] Restore sign-in, invitations and server-enforced project/role scopes in this UI before enabling real multi-user project data; keep any sample-only preview explicitly separate from private records.
 - [ ] Connect traceable assessment jobs after persisted evidence, reference revisions, review and correction workflows are working.
 
-Suggested order: role/view design → project storage and approved-model onboarding → capture/review/correction persistence → scoped user access → assessment integration → field/device acceptance. Role screens are still planned; the existing website is the shared PM testing experience.
+Suggested order: shared capture/review/correction persistence → approved drawing/detail context → scoped user access → assessment integration → field/device acceptance. Role screens are still planned; the existing website is the shared PM testing experience.
 
 ## Completed in the designer implementation
 
@@ -115,7 +148,7 @@ The detailed completed demo interactions are checked in the packages below. No p
 - [x] Split the frontend inspection routes and 3D engine into separate bundles; the production build no longer reports an oversized main bundle.
 - [ ] Resolve the remaining route-menu reset and WebGL-fallback lint warnings.
 
-## Role-specific user views — planned, not implemented
+## Role-specific user views — public previews implemented; production scopes pending
 
 Use one project, one model revision and the same work/evidence records, with different summaries, navigation and permitted actions. A role view filters the shared model and pins; it must not create a different building or a second progress history.
 
@@ -129,8 +162,9 @@ Use one project, one model revision and the same work/evidence records, with dif
 | Company / project administrator — later | Projects, invitations, teams, role/location scope and settings | Manage access and configuration explicitly granted to the administrator; do not implicitly grant construction acceptance authority. |
 
 - [ ] Agree on the initial role/action matrix and customer-visible fields with the team; ship customer, contractor/PM and subcontractor experiences first.
-- [ ] Design role-specific building summaries, contextual panels and permitted actions; provide a compact field-worker mode rather than exposing the PM dashboard on a phone.
-- [ ] Reuse the persistent building canvas and history, team, capture and review panels with role-aware projections; retain consistent pin selection, evidence links and completion provenance across views.
+- [x] Implement public PM/customer/subcontractor/field-worker presentation previews: customer read-only, crew-assigned work/capture, PM decisions and one persistent model.
+- [ ] Review customer sharing/release fields and field capture on real phones; public previews are not private permission enforcement.
+- [x] Reuse the persistent building canvas and shared local records with role-aware projections and consistent evidence/progress provenance in public previews.
 - [ ] Define customer sharing/release controls, customer questions and requested decisions; identify which milestones and evidence are visible before sharing them.
 - [ ] Scope subcontractor and worker work lists, model components, plans, evidence and contacts by project membership, trade and assigned locations.
 - [ ] Distinguish client/customer access from the existing backend `owner` role. Existing roles are `owner`, `pm`, `trade` and `viewer`; design any new role/permission migrations explicitly rather than giving clients administrative owner permissions.

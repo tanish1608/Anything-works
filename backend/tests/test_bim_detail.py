@@ -16,6 +16,40 @@ from app.disciplines import discipline_for
 from app.models import ElementRevision, Project
 
 
+def test_reviewed_floor_aliases_are_building_scoped_and_do_not_move_geometry():
+    from app.bim.ifc_import import apply_building_aliases
+
+    verts = np.array([[0, 0, 4.57], [1, 0, 4.57], [0, 1, 5]])
+    item = Item(guid="clinic-pipe", ifc_class="IfcPipeSegment", name="Pipe", discipline="plumbing",
+                storey=("Medical Clinic", "Level 2", 4.57), verts=verts.copy(), faces=np.array([[0, 1, 2]]))
+    unrelated = Item(guid="separate-wing", ifc_class="IfcWall", name="Wall", discipline="architecture",
+                     storey=("Other building", "Level 2", 4.57), verts=verts.copy(), faces=np.array([[0, 1, 2]]))
+    space = SpaceInfo("Medical Clinic", "Level 2", 4.57, "Room", "201", [[0, 0], [1, 0], [1, 1]], "space-guid")
+    original_hash = item.geom_hash
+    apply_building_aliases([item, unrelated], [space], {"Medical Clinic": "Building"},
+                           {"Building": {"Level 2": "Second Floor"}})
+    assert item.storey == ("Building", "Second Floor", 4.57)
+    assert unrelated.storey == ("Other building", "Level 2", 4.57)
+    assert (space.building, space.storey, space.elevation, space.guid) == ("Building", "Second Floor", 4.57, "space-guid")
+    assert item.geom_hash == original_hash
+    assert np.array_equal(item.verts, verts)
+
+
+def test_glb_preserves_centimetre_detail_at_real_survey_coordinates():
+    from app.bim.meshes import build_glb
+
+    points = np.array([[538450.5301, 6591584.1431, 14.1001],
+                       [538450.5651, 6591584.1431, 14.1001],
+                       [538450.5301, 6591584.1781, 14.1351]])
+    original = points.copy()
+    result = trimesh.load(io.BytesIO(build_glb([("survey-fitting", points, np.array([[0, 1, 2]]))])), file_type="glb")
+    transform, geometry = result.graph["survey-fitting"]
+    actual = trimesh.transform_points(result.geometry[geometry].vertices, transform)
+    assert np.allclose(actual, ifc_to_three(points), rtol=0, atol=1e-6)
+    assert np.array_equal(original, points)
+    assert np.max(np.abs(result.geometry[geometry].vertices)) < 0.04
+
+
 def test_shell_metadata_keeps_shared_and_untagged_walls():
     assert exterior_wall("IfcWallStandardCase", {"Pset_WallCommon.IsExternal": True}) is True
     assert exterior_wall("IfcWall", {"Pset_WallCommon.IsExternal": "false"}) is False
@@ -162,3 +196,49 @@ def test_model_plan_respects_trade_layer_scope(client, api):
     element = next(e for e in client.get(f"/api/projects/{pid}/elements", headers=h).json() if e["discipline"] == "hvac")
     plan = client.get(f"/api/models/{version['version_id']}/plans/{element['level_id']}", headers=ht).json()
     assert {e["discipline"] for e in plan["elements"]} <= {"hvac", "architecture"}
+
+
+def test_duplicate_space_codes_use_guid_and_survive_reimport(db, api):
+    from app.bim.ifc_import import _Structure
+    from app.models import Zone
+
+    h = api.register("space-identities@example.com")
+    pid = api.project(h)
+    structure = _Structure(db, pid, None)
+    level = structure.level("Building", "Ground", 0)
+    left = [[0, 0], [2, 0], [2, 2], [0, 2]]
+    right = [[3, 0], [5, 0], [5, 2], [3, 2]]
+    legacy = structure.zone(level, "toilet", "1.02", left)
+    first = structure.zone(level, "toilet", "1.02", left, "space-guid-one")
+    second = structure.zone(level, "toilet", "1.02", right, "space-guid-two")
+    assert first.id == legacy.id
+    assert first.id != second.id
+    assert first.code == second.code == "1.02"
+    assert structure.zone(level, "toilet", "1.02", right, "space-guid-two").id == second.id
+    assert len(list(db.scalars(select(Zone).where(Zone.level_id == level.id)))) == 2
+
+
+def test_approved_space_recovery_reopens_done_even_when_geometry_is_unchanged(db, api):
+    from app.models import Element, ElementStatus, User
+    from app.services.models import approve_version
+
+    email = "space-recovery@example.com"
+    h = api.register(email)
+    project = db.get(Project, api.project(h))
+    actor = db.scalar(select(User).where(User.email == email))
+    item = Item(guid="stable-component", ifc_class="IfcDoor", name="Door", discipline="architecture",
+                storey=("Building", "Ground", 0), verts=np.array([[6, 1, 0], [6.1, 1, 0], [6, 1.1, 1]]),
+                faces=np.array([[0, 1, 2]]))
+    left = SpaceInfo("Building", "Ground", 0, "toilet", "1.02", [[0, 0], [4, 0], [4, 4], [0, 4]], "left-space")
+    right = SpaceInfo("Building", "Ground", 0, "toilet", "1.02", [[5, 0], [9, 0], [9, 4], [5, 4]], "right-space")
+    first = create_version(db, project, [item], [left], actor_id=actor.id, source="ifc_import", message="Before recovery")
+    approve_version(db, first, actor.id)
+    db.flush()
+    element = db.scalar(select(Element).where(Element.project_id == project.id))
+    element.status = ElementStatus.done
+    second = create_version(db, project, [item], [left, right], actor_id=actor.id, source="ifc_import", message="Recovered space")
+    assert element.status == ElementStatus.done  # Draft import cannot invalidate the active reference.
+    approve_version(db, second, actor.id)
+    assert element.status == ElementStatus.needs_review
+    assert "location_changed" in element.flags
+    assert "geometry_changed" not in element.flags

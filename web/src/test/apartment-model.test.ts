@@ -44,7 +44,7 @@ describe("apartment project and overview camera", () => {
   it("preserves real apartments, spaces and untracked progress without borrowing duplex fixtures", () => {
     expect(model.elements).toHaveLength(3504);
     expect(model.plans).toHaveLength(6);
-    expect(model.plans.flatMap((p) => p.rooms)).toHaveLength(99);
+    expect(model.plans.flatMap((p) => p.rooms)).toHaveLength(100);
     const groups = new Set(
       model.plans
         .flatMap((p) => p.rooms)
@@ -110,4 +110,48 @@ describe("apartment project and overview camera", () => {
     ).toBe(true);
     meshes.forEach((m) => m.geometry.dispose());
   });
+});
+
+it("preserves duplicate room labels as distinct source spaces", () => {
+  const rooms = model.plans
+    .flatMap((p) => p.rooms)
+    .filter((r) => r.code === "1.02" && r.name === "toilet");
+  expect(rooms).toHaveLength(2);
+  expect(new Set(rooms.map((r) => r.id)).size).toBe(2);
+  expect(new Set(rooms.map((r) => r.ifc_guid))).toEqual(
+    new Set(["0bNesd_3DCrhdyKRJV7k4U", "1EO6MCIfDFuRP2Ugg$wu$f"]),
+  );
+});
+
+it("keeps generated evidence on newly planned work in manual review without invented fixture checks", () => {
+  const element = model.elements.find(
+    (e) => e.ifc_class === "IfcDoor" && e.zone_id,
+  )!;
+  const item = plannedComponent(model, element.id, "Client work", "Crew");
+  const planned = transition(initialProjectState(model), {
+    type: "plan",
+    item,
+  });
+  const state = transition(planned, {
+    type: "submit",
+    offline: false,
+    sample: true,
+    draft: {
+      item: item.id,
+      note: "Synthetic evidence for workflow demonstration.",
+      claim: "Finished",
+      step: 1,
+      photos: [
+        {
+          id: "synthetic",
+          url: "data:image/jpeg;base64,dGVzdA==",
+          name: "Synthetic",
+          sample: true,
+        },
+      ],
+    },
+  });
+  expect(state.items[0].status).toBe("review");
+  expect(state.items[0].checks).toEqual([]);
+  expect(state.assessmentJobs![0].state).toBe("manual_review");
 });

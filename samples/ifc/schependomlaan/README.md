@@ -14,7 +14,7 @@ See [AUDIT.json](AUDIT.json): 3,504 rendered components, six source levels, 260,
 
 All 100 source space outlines are recovered: six from tessellated geometry and 94 from explicit closed IFC FootPrint polylines. The previous importer recovered only the six solids. Footprints retain source placement and units; bounding boxes and unsupported/open curves do not become fabricated room polygons.
 
-The source has two `1.02 · toilet` space records. The existing zone identity rule combines equal floor/code records, yielding **99 distinct room records**. Resolving duplicate-code identity is still open. Numbered source labels are explicitly grouped into Units 1–10 for this pinned sample; A-prefixed circulation/service spaces stay shared. Room/component overlap assignments require location confirmation. None of the 60 plumbing elements is assigned to a source room by the current overlap rule; do not force them into apartment bathrooms.
+The source has two `1.02 · toilet` space records. The importer now preserves their distinct IFC space GUIDs, yielding **100 distinct room records** without inventing new room numbers. Display labels show a source identity suffix when necessary. Numbered source labels are explicitly grouped into Units 1–10 for this pinned sample; A-prefixed circulation/service spaces stay shared. Room/component overlap assignments require location confirmation. None of the 60 plumbing elements is assigned to a source room by the current overlap rule; do not force them into apartment bathrooms.
 
 ## Reproduce and test
 
@@ -29,4 +29,4 @@ The audit creates an isolated in-memory project/storage and exports stable publi
 
 Open `/?project=schependomlaan` in the website, or use the project switcher. The project begins with **no field progress**. Select/search a source component, choose **Track work here**, supply a title/owner, then submit a daily update. Records, drafts, decisions and availability save separately from the duplex. Source geometry presence never implies construction completion.
 
-The website currently selects bundled public projects. This API upload test does not mean arbitrary IFC upload, private-project onboarding or multi-user synchronization is connected to the public UI. Browser/WebGL and phone visual checks remain unverified.
+The website selects bundled public projects and offers optional authenticated private project/model onboarding, draft review and approval. Shared private field evidence/review/correction records are not yet integrated into the chosen PM UI. This API acceptance test does not verify a browser-rendered upload journey or multi-user synchronization. Browser/WebGL and phone visual checks remain unverified.

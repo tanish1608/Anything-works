@@ -100,3 +100,19 @@ describe("local coordination", () => {
     expect(completed.coordination!.followUps[0].status).toBe("cancelled");
   });
 });
+
+
+it("assigns ownership without scheduling and rejects stale confirmation without changing progress", () => {
+  const state = initialProjectState(model), work = state.items.find(item => item.id === "PLAN-401")!;
+  const action: Action = { type: "assign", id: work.id, owner: "A different recorded lead", reason: "Submit photos after fixing the issue",
+    expectedOwner: work.owner, expectedModelVersion: state.modelVersion };
+  const next = transition(state, action, now);
+  expect(next.items.find(item => item.id === work.id)).toMatchObject({ owner: action.owner, status: work.status });
+  expect(next.items.find(item => item.id === work.id)!.due).toBe(work.due);
+  expect(next.events).toHaveLength(state.events.length + 1);
+  expect(() => transition(next, action, now)).toThrow("Work or model changed");
+  const completed = structuredClone(state); completed.items.find(item => item.id === work.id)!.status = "human";
+  expect(() => transition(completed, action, now)).toThrow("Work or model changed");
+  const changed = { ...state, modelVersion: "new-reference" };
+  expect(() => transition(changed, action, now)).toThrow("Work or model changed");
+});

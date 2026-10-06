@@ -28,23 +28,29 @@ def approve_version(db: Session, version: ModelVersion, actor_id: str, message: 
 
 
 def reset_changed_progress(db: Session, project: Project, version: ModelVersion, actor_id: str | None) -> None:
-    """Progress is kept for unchanged elements. A finished element whose geometry changed can't stay green."""
-    prev_hash: dict[str, str | None] = {}
+    """Geometry or source-location changes invalidate a prior finished decision."""
+    previous = {}
     if project.current_version_id:
-        prev_hash = dict(db.execute(select(ElementRevision.element_id, ElementRevision.geom_hash)
-                                    .where(ElementRevision.version_id == project.current_version_id)).all())
-    # Progress is kept for unchanged elements. A finished element whose geometry changed can't stay green.
+        previous = {r.element_id: (r.geom_hash, r.level_id, r.zone_id)
+                    for r in db.scalars(select(ElementRevision).where(ElementRevision.version_id == project.current_version_id))}
     for rev in db.scalars(select(ElementRevision).where(ElementRevision.version_id == version.id)):
-        if rev.element_id in prev_hash and prev_hash[rev.element_id] != rev.geom_hash:
-            el = db.get(Element, rev.element_id)
-            if el.status == ElementStatus.done:
-                el.status = ElementStatus.needs_review
-                el.flags = sorted(set(el.flags or []) | {"geometry_changed"})
-                el.status_updated_at = datetime.now(UTC)
-                events.record(db, project_id=project.id, actor_id=actor_id, type="element.status_changed",
-                              entity_type="element", entity_id=el.id, zone_id=rev.zone_id,
-                              data={"from": "done", "to": "needs_review", "reason": "geometry changed in "
-                                    f"model v{version.number}"})
+        before = previous.get(rev.element_id)
+        if before is None:
+            continue
+        changed = set()
+        if before[0] != rev.geom_hash:
+            changed.add("geometry_changed")
+        if before[1:] != (rev.level_id, rev.zone_id):
+            changed.add("location_changed")
+        el = db.get(Element, rev.element_id)
+        if changed and el.status == ElementStatus.done:
+            el.status = ElementStatus.needs_review
+            el.flags = sorted(set(el.flags or []) | changed)
+            el.status_updated_at = datetime.now(UTC)
+            events.record(db, project_id=project.id, actor_id=actor_id, type="element.status_changed",
+                          entity_type="element", entity_id=el.id, zone_id=rev.zone_id,
+                          data={"from": "done", "to": "needs_review", "reason": "approved model context changed in "
+                                f"model v{version.number}", "changes": sorted(changed)})
 
 
 def visible_disciplines(db: Session, member: ProjectMember, all_disciplines: list[str]) -> dict[str, bool]:

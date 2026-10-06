@@ -36,15 +36,35 @@ npm run dev
 
 Open `http://localhost:5173`. Vite proxies API calls to port 8000.
 
+If public models work but connected projects show a gateway failure, verify the backend is running on port 8000 and that `/api/health` returns 200 through the Vite proxy. An unauthenticated `/api/projects` returning 401 is expected; do not disable API authorization to fix a gateway outage.
+
+## Updating this agent worktree after pulling main
+
+Main and the agent branch previously used revision `0008` for different schema changes. The merged history has a single head, `0010`: it preserves applied `0008`/`0009` stamps and adds whichever agent/IFC-zone schema is missing. Existing user, project, room and IFC-identity rows are retained. Downgrading past `0010` is blocked when it would discard populated IFC zone identities. Do not delete the database or manually stamp around this upgrade. Back up your local development database before upgrading; no production migration is authorized by this guide.
+
+From the repository root, with installed dependencies, stop the running launcher with Ctrl+C and run:
+
+```bash
+cd backend
+# Use this worktree's environment when installed, otherwise the neighboring development environment.
+agent_python=.venv/bin/python
+if [ ! -x "$agent_python" ]; then agent_python=../../Anything-works/backend/.venv/bin/python; fi
+PYTHONPATH=. "$agent_python" -m alembic upgrade head
+cd ..
+python3 scripts/dev_agent.py --restart
+```
+
+Open `http://127.0.0.1:5174`. The launcher verifies this worktree's loaded chat route and uses the same API for worker capture and chat. It does not implicitly migrate, seed or reset records.
+
 ## Application surfaces
 
 - **Project Copilot:** a compact floating bottom-right chatbot opens against the current building canvas and panel without login. It uses the explicitly untrusted local screen context and has no write authority.
   Select **Photo** or the plus button to choose images, preview/remove attachments, then select **Add to daily update**. Photos and the typed note are saved in the current work's device-local draft; confirm the location and submit in the capture form. This handoff does not perform AI image assessment; the public chat endpoint accepts text only.
 - **`/agent`:** authenticated assessments, recorded voice and text helpers remain available as the detailed agent workflow.
 
-- **`/`:** one building-centered website with optional right-side panels. It runs without backend/sign-in and stores testing records locally.
+- **`/`:** rotating project showroom/home; choose a building or Add / import project. Opening a project enters the building workspace with optional right-side panels. It runs without backend/sign-in and stores testing records locally.
 - **`/?panel=record&work=ISS-031`:** evidence/review/timeline for a component-linked record, focused on the shared model.
-- **`/?panel=issues`, `/?panel=activity`, `/?panel=team`, `/?panel=project`, `/?panel=capture`:** contextual workflows; no separate model pages.
+- **`/?panel=issues`, `/?panel=activity`, `/?panel=team`, `/?panel=capture`:** contextual workflows; no separate model pages.
 - **Old page and `/demo/...` bookmarks:** normalize to root panel state, preserving relevant work IDs/fragments. Private-project/QR/embed bookmarks no longer mount the retired UI. See [the UI handoff](BUILDING_WORKSPACE.md) and [frontend routes](../web/README.md).
 
 Seeded accounts use `demo-password` unless `DEMO_PASSWORD` is configured.
@@ -137,11 +157,13 @@ The launcher checks this worktree's backend import and chat registration before 
 
 ### Communication demo and phone capture
 
-At `/`, select unresolved work, open Copilot and choose **Assign** (or **Plan & follow up** beneath an answer). Enter the instruction, person, duration, prerequisites and future scheduling window. Recorded trade ownership is a suggestion, not proof of qualification; the manager explicitly confirms qualification.
+Drag the chat header to move it; drag the lower-right grip to resize it (arrow keys work when either control is focused). Size and chat history survive minimizing. Ask **Give me today’s updates** for dated, project-wide local activity. No events today is an explicit empty state. Replies default to 80 words, with more detail on request.
 
-Expand **Connect calendar export**, confirm that the export includes every commitment for the selected person/window, and import `.ics`. Only busy start/end times are retained, not private event titles. Supported snapshots use UTC or local date/time and non-recurring events; timezone-tagged/recurring/duration-only or invalid exports fail visibly rather than imply free time. Refresh exports after 24 hours. The proposal checks imported coverage, existing local assignments and the work deadline, and repeats those checks on confirmation. This is an imported snapshot, not live calendar synchronization.
+Open a project at `/`, select a work record, open Project Copilot and choose **Assign** or **Prepare assignment** under a reply. Select the responsible person, enter the task/correction instruction, confirm qualifications and review/confirm the assignment. It preserves the existing deadline and progress, records ownership/instructions in local history and requires no calendar or scheduling setup. This sample assignment is browser-local; it is not a shared server notification.
 
-Choose **Find a time**, **Review assignment**, then **Confirm assignment & follow-up**. The saved task, owner and in-app reminder appear in local state/activity and subsequent chat context. Record an actual recipient reply, cancel or escalate from the follow-up card. These are browser-local coordination records, not delivered SMS/email/calls or a shared server inbox; completing/dismissing work stops pending reminders. No assignment or reply turns the model green.
+For the core loop, use **Update** to collect photos and a note for that spot, inspect the record’s evidence/reference, keep mistakes open until correction evidence is reviewed, and record PM sign-off. The public sample can demonstrate states; real submissions use `/field-capture` and `/agent`. Live installation correctness and calibrated automatic completion are not certified by a sample walkthrough.
+
+The earlier calendar/follow-up experiment is historical, outside the current core product scope. Existing local history is retained; no SMS/email/call is sent.
 
 For phone photo capture on the same Wi-Fi, start the launcher with:
 

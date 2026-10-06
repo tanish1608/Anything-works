@@ -1,6 +1,10 @@
-# Product specification — Everything Works AI
+# Product specification — Placeholder AI
 
 Status: target product, not a list of shipped features. Updated October 6, 2026 with the planned user views.
+
+## Current scope clarification
+
+Daily crew photos and a short note are checked against the approved plan/model for that location. Both outcomes matter: mistakes or unfinished work become tracked 3D issues; supported correct work becomes 3D progress. Assign the responsible trade, retain fix photos and re-checks, and record PM sign-off with the full history. Design authoring, scheduling, budgets and replacing official inspection are out of scope. Existing calendar experiments do not expand this scope. Only released, validated check policies can authorize automatic completion; review-only presence checks still require human acceptance.
 
 ## 1. Product definition
 

@@ -158,7 +158,7 @@ it("opens the real BIM viewer inside Building with shared navigation and a disti
     screen.getByRole("navigation", { name: "Workspace" }),
   ).toBeInTheDocument();
   expect(
-    screen.getAllByRole("link", { name: "Everything Works AI" }),
+    screen.getAllByRole("link", { name: "Placeholder AI" }),
   ).toHaveLength(1);
   expect(screen.getByLabelText("Search workspace")).toBeInTheDocument();
   expect(screen.getByRole("link",{name:"Open review queue"})).toBeInTheDocument();

@@ -11,6 +11,7 @@ export interface ModelPlanData {
   elements: { id: string; discipline: string; points: number[][] }[];
   rooms: {
     id: string;
+    ifc_guid?: string | null;
     name: string;
     code: string | null;
     polygon: number[][];

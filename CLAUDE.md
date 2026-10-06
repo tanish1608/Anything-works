@@ -2,7 +2,7 @@
 
 ## Product and source of truth
 
-The product is **Everything Works AI**. It checks daily construction photos/updates against approved context, flags mistakes and incomplete work, and updates progress and issues in 3D across construction stages. Before-drywall checking is one use case, not the full concept.
+The product is **Placeholder AI**. It checks daily construction photos/updates against approved context, flags mistakes and incomplete work, and updates progress and issues in 3D across construction stages. Before-drywall checking is one use case, not the full concept.
 
 Read [README.md](README.md), [product specification](docs/PRODUCT_SPEC.md), [PLAN.md](PLAN.md), [TODO.md](TODO.md) and [STATUS.md](STATUS.md) before design-level changes. Setup commands are in [the developer guide](docs/DEVELOPMENT.md).
 
@@ -17,6 +17,7 @@ The code still uses SiteMesh identifiers. Do not rename packages, storage keys o
 - Keep the product original and preserve third-party sample attribution.
 - Use focused changes and relevant tests. Do not claim a test passed without running it.
 - Do not commit/push or contact customers solely because a planning document mentions those future activities.
+- The user authorized committing and pushing completed, verified work to `main` by default on October 6, 2026. Continue that preference for subsequent implementation; use ordinary pushes, preserve upstream changes and never force-push main.
 
 ## Product invariants for the new workflow
 
@@ -52,9 +53,10 @@ These are target requirements. The current legacy auto-approval and skip-done be
 
 **Frontend:** React, TypeScript, Vite PWA, TanStack Query and three.js.
 
-- The user selected `src/workspace/` (formerly `/demo`) as the final website UI. It is now a building-centered workspace at `/`: one persistent `BuildingCanvas` with contextual `WorldPanels`, root query-state navigation and compatibility redirects for old page URLs. Do not restore the earlier Home/Logs/Building page tabs or mount multiple 3D views for these workflows. Do not restore the older login/project route tree. Connected pages/auth/field code is retained for integration into the chosen interface, not mounted publicly. Preserve existing local-storage keys and explicit sample/result provenance.
-- Design iteration 2 adds a public project selector and per-project local keys. Preserve the original duplex storage key; never reuse its work/room associations for another model. Source grouping for Schependomlaan uses its pinned reviewed room map, not a general unit parser. The UI-only checklist is `docs/UI_TODO_ITERATION_2.md`.
+- The user selected `src/workspace/` (formerly `/demo`) as the final website UI. The root `/` is now the project showroom/home; opening a project enters a building-centered workspace: one persistent `BuildingCanvas` with contextual `WorldPanels`, root query-state navigation and compatibility redirects for old page URLs. Do not restore the earlier Home/Logs/Building page tabs or mount multiple 3D views for these workflows. Do not restore the older login/project route tree. The chosen interface now offers optional authenticated project/model onboarding in a contextual panel. Private work-record persistence and actor/role integration remain pending; retained field/page components are integration foundations. Public samples must remain sign-in free. Preserve existing local-storage keys and explicit sample/result provenance.
+- Design iteration 2 adds a public project selector and per-project local keys. Preserve the original duplex storage key; never reuse its work/room associations for another model. Source grouping for Schependomlaan uses its pinned reviewed room map, not a general unit parser. Distinct IFC space GUIDs remain distinct even when room codes match. Private model layers/plans use authorized loaders, and private API responses must not enter shared URL-keyed service-worker caches. The UI-only checklist is `docs/UI_TODO_ITERATION_2.md`.
 - `src/viewer/` is a separate viewer with command/event API and embedding bridge; keep it independent of page components.
+- Project switching uses home `/` or `/?screen=projects` and `workspace/ProjectShowroom.tsx`: one selected source-model preview, separate browsing/opening, and preserved return context. Do not mount hidden workspace or thumbnail WebGL canvases. Private previews use authorized current-model/layer loaders; public thumbnails are source-bound SVG silhouettes, not field progress. Keep project names non-interactive and use an explicit Switch project button. Add/import starts from the project home, with private draft review still in the shared canvas. Project pulse and Project context are retired; user-view previews remain in the user menu. The standalone subcontractor companion brief is `docs/SUBCONTRACTOR_MOBILE_BUILD_PROMPT.md`; it is not an implemented mobile app.
 - `src/field/` uses IndexedDB; replay occurs on app open, online events and a timer. Do not assume iOS Background Sync.
 - `src/pages/` is the connected workspace; `src/studio/` is a browser-local fictional demo.
 - `src/api/client.ts` handles JWT access and rotating refresh tokens.

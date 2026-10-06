@@ -25,8 +25,17 @@ def build_glb(meshes: list[tuple[str, np.ndarray, np.ndarray]]) -> bytes:
     for element_id, verts, faces in meshes:
         if len(faces) == 0:
             continue
-        m = trimesh.Trimesh(vertices=ifc_to_three(verts), faces=faces, process=False)
-        scene.add_geometry(m, node_name=element_id, geom_name=element_id)
+        world = ifc_to_three(verts)
+        transform = np.eye(4)
+        # glTF vertex attributes are float32. Survey coordinates in the millions would
+        # otherwise round away centimetres. Keep the exact world translation in the
+        # node's JSON transform and only encode nearby vertex offsets as float32.
+        if np.max(np.abs(world)) > 10000:
+            origin = (world.min(axis=0) + world.max(axis=0)) / 2
+            world = world - origin
+            transform[:3, 3] = origin
+        m = trimesh.Trimesh(vertices=world, faces=faces, process=False)
+        scene.add_geometry(m, node_name=element_id, geom_name=element_id, transform=transform)
     buf = io.BytesIO()
     scene.export(buf, file_type="glb")
     return buf.getvalue()

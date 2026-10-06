@@ -69,7 +69,7 @@ def audit(output: Path = OUTPUT, source_dir: Path = SOURCE):
         all_items += items
         spaces += rooms
         reports.append(report)
-    apply_building_aliases(all_items, spaces, source.get("building_aliases", {}))
+    apply_building_aliases(all_items, spaces, source.get("building_aliases", {}), source.get("level_aliases", {}))
     unique = {i.guid: i for i in reversed(all_items)}
     settings = get_settings()
     previous_storage = settings.storage_dir
@@ -101,7 +101,8 @@ def audit(output: Path = OUTPUT, source_dir: Path = SOURCE):
                              f"{slug}:level:{buildings[lv.building_id]}:{lv.name}:{lv.elevation_m}"))
                              for lv in levels} if slug != "duplex" else {}
                 zone_ids = {z.id: str(uuid.uuid5(uuid.NAMESPACE_URL,
-                            f"{slug}:room:{level_ids[z.level_id]}:{z.code}:{z.name}"))
+                            f"{slug}:room:{level_ids[z.level_id]}:{z.code}:{z.name}" +
+                            (f":{z.ifc_guid}" if sum(other.level_id == z.level_id and other.code == z.code and other.name == z.name for other in zones) > 1 else "")))
                             for z in zones} if slug != "duplex" else {}
                 rows = db.execute(select(Element, ElementRevision).join(ElementRevision)
                                   .where(ElementRevision.version_id == version.id)).all()
@@ -118,7 +119,7 @@ def audit(output: Path = OUTPUT, source_dir: Path = SOURCE):
                            for el, rev in rows]
                 plans = [{"id": level_ids.get(lv.id, lv.id), "name": f"{buildings[lv.building_id]} · {lv.name}",
                           "elevation_m": lv.elevation_m, "provenance": "IFC-derived plan silhouettes; not an approved drawing",
-                          "rooms": [{"id": zone_ids.get(z.id, z.id), "name": z.name, "code": z.code, "polygon": z.polygon}
+                          "rooms": [{"id": zone_ids.get(z.id, z.id), "name": z.name, "code": z.code, "polygon": z.polygon, "ifc_guid": z.ifc_guid}
                                     for z in zones if z.level_id == lv.id],
                           "elements": [{"id": el.id, "discipline": rev.discipline,
                                         "points": footprint(unique[el.ifc_guid])}

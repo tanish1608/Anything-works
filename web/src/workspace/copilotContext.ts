@@ -9,7 +9,16 @@ const compactWork = (item: WorkItem) => ({
 
 export function copilotContext(state: WorkspaceState, selected: WorkItem | undefined, screen: {
   modelRevision: string; component: string | null; level: string | null; unit: string | null; room: string | null; date: string | null;
-}) {
+}, canCoordinate = false) {
+  const dayOf = (value: string) => {
+    const date = new Date(value);
+    if (!Number.isFinite(date.getTime())) return null;
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  };
+  const today = dayOf(new Date().toISOString())!;
+  const reportDay = screen.date || today;
+  const dailyEvents = state.events.filter(event => dayOf(event.at) === reportDay)
+    .sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
   const related = state.items.filter(item => item.id !== selected?.id && !item.dismissed
     && (!selected || item.owner === selected.owner || item.trade === selected.trade
       || (item.level === selected.level && item.unit === selected.unit)));
@@ -17,10 +26,20 @@ export function copilotContext(state: WorkspaceState, selected: WorkItem | undef
   const packet = {
     provenance: "browser-local sample; not authenticated project evidence",
     sampleProject: clip(state.projectName),
+    availableActions: canCoordinate ? ["prepare_local_assignment"] : [],
     screen: Object.fromEntries(Object.entries(screen).map(([key, value]) => [key, value?.slice(0, 96) ?? null])),
+    dailyActivity: {
+      today, reportDay, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      visibleEventCount: dailyEvents.length,
+      coverage: "All dated events in the visible browser-local project records; not shared backend activity",
+      events: dailyEvents.slice(0, 6).map(event => ({
+        workId: clip(event.item, 80), title: clip(state.items.find(item => item.id === event.item)?.title, 100),
+        at: clip(event.at, 40), actor: clip(event.actor, 80), text: clip(event.text, 200),
+      })),
+    },
     selectedWork: selected ? {
       ...compactWork(selected), reference: clip(selected.reference, 240), update: clip(selected.update, 360),
-      scope: clip(selected.scope, 240), limits: clip(selected.limits, 240),
+      review: clip(selected.review, 200), scope: clip(selected.scope, 240), limits: clip(selected.limits, 240),
       detail: clip(selected.detail, 240), coverage: clip(selected.coverage),
       checks: selected.checks.slice(0, 4).map(check => ({ ...check, name: clip(check.name), release: clip(check.release) })),
       componentIds: selected.location?.elements.slice(0, 8).map(id => clip(id, 96)),
@@ -42,13 +61,14 @@ export function copilotContext(state: WorkspaceState, selected: WorkItem | undef
     recentActivity: state.events.filter(event => selected ? event.item === selected.id : true).slice(0, 3).map(event => ({
       workId: clip(event.item, 80), at: clip(event.at, 40), actor: clip(event.actor, 80), text: clip(event.text, 160),
     })),
-    constraints: "Related work and owners are partial local records. Recorded ownership is not qualification. Due dates are deadlines, not available time slots. Local coordination controls can import a bounded calendar export and confirm a demo assignment and in-app follow-up. Chat itself cannot apply actions; no live calendar or external delivery is connected.",
+    constraints: "Related work and owners are partial local records. Recorded ownership is not qualification. Due dates are deadlines, not available time slots. Prepare assignment can confirm a responsible trade and task instruction without a calendar or changing completion. Scheduling is outside the core workflow. Chat itself cannot apply actions; no live calendar or external delivery is connected.",
   };
   // Drop lower-priority context as whole records so the contract limit never truncates JSON.
   while (JSON.stringify(packet).length > 6000) {
     if (packet.relatedWork.length) packet.relatedWork.pop();
     else if (packet.recentActivity.length) packet.recentActivity.shift();
     else if (packet.recordedOwners.length) packet.recordedOwners.pop();
+    else if (packet.dailyActivity.events.length) packet.dailyActivity.events.pop();
     else break;
   }
   return JSON.stringify(packet);

@@ -1,8 +1,10 @@
 # Repository operating contract
 
-Follow the user's repository instructions. The user authorized implementation after the design review. This branch implements the scoped Placeholder AI photo-assessment, recorded-voice and read-only text-helper slices against `origin/main` at `aa3692b`; it does not merge divergent old `dev` or enable external communications.
+Follow the user's repository instructions. The user authorized implementation after the design review. This branch implements the scoped Placeholder AI photo-assessment, recorded-voice and read-only text-helper slices against the fetched `origin/main` at `bd15b5c`; it does not merge divergent old `dev` or enable external communications.
 
 The user selected ByteByteGo's production-agent principles. Application code owns prompts, bounded context, workflow transitions and persisted memory. LangGraph is the preferred pause/resume adapter pending compatibility/recovery tests. Keep the chosen root workspace UI; do not restore retired routes. Inherited branding is subordinate to the user's Placeholder AI name; preserve persisted/internal identifiers.
+
+The current core scope is daily evidence against approved references, both issues and progress in 3D, responsible-trade correction and PM sign-off with history. Scheduling, budgets, design authoring and replacing official inspection are out of scope. Preserve historical local calendar data, but responsibility assignment must not require a calendar or invent a deadline.
 
 Read progressively: `.kiro/specs/placeholder-agent/requirements.md`, relevant `contracts/openapi.yaml` operations, `docs/architecture.md`, `docs/decisions/`, `docs/TASKS.md`, then nearby source/tests. Report conflicts. `STATUS.md` records current behavior; drafts and fictional workspace results are not implemented agent capabilities.
 

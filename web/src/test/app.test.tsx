@@ -16,13 +16,20 @@ import { AppRoutes } from "../App";
 import type ProjectScene from "../viewer/ProjectScene";
 import type { ModelDataset } from "../viewer/modelData";
 import { COLORS, STORE_KEY, type WorkspaceState } from "../workspace/state";
-import { projectStorageKey } from "../workspace/projectState";
+import {
+  projectStorageKey,
+  initialProjectState,
+  plannedComponent,
+} from "../workspace/projectState";
 
 const model = JSON.parse(
   readFileSync("public/bim-duplex/model.json", "utf8"),
 ) as ModelDataset;
 const apartment = JSON.parse(
   readFileSync("public/bim-schependomlaan/model.json", "utf8"),
+) as ModelDataset;
+const clinic = JSON.parse(
+  readFileSync("public/bim-clinic/model.json", "utf8"),
 ) as ModelDataset;
 const scene = vi.hoisted(() => ({
   mount: vi.fn(),
@@ -32,11 +39,12 @@ const scene = vi.hoisted(() => ({
 vi.mock("../viewer/modelData", async (original) => ({
   ...(await original<typeof import("../viewer/modelData")>()),
   loadDemoModel: async () => model,
-  loadPublicProject: async () => apartment,
+  loadPublicProject: async (id: string) =>
+    id === "duplex" ? model : id === "clinic" ? clinic : apartment,
 }));
 vi.mock("../workspace/photoInput", () => ({
   readPhoto: async (file: File) => ({
-    id: "uploaded-photo",
+    id: file.name === "field-photo.jpg" ? "uploaded-photo" : file.name,
     url: "data:image/jpeg;base64,dGVzdA==",
     sample: false,
     name: file.name,
@@ -94,6 +102,18 @@ function renderAt(path: string) {
     </MemoryRouter>,
   );
 }
+async function switchProject(id: "duplex" | "schependomlaan") {
+  await userEvent.click(screen.getByRole("button", { name: "Switch project" }));
+  await userEvent.click(
+    screen.getByRole("button", {
+      name: `Preview ${id === "duplex" ? "Duplex Apartment" : "Schependomlaan Apartments"}`,
+    }),
+  );
+  await waitFor(() =>
+    expect(screen.getByRole("button", { name: "Open project" })).toBeEnabled(),
+  );
+  await userEvent.click(screen.getByRole("button", { name: "Open project" }));
+}
 function saved(): WorkspaceState {
   return JSON.parse(localStorage.getItem(STORE_KEY)!);
 }
@@ -106,7 +126,7 @@ async function ready() {
 }
 async function menu(name: string) {
   await userEvent.click(screen.getByLabelText("Open project menu"));
-  await userEvent.click(screen.getByRole("menuitem", { name }));
+  if (name !== "View as") await userEvent.click(screen.getByRole("menuitem", { name }));
 }
 async function addEvidence() {
   await userEvent.click(
@@ -135,19 +155,82 @@ afterEach(() => {
 });
 
 describe("one building workspace", () => {
+  it("starts a new source project with issues and a direct path to planning work", async () => {
+    renderAt("/?project=schependomlaan");
+    await ready();
+    expect(screen.getByRole("button", { name: "Placeholder AI — project home" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("complementary", { name: "Work & issues" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("No field updates yet")).toBeInTheDocument();
+    expect(screen.queryByText("No matching records")).not.toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole("button", { name: "Explore building work" }),
+    );
+    expect(
+      screen.getByRole("complementary", { name: "Explore building" }),
+    ).toBeInTheDocument();
+  });
+  it("offers existing planned work when attention is empty and preserves explicit panel dismissal on reload", async () => {
+    const item = plannedComponent(
+      apartment,
+      apartment.elements.find((e) => e.ifc_class === "IfcDoor" && e.zone_id)!
+        .id,
+      "Install room door",
+      "Fit-out crew",
+    );
+    localStorage.setItem(
+      projectStorageKey(apartment),
+      JSON.stringify({ ...initialProjectState(apartment), items: [item] }),
+    );
+    const view = renderAt("/?project=schependomlaan");
+    await ready();
+    expect(screen.getByText("No updates need attention")).toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole("button", { name: "Show all work" }),
+    );
+    expect(
+      screen.getByRole("button", { name: /Install room door\./ }),
+    ).toBeInTheDocument();
+    await userEvent.click(screen.getByLabelText("Close side panel"));
+    expect(screen.getByTestId("url").textContent).toBe(
+      "/?project=schependomlaan&panel=none",
+    );
+    view.unmount();
+    renderAt("/?project=schependomlaan&panel=none");
+    await ready();
+    expect(screen.queryByRole("complementary")).not.toBeInTheDocument();
+  });
+  it("replaces the workspace canvas with one showroom preview and restores the original panel on cancel", async () => {
+    renderAt("/?panel=issues");
+    await ready();
+    expect(screen.getAllByTestId("project-scene")).toHaveLength(1);
+    await userEvent.click(screen.getByRole("button", { name: "Switch project" }));
+    await screen.findByRole("main", { name: "Choose building project" });
+    await waitFor(() => expect(scene.last!.orbitFit).toBe(true));
+    expect(screen.getAllByTestId("project-scene")).toHaveLength(1);
+    expect(scene.dispose).toHaveBeenCalledTimes(1);
+    expect(
+      screen.queryByRole("region", { name: "Building workspace" }),
+    ).not.toBeInTheDocument();
+    await userEvent.keyboard("{Escape}");
+    await ready();
+    expect(screen.getByTestId("url").textContent).toBe("/?panel=issues");
+    expect(scene.last!.data).toBe(model);
+    expect(screen.getAllByTestId("project-scene")).toHaveLength(1);
+  });
   it("keeps apartment work, drafts and decisions separate while switching buildings", async () => {
-    renderAt("/");
+    renderAt("/?panel=issues");
     await ready();
     await userEvent.click(screen.getByLabelText("Open work and issues"));
-    await userEvent.selectOptions(
-      screen.getByLabelText("Switch building project"),
-      "schependomlaan",
-    );
+    await switchProject("schependomlaan");
     await ready();
     expect(scene.last!.data).toBe(apartment);
-    expect(screen.queryByRole("complementary")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("complementary", { name: "Work & issues" }),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("url").textContent).toBe(
-      "/?project=schependomlaan",
+      "/?project=schependomlaan&panel=issues",
     );
     await userEvent.click(screen.getByRole("button", { name: "New update" }));
     expect(screen.getByText("Choose the work first.")).toBeInTheDocument();
@@ -200,19 +283,13 @@ describe("one building workspace", () => {
     expect(
       scene.last!.colors.get(accepted.items[0].location!.elements[0]),
     ).toBe(COLORS.human);
-    await userEvent.selectOptions(
-      screen.getByLabelText("Switch building project"),
-      "duplex",
-    );
+    await switchProject("duplex");
     await ready();
     expect(scene.last!.data).toBe(model);
-    expect(screen.getByTestId("url").textContent).toBe("/");
+    expect(screen.getByTestId("url").textContent).toBe("/?panel=issues");
     await userEvent.click(screen.getByLabelText("Open work and issues"));
     expect(screen.queryByText("Apartment pipe check")).not.toBeInTheDocument();
-    await userEvent.selectOptions(
-      screen.getByLabelText("Switch building project"),
-      "schependomlaan",
-    );
+    await switchProject("schependomlaan");
     await ready();
     await userEvent.click(screen.getByLabelText("Open work and issues"));
     await userEvent.click(screen.getByRole("button", { name: "Complete" }));
@@ -225,10 +302,7 @@ describe("one building workspace", () => {
       screen.getByLabelText("What changed?"),
       "Draft stays in this apartment.",
     );
-    await userEvent.selectOptions(
-      screen.getByLabelText("Switch building project"),
-      "duplex",
-    );
+    await switchProject("duplex");
     await ready();
     await userEvent.click(screen.getByRole("button", { name: "New update" }));
     expect(screen.getByLabelText("What changed?")).not.toHaveValue(
@@ -237,18 +311,18 @@ describe("one building workspace", () => {
     expect(JSON.parse(localStorage.getItem(key)!).draft.note).toBe(
       "Draft stays in this apartment.",
     );
-  });
+  }, 15000); // Repeated full-source project/capture/review journeys exceed the short unit-test budget.
   it("keeps the selected project when Escape closes a contextual panel", async () => {
     renderAt("/?project=schependomlaan&panel=project");
     await ready();
     await userEvent.keyboard("{Escape}");
     expect(screen.getByTestId("url").textContent).toBe(
-      "/?project=schependomlaan",
+      "/?project=schependomlaan&panel=none",
     );
     expect(scene.last!.data).toBe(apartment);
   });
   it("opens the building without login or page tabs and keeps one scene mounted through every panel", async () => {
-    renderAt("/");
+    renderAt("/?panel=issues");
     await ready();
     expect(
       screen.queryByRole("navigation", { name: "Workspace" }),
@@ -256,13 +330,13 @@ describe("one building workspace", () => {
     expect(
       screen.queryByRole("button", { name: "Sign in" }),
     ).not.toBeInTheDocument();
-    expect(screen.queryByRole("complementary")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("complementary", { name: "Work & issues" }),
+    ).toBeInTheDocument();
     const firstData = scene.last!.data;
     for (const name of [
-      "Project pulse",
       "Progress history",
       "Project team",
-      "Project context",
       "Explore building",
     ]) {
       await menu(name);
@@ -291,17 +365,11 @@ describe("one building workspace", () => {
     expect(scene.last!.expanded).toBe(true);
   });
   it("preserves saved project records in the new interface", async () => {
-    const first = renderAt("/setup");
+    localStorage.setItem(STORE_KEY, JSON.stringify({ ...initialProjectState(model), projectName: "Elm Court" }));
+    const first = renderAt("/?panel=issues");
     await ready();
-    const input = await screen.findByLabelText("Project name");
-    await userEvent.clear(input);
-    await userEvent.type(input, "Elm Court");
-    await userEvent.click(
-      screen.getByRole("button", { name: "Save project name" }),
-    );
-    expect(saved().projectName).toBe("Elm Court");
     first.unmount();
-    renderAt("/");
+    renderAt("/?panel=issues");
     await ready();
     expect(
       screen.getByRole("heading", { name: "Elm Court" }),
@@ -310,7 +378,7 @@ describe("one building workspace", () => {
   it.each([
     ["/logs", "Progress history"],
     ["/people", "Project team"],
-    ["/setup", "Project context"],
+    ["/setup", "Work & issues"],
   ])("opens %s as a panel after a refresh", async (path, name) => {
     renderAt(path);
     await ready();
@@ -329,14 +397,17 @@ describe("one building workspace", () => {
     "/unknown-page",
   ])("retires %s without mounting the old app", async (path) => {
     renderAt(path);
-    await ready();
+    if (path === "/unknown-page") await ready();
+    else await screen.findByRole("main", { name: "Choose building project" });
     await waitFor(() =>
-      expect(screen.getByTestId("url").textContent).toBe("/"),
+      expect(screen.getByTestId("url").textContent).toBe(
+        path === "/unknown-page" ? "/?panel=issues" : "/",
+      ),
     );
     expect(globalThis.fetch).not.toHaveBeenCalled();
   });
   it("maps a model pin through the source floor, unit and room, and supports a tighter component focus", async () => {
-    renderAt("/");
+    renderAt("/?panel=issues");
     await ready();
     await userEvent.click(
       screen.getByRole("button", { name: "Model pin ISS-031" }),
@@ -462,7 +533,7 @@ describe("one building workspace", () => {
     expect(scene.mount).toHaveBeenCalledTimes(1);
   });
   it("searches room context and opens the matching issue without losing the building", async () => {
-    renderAt("/");
+    renderAt("/?panel=issues");
     await ready();
     await userEvent.type(
       screen.getByLabelText("Search building records"),
@@ -506,7 +577,7 @@ describe("one building workspace", () => {
     expect(scene.mount).toHaveBeenCalledTimes(1);
   });
   it("opens untracked components without inventing work or completion", async () => {
-    renderAt("/");
+    renderAt("/?panel=issues");
     await ready();
     await userEvent.click(
       screen.getByRole("button", { name: "Select untracked component" }),
@@ -519,4 +590,340 @@ describe("one building workspace", () => {
     ).toBeInTheDocument();
     expect(saved()?.assessmentJobs || []).toHaveLength(0);
   });
+});
+
+it("searches accepted work across the default attention filter and preserves search focus", async () => {
+  renderAt("/?panel=issues");
+  await ready();
+  const search = screen.getByLabelText("Search building records");
+  await userEvent.type(search, "Kitchen sink");
+  expect(search).toHaveFocus();
+  expect(screen.getByText("Searching all statuses.")).toBeInTheDocument();
+  await userEvent.click(
+    screen.getByRole("button", { name: /Kitchen sink connections\./ }),
+  );
+  expect(
+    screen.getByRole("heading", { name: "Kitchen sink connections" }),
+  ).toBeInTheDocument();
+});
+
+it("changes the responsible owner and due date without resolving an open issue", async () => {
+  renderAt("/?panel=record&work=ISS-031");
+  await ready();
+  await userEvent.click(
+    screen.getByRole("button", { name: "Change owner / due date" }),
+  );
+  await userEvent.clear(screen.getByLabelText("Assignee"));
+  await userEvent.type(screen.getByLabelText("Assignee"), "New plumbing lead");
+  fireEvent.change(screen.getByLabelText("Due date"), {
+    target: { value: "2026-10-15" },
+  });
+  await userEvent.type(
+    screen.getByLabelText("Decision reason"),
+    "Crew change; preserve the open correction.",
+  );
+  await userEvent.click(screen.getByRole("button", { name: "Save decision" }));
+  const record = saved().items.find((i) => i.id === "ISS-031")!;
+  expect(record.owner).toBe("New plumbing lead");
+  expect(record.due).toBe("2026-10-15");
+  expect(record.issue).toBeTruthy();
+  expect(record.status).toBe("issue");
+  expect(saved().events[0].text).toContain("owner New plumbing lead");
+});
+
+it("previews a read-only customer and scoped field worker without remounting the building", async () => {
+  renderAt("/?panel=project");
+  await ready();
+  const mounts = scene.mount.mock.calls.length;
+  await userEvent.selectOptions(
+    screen.getByLabelText("Preview user experience"),
+    "customer",
+  );
+  expect(screen.getByRole("button", { name: "New update" })).toBeDisabled();
+  await userEvent.click(
+    screen.getByRole("button", { name: "Model pin F-118" }),
+  );
+  expect(
+    screen.queryByRole("button", { name: "Confirm an issue" }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.getByText(/Project-manager review is required/),
+  ).toBeInTheDocument();
+  await userEvent.click(screen.getByRole("button", { name: "Return to PM" }));
+  await menu("View as");
+  await userEvent.selectOptions(
+    screen.getByLabelText("Preview user experience"),
+    "worker",
+  );
+  expect(screen.getByRole("button", { name: "New update" })).toBeEnabled();
+  await userEvent.click(screen.getByRole("button", { name: "New update" }));
+  const options = within(screen.getByLabelText("Work item")).getAllByRole(
+    "option",
+  );
+  expect(options.length).toBeGreaterThan(0);
+  expect(options.length).toBeLessThan(model.elements.length);
+  expect(scene.mount.mock.calls.length).toBe(mounts);
+});
+
+it("focuses the contextual panel and restores the invoking button on close", async () => {
+  renderAt("/?panel=issues");
+  await ready();
+  const trigger = screen.getByLabelText("Open work and issues");
+  await userEvent.click(trigger);
+  expect(screen.getByRole("complementary")).toHaveFocus();
+  await userEvent.click(screen.getByLabelText("Close side panel"));
+  expect(trigger).toHaveFocus();
+});
+
+it("retains unavailable photo evidence instead of substituting an unrelated image", async () => {
+  renderAt("/?panel=record&work=F-118");
+  await ready();
+  const image = within(
+    screen.getByLabelText("Enlarge evidence photo"),
+  ).getByRole("img");
+  fireEvent.error(image);
+  expect(screen.getByText(/Photo unavailable/)).toBeInTheDocument();
+  expect(
+    screen.getByRole("heading", { name: "Bedroom door — placement review" }),
+  ).toBeInTheDocument();
+});
+
+it("creates a private project, previews a real draft in the shared canvas and requires explicit approval", async () => {
+  let created = false,
+    imported = false,
+    approved = false;
+  const requests: string[] = [];
+  const project = {
+    id: "private-project",
+    name: "Client apartment",
+    my_role: "owner",
+    my_trades: [],
+    my_zone_ids: null,
+  };
+  const level = model.plans.find((p) => p.elements.length)!,
+    version = () => ({
+      id: "private-revision",
+      number: 1,
+      status: approved ? "approved" : "draft",
+      is_current: approved,
+      message: "Client IFC",
+    });
+  vi.mocked(fetch).mockImplementation(async (input, init) => {
+    const path = String(input);
+    requests.push(path);
+    let body: unknown;
+    if (path === "/api/auth/login")
+      body = { access_token: "test-private", refresh_token: "test-refresh" };
+    else if (path === "/api/auth/me")
+      body = { id: "client-pm", name: "Client PM", email: "pm@example.com" };
+    else if (path === "/api/projects" && init?.method === "POST") {
+      created = true;
+      body = project;
+    } else if (path === "/api/projects") body = created ? [project] : [];
+    else if (path === "/api/projects/private-project") body = project;
+    else if (path.includes("/models/import")) {
+      imported = true;
+      expect((init!.body as FormData).getAll("files")).toHaveLength(1);
+      body = { id: "import-job", status: "queued" };
+    } else if (path === "/api/jobs/import-job")
+      body = {
+        id: "import-job",
+        status: "done",
+        result: { version_id: "private-revision" },
+      };
+    else if (path === "/api/models/private-revision/approve") {
+      approved = true;
+      body = version();
+    } else if (path.endsWith("/models")) body = imported ? [version()] : [];
+    else if (path.includes("/viewer"))
+      body = {
+        version: imported ? version() : null,
+        layers: imported
+          ? [
+              {
+                discipline: "architecture",
+                context: false,
+                url: "/api/models/private-revision/meshes/architecture.glb",
+              },
+            ]
+          : [],
+      };
+    else if (path.includes("/elements"))
+      body = imported
+        ? model.elements.filter((e) => e.level_id === level.id).slice(0, 2)
+        : [];
+    else if (path.endsWith("/tree"))
+      body = imported
+        ? [{ name: "Building", levels: [{ ...level, zones: level.rooms }] }]
+        : [];
+    else if (path.includes("/plans/")) body = level;
+    else throw Error(`Unexpected request ${path}`);
+    return new Response(JSON.stringify(body), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    });
+  });
+  renderAt("/?panel=import");
+  await ready();
+  await userEvent.type(screen.getByLabelText("Email"), "pm@example.com");
+  await userEvent.type(screen.getByLabelText("Password"), "test-password");
+  await userEvent.click(
+    screen.getByRole("button", { name: "Connect account" }),
+  );
+  await screen.findByText("Client PM");
+  await userEvent.type(
+    screen.getByLabelText("Project name"),
+    "Client apartment",
+  );
+  await userEvent.click(screen.getByRole("button", { name: "Create project" }));
+  await screen.findByText("No model yet. Upload IFC to begin.");
+  expect(screen.queryByText("Sarah Jenkins")).not.toBeInTheDocument();
+  await userEvent.upload(
+    await screen.findByLabelText("IFC model files"),
+    new File(["ISO-10303-21;"], "client.ifc"),
+  );
+  await userEvent.click(
+    screen.getByRole("button", { name: "Upload as draft" }),
+  );
+  const approve = await screen.findByRole("button", {
+    name: "Approve as project reference",
+  });
+  expect(approve).toBeDisabled();
+  expect(approved).toBe(false);
+  expect(scene.last!.data.source.apiProjectId).toBe("private-project");
+  expect(scene.last!.data.plans[0].elements.length).toBeGreaterThan(0);
+  expect(scene.last!.loader).toBeDefined();
+  expect(scene.last!.markers).toHaveLength(0);
+  expect(screen.getByRole("button", { name: "New update" })).toBeDisabled();
+  await userEvent.click(
+    screen.getByLabelText("I reviewed this source structure and geometry."),
+  );
+  await userEvent.click(approve);
+  await screen.findByText("Connected model · work records pending");
+  expect(approved).toBe(true);
+  expect(requests).toContain("/api/models/private-revision/approve");
+  expect(screen.getByRole("button", { name: "New update" })).toBeDisabled();
+}, 10000);
+
+it("keeps scene colors and pins stable while writing a daily-update draft", async () => {
+  renderAt("/?panel=capture&work=PLUMB-402");
+  await ready();
+  const colors = scene.last!.colors,
+    markers = scene.last!.markers;
+  await userEvent.type(
+    screen.getByLabelText("What changed?"),
+    "Finished the connection.",
+  );
+  expect(scene.last!.colors).toBe(colors);
+  expect(scene.last!.markers).toBe(markers);
+  expect(saved().draft?.note).toBe("Finished the connection.");
+});
+
+
+it("walks the duct-blocking-panel report through manual PM assignment, crew correction and explicit review on a real clinic source component", async () => {
+  const duct = clinic.elements.find((e) => e.id === "35e450d9-72b7-5280-9247-b941e0d03b1e")!;
+  expect(duct.discipline).toBe("hvac");
+  const planned = plannedComponent(clinic, duct.id, "Duct blocks panel installation", "HVAC crew");
+  const key = projectStorageKey(clinic);
+  localStorage.setItem(key, JSON.stringify({ ...initialProjectState(clinic), items: [planned] }));
+  const originalBounds = [...duct.bbox!];
+  renderAt(`/?project=clinic&panel=capture&work=${planned.id}`);
+  await ready();
+  await addEvidence();
+  await userEvent.clear(screen.getByLabelText("What changed?"));
+  await userEvent.type(screen.getByLabelText("What changed?"), "Panel installer reports: duct is not well installed; I cannot install the panel.");
+  await userEvent.click(screen.getByRole("button", { name: "Submit for review" }));
+  const read = () => JSON.parse(localStorage.getItem(key)!) as WorkspaceState;
+  expect(read().items[0].status).toBe("review");
+  expect(read().events[0].text).toContain("cannot install the panel");
+  expect(read().assessmentJobs![0].modelVersion).toBe(clinic.version);
+  expect(scene.last!.focus!.elements).toContain(duct.id);
+
+  await userEvent.click(screen.getByRole("button", { name: "Confirm an issue" }));
+  await userEvent.clear(screen.getByLabelText("Assignee"));
+  await userEvent.type(screen.getByLabelText("Assignee"), "HVAC crew");
+  fireEvent.change(screen.getByLabelText("Due date"), { target: { value: "2026-10-08" } });
+  await userEvent.type(screen.getByLabelText("Decision reason"), "Adjust duct clearance, submit overview and close-up; panel crew waits for PM recheck.");
+  await userEvent.click(screen.getByRole("button", { name: "Save decision" }));
+  const issue = read().items[0].issue;
+  expect(read().items[0]).toMatchObject({ status: "issue", owner: "HVAC crew", due: "2026-10-08", correction: false });
+  expect(scene.last!.colors.get(duct.id)).toBe(COLORS.issue);
+  expect(screen.queryByRole("button", { name: "Accept correction & resolve" })).not.toBeInTheDocument();
+
+  await menu("View as");
+  await userEvent.selectOptions(screen.getByLabelText("Preview user experience"), "subcontractor");
+  await userEvent.click(screen.getByRole("button", { name: "New update" }));
+  await userEvent.click(screen.getByLabelText("I confirm this is the correct work location."));
+  await userEvent.upload(screen.getByLabelText("Upload evidence photos"), new File(["correction"], "duct-correction.jpg", { type: "image/jpeg" }));
+  await userEvent.type(screen.getByLabelText("What changed?"), "Duct adjusted; panel crew must verify installation can continue.");
+  await userEvent.click(screen.getByRole("button", { name: "Submit for review" }));
+  expect(read().items[0]).toMatchObject({ issue, status: "issue", correction: true });
+  expect(scene.last!.colors.get(duct.id)).toBe(COLORS.issue);
+  expect(screen.getByRole("img", { name: "duct-correction.jpg" })).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Accept correction & resolve" })).not.toBeInTheDocument();
+
+  await userEvent.click(screen.getByRole("button", { name: "Return to PM" }));
+  await userEvent.click(screen.getByRole("button", { name: `Model pin ${planned.id}` }));
+  await userEvent.click(screen.getByRole("button", { name: "Accept correction & resolve" }));
+  await userEvent.type(screen.getByLabelText("Decision reason"), "Reviewed correction and confirmed clearance. Panel installation still requires its own evidence.");
+  await userEvent.click(screen.getByRole("button", { name: "Save decision" }));
+  expect(read().items[0]).toMatchObject({ status: "human", inspection: "Not recorded" });
+  expect(read().items[0].issue).toBeUndefined();
+  expect(read().items[0].photos.map((p) => p.name)).toEqual(["field-photo.jpg", "duct-correction.jpg"]);
+  expect(read().events.some((e) => e.text.includes("panel crew waits"))).toBe(true);
+  expect(scene.last!.colors.get(duct.id)).toBe(COLORS.human);
+  expect(scene.last!.data).toBe(clinic);
+  expect(duct.bbox).toEqual(originalBounds);
+  expect(scene.mount).toHaveBeenCalledTimes(1);
+  expect(globalThis.fetch).not.toHaveBeenCalled(); // A local role preview is not a two-device handoff.
+}, 15000);
+
+
+it("uses the showroom as home, opens import directly and requires an explicit switch button", async () => {
+  renderAt("/");
+  await screen.findByRole("main", { name: "Choose building project" });
+  expect(screen.queryByRole("button", { name: "Back to building" })).not.toBeInTheDocument();
+  await userEvent.click(screen.getByRole("button", { name: "Add / import project" }));
+  expect(await screen.findByRole("main", { name: "Add or import project" })).toBeInTheDocument();
+  expect(screen.getByLabelText("Email")).toBeInTheDocument();
+  expect(screen.queryByTestId("project-scene")).not.toBeInTheDocument();
+  await userEvent.click(screen.getByRole("button", { name: "Back to projects" }));
+  await userEvent.click(screen.getByRole("button", { name: "Open project" }));
+  await ready();
+  const url = screen.getByTestId("url").textContent;
+  await userEvent.click(screen.getByRole("heading", { name: "Duplex Apartment" }));
+  expect(screen.getByTestId("url").textContent).toBe(url);
+  await userEvent.click(screen.getByLabelText("Open project menu"));
+  for (const name of ["Project pulse", "Project context", "Switch project", "Add / import project"])
+    expect(screen.queryByRole("menuitem", { name })).not.toBeInTheDocument();
+  await userEvent.click(screen.getByRole("button", { name: "Switch project" }));
+  expect(await screen.findByRole("main", { name: "Choose building project" })).toBeInTheDocument();
+});
+
+it("uses themed Sort and Team menus with keyboard selection and Escape without closing the issue panel", async () => {
+  renderAt("/?panel=issues"); await ready();
+  const sort = screen.getByRole("combobox", { name: "Sort work records" });
+  expect(sort.tagName).toBe("BUTTON");
+  await userEvent.click(sort);
+  await userEvent.keyboard("{ArrowDown}{Enter}");
+  expect(sort).toHaveTextContent("Due date");
+  expect(sort).toHaveFocus();
+  const team = screen.getByRole("combobox", { name: "Filter responsible team" });
+  await userEvent.click(team);
+  await userEvent.click(within(screen.getByRole("listbox", { name: "Filter responsible team" })).getByRole("option", { name: "River Plumbing · Nina Patel" }));
+  expect(team).toHaveTextContent("River Plumbing");
+  expect(screen.queryByRole("button", { name: /Bedroom door — placement review\./ })).not.toBeInTheDocument();
+  await userEvent.click(team); await userEvent.keyboard("{Escape}");
+  expect(team).toHaveFocus();
+  expect(screen.getByRole("complementary", { name: "Work & issues" })).toBeInTheDocument();
+  expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+});
+
+
+it.each(["summary", "project"])("retires the %s screen while preserving the selected project's context", async (old) => {
+  renderAt(`/?project=schependomlaan&panel=${old}#reference`);
+  await ready();
+  await waitFor(() => expect(screen.getByTestId("url").textContent).toBe("/?project=schependomlaan&panel=issues#reference"));
+  expect(screen.getByRole("complementary", { name: "Work & issues" })).toBeInTheDocument();
+  expect(scene.last!.data).toBe(apartment);
 });

@@ -17,17 +17,35 @@ export default function ProjectCopilot(context: Context) {
   const [open, setOpen] = useState(false), [activated, setActivated] = useState(false);
   const [status, setStatus] = useState<CopilotStatus>("ready");
   const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
+  const [size, setSize] = useState<{ width: number; height: number } | null>(null);
   const windowRef = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x: number; y: number; left: number; top: number } | null>(null);
+  const resizing = useRef<{ x: number; y: number; width: number; height: number } | null>(null);
+  const resizeTo = (width: number, height: number) => {
+    const rect = windowRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const nextWidth = Math.min(Math.max(0, window.innerWidth - 24), Math.max(280, width));
+    const nextHeight = Math.min(Math.max(0, window.innerHeight - 24), Math.max(340, height));
+    const x = Math.max(12, Math.min(rect.left, window.innerWidth - nextWidth - 12));
+    const y = Math.max(12, Math.min(rect.top, window.innerHeight - nextHeight - 12));
+    setPosition({ x, y });
+    setSize({ width: nextWidth, height: nextHeight });
+  };
   const move = (x: number, y: number) => {
     const rect = windowRef.current?.getBoundingClientRect();
     if (rect) setPosition({ x: Math.max(12, Math.min(x, window.innerWidth - rect.width - 12)), y: Math.max(12, Math.min(y, window.innerHeight - rect.height - 12)) });
   };
   useEffect(() => {
-    const resize = () => { if (position) move(position.x, position.y); };
+    const resize = () => {
+      // A minimized window has zero DOM bounds; use retained dimensions instead.
+      const width = Math.max(0, Math.min(size?.width ?? 360, window.innerWidth - 24));
+      const height = Math.max(0, Math.min(size?.height ?? 430, window.innerHeight - 24));
+      if (size) setSize({ width, height });
+      if (position) setPosition({ x: Math.max(12, Math.min(position.x, window.innerWidth - width - 12)), y: Math.max(12, Math.min(position.y, window.innerHeight - height - 12)) });
+    };
     window.addEventListener("resize", resize);
     return () => window.removeEventListener("resize", resize);
-  }, [position]);
+  }, [position, size]);
   const [photos, setPhotos] = useState<Photo[]>([]), [preparing, setPreparing] = useState(false), [attachmentError, setAttachmentError] = useState("");
   const photoInput = useRef<HTMLInputElement>(null);
   const pickPhotos = () => photoInput.current?.click();
@@ -44,7 +62,7 @@ export default function ProjectCopilot(context: Context) {
   return <section className={`project-copilot ${open ? "is-open" : ""}`} aria-label="Project Copilot">
     <input ref={photoInput} className="project-copilot-sr-only" type="file" accept="image/*" multiple aria-label="Attach work photos" disabled={preparing}
       onChange={event => { const files = Array.from(event.target.files || []); event.target.value = ""; void attach(files); }} />
-    <div hidden={!open} ref={windowRef} id="project-copilot-body" className="project-copilot-window" style={position ? { position: "fixed", left: position.x, top: position.y, right: "auto", bottom: "auto" } : undefined}>
+    <div hidden={!open} ref={windowRef} id="project-copilot-body" className="project-copilot-window" style={{ ...(position ? { position: "fixed", left: position.x, top: position.y, right: "auto", bottom: "auto" } : {}), ...(size || {}) }}>
       <div className="project-copilot-window-head"><div className="project-copilot-brand" role="button" tabIndex={0} aria-label="Move Project Copilot" title="Drag to move · arrow keys when focused"
         onPointerDown={event => { if (event.button !== 0) return; event.preventDefault(); event.currentTarget.focus(); const rect = windowRef.current!.getBoundingClientRect(); drag.current = { x: event.clientX, y: event.clientY, left: rect.left, top: rect.top }; event.currentTarget.setPointerCapture(event.pointerId); }}
         onPointerMove={event => { if (drag.current) move(drag.current.left + event.clientX - drag.current.x, drag.current.top + event.clientY - drag.current.y); }}
@@ -56,6 +74,22 @@ export default function ProjectCopilot(context: Context) {
         photos={photos} preparing={preparing} attachmentError={attachmentError} pickPhotos={pickPhotos} onStatusChange={setStatus}
         removePhoto={id => setPhotos(existing => existing.filter(photo => photo.id !== id))}
         savePhotos={note => { try { context.onAttachPhotos?.(photos, note); setPhotos([]); setOpen(false); } catch (e) { setAttachmentError((e as Error).message); } }} />
+      <button type="button" className="project-copilot-resize" aria-label="Resize Project Copilot" title="Drag to resize · arrow keys when focused"
+        onPointerDown={event => {
+          if (event.button !== 0) return;
+          event.preventDefault(); event.currentTarget.focus();
+          const rect = windowRef.current!.getBoundingClientRect();
+          resizing.current = { x: event.clientX, y: event.clientY, width: rect.width, height: rect.height };
+          event.currentTarget.setPointerCapture(event.pointerId);
+        }}
+        onPointerMove={event => { if (resizing.current) resizeTo(resizing.current.width + event.clientX - resizing.current.x, resizing.current.height + event.clientY - resizing.current.y); }}
+        onPointerUp={() => { resizing.current = null; }} onPointerCancel={() => { resizing.current = null; }} onLostPointerCapture={() => { resizing.current = null; }}
+        onKeyDown={event => {
+          const offsets: Record<string, [number, number]> = { ArrowLeft: [-20, 0], ArrowRight: [20, 0], ArrowUp: [0, -20], ArrowDown: [0, 20] };
+          const offset = offsets[event.key]; if (!offset) return;
+          event.preventDefault(); const rect = windowRef.current!.getBoundingClientRect();
+          resizeTo(rect.width + offset[0], rect.height + offset[1]);
+        }}><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12L12 4M8 12L12 8" fill="none" stroke="currentColor" strokeWidth="1.5" /></svg></button>
     </div>
     <button className="project-copilot-fab" aria-label={open ? "Minimize Project Copilot" : "Open Project Copilot"} aria-expanded={open} aria-controls="project-copilot-body"
       onClick={() => { setActivated(true); setOpen(value => !value); }}>
@@ -85,6 +119,7 @@ function Conversation({ photos, preparing, attachmentError, pickPhotos, removePh
   useEffect(() => { onStatusChange(listening ? "listening" : busy || preparing ? "thinking" : error || attachmentError ? "attention" : "ready"); }, [listening, busy, preparing, error, attachmentError, onStatusChange]);
   useEffect(() => { current.current = null; setBusy(false); setError(""); }, [context.displayContext, context.page]);
   useEffect(() => { setText(""); }, [context.page]);
+  useEffect(() => { if (!context.renderCoordination) setCoordinating(false); }, [context.renderCoordination]);
   useLayoutEffect(() => {
     if (following.current && conversation.current) conversation.current.scrollTop = conversation.current.scrollHeight;
     else if (messages.length) setShowLatest(true);
@@ -129,7 +164,7 @@ function Conversation({ photos, preparing, attachmentError, pickPhotos, removePh
         {item.result && <><small>{item.result.partial_context ? "Partial context · suggestions only · no records changed" : "No records changed"}</small>
           {!!item.result.sources.length && <details><summary>Sources ({item.result.sources.length})</summary>
             {item.result.sources.map((source, i) => <p key={i}>{source.kind} · {source.locator || source.id} · revision {source.revision}</p>)}</details>}
-          <div className="project-copilot-prompts">{context.renderCoordination && <button onClick={beginCoordination}>Plan & follow up</button>}{item.result.suggested_questions.map((question, i) =>
+          <div className="project-copilot-prompts">{context.renderCoordination && <button onClick={beginCoordination}>Prepare assignment</button>}{item.result.suggested_questions.map((question, i) =>
             <button key={i} disabled={busy} onClick={() => setText(question)}>{question}</button>)}</div></>}
       </article>)}
       </>}

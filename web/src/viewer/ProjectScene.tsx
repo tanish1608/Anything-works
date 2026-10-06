@@ -29,6 +29,9 @@ export default function ProjectScene({
   onLoaded,
   loader = fetchModelLayer,
   background,
+  autoRotate = false,
+  onInteraction,
+  orbitFit = false,
 }: {
   data: ModelDataset;
   visible: Set<string>;
@@ -45,15 +48,32 @@ export default function ProjectScene({
   onLoaded?: (ready: boolean) => void;
   loader?: (url: string) => Promise<ArrayBuffer>;
   background?: string;
+  autoRotate?: boolean;
+  onInteraction?: () => void;
+  orbitFit?: boolean;
 }) {
   const viewer = useRef<SiteViewer | null>(null),
-    callbacks = useRef({ onSelect, onMarker, onReady, onError, onLoaded });
+    callbacks = useRef({
+      onSelect,
+      onMarker,
+      onReady,
+      onError,
+      onLoaded,
+      onInteraction,
+    });
   const [ready, setReady] = useState(false),
     [loadedVersion, setLoadedVersion] = useState(""),
     [error, setError] = useState("");
   useEffect(() => {
-    callbacks.current = { onSelect, onMarker, onReady, onError, onLoaded };
-  }, [onSelect, onMarker, onReady, onError, onLoaded]);
+    callbacks.current = {
+      onSelect,
+      onMarker,
+      onReady,
+      onError,
+      onLoaded,
+      onInteraction,
+    };
+  }, [onSelect, onMarker, onReady, onError, onLoaded, onInteraction]);
   const handleReady = useCallback((v: SiteViewer | null) => {
     viewer.current = v;
     setReady(!!v);
@@ -62,6 +82,7 @@ export default function ProjectScene({
       v.setGhostContext(false);
       v.on("select", (id) => callbacks.current.onSelect?.(id));
       v.on("marker", (id) => callbacks.current.onMarker?.(id));
+      v.on("interaction", () => callbacks.current.onInteraction?.());
     }
   }, []);
   const failed = (text: string) => {
@@ -105,6 +126,12 @@ export default function ProjectScene({
   }, [ready, data.version, data.layers, loader]);
   useEffect(() => {
     const v = viewer.current;
+    if (!v || !ready) return;
+    v.setAutoRotate?.(autoRotate && loadedVersion === data.version);
+    return () => v.setAutoRotate?.(false);
+  }, [ready, autoRotate, loadedVersion, data.version]);
+  useEffect(() => {
+    const v = viewer.current;
     if (!v || loadedVersion !== data.version) return;
     v.setVisible(visible);
     v.setColors(colors);
@@ -145,7 +172,8 @@ export default function ProjectScene({
                 : [...visible],
             direction,
           );
-      } else v.frame([...visible], direction);
+      } else if (orbitFit) v.frame([...visible], direction, true);
+      else v.frame([...visible], direction);
     });
     return () => {
       alive = false;
@@ -158,6 +186,7 @@ export default function ProjectScene({
     expanded,
     explosionGap,
     direction,
+    orbitFit,
     focus,
     visible,
   ]);

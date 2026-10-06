@@ -1,0 +1,1551 @@
+{
+  "source": {
+    "name": "Esplan Building",
+    "slug": "esplan",
+    "folder": "IFC 2.3.0.1 (IFC 2x3)/Esplanades",
+    "attribution": "Esplan, Estonia; distributed by buildingSMART Community Sample Test Files. IFC-to-GLB/plan derivatives by Placeholder AI.",
+    "source_note": "Architectural IFC example supplied by Esplan. No inferred apartment grouping, MEP federation or field progress.",
+    "files": {
+      "1807_EP_AR_v18.ifc": "b97db10a2cb679a6543ccf4e34cfa8e77753f14e67f51b403e6cd9a819e3748f"
+    },
+    "repository": "buildingsmart-community/Community-Sample-Test-Files",
+    "revision": "7ddf57a201f88a0c213d5322b02ed15e94a60a40",
+    "license": "CC BY 4.0"
+  },
+  "files": [
+    {
+      "file": "1807_EP_AR_v18.ifc",
+      "bytes": 12109172,
+      "sha256": "b97db10a2cb679a6543ccf4e34cfa8e77753f14e67f51b403e6cd9a819e3748f",
+      "schema": "IFC2X3",
+      "source_products": 2862,
+      "source_spaces": 285,
+      "imported_spaces": 285,
+      "space_geometry_sources": [
+        {
+          "guid": "2yu9t5gFecDw4PK0F5sh2s",
+          "code": "119",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2ca_7fVdg1tnEoP7lRg$Lz",
+          "code": "3-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "217rX8QDUtdStyz1UVzmsd",
+          "code": "4-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1puxtnhbw3nIvxEHM2fGGh",
+          "code": "3-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3JxZG5Cgrprg2Nno$0tjWT",
+          "code": "103",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0DZrYnGRYctwGbrsm$W9WM",
+          "code": "3-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0mZJ1w8KtWcle2o3urX_SR",
+          "code": "6-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2oL7W$4zf0GA__uzAkjm7w",
+          "code": "6-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2YVLg947IsUrYuNvE7oIo9",
+          "code": "6-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "34X7QE4h_o40deTp2HTB$D",
+          "code": "2-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3SNTuSj4XtI9y1ckK5TRYA",
+          "code": "4-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0ntbHAGCixhsv4$o4WiMNi",
+          "code": "4-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0psuNzkO_xBywaNks76hVO",
+          "code": "121",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3pMjLp9Q5oH9jYTHl5MEr9",
+          "code": "8-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1pzLUKgG1uOURMGL1WGlBr",
+          "code": "8-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1fEjflW1j5T06dttP6Gn0l",
+          "code": "8-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1EXm7jUmVu$lME5AIOa1$l",
+          "code": "114",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1R2BPJxIA4IpcUWzenjW9x",
+          "code": "9-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2Am5w8jWdsSa6Hbo47vvG1",
+          "code": "9-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3iJUHe6HbSvw6muNbmf0nw",
+          "code": "9-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1DOr7tSNaa1AsGdak0pm0e",
+          "code": "7-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2mSshAwSWhDn2nDqVuwYDK",
+          "code": "115",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "21mQF1HrAyHzPk_GV9o5d8",
+          "code": "7-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3zgNgmnV9hJ_Gq6ZG$7Ylr",
+          "code": "117",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1v2uHm9FO$L9cdHwhB9NHP",
+          "code": "5-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "12xMdqyJ4LDYwpWQb7WR70",
+          "code": "5-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2MtidUzIMdfkE4Dx8_Nuha",
+          "code": "5-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0SUuHRnLDT3RpBtkyCCqaP",
+          "code": "1-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "16_Xxi9JefxGuZkfMwGWMN",
+          "code": "1-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1qeHvUoAGOQbSHLxYE5CG3",
+          "code": "7-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2Sd1W5z9ZTnkwKFv23b7SJ",
+          "code": "110",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3nHyamCmqe0cleF4cS6wWg",
+          "code": "107",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2qyQsc2EtS89DMf5iQIlxh",
+          "code": "108",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "08oicQQH8fT6mh0Xzn_cfz",
+          "code": "109",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0$KDh2GJdTRLgYTIel9uxp",
+          "code": "1-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3TOoVRg2OpqWMnf5omCzcG",
+          "code": "113",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3Y2jk6fpQI4vbA_GtJa0mm",
+          "code": "120",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3Agp0n2asRIIeJ9F4SNXRl",
+          "code": "105",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "33pqb7zoJGsDu_FYQYyqjJ",
+          "code": "101",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0eM6Sxgo__MisKbswOohjc",
+          "code": "102",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "202DL8_WUFJLJ$fMSMezuM",
+          "code": "104",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "01_uIXErhSdY8XQ1mRdu2c",
+          "code": "111",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "01OzbFNYT3fU68kyTnjchR",
+          "code": "112",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0zdDdgEjHsNKeBHSmjF3qw",
+          "code": "10-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "17vrTjvmfO$rsg_OQapPWB",
+          "code": "10-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0eNyvxr4KJr0XdAv_OzGfd",
+          "code": "10-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3fs849jNSUjww2ylwsLEvC",
+          "code": "2-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0Gf5TDknyyYaE31PajCGjK",
+          "code": "2-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1W_QQHVDOtHT0qltGXyrTB",
+          "code": "118",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1JGIItLks8DpIlJ9kvU_mX",
+          "code": "116",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1zUH8Ho6ne3olBgUjzHpdp",
+          "code": "202",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2Q4I0xz47Xn86fHUP2gpJU",
+          "code": "205",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3LS0qqEkyhKuraqW0VP8aP",
+          "code": "201",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2SAdsRkj0FtQkVOTORODsB",
+          "code": "14-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0Mz$WUV_QKN7rh5$XvV0W$",
+          "code": "28-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3nG1zttMFSWZvOfEKgs72R",
+          "code": "14-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3PtUzVVxFpiu9S45vAZexr",
+          "code": "17-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "16RBUVb49Oe__fiBdWYhPh",
+          "code": "12-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0RBTTvWd24AtxexQJ5ph2U",
+          "code": "23-4",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3kenPb9fK2lHyNPagbiy5B",
+          "code": "23-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3iWdUEJ1qNHqgsxkvGy7Zw",
+          "code": "19-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1sn5TnftOmYQQ_ExriWlOZ",
+          "code": "19-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3$aY9AYDBVolSxa6NSMxKg",
+          "code": "18-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2idlR9fNlwtL4C2b3fCUK1",
+          "code": "18-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3tq$7PFkfu9XPKAifZSCtr",
+          "code": "203",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "35$DZi6$HNxGiPHFa4U3TT",
+          "code": "16-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1XWnlKWFDilIAr$HfNLkWr",
+          "code": "13-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2SMpltA$9nPEryiz2aIetY",
+          "code": "25-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1oTFE7yLkKdyjHin6BYt1N",
+          "code": "26-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1QZXDFkD$uPuiBdma1fZjA",
+          "code": "28-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2pL0buXujcCVUGqXgEizML",
+          "code": "24-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0UYNubkWje3k3Q6aQlnW7Z",
+          "code": "11-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0iVPJXAsAX8XfUjRA0Ai2L",
+          "code": "20-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0VgQqRpT99ap2PXuSzc0EG",
+          "code": "20-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "17s6mzkmh14x1Hhp87Z328",
+          "code": "27-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "32jKCFqgensAch1VkrGxEh",
+          "code": "21-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2rykEZm3Kho4nSzolC__oA",
+          "code": "21-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2trRmvibutPUZR5MBBnpK$",
+          "code": "15-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2cY6qQiIoafBNov5i4$Fjq",
+          "code": "14-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3pYr8OUI8r6iAX9R5bd3rb",
+          "code": "22-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3i1g9FZ$3_LeakCo4$gfrr",
+          "code": "27-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3wNKCxV0AsYAydn5b6V4pa",
+          "code": "17-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3L3g9qRB$Ig9LhUnK3q_K8",
+          "code": "12-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1BdpzNBUcC5XcBKpxMQxiM",
+          "code": "12-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0K5c2X1P7717NjMUdRUI9B",
+          "code": "24-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0gdbg2o7k5SrKP7oxv_kND",
+          "code": "23-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2$Nm$_rsyq2v3HsQH8FXRG",
+          "code": "23-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3Nz9En3evY$emLCi$n0Cv1",
+          "code": "15-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2wrOkOsArNH1lkgwCma7Kv",
+          "code": "19-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2ThX5DONxvUWD0vNtBcE$E",
+          "code": "18-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1QkdwL6Rbm5WdHy$ddqaNs",
+          "code": "22-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1Vr91kgA25Dul0rPRmZvsd",
+          "code": "15-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1MUyCq3Oa1WXEksrhItFJX",
+          "code": "13-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3393uAydapC1RRy5hf5qlT",
+          "code": "13-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2vOwlY50b$htpGLHZQdzCV",
+          "code": "25-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2vJNrF_5yRHzsUwPwQkv1s",
+          "code": "25-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3GTaRbKKSyc9CwCiBeTz$N",
+          "code": "26-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2KkcRc$k_54_WO85VrL$4o",
+          "code": "26-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "30psg3kAG8f1w9OJ_m$DXc",
+          "code": "16-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "30PdsR1gaUPkzqkdVg8yvM",
+          "code": "16-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3orrddqXXwKHar$xiL7ek9",
+          "code": "17-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2X6Yxdej4MnWXsSKZ4kW0x",
+          "code": "22-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3mAMK_JezQdRDpbxL$pEM6",
+          "code": "11-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "196h0AaornzzUnsTJxxIxF",
+          "code": "11-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0geKCQZA8CzNN1CI1MMjdy",
+          "code": "20-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1FhRPBf2UB_megJsIm$kOV",
+          "code": "21-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "39Kqoj8Xpx7VFSKJTMuCR7",
+          "code": "28-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3STWoQOMglWJNjLvjZSh8L",
+          "code": "27-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3exyM4lNEyym6aqqaPbjWf",
+          "code": "204",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3eURrZdOaBWa96_8W5aedV",
+          "code": "24-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2G52cSbGr3y7Ca2JtMOobT",
+          "code": "35-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1VNBwafOH7a3SkEd_KTaRZ",
+          "code": "45-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1jgWa$u$285hlpjZdU21Ra",
+          "code": "45-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2Ga8bhOr26WqfbvJT4_vn0",
+          "code": "301",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "30it6Xej$0na8LTq5Uoeam",
+          "code": "36-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0lm9jJ6tejlu56UNO_43ZI",
+          "code": "36-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2YdpjkPDVDTjA_F7j9R_X8",
+          "code": "36-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2_L9p7EIbxUJAWmoDCYcju",
+          "code": "29-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3toZvOjYbVyjvhHRbog0_r",
+          "code": "34-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3fno_TagY_vgFAc898lzzm",
+          "code": "43-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3QkvwUk5sH6r$sgJ3V4SUq",
+          "code": "43-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "11R_M9cdAQCzoFp9gYyw$f",
+          "code": "43-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1gWJwrN0xV04Cp_28so635",
+          "code": "44-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3YOMU$lUQRbDPNJzGwvj3v",
+          "code": "44-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0iWN16yYyejQ36gs2U48XZ",
+          "code": "44-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3QQgIyV0v6brgosV40AyM8",
+          "code": "34-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3PWZ83hcQGyckUX2s1v9FA",
+          "code": "32-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1PR0J7jjZLe0FFHZhNWX3v",
+          "code": "32-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0f$1t9fAgwfG9bxlm_UkXm",
+          "code": "32-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3eSyD1fIgEm3eX_q5LeCS0",
+          "code": "31-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2zTITW9onW_SypT$GM1q2c",
+          "code": "31-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2JfpCYt0AhU70GykhO1A$0",
+          "code": "31-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3My1eLfO3uTzw90onRct6J",
+          "code": "30-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2mUMmE0V7MH0tDLcnqgUVW",
+          "code": "33-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2faj8LRqh8x3fbPWClptyN",
+          "code": "46-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3TOgqFPxYLIDqTGX0SOzjF",
+          "code": "34-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1CHG2XvzpNVuPlaZ$57V0O",
+          "code": "33-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1fTBzIKrhbH1XkSOh86$L6",
+          "code": "33-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0uk5vsUyFhD18wsgPZkjaI",
+          "code": "42-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2EriUfog8FU_CfbAzF4Wn2",
+          "code": "42-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1$SJC4fTGbf7zWMWKXNvsf",
+          "code": "42-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3dDB$9GJW0s3RPy9BGURvA",
+          "code": "46-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1rOicpTjwwO9tVHdKUsa1W",
+          "code": "46-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3lQVQt7rIS8Nn_Nr5H$L6C",
+          "code": "30-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2BcfLoBM$ONHFe7paZYEHr",
+          "code": "302",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0xi8Th3cGg$bG5tH6AC26l",
+          "code": "35-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3PLRqxpb_vIflv$0OvWJnm",
+          "code": "45-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2Ukw4JFiCfRAjeuSiUQ35s",
+          "code": "30-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3mVDfa08SERzuexTM1ZK_l",
+          "code": "29-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0SBsuhNDmhnVO6TLjWQ0nW",
+          "code": "29-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1Z1$9s9mgQ8kIEcpLw$Pd$",
+          "code": "37-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3yx5vaYNeTwyNTd3YFoHQG",
+          "code": "37-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1sQtNPK3gs00J3ZDp27JVu",
+          "code": "37-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3lic7wFHhbtum0lAL1jGFt",
+          "code": "305",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3KfdtYG6cn9wNnrAsRO7W6",
+          "code": "35-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2sp8woGa5nNhtFKzSFRfsM",
+          "code": "41-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1A4vN_sfQ2ceZWbd3wVBsc",
+          "code": "41-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2VX8mO3iIfI_CX8VuDtmse",
+          "code": "41-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0ousjnY_5TSFitI8QwJ_Jo",
+          "code": "40-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3XKGQmHzV8LbYd8xIMknan",
+          "code": "40-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3nTs0f73qOWiHBMSn50gTj",
+          "code": "40-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3XktkPYj7rXcY3teB$AUrb",
+          "code": "304",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0gu9qqW$EHc_o7HpMdM3eC",
+          "code": "38-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1jpazi3VUlmbVsur_j_cyO",
+          "code": "38-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1SQ53k1h8JqCsrAjJHA8hH",
+          "code": "38-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2LRZAaGwqJS4ZEx5luqvVv",
+          "code": "39-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0umGL8cjXIGVbD$7Ye7Vq5",
+          "code": "39-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1wJEXZRLIx2mdZedQLY04v",
+          "code": "39-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0AXFzSY_J5Q1EYxHoguqlK",
+          "code": "303",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2k11jkLm7PePCeEh$bM9IH",
+          "code": "41-4",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1mz8vdH3SNWu6rQ3uwkLXL",
+          "code": "57-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3nzbtvC0UUFkkrjEvNjcXt",
+          "code": "57-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1hRdD63Mo$FJyGECMZH6V_",
+          "code": "57-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2BOEw6Sl3GUnHd0hKdP$7_",
+          "code": "56-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3fS7ac36BVGWDcexdgU_O1",
+          "code": "56-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1k7_SLgf8nXyIJF$5FOqln",
+          "code": "56-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0oMqFjGnrRjcOMoZFS1fhJ",
+          "code": "404",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2YHw1W3Hzx6Nu$FNhE1Q_M",
+          "code": "58-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2pgqzyyMGZNLJO$nLYp2G6",
+          "code": "58-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0Zpa8XHfx1vClgunURbAoF",
+          "code": "58-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2MsXMs2I3PyG_V4woAv3lA",
+          "code": "59-4",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1sp6ljfY1Ffrx8m2K_dQxe",
+          "code": "59-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1tDM69cX2QpLDQcwdfH4Lj",
+          "code": "59-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3yM6rPJqF7VOnNVGWUZZWQ",
+          "code": "59-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "29ugtf4uCJzapYxATLMj7r",
+          "code": "402",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2YnSA0CURG2QOzzBzJZKYk",
+          "code": "405",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2X0$DCX3HQ2Naw$Jry$vga",
+          "code": "55-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "12fXv9SfYATE51fjrgfJKb",
+          "code": "55-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3atkXW$UjUvLLXB5cuA4vP",
+          "code": "55-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1rngIp6DPNVvZUa$koXS_f",
+          "code": "54-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2uNnQitS726N8ZETauiZgp",
+          "code": "54-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3iv2g0TCKo_5tGgy_nrBvb",
+          "code": "54-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3WdT3yP2snAg9M7t6kibmX",
+          "code": "403",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3Kk5O7HuIdEBgFQ21I6CyV",
+          "code": "53-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0TBGE6HGD4bxspuPLl8ynB",
+          "code": "53-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0wmBBhsJutigkEudvt1O0f",
+          "code": "53-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3py1AYV$DoRbFtPuEChsJ4",
+          "code": "63-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0nSjtMjjunnlOOLb_FK25J",
+          "code": "401",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0q3za4$c9822IY6xLLKVXG",
+          "code": "47-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0956UnmpRzHjjtvlgFuqxJ",
+          "code": "47-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1VdP6drdsPJPBlqmlkZzhQ",
+          "code": "48-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3SMPN_i1zEe_NVYLv4Mq9f",
+          "code": "48-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "36DxgQX2sTuVZT$IUHU9fq",
+          "code": "64-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0Gnw86bvp$LvDRPnhqzcUo",
+          "code": "64-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0azUdCLRjg3tFJPjZ7TzJg",
+          "code": "60-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2bKwzgs2_gV_vMaZBTHXf0",
+          "code": "60-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2dzoyz7Y9Hey1vxyN$8KPg",
+          "code": "60-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2cCFVgyztUNHVBIbAQkfYh",
+          "code": "51-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0zlm4ndS5pWjofY4omhUO2",
+          "code": "51-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1_H2Xu2uJfwbKy7KlUIBgs",
+          "code": "52-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0V6o5ZtLP$kjDgAARNykxW",
+          "code": "64-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3W0g8YfyqcoEcShvT9zVKy",
+          "code": "51-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0vcYtuv2mpkMdBTtEdxy9i",
+          "code": "48-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "21L35xZSNerjfhuY7ja_yC",
+          "code": "49-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2S3uo$v_atQAdPP5CoZySO",
+          "code": "49-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0crv0_JJBfj2unOTK23v_K",
+          "code": "49-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0r0UAtLBAnKVU_QTV40_i5",
+          "code": "50-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "02UGY6ZNc5uMhRu2QNBj2N",
+          "code": "50-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0vatncJGGFnMUmeh5EFteK",
+          "code": "50-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "27QBJsyRX9$tyYfR257kJs",
+          "code": "52-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1a3lpzX19qqJECoVSSsj9H",
+          "code": "62-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "23V9iWQ7UTGmYnwHiBbOX1",
+          "code": "62-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0jYqB_7IkQCLkVu8Ohkvje",
+          "code": "62-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2Bru0Y1LGto0SHClqzBx3m",
+          "code": "61-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1Jq1HzVzMw2n2Ip0NkqdZD",
+          "code": "61-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "29PvI3OUh$w0uCYg9tOfXM",
+          "code": "61-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3sD7GEwYP$rp0kKaw8AFvc",
+          "code": "52-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "16lpBHJVsuyVac19_NS8DV",
+          "code": "47-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1P5RwHkD7SgGz_QBa4BdYc",
+          "code": "63-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1VK2E00G8$UtKfIgWHIAJa",
+          "code": "63-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3sZPDaAnuupUBmKOQg6tYP",
+          "code": "67-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0hT5WHgZbYrCgoykH5g2HZ",
+          "code": "67-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "32vwAGiSeLfZUdeVI_UhyN",
+          "code": "67-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "01xr9lgt0NLa3srAcTx0n7",
+          "code": "66-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2QjcJuFuoOyEewoCIGhBcj",
+          "code": "69-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0QemXbSMapF$_dFU92V7VA",
+          "code": "80-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0Ls4yMQ9snWUPbqZ3n53QP",
+          "code": "71-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "24igtZhr6K3Qt12yz4Ap_4",
+          "code": "70-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2sfMLMSZ3HCA_guRFw4zM3",
+          "code": "69-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "28V3yqgy2jF6g9$3aaeUde",
+          "code": "71-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1E$PHav6zcGAvvxo2$M78w",
+          "code": "69-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "06z$dfp3HBgI_Xs_IHPCr5",
+          "code": "71-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0_S4sjqnDh8aX4G1iQ2Tv3",
+          "code": "76-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "210QOsf29EB69oabpI4MH8",
+          "code": "72-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2Pvl$LG_f5LPLTd1lyx3vI",
+          "code": "76-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1e_GJDvRWngapKt0wg4S6B",
+          "code": "72-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1ufAEJMG93hDMvKmvtRhAy",
+          "code": "72-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1u_NQnkuCoaXYprNjuod5q",
+          "code": "73-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "11z6kv3bv9KMoKmWejjxfl",
+          "code": "76-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "09WWuZqFurjKXvYY3tirUt",
+          "code": "73-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2LH0EgJwfx$Swbgu7X5zuo",
+          "code": "504",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1qpql5B6opcQTzw36tNmcN",
+          "code": "73-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0fYrxr5PdUr$d_KJgB13rc",
+          "code": "75-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0xs0KEyAFSIJ_mtBQUvlim",
+          "code": "75-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3UKFjmvkGfGkEt$ecQhgkG",
+          "code": "80-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0s$2_dDJG0ciz1MDA8gekd",
+          "code": "75-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1TzPBTcPKcbaLo4FUjAybX",
+          "code": "80-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1Vh7tQtdribJI7Rcnlnsxv",
+          "code": "75-4",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3OAF$dJ6oNqahJfywzV1Os",
+          "code": "66-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2W0toH2c_LxWs$TWA5$WrQ",
+          "code": "66-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2lAm9$j60l9ZZK1PHEJfgB",
+          "code": "74-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3LR2GrW6Ibz9INNZkHOGiy",
+          "code": "74-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3P8eztNpw7auxQ4SupKsIg",
+          "code": "74-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0D4rdYjnwIRIpW2Dl$j_k_",
+          "code": "505",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1i_EXhT4yW_uloM8c3$KZC",
+          "code": "65-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1nF6vyYCHDw6i78KJLlcqz",
+          "code": "65-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2vjewZ9Woxrtfgt8a6XGwT",
+          "code": "79-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2TVUjYens4fHADvdq4cLFs",
+          "code": "501",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1h3w5TLp5mfouwYENiFBhN",
+          "code": "65-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "09XR90b8_Ao2_SalcKhlxv",
+          "code": "503",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "21UQJPnk1n6LXGx5pPDXyb",
+          "code": "79-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1Jru0XF$pbecqerXV3KPn1",
+          "code": "77-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1$434n0FTlscinwcK_$JvR",
+          "code": "78-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0UrxTqCWFM9qYYHbuDW8Z0",
+          "code": "77-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2QYdVaL57$sCRBWlEnCSad",
+          "code": "78-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0rg_tz9wW5QRIAMal9VtKB",
+          "code": "68-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "30OsoacG9siwX2N80ssUXg",
+          "code": "70-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "04oYTlgXej$dnAEh5O$Xe5",
+          "code": "70-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3Ai3oCrtIMREL$Vough$GM",
+          "code": "78-1",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1dz0kKZA$qZFsTsX1C8CLz",
+          "code": "77-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3sMw4nfCalIdLHMaPLXnwq",
+          "code": "79-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0JjwCpTQsXjSBNZyaPPdVT",
+          "code": "68-2",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0caOQ_68NohKdHo3gOH7LA",
+          "code": "68-3",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "0yiEgmhRIJpIL62qtwvCkd",
+          "code": "506",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2JpAIB$N8CxM8hoDwu_6XV",
+          "code": "502",
+          "geometry": "tessellated"
+        }
+      ],
+      "imported_elements": 1958,
+      "unrendered_products": [
+        {
+          "guid": "2nj5t$KTwXV15X0x1g0GLW",
+          "class": "IfcRoof",
+          "name": "ARKL-01",
+          "has_representation": false
+        },
+        {
+          "guid": "2O3CNhtSyc8DJX_wXbDTBG",
+          "class": "IfcRoof",
+          "name": "ARKL-01",
+          "has_representation": false
+        },
+        {
+          "guid": "137S7XuHL$hLQIcF7yTLvo",
+          "class": "IfcStair",
+          "name": "Sisetrepp",
+          "has_representation": false
+        },
+        {
+          "guid": "0$6xGwHfe7xv6o3XCOF8P1",
+          "class": "IfcStair",
+          "name": "Sisetrepp",
+          "has_representation": false
+        },
+        {
+          "guid": "2DX9LYzXmwiwJnld$NY4Hf",
+          "class": "IfcStair",
+          "name": "Sisetrepp",
+          "has_representation": false
+        },
+        {
+          "guid": "0YVg95JNGjBkES1se81M7T",
+          "class": "IfcStair",
+          "name": "Sisetrepp",
+          "has_representation": false
+        }
+      ],
+      "source_storeys": [
+        {
+          "guid": "25CM$RBOL0Heg16d750XCU",
+          "name": "Vundament",
+          "elevation": -1200.0
+        },
+        {
+          "guid": "1oZ0wPs_PE8ANCPg3bIs4j",
+          "name": "1.korrus",
+          "elevation": 0.0
+        },
+        {
+          "guid": "2F0V3QPDDFMRTpJqxqPeZR",
+          "name": "2.korrus",
+          "elevation": 3350.0
+        },
+        {
+          "guid": "1QQrXCW6n4cxtSjMmdCxpR",
+          "name": "3.korrus",
+          "elevation": 6700.0
+        },
+        {
+          "guid": "1HmGrWtM9DdAbord3MjPL6",
+          "name": "4.korrus",
+          "elevation": 10050.0
+        },
+        {
+          "guid": "3DQ4wSxzb9J84nytqIOaEm",
+          "name": "5.korrus",
+          "elevation": 13400.0
+        },
+        {
+          "guid": "3y21AUC9X4yAqzLGUny16E",
+          "name": "Katus",
+          "elevation": 17000.0
+        }
+      ],
+      "seconds": 24.068,
+      "by_discipline": {
+        "structure": 74,
+        "other": 211,
+        "architecture": 1673
+      },
+      "triangles": 157367,
+      "max_properties": 36
+    }
+  ],
+  "elements": 1958,
+  "levels": 7,
+  "rooms": 285,
+  "assigned_to_room": 1196,
+  "triangles": 157367,
+  "vertices": 97089,
+  "by_discipline": {
+    "structure": 74,
+    "other": 211,
+    "architecture": 1673
+  },
+  "export_seconds": 2.615,
+  "mesh_bytes": 1340956,
+  "bedroom_fitting": null
+}

@@ -10,6 +10,7 @@ import ModelPlan from "../viewer/ModelPlan";
 import { visibleIds } from "../viewer/filters";
 import { DISCIPLINE_COLORS, DISCIPLINE_LABELS } from "../viewer/colors";
 import type { SiteViewer } from "../viewer/Viewer";
+import { loadAuthorizedLayer } from "../viewer/authorizedModel";
 import { Icon } from "../studio/Icon";
 import { useWorkspace } from "./context";
 import { projectModel } from "./modelProjection";
@@ -39,6 +40,7 @@ export default function BuildingCanvas({
   onElement,
   onScope,
   onOverview,
+  onImport,
 }: {
   items: WorkItem[];
   work: string | null;
@@ -57,6 +59,7 @@ export default function BuildingCanvas({
     room?: string | null,
   ) => void;
   onOverview: () => void;
+  onImport?: () => void;
 }) {
   const { model } = useWorkspace();
   const viewer = useRef<SiteViewer | null>(null);
@@ -196,12 +199,23 @@ export default function BuildingCanvas({
     });
   return (
     <section className="world-canvas" aria-label="Building workspace">
+      {!model.layers.length && (
+        <div className="world-model-empty">
+          <Icon name="building" size={36} />
+          <h2>Start with the project model.</h2>
+          <p>Upload IFC, review the structure and approve the reference.</p>
+          <button className="world-primary" onClick={onImport}>
+            Open model setup
+          </button>
+        </div>
+      )}
       <div
         className="world-renderer"
         style={{ visibility: mode === "3d" ? "visible" : "hidden" }}
       >
         <ProjectScene
           data={model}
+          loader={model.source.apiProjectId ? loadAuthorizedLayer : undefined}
           visible={visible}
           colors={colors}
           markers={markers}
