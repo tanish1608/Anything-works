@@ -10,6 +10,10 @@ The UI-only iteration backlog is [Design iteration 2](docs/UI_TODO_ITERATION_2.m
 
 ## Building-centered workspace — current UI, October 6
 
+- [x] Add a rotating source-building project showroom with property facts, selection strip, explicit open/cancel and authorized private previews; preserve project-local records and show only one WebGL scene at a time.
+- [x] Write the standalone [subcontractor mobile build prompt](docs/SUBCONTRACTOR_MOBILE_BUILD_PROMPT.md) for a minimal daily-update PWA with 3D context and actual API contracts.
+- [ ] Build/test that mobile companion on physical phones and integrate its authenticated evidence into the chosen PM panels; the handoff document does not complete this integration.
+
 This supersedes the earlier tab-based Home/Logs/Building layout. The building is the website: one persistent model canvas with optional contextual panels on the right (below the canvas on small screens). The earlier implementation sections below describe retained foundations, not the current navigation.
 
 - [x] Replace page tabs and permanent sidebars with a large central building, compact header, floating floor controls and source-system toggles.

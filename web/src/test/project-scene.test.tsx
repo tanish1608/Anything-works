@@ -9,6 +9,8 @@ const calls = vi.hoisted(() => ({
   frame: vi.fn(),
   offsets: vi.fn(async (_offsets: Map<string, number>) => {}),
   markers: vi.fn(),
+  rotate: vi.fn(),
+  events: new Map<string, (...args: unknown[]) => void>(),
 }));
 vi.mock("../viewer/ViewerCanvas", () => ({
   default: function Stub({
@@ -24,11 +26,13 @@ vi.mock("../viewer/ViewerCanvas", () => ({
         setExplodedOffsets: calls.offsets,
         frame: calls.frame,
         setMarkers: calls.markers,
+        setAutoRotate: calls.rotate,
         setVisible: () => {},
         setColors: () => {},
         select: () => {},
         setGhostContext: () => {},
-        on: () => {},
+        on: (event: string, callback: (...args: unknown[]) => void) =>
+          calls.events.set(event, callback),
       } as unknown as SiteViewer);
       return () => ready(null);
     }, []);
@@ -38,6 +42,40 @@ vi.mock("../viewer/ViewerCanvas", () => ({
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  calls.events.clear();
+});
+it("starts showroom rotation only after geometry loads and disables it when leaving the scene", async () => {
+  let finish!: (value: ArrayBuffer) => void;
+  const loader = vi.fn(
+    () =>
+      new Promise<ArrayBuffer>((resolve) => {
+        finish = resolve;
+      }),
+  );
+  const interaction = vi.fn();
+  const view = render(
+    <ProjectScene
+      data={data}
+      visible={visible}
+      colors={colors}
+      markers={markers}
+      loader={loader}
+      autoRotate
+      orbitFit
+      onInteraction={interaction}
+    />,
+  );
+  await waitFor(() => expect(loader).toHaveBeenCalled());
+  expect(calls.rotate).not.toHaveBeenCalledWith(true);
+  finish(new ArrayBuffer(1));
+  await waitFor(() => expect(calls.rotate).toHaveBeenLastCalledWith(true));
+  await waitFor(() =>
+    expect(calls.frame).toHaveBeenCalledWith(["pipe"], "iso", true),
+  );
+  calls.events.get("interaction")!();
+  expect(interaction).toHaveBeenCalledOnce();
+  view.unmount();
+  expect(calls.rotate).toHaveBeenLastCalledWith(false);
 });
 const data = {
   version: "revision",

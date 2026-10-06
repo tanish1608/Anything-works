@@ -17,6 +17,8 @@ import {
 import { transition, type Action } from "./state";
 import { itemsAt } from "./history";
 import BuildingCanvas from "./BuildingCanvas";
+import ProjectShowroom from "./ProjectShowroom";
+import { showroomUrl } from "./propertyCatalog";
 import {
   PANELS,
   initialNavigation,
@@ -61,6 +63,8 @@ export default function Workspace() {
     ? requested
     : PUBLIC_PROJECTS.find((p) => p.id === requested)?.id || "duplex";
   const version = new URLSearchParams(location.search).get("version");
+  const showroom =
+    new URLSearchParams(location.search).get("screen") === "projects";
   const identity = `${project}:${version || "current"}`;
   useEffect(
     () =>
@@ -81,6 +85,7 @@ export default function Workspace() {
     } | null>(null);
   const [retry, setRetry] = useState(0);
   useEffect(() => {
+    if (showroom) return;
     let alive = true;
     (project.startsWith("api:")
       ? loadAuthorizedModel(project.slice(4), version, true).then(
@@ -99,9 +104,10 @@ export default function Workspace() {
     return () => {
       alive = false;
     };
-  }, [project, version, identity, retry]);
+  }, [project, version, identity, retry, showroom]);
   const errorMessage =
     error?.project === identity && error.retry === retry ? error.message : "";
+  if (showroom) return <ProjectShowroom current={project} />;
   if (!loaded || loaded.project !== identity)
     return (
       <div className="world-loading">
@@ -580,27 +586,17 @@ function BuildingWorkspace({
           </button>
           <div className="world-project-title">
             <h1>{state.projectName}</h1>
-            <select
+            <button
+              className="world-project-switch"
               aria-label="Switch building project"
-              value={project}
-              onChange={(e) => {
-                setSearch("");
+              onClick={() =>
                 navigate(
-                  e.target.value === "duplex"
-                    ? "/"
-                    : `/?project=${e.target.value}`,
-                );
-              }}
+                  showroomUrl(workspaceUrl(params) + location.hash, project),
+                )
+              }
             >
-              {model.source.apiProjectId && (
-                <option value={project}>{model.source.name}</option>
-              )}
-              {PUBLIC_PROJECTS.map((p) => (
-                <option value={p.id} key={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+              <Icon name="down" size={14} />
+            </button>
             <span>
               {model.source.apiProjectId
                 ? `${model.source.approvalStatus === "draft" ? "Draft reference" : model.source.approvalStatus === "missing" ? "Awaiting model" : "Connected model"} · work records pending`
@@ -654,20 +650,20 @@ function BuildingWorkspace({
                 <Icon name="down" size={12} />
               </summary>
               <div role="menu">
-                {PUBLIC_PROJECTS.map((p) => (
-                  <button
-                    key={p.id}
-                    role="menuitem"
-                    onClick={() => {
-                      menuRef.current?.removeAttribute("open");
-                      navigate(p.id === "duplex" ? "/" : `/?project=${p.id}`);
-                    }}
-                  >
-                    <Icon name="building" size={16} />
-                    {p.name}
-                    {p.id === project ? " · current" : ""}
-                  </button>
-                ))}
+                <button
+                  role="menuitem"
+                  onClick={() =>
+                    navigate(
+                      showroomUrl(
+                        workspaceUrl(params) + location.hash,
+                        project,
+                      ),
+                    )
+                  }
+                >
+                  <Icon name="building" size={16} />
+                  Switch project
+                </button>
                 {[
                   ["summary", "spark", "Project pulse"],
                   ["activity", "clock", "Progress history"],

@@ -15,6 +15,7 @@ import {
   DIRECTIONS,
   fitBounds,
   fitProjectedBounds,
+  fitOrbitBounds,
   type ViewDirection,
 } from "./spatialMath";
 import { applyDisplayOffset } from "./explosion";
@@ -55,6 +56,7 @@ type Events = {
   }) => void;
   marker: (id: string) => void;
   walkchange: (on: boolean) => void;
+  interaction: () => void;
 };
 
 const CONTEXT_OPACITY = 0.18;
@@ -79,8 +81,11 @@ export class SiteViewer {
   private dirty = true;
   private raf = 0;
   private lastFrame = performance.now();
-  private framedView: { ids?: string[]; direction: ViewDirection } | null =
-    null;
+  private framedView: {
+    ids?: string[];
+    direction: ViewDirection;
+    orbitFit?: boolean;
+  } | null = null;
   private ro: ResizeObserver;
   private pickMode = false;
   private downAt: { x: number; y: number } | null = null;
@@ -126,6 +131,8 @@ export class SiteViewer {
     this.orbit.addEventListener("start", () => {
       this.flight = null;
       this.framedView = null;
+      this.orbit.autoRotate = false;
+      this.emit("interaction");
     });
 
     const el = this.renderer.domElement;
@@ -144,6 +151,13 @@ export class SiteViewer {
   // ------------------------------------------------------------------ events
   setBackground(color: string) {
     this.renderer.setClearColor(new THREE.Color(color));
+    this.invalidate();
+  }
+
+  /** Showcase presentation only; never transforms model geometry or saved locations. */
+  setAutoRotate(enabled: boolean) {
+    this.orbit.autoRotate = enabled;
+    this.orbit.autoRotateSpeed = 0.8;
     this.invalidate();
   }
 
@@ -375,7 +389,7 @@ export class SiteViewer {
   }
 
   // ------------------------------------------------------------------ camera
-  frame(ids?: string[], direction: ViewDirection = "iso") {
+  frame(ids?: string[], direction: ViewDirection = "iso", orbitFit = false) {
     const box = new THREE.Box3();
     if (ids?.length)
       ids.forEach((id) =>
@@ -383,13 +397,14 @@ export class SiteViewer {
       );
     else box.copy(this.bounds);
     if (box.isEmpty()) return;
-    this.framedView = { ids, direction };
-    const fitted = (direction === "overview" ? fitProjectedBounds : fitBounds)(
-      box,
-      this.camera.fov,
-      this.camera.aspect,
-      DIRECTIONS[direction],
-    );
+    this.framedView = { ids, direction, orbitFit };
+    const fitted = (
+      orbitFit
+        ? fitOrbitBounds
+        : direction === "overview"
+          ? fitProjectedBounds
+          : fitBounds
+    )(box, this.camera.fov, this.camera.aspect, DIRECTIONS[direction]);
     this.camera.near = fitted.near;
     this.camera.far = Math.max(
       100,
@@ -640,7 +655,11 @@ export class SiteViewer {
     // Keep the last fitted subject visible when its canvas narrows for a panel.
     // A manual orbit/zoom clears this, so resizing does not undo the user's camera.
     if (this.framedView)
-      this.frame(this.framedView.ids, this.framedView.direction);
+      this.frame(
+        this.framedView.ids,
+        this.framedView.direction,
+        this.framedView.orbitFit,
+      );
     this.invalidate();
   }
 
@@ -693,7 +712,7 @@ export class SiteViewer {
       this.walkStep(fwd * speed, rt * speed);
     }
     if (!this.walk?.isLocked) {
-      if (this.orbit.update()) this.dirty = true;
+      if (this.orbit.update(dt)) this.dirty = true;
     }
     if (this.dirty) {
       this.dirty = false;

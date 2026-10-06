@@ -32,7 +32,8 @@ const scene = vi.hoisted(() => ({
 vi.mock("../viewer/modelData", async (original) => ({
   ...(await original<typeof import("../viewer/modelData")>()),
   loadDemoModel: async () => model,
-  loadPublicProject: async () => apartment,
+  loadPublicProject: async (id: string) =>
+    id === "duplex" ? model : apartment,
 }));
 vi.mock("../workspace/photoInput", () => ({
   readPhoto: async (file: File) => ({
@@ -94,6 +95,18 @@ function renderAt(path: string) {
     </MemoryRouter>,
   );
 }
+async function switchProject(id: "duplex" | "schependomlaan") {
+  await userEvent.click(screen.getByLabelText("Switch building project"));
+  await userEvent.click(
+    screen.getByRole("button", {
+      name: `Preview ${id === "duplex" ? "Duplex Apartment" : "Schependomlaan Apartments"}`,
+    }),
+  );
+  await waitFor(() =>
+    expect(screen.getByRole("button", { name: "Open project" })).toBeEnabled(),
+  );
+  await userEvent.click(screen.getByRole("button", { name: "Open project" }));
+}
 function saved(): WorkspaceState {
   return JSON.parse(localStorage.getItem(STORE_KEY)!);
 }
@@ -135,14 +148,31 @@ afterEach(() => {
 });
 
 describe("one building workspace", () => {
+  it("replaces the workspace canvas with one showroom preview and restores the original panel on cancel", async () => {
+    renderAt("/?panel=issues");
+    await ready();
+    expect(screen.getAllByTestId("project-scene")).toHaveLength(1);
+    await userEvent.click(screen.getByLabelText("Switch building project"));
+    await screen.findByRole("main", { name: "Choose building project" });
+    await waitFor(() => expect(scene.last!.orbitFit).toBe(true));
+    expect(screen.getAllByTestId("project-scene")).toHaveLength(1);
+    expect(scene.dispose).toHaveBeenCalledTimes(1);
+    expect(
+      screen.queryByRole("region", { name: "Building workspace" }),
+    ).not.toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole("button", { name: "Back to building" }),
+    );
+    await ready();
+    expect(screen.getByTestId("url").textContent).toBe("/?panel=issues");
+    expect(scene.last!.data).toBe(model);
+    expect(screen.getAllByTestId("project-scene")).toHaveLength(1);
+  });
   it("keeps apartment work, drafts and decisions separate while switching buildings", async () => {
     renderAt("/");
     await ready();
     await userEvent.click(screen.getByLabelText("Open work and issues"));
-    await userEvent.selectOptions(
-      screen.getByLabelText("Switch building project"),
-      "schependomlaan",
-    );
+    await switchProject("schependomlaan");
     await ready();
     expect(scene.last!.data).toBe(apartment);
     expect(screen.queryByRole("complementary")).not.toBeInTheDocument();
@@ -200,19 +230,13 @@ describe("one building workspace", () => {
     expect(
       scene.last!.colors.get(accepted.items[0].location!.elements[0]),
     ).toBe(COLORS.human);
-    await userEvent.selectOptions(
-      screen.getByLabelText("Switch building project"),
-      "duplex",
-    );
+    await switchProject("duplex");
     await ready();
     expect(scene.last!.data).toBe(model);
     expect(screen.getByTestId("url").textContent).toBe("/");
     await userEvent.click(screen.getByLabelText("Open work and issues"));
     expect(screen.queryByText("Apartment pipe check")).not.toBeInTheDocument();
-    await userEvent.selectOptions(
-      screen.getByLabelText("Switch building project"),
-      "schependomlaan",
-    );
+    await switchProject("schependomlaan");
     await ready();
     await userEvent.click(screen.getByLabelText("Open work and issues"));
     await userEvent.click(screen.getByRole("button", { name: "Complete" }));
@@ -225,10 +249,7 @@ describe("one building workspace", () => {
       screen.getByLabelText("What changed?"),
       "Draft stays in this apartment.",
     );
-    await userEvent.selectOptions(
-      screen.getByLabelText("Switch building project"),
-      "duplex",
-    );
+    await switchProject("duplex");
     await ready();
     await userEvent.click(screen.getByRole("button", { name: "New update" }));
     expect(screen.getByLabelText("What changed?")).not.toHaveValue(
@@ -237,7 +258,7 @@ describe("one building workspace", () => {
     expect(JSON.parse(localStorage.getItem(key)!).draft.note).toBe(
       "Draft stays in this apartment.",
     );
-  });
+  }, 15000); // Repeated full-source project/capture/review journeys exceed the short unit-test budget.
   it("keeps the selected project when Escape closes a contextual panel", async () => {
     renderAt("/?project=schependomlaan&panel=project");
     await ready();
@@ -652,7 +673,7 @@ it("creates a private project, previews a real draft in the shared canvas and re
     else if (path === "/api/projects/private-project") body = project;
     else if (path.includes("/models/import")) {
       imported = true;
-      expect((init?.body as FormData).getAll("files")).toHaveLength(1);
+      expect((init!.body as FormData).getAll("files")).toHaveLength(1);
       body = { id: "import-job", status: "queued" };
     } else if (path === "/api/jobs/import-job")
       body = {

@@ -48,6 +48,7 @@ The current website builds on the earlier **SiteMesh** prototype:
 - Browser-local capture, offline update identity, human review, corrections and progress replay on the same model. Uploaded photos await review; the live assessment agent is not connected.
 - Real authenticated project creation/IFC upload, draft preview and explicit reference approval inside the chosen interface. Private geometry uses authorized requests. Private field capture/review persistence and live AI remain pending.
 - Public customer, PM, subcontractor and field-worker previews, all-status search, team/due-date controls and a larger 3,504-component apartment sample.
+- A project showroom at `/?screen=projects`: a rotating actual building model, source facts, browsable property strip and explicit Open project action. Browsing preserves the current workspace until a project is opened.
 
 These are foundations. The new daily quality-checking workflow, calibrated automatic completion, reliable plan comparison and broad real-site coverage are **not yet delivered or validated**. Existing “installed” verdicts do not establish correct installation.
 
@@ -63,6 +64,7 @@ See [current implementation and gaps](STATUS.md) and [design implementation note
 | [Task backlog](TODO.md) | Detailed work packages for contributors |
 | [Current status](STATUS.md) | What is implemented versus planned |
 | [UI iteration 2 backlog](docs/UI_TODO_ITERATION_2.md) | Dedicated interface checklist and acceptance work |
+| [Subcontractor mobile build prompt](docs/SUBCONTRACTOR_MOBILE_BUILD_PROMPT.md) | Self-contained Claude brief for a minimal daily-update PWA; the mobile app is not built yet |
 | [Apartment import test](samples/ifc/schependomlaan/README.md) | Larger source project, import fidelity and real upload acceptance |
 | [Client demo](docs/CLIENT_DEMO.md) | Walkthrough, capability boundaries, rehearsal and pilot priorities |
 | [Building workspace](docs/BUILDING_WORKSPACE.md) | Current canvas/panel UI, source locations and testing boundaries |
@@ -75,6 +77,6 @@ See [current implementation and gaps](STATUS.md) and [design implementation note
 
 ## Running the existing prototype
 
-Follow the [developer guide](docs/DEVELOPMENT.md). The local frontend runs at `http://localhost:5173`; open `/` for the main website. One large building canvas is the main workspace. Issues, photos/review, daily updates, progress history, teams and project context open beside it. Old `/demo/...` and page bookmarks redirect into the corresponding root query-state panels. The previous login/project UI is retired from public routing; backend integration remains a separate work package.
+Follow the [developer guide](docs/DEVELOPMENT.md). The local frontend runs at `http://localhost:5173`; open `/` for the main website. One large building canvas is the main workspace. Issues, photos/review, daily updates, progress history, teams and project context open beside it. Click the project title to enter the project showroom, or open `/?screen=projects` directly. Old `/demo/...` and page bookmarks redirect into the corresponding root query-state panels. The previous login/project UI is retired from public routing; optional model onboarding is in the chosen UI, while private field-record integration remains a separate work package.
 
 Documentation reset and designer UI implementation: October 5, 2026. Detailed BIM/inspection work: October 6, 2026. The full new assessment workflow still requires backend integration and field validation.

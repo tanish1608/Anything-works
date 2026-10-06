@@ -18,6 +18,9 @@ The building is the main workspace. Use one renderer per selected project, with 
 
 - [x] Add a larger public apartment BIM project with pinned source, attribution and reproducible import.
 - [x] Add a compact project switcher without bringing back page tabs or a permanent left sidebar.
+- [x] Replace the dropdown with a project showroom: large rotating source model, property description/facts, selection strip, explicit open/cancel, authorized private previews and empty-project setup.
+- [x] Fit the full horizontal rotation envelope; pause on manual interaction/backgrounding and default to still for reduced motion. Show only the selected project's WebGL scene; use inexpensive source-bound silhouettes for public cards.
+- [ ] Check the showroom's real mesh appearance, camera composition and carousel on desktop/iPhone/Android; DOM/CPU checks do not verify its visual quality.
 - [x] Isolate each project's updates, drafts, decisions, history and selection; preserve existing duplex records.
 - [x] Show source floors/rooms and only reviewed unit associations; unknown units stay unassigned.
 - [x] Let untracked source components become planned work through an explicit local action, with no inferred completion.
@@ -45,12 +48,14 @@ The building is the main workspace. Use one renderer per selected project, with 
 - [x] Write a concrete walkthrough, capability boundaries, rehearsal checklist and pilot priorities in [CLIENT_DEMO.md](CLIENT_DEMO.md).
 - [x] Keep private API responses out of shared URL-keyed service-worker caches; clear historical API/model caches on session changes.
 - [ ] Rehearse a browser-rendered IFC upload and correction journey with a teammate on the intended backend/devices.
+- [x] Write a self-contained [subcontractor mobile build prompt](SUBCONTRACTOR_MOBILE_BUILD_PROMPT.md) with theme, 3D reuse, current API contracts, reliable capture/queue requirements and honest PM-integration boundaries.
+- [ ] Build the separate minimal subcontractor PWA and connect its backend uploads to the chosen PM interface; the prompt is a handoff, not a shipped mobile app.
 
 ## Verification record
 
 Verified October 6, 2026:
 
-- Frontend DOM/CPU checks: **99 passing tests**; production compilation succeeds.
+- Frontend DOM/CPU checks: **111 passing tests**; production compilation succeeds. Showroom browsing/open/cancel, authorized previews, reduced-motion/background/manual pause and full-orbit fitting are covered.
 - Real IFC upload acceptance plus backend model/detail/project/seed regression checks: **21 passing tests**.
 - Disposable SQLite migration upgrade/downgrade/upgrade passes. The local development database was backed up and upgraded to `0008`; no project reset was performed. PostgreSQL migration execution was not tested in this session.
 - Ruff passes on modified backend code/tests. Active iteration files have no frontend lint warnings; retained legacy warnings remain.

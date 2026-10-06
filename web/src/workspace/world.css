@@ -131,20 +131,8 @@
   outline-offset: 5px;
   border-radius: 4px;
 }
-.world-project-title h1::after {
-  content: "⌄";
-  margin-left: 8px;
-  color: #9cb5d0;
-}
-.world-app .world-project-title select {
-  position: absolute;
-  inset: 0 0 auto 18px;
-  height: 30px;
-  width: calc(100% - 18px);
-  opacity: 0;
-  cursor: pointer;
-}
 .world-project-title h1 {
+  padding-right: 22px;
   font-size: 14px;
   line-height: 1.5;
   margin: 0;
