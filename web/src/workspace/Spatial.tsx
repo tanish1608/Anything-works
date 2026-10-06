@@ -106,7 +106,7 @@ export default function Spatial() {
         title="Work, quality and context — in one view."
         sub="The approved geometry stays fixed. Daily evidence changes status, coverage and issue pins."
         action={
-          <div className="row"><Link className="btn primary" to="/demo/building">Explore imported BIM project →</Link><Link className="btn" to="/demo/capture">
+          <div className="row"><Link className="btn primary" to="/building">Explore imported BIM project →</Link><Link className="btn" to="/capture">
             New update <Icon name="camera" size={16} />
           </Link></div>
         }
@@ -314,8 +314,8 @@ export default function Spatial() {
                         key={i.id}
                         to={
                           i.issue
-                            ? `/demo/issue/${i.id}`
-                            : `/demo/review/${i.id}`
+                            ? `/issue/${i.id}`
+                            : `/review/${i.id}`
                         }
                       >
                         <b className="small">{i.title}</b>
@@ -347,7 +347,7 @@ export default function Spatial() {
                 Choose a work item to compare its photos with its reference and
                 see the checks performed.
               </p>
-              <Link className="btn" to="/demo/work">
+              <Link className="btn" to="/work">
                 Open all work
               </Link>
             </div>

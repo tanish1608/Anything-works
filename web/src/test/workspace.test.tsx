@@ -63,11 +63,11 @@ afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
 });
-function renderAt(path = "/demo") {
+function renderAt(path = "/") {
   return render(
     <MemoryRouter initialEntries={[path]}>
       <Routes>
-        <Route path="/demo/*" element={<Workspace />} />
+        <Route path="/*" element={<Workspace />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -75,7 +75,7 @@ function renderAt(path = "/demo") {
 
 describe("implemented designer workflow", () => {
   it("uses the imported building even for old illustrated-unit links", async () => {
-    renderAt("/demo/building?unit=Core");
+    renderAt("/building?unit=Core");
     await screen.findByLabelText("Building viewer");
     expect(screen.getByLabelText("Level")).toHaveValue("");
     expect(sceneCalls.scene.mock.calls.at(-1)![0].data.version).toBe(
@@ -85,7 +85,7 @@ describe("implemented designer workflow", () => {
   });
   it("projects actual issue components and switches to their source plan", async () => {
     const user = userEvent.setup();
-    renderAt("/demo/building?work=ISS-031");
+    renderAt("/building?work=ISS-031");
     await screen.findByLabelText("Building viewer");
     await waitFor(() =>
       expect(sceneCalls.scene.mock.calls.at(-1)![0].focus?.element).toBe(
@@ -103,7 +103,7 @@ describe("implemented designer workflow", () => {
   });
   it("filters work and records an issue confirmation that persists after refresh", async () => {
     const user = userEvent.setup();
-    const view = renderAt("/demo/review/F-118");
+    const view = renderAt("/review/F-118");
     expect(
       await screen.findByRole("heading", {
         name: "Evidence vs approved reference",
@@ -128,7 +128,7 @@ describe("implemented designer workflow", () => {
       ).issue,
     ).toBeTruthy();
     view.unmount();
-    renderAt("/demo/work?filter=issues");
+    renderAt("/work?filter=issues");
     await screen.findByLabelText("Find work");
     expect(
       screen.getAllByText(/Bedroom door — placement review/).length,
@@ -141,7 +141,7 @@ describe("implemented designer workflow", () => {
   });
   it("resolves a correction with a reason and updates the daily record", async () => {
     const user = userEvent.setup();
-    renderAt("/demo/issue/ISS-031");
+    renderAt("/issue/ISS-031");
     await screen.findByRole("button", { name: "Accept correction & resolve" });
     await user.click(
       screen.getByRole("button", { name: "Accept correction & resolve" }),
@@ -171,7 +171,7 @@ describe("implemented designer workflow", () => {
   });
   it("submits a sample update through capture steps and shows scoped completion", async () => {
     const user = userEvent.setup();
-    renderAt("/demo/capture?item=PLUMB-402");
+    renderAt("/capture?item=PLUMB-402");
     await user.click(
       await screen.findByRole("button", { name: "Next: photos" }),
     );
@@ -199,7 +199,7 @@ describe("implemented designer workflow", () => {
   });
   it("keeps an offline simulation queued and later moves it to review", async () => {
     const user = userEvent.setup();
-    renderAt("/demo/capture?item=ELEC-406");
+    renderAt("/capture?item=ELEC-406");
     await user.click(
       await screen.findByRole("button", { name: "Next: photos" }),
     );
@@ -223,7 +223,7 @@ describe("implemented designer workflow", () => {
   });
   it("keeps setup names and redirects the removed report to Logs", async () => {
     const user = userEvent.setup();
-    const view = renderAt("/demo/setup");
+    const view = renderAt("/setup");
     await user.clear(await screen.findByLabelText("Project name"));
     await user.type(
       screen.getByLabelText("Project name"),
@@ -239,7 +239,7 @@ describe("implemented designer workflow", () => {
       screen.queryByRole("link", { name: "Daily Report" }),
     ).not.toBeInTheDocument();
     view.unmount();
-    renderAt("/demo/report");
+    renderAt("/report");
     expect(
       await screen.findByRole("heading", { name: "Logs" }),
     ).toBeInTheDocument();
@@ -269,7 +269,7 @@ describe("implemented designer workflow", () => {
     ).toHaveAttribute("aria-pressed", "true");
     expect(
       screen.getByRole("link", { name: "Open evidence & decision →" }),
-    ).toHaveAttribute("href", "/demo/issue/ISS-031");
+    ).toHaveAttribute("href", "/issue/ISS-031");
     const token = sceneCalls.scene.mock.calls.at(-1)![0].focus.token;
     await user.click(
       screen.getByRole("button", {
@@ -294,7 +294,7 @@ describe("implemented designer workflow", () => {
   });
   it("compares actual history without backdating current completion", async () => {
     const user = userEvent.setup();
-    renderAt("/demo/logs");
+    renderAt("/logs");
     await user.click(
       await screen.findByRole("checkbox", { name: "Compare dates" }),
     );
@@ -319,7 +319,7 @@ describe("implemented designer workflow", () => {
   });
   it("shows People contacts and persists explicitly set availability", async () => {
     const user = userEvent.setup();
-    const view = renderAt("/demo/people");
+    const view = renderAt("/people");
     expect(
       await screen.findByRole("link", { name: "nina.patel@example.com" }),
     ).toHaveAttribute("href", "mailto:nina.patel@example.com");
@@ -330,7 +330,7 @@ describe("implemented designer workflow", () => {
     await user.click(screen.getByRole("button", { name: "Teams & hierarchy" }));
     expect(screen.getAllByText("Reports to Sarah Jenkins").length).toBe(6);
     view.unmount();
-    renderAt("/demo/people");
+    renderAt("/people");
     expect(
       await screen.findByLabelText("Availability for Nina Patel"),
     ).toHaveValue("On site");

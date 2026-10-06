@@ -201,8 +201,8 @@ export default function Logs() {
                       <Link
                         to={
                           state.items.find((i) => i.id === e.item)?.issue
-                            ? `/demo/issue/${e.item}`
-                            : `/demo/review/${e.item}`
+                            ? `/issue/${e.item}`
+                            : `/review/${e.item}`
                         }
                       >
                         Open current record →

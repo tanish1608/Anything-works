@@ -53,7 +53,7 @@ export default function Home() {
           <p className="operations-kicker">{state.projectName}</p>
           <h1>Home</h1>
         </div>
-        <Link className="btn" to="/demo/capture">
+        <Link className="btn" to="/capture">
           <Icon name="camera" size={16} /> New update
         </Link>
       </div>
@@ -164,8 +164,8 @@ export default function Home() {
                             className="btn sm"
                             to={
                               i.issue
-                                ? `/demo/issue/${i.id}`
-                                : `/demo/review/${i.id}`
+                                ? `/issue/${i.id}`
+                                : `/review/${i.id}`
                             }
                           >
                             Open evidence & decision →

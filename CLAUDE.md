@@ -52,6 +52,7 @@ These are target requirements. The current legacy auto-approval and skip-done be
 
 **Frontend:** React, TypeScript, Vite PWA, TanStack Query and three.js.
 
+- The user selected `src/workspace/` (formerly `/demo`) as the final website UI. It is now mounted at `/`, with root URLs for its pages and compatibility redirects for `/demo/...`. Do not restore the older login/project route tree. Connected pages/auth/field code is retained for integration into the chosen interface, not mounted publicly. Preserve existing local-storage keys and explicit sample/result provenance.
 - `src/viewer/` is a separate viewer with command/event API and embedding bridge; keep it independent of page components.
 - `src/field/` uses IndexedDB; replay occurs on app open, online events and a timer. Do not assume iOS Background Sync.
 - `src/pages/` is the connected workspace; `src/studio/` is a browser-local fictional demo.

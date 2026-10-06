@@ -116,7 +116,7 @@ export function Capture() {
         sample: sampleRun,
       })
     )
-      navigate(`/demo/result/${item.id}`);
+      navigate(`/result/${item.id}`);
   };
   return (
     <>
@@ -125,7 +125,7 @@ export function Capture() {
         title="Daily update capture"
         sub="Location, guided photos and a short note. Save a draft or submit with clear evidence gaps."
         action={
-          <Link className="btn" to="/demo/work">
+          <Link className="btn" to="/work">
             Back to work
           </Link>
         }
@@ -186,7 +186,7 @@ export function Capture() {
                     Location confirmed by your selection. No QR scan is
                     simulated.
                   </p>
-                  <Link to={`/demo/building?work=${item.id}`}>
+                  <Link to={`/building?work=${item.id}`}>
                     Confirm location in the project model →
                   </Link>
                   <small>
@@ -404,7 +404,7 @@ export function Capture() {
                   <Link
                     key={i.id}
                     className="inset row between"
-                    to={`/demo/result/${i.id}`}
+                    to={`/result/${i.id}`}
                   >
                     <span className="small">
                       <b>{locationLabel(i)}</b>
@@ -463,7 +463,7 @@ export function Result() {
       <Heading
         eyebrow="Submission"
         title="Update not found"
-        action={<Link to="/demo/capture">New update</Link>}
+        action={<Link to="/capture">New update</Link>}
       />
     );
   const queued = item.processing === "queued";
@@ -485,7 +485,7 @@ export function Result() {
         title={title}
         sub={`${locationLabel(item)} · ${item.title}`}
         action={
-          <Link className="btn" to={`/demo/capture?item=${item.id}`}>
+          <Link className="btn" to={`/capture?item=${item.id}`}>
             Add another photo
           </Link>
         }
@@ -523,8 +523,8 @@ export function Result() {
                 className="btn"
                 to={
                   item.issue
-                    ? `/demo/issue/${item.id}`
-                    : `/demo/review/${item.id}`
+                    ? `/issue/${item.id}`
+                    : `/review/${item.id}`
                 }
               >
                 Open full record <Icon name="arrow" size={15} />
@@ -557,7 +557,7 @@ export function Result() {
               ))}
             </div>
           </Card>
-          <Link className="btn" to={`/demo/building?work=${item.id}`}>
+          <Link className="btn" to={`/building?work=${item.id}`}>
             See work in 3D <Icon name="cube" size={16} />
           </Link>
         </aside>

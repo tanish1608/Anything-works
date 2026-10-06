@@ -71,3 +71,7 @@ Reliable live plan checking, released automatic completion policies, exact measu
 Connected project creation opens `/p/:pid/setup` for draft upload, hierarchy/model review and explicit approval. Field checklists and offline requests retain the active baseline; stale evidence is rejected for review. The planned agent handoff is version-bound; no new agent is connected.
 
 The workspace header separates brand/project/profile controls from navigation, keeping the same header on Home, Logs and Building. Mobile keeps a truncated project selector and menu. The global demo banner and project badge are removed; source credit and generated-evidence labels remain at the relevant records.
+
+## Canonical website routing — October 6
+
+The user selected this workspace as the final website UI. `App.tsx` now mounts it at `/`; its navigation, capture/results, review/issues and model links use root paths. `/demo/...` redirects preserve query/fragment values. The previous login/project/field/embed UI is not mounted; retained backend and connected components are foundations for integration into this interface. Local storage keys and sample provenance labels stay unchanged. The PWA starts at Home. DOM routing tests and production compilation pass; revised browser smoke tests remain unrun.

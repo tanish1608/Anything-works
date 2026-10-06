@@ -302,8 +302,8 @@ export function WorkRow({
   onDecision?: (item: WorkItem) => void;
 }) {
   const target = item.issue
-    ? `/demo/issue/${item.id}`
-    : `/demo/review/${item.id}`;
+    ? `/issue/${item.id}`
+    : `/review/${item.id}`;
   return (
     <div
       className={`item ${["issue", "review"].includes(item.status) ? "accent-red" : item.status === "evidence" ? "accent-amber" : ""}`}

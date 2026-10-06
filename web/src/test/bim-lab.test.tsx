@@ -144,9 +144,9 @@ beforeEach(() => {
 it("opens the real BIM viewer inside Building with shared navigation and a distinct project identity", async () => {
   vi.spyOn(window, "scrollTo").mockImplementation(() => {});
   render(
-    <MemoryRouter initialEntries={["/demo/building"]}>
+    <MemoryRouter initialEntries={["/building"]}>
       <Routes>
-        <Route path="/demo/*" element={<Workspace />} />
+        <Route path="/*" element={<Workspace />} />
       </Routes>
     </MemoryRouter>,
   );

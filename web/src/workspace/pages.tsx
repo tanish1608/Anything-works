@@ -49,7 +49,7 @@ export function Work() {
         title="Every work item. Its evidence. Its next step."
         sub="Scope, progress and exceptions in one place. Open any row to see the source record."
         action={
-          <Link className="btn primary" to="/demo/capture">
+          <Link className="btn primary" to="/capture">
             <Icon name="plus" size={16} />
             Submit daily update
           </Link>
@@ -145,14 +145,14 @@ function Breadcrumb({ item }: { item: WorkItem }) {
   return (
     <div className="context">
       <div className="crumbs">
-        <Link to="/demo">← Home</Link>
+        <Link to="/">← Home</Link>
         <span>/</span>Level {item.level}
         <span>/</span>
         {locationLabel(item)}
         <span>/</span>
         <b>{item.id}</b>
       </div>
-      <Link className="btn sm" to={`/demo/building?work=${item.id}`}>
+      <Link className="btn sm" to={`/building?work=${item.id}`}>
         Locate in 3D <Icon name="cube" size={14} />
       </Link>
     </div>
@@ -361,7 +361,7 @@ export function Review() {
                 recorded.
               </p>
               {item.issue ? (
-                <Link className="btn primary" to={`/demo/issue/${item.id}`}>
+                <Link className="btn primary" to={`/issue/${item.id}`}>
                   Review open issue
                 </Link>
               ) : (
@@ -381,7 +381,7 @@ export function Review() {
                               reason: requirements,
                             })
                           )
-                            navigate(`/demo/issue/${item.id}`);
+                            navigate(`/issue/${item.id}`);
                         }}
                       >
                         <h3>Confirm as issue</h3>
@@ -472,7 +472,7 @@ export function Review() {
                   )}
                 </>
               )}
-              <Link className="btn" to={`/demo/capture?item=${item.id}`}>
+              <Link className="btn" to={`/capture?item=${item.id}`}>
                 <Icon name="camera" size={15} />
                 Add evidence
               </Link>
@@ -631,7 +631,7 @@ export function Issue() {
                   </Button>
                 </>
               )}
-              <Link className="btn" to={`/demo/capture?item=${item.id}`}>
+              <Link className="btn" to={`/capture?item=${item.id}`}>
                 <Icon name="camera" size={16} />
                 Submit correction evidence
               </Link>
@@ -689,7 +689,7 @@ export function Timeline({
             · {e.actor}
           </div>
           <div className="small">
-            <Link to={`/demo/review/${e.item}`}>
+            <Link to={`/review/${e.item}`}>
               <b>{e.item}</b>
             </Link>{" "}
             · {e.text}
@@ -769,7 +769,7 @@ export function Setup() {
               </ul>
             </details>
           ))}
-          <Link className="btn" to="/demo/building">
+          <Link className="btn" to="/building">
             Review model and model-derived 2D plans
           </Link>
         </div>
@@ -782,7 +782,7 @@ export function Setup() {
             they are not photos of this building.
           </p>
           {state.items.map((i) => (
-            <Link key={i.id} to={`/demo/building?work=${i.id}`}>
+            <Link key={i.id} to={`/building?work=${i.id}`}>
               {i.title} — {locationLabel(i)}
             </Link>
           ))}
@@ -802,10 +802,10 @@ export function Setup() {
             same request into review; it does not analyse evidence or mark work
             complete.
           </p>
-          <Link className="btn" to="/demo/capture">
+          <Link className="btn" to="/capture">
             Try a daily update
           </Link>
-          <Link className="btn" to="/demo/logs">
+          <Link className="btn" to="/logs">
             View recorded progress
           </Link>
         </div>
@@ -817,7 +817,7 @@ function Missing() {
   return (
     <div className="empty">
       <h1>Work item not found</h1>
-      <Link className="btn" to="/demo/work">
+      <Link className="btn" to="/work">
         Back to work
       </Link>
     </div>

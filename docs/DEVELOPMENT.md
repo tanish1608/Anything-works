@@ -38,10 +38,10 @@ Open `http://localhost:5173`. Vite proxies API calls to port 8000.
 
 ## Application surfaces
 
-- **`/demo`:** designer daily-update workspace with local tasks/evidence/decisions and a reset control. Actions persist in the browser. This is not a live AI or multi-user project workflow.
-- **`/demo/building`:** simple full-width duplex viewer with floating Level/View/Layers and a corner 3D/2D preview switch; solid context with exterior walls/roof hidden. `?view=workflow` and `?unit=` links retain the illustrated building and fictional locations. `/bim-lab` keeps detailed inspection authoring.
-- **`/` and `/field`:** authenticated connected workspace and field capture. Seed the backend for example projects.
-- **`/bim-lab`:** detailed public duplex IFC import with component-level 3D inspection and model-derived 2D plans. Evidence/pins/progress here are local test records, and AI results are simulated. See [the BIM audit](BIM_AUDIT.md).
+- **`/`:** main website, using the chosen daily-update workspace UI with local records and a shared building model. It runs without a backend and is not yet a live AI or multi-user project workflow.
+- **`/building`:** full-width duplex viewer with floating Level/View/Layers and a corner 3D/2D preview switch. Component-linked records use `?work=ID`; old illustrated-unit links open the overview.
+- **`/work`, `/logs`, `/people`, `/setup`, `/capture`:** the other main workspace pages.
+- **`/demo/...`:** compatibility redirects to the same page at the root, preserving queries/fragments. Older login/private-project/QR/embed routes no longer mount the previous UI. Backend services and connected components remain available for future integration. See [frontend routing](../web/README.md).
 
 Seeded accounts use `demo-password` unless `DEMO_PASSWORD` is configured.
 
@@ -111,7 +111,7 @@ npm run build
 npm run e2e
 ```
 
-End-to-end tests require the backend virtual environment and Playwright's browser installation. They start dedicated servers on ports 8001 and 5174. The configuration recreates its test SQLite file (default `/tmp/sitemesh-e2e.db`); any `E2E_DB` override must remain disposable. Screenshots/results go to `web/e2e/.results/`.
+Public-website end-to-end smoke tests require Playwright browsers and start Vite on port 5174; no backend or database reset is needed. The former connected-app tests are archived under `web/e2e/legacy` and excluded by configuration. Screenshots/results go to `web/e2e/.results/`. These browser tests were not run under the saved browser-access restriction.
 
 Do not repeat historical test counts as current results. Report the commands actually run with a change.
 

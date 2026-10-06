@@ -1,192 +1,86 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { tokenStore } from "../api/client";
-import { AppRoutes } from "../App";
-import { AuthProvider } from "../auth/AuthContext";
-import { describe as describeEvent } from "../lib/events";
+import { readFileSync } from 'node:fs'
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { MemoryRouter, useLocation } from 'react-router-dom'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { AppRoutes } from '../App'
+import type { ModelDataset } from '../viewer/modelData'
+import { STORE_KEY } from '../workspace/state'
 
-type Handler = (url: string, init?: RequestInit) => unknown;
-function mockApi(routes: Record<string, Handler | unknown>) {
-  return vi
-    .spyOn(globalThis, "fetch")
-    .mockImplementation(async (input, init) => {
-      const url = String(input);
-      const key = `${init?.method ?? "GET"} ${url.replace("/api", "").split("?")[0]}`;
-      if (!(key in routes))
-        return new Response(JSON.stringify({ detail: `unmocked ${key}` }), {
-          status: 500,
-        });
-      const r = routes[key];
-      const body = typeof r === "function" ? (r as Handler)(url, init) : r;
-      return new Response(JSON.stringify(body), {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      });
-    });
+const model = JSON.parse(readFileSync('public/bim-duplex/model.json', 'utf8')) as ModelDataset
+vi.mock('../viewer/modelData', async (original) => ({
+  ...(await original<typeof import('../viewer/modelData')>()),
+  loadDemoModel: async () => model,
+}))
+vi.mock('../viewer/ProjectScene', () => ({ default: () => <div data-testid="project-scene" /> }))
+
+function CurrentUrl() {
+  const { pathname, search, hash } = useLocation()
+  return <output data-testid="url">{pathname}{search}{hash}</output>
 }
-
 function renderAt(path: string) {
-  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return render(
-    <QueryClientProvider client={qc}>
-      <AuthProvider>
-        <MemoryRouter initialEntries={[path]}>
-          <AppRoutes />
-        </MemoryRouter>
-      </AuthProvider>
-    </QueryClientProvider>,
-  );
+  return render(<MemoryRouter initialEntries={[path]}><AppRoutes /><CurrentUrl /></MemoryRouter>)
 }
+beforeEach(() => {
+  localStorage.clear()
+  vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+  // The public workspace must not call retired authentication/project APIs.
+  vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Unexpected network request'))
+})
+afterEach(() => { cleanup(); vi.restoreAllMocks() })
 
-afterEach(() => {
-  cleanup();
-  vi.restoreAllMocks();
-  tokenStore.set(null);
-});
+describe('canonical website', () => {
+  it('opens Home directly and keeps all navigation within the chosen workspace', async () => {
+    renderAt('/')
+    // The first visit also loads/transforms the lazy workspace module in this test worker.
+    await screen.findByRole('heading', { name: 'Home' }, { timeout: 5000 })
+    const nav = within(screen.getByRole('navigation', { name: 'Workspace' }))
+    expect(nav.getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/')
+    for (const [name, path] of [['Work & Issues', '/work'], ['Building', '/building'], ['Logs', '/logs'], ['People', '/people'], ['Setup', '/setup']]) {
+      expect(nav.getByRole('link', { name })).toHaveAttribute('href', path)
+    }
+    expect(screen.queryByRole('button', { name: 'Sign in' })).not.toBeInTheDocument()
+    expect(globalThis.fetch).not.toHaveBeenCalled()
+    await userEvent.click(nav.getByRole('link', { name: 'Building' }))
+    await screen.findByRole('region', { name: 'Building viewer' })
+    expect(screen.getByTestId('url')).toHaveTextContent('/building')
+    await userEvent.click(screen.getByRole('link', { name: 'Everything Works AI' }))
+    await screen.findByRole('heading', { name: 'Home' })
+    expect(screen.getByTestId('url').textContent).toBe('/')
+  })
 
-vi.mock("../viewer/ViewerCanvas", () => ({
-  default: () => <div data-testid="viewer" />,
-}));
+  it('preserves a bookmarked work selection, query and fragment while retiring the demo prefix', async () => {
+    renderAt('/demo/building/?work=ISS-031#workspace-main')
+    await screen.findByRole('region', { name: 'Building viewer' })
+    expect(screen.getByTestId('url').textContent).toBe('/building/?work=ISS-031#workspace-main')
+    expect(screen.getByRole('main')).toHaveClass('simple-building-page')
+  })
 
-describe("app", () => {
-  it("uses real project records in the linked Home page", async () => {
-    tokenStore.set({ access_token: "a", refresh_token: "r" });
-    mockApi({
-      "GET /auth/me": { id: "u1", email: "pm@example.com", name: "Pat" },
-      "GET /projects/p1": {
-        id: "p1",
-        name: "Maple Court",
-        my_role: "pm",
-        settings: {},
-      },
-      "GET /projects/p1/progress": {
-        totals: { done: 2, needs_review: 1, not_started: 3 },
-      },
-      "GET /projects/p1/issues": [
-        {
-          id: "i1",
-          number: 12,
-          title: "Routing correction",
-          status: "open",
-          trade: "Plumbing",
-          assignee_name: "Crew lead",
-          priority: "high",
-        },
-      ],
-      "GET /projects/p1/uploads": [],
-      "GET /projects/p1/reviews": [],
-      "GET /projects/p1/viewer": { version: null, layers: [] },
-      "GET /projects/p1/elements": [],
-    });
-    renderAt("/p/p1/today");
-    expect(
-      await screen.findByRole("heading", { name: "Home" }),
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByText("#12 · Routing correction"),
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByText(/1 open issues, including Routing correction/),
-    ).toBeInTheDocument();
-    expect(screen.queryByText("Fixture result")).not.toBeInTheDocument();
-    await userEvent.click(
-      screen.getByRole("button", { name: "Locate Routing correction" }),
-    );
-    expect(
-      screen.getByRole("link", { name: "Open issue & evidence →" }),
-    ).toHaveAttribute("href", "/p/p1/model?issue=i1");
-  });
-  it("redirects to login when signed out, then signs in", async () => {
-    mockApi({
-      "POST /auth/login": { access_token: "a", refresh_token: "r" },
-      "GET /auth/me": { id: "u1", email: "pm@example.com", name: "Pat" },
-      "GET /projects": [
-        {
-          id: "p1",
-          name: "Maple Court",
-          address: null,
-          settings: {},
-          created_at: "",
-          my_role: "pm",
-        },
-      ],
-    });
-    renderAt("/");
-    await userEvent.type(
-      await screen.findByLabelText("Email"),
-      "pm@example.com",
-    );
-    await userEvent.type(screen.getByLabelText("Password"), "password123");
-    await userEvent.click(screen.getByRole("button", { name: "Sign in" }));
-    expect(await screen.findByText("Maple Court")).toBeInTheDocument();
-    expect(screen.getByText("Project manager")).toBeInTheDocument();
-  });
+  it('preserves saved project records when reopening at the new root', async () => {
+    const first = renderAt('/demo/setup')
+    const input = await screen.findByLabelText('Project name')
+    await userEvent.clear(input)
+    await userEvent.type(input, 'Elm Court')
+    await userEvent.click(screen.getByRole('button', { name: 'Save name' }))
+    expect(JSON.parse(localStorage.getItem(STORE_KEY)!).projectName).toBe('Elm Court')
+    first.unmount()
+    renderAt('/')
+    await screen.findByRole('heading', { name: 'Home' })
+    expect(screen.getByRole('button', { name: 'Project: Elm Court' })).toBeInTheDocument()
+  })
 
-  it("hides edit controls for viewers", async () => {
-    tokenStore.set({ access_token: "a", refresh_token: "r" });
-    mockApi({
-      "GET /auth/me": { id: "u1", email: "v@example.com", name: "Val" },
-      "GET /projects/p1": {
-        id: "p1",
-        name: "Maple Court",
-        address: null,
-        settings: {},
-        created_at: "",
-        my_role: "viewer",
-      },
-      "GET /projects/p1/tree": [
-        {
-          id: "b1",
-          project_id: "p1",
-          name: "Building A",
-          levels: [
-            {
-              id: "l1",
-              building_id: "b1",
-              name: "Level 3",
-              index: 3,
-              elevation_m: 0,
-              height_m: 3,
-              zones: [
-                {
-                  id: "z1",
-                  level_id: "l1",
-                  name: "Unit 304, Bedroom 2",
-                  code: null,
-                  kind: "room",
-                  polygon: null,
-                  qr_token: "t",
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    });
-    renderAt("/p/p1/structure");
-    expect(await screen.findByText("Unit 304, Bedroom 2")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Rename" })).toBeNull();
-    expect(screen.queryByPlaceholderText("New building")).toBeNull();
-  });
-});
+  it.each([
+    ['/logs', 'Logs'], ['/people', 'People'], ['/setup', 'Model, locations and daily updates'],
+  ])('opens %s directly after a refresh', async (path, heading) => {
+    renderAt(path)
+    await screen.findByRole('heading', { name: heading })
+    expect(screen.getByTestId('url').textContent).toBe(path)
+  })
 
-describe("activity descriptions", () => {
-  it("names the entity", () => {
-    const e = {
-      id: 1,
-      actor_name: "Pat",
-      at: "",
-      type: "zone.updated",
-      entity_type: "zone",
-      entity_id: "z",
-      zone_id: "z",
-      evidence_ids: [],
-      data: { before: { name: "A" }, after: { name: "B" } },
-      message: null,
-    };
-    expect(describeEvent(e)).toBe("updated zone “B”");
-  });
-});
+  it.each(['/demo', '/login', '/p/private/home', '/field/private/zone/room', '/q/private-token', '/embed/p/private/viewer', '/unknown-page'])('retires %s without mounting the old app', async (path) => {
+    renderAt(path)
+    await screen.findByRole('heading', { name: 'Home' })
+    await waitFor(() => expect(screen.getByTestId('url').textContent).toBe('/'))
+    expect(globalThis.fetch).not.toHaveBeenCalled()
+  })
+})

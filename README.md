@@ -68,6 +68,6 @@ See [current implementation and gaps](STATUS.md) and [design implementation note
 
 ## Running the existing prototype
 
-Follow the [developer guide](docs/DEVELOPMENT.md). The local frontend runs at `http://localhost:5173`; visit `/demo` for the interactive example or use the seeded accounts for the connected workspace.
+Follow the [developer guide](docs/DEVELOPMENT.md). The local frontend runs at `http://localhost:5173`; open `/` for the main website. Home, Work & Issues, Building, Logs, People, Setup and capture use the chosen workspace UI. Old `/demo/...` links redirect to the equivalent root URLs. The previous login/project UI is retired from public routing; backend integration remains a separate work package.
 
 Documentation reset and designer UI implementation: October 5, 2026. Detailed BIM/inspection work: October 6, 2026. The full new assessment workflow still requires backend integration and field validation.

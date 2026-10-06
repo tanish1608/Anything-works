@@ -70,7 +70,7 @@ export default function WorkflowModel({
       </div>
       <div className="home-model-top">
         <span>{active ? locationLabel(active) : "Entire building"}</span>
-        <Link to={`/demo/building${active ? `?work=${active.id}` : ""}`}>
+        <Link to={`/building${active ? `?work=${active.id}` : ""}`}>
           Open model ↗
         </Link>
       </div>

@@ -10,19 +10,25 @@ The original implementation was built as SiteMesh. The UI now uses Everything Wo
 
 ## Designer UI implementation
 
-The `/demo` workspace implements Home, Work & Issues, comparison/review, corrections, Building, Logs, People, Setup and mobile capture/results. Home has a record-based daily summary above a model on the left and grouped work pins on the right. Selecting either side focuses/selects the corresponding record. KPI cards, status badges, legends and the floating mascot are removed from Home. Home, Logs and Building use the same imported public duplex through the shared ProjectScene/SiteViewer controller. Fourteen newly defined sample work packages reference its actual component, room and level IDs. Home starts with the entire building, separates floors before focusing a selected component and restores the whole building on request. Component-centre pins are model context, not photo registration.
+The main website at `/` implements Home, Work & Issues, comparison/review, corrections, Building, Logs, People, Setup and mobile capture/results. Home has a record-based daily summary above a model on the left and grouped work pins on the right. Selecting either side focuses/selects the corresponding record. KPI cards, status badges, legends and the floating mascot are removed from Home. Home, Logs and Building use the same imported public duplex through the shared ProjectScene/SiteViewer controller. Fourteen newly defined sample work packages reference its actual component, room and level IDs. Home starts with the entire building, separates floors before focusing a selected component and restores the whole building on request. Component-centre pins are model context, not photo registration.
 
 People includes search, contacts, teams, an explicit sample reporting hierarchy and locally persisted availability. Logs provides a calendar, daily activity, date comparison, side-by-side status projections and export. Earlier dates show only recorded statuses; later completion is never backdated. Existing signed report snapshots are retained in exports. Daily Report is removed; old bookmarks redirect to Logs.
 
-Connected Home at `/p/:pid/home` loads authorized GLBs and elements, uses saved issue locations, switches to an issue's model revision when needed and identifies unlocated records. Connected People uses actual membership/email records; phone, availability and reporting lines are not recorded yet. Connected Logs compares paginated events and replays recorded status/provenance on current project geometry; it does not recreate historical design geometry or all issue reopening intervals. Old `/today` and `/members` routes redirect. Both summaries are clearly labeled as record-based; no live daily-summary AI agent is connected.
+Retained connected Home code (no longer a public route) loads authorized GLBs and elements, uses saved issue locations, switches to an issue's model revision when needed and identifies unlocated records. Connected People uses actual membership/email records; phone, availability and reporting lines are not recorded yet. Connected Logs compares paginated events and replays recorded status/provenance on current project geometry; it does not recreate historical design geometry or all issue reopening intervals. Those older connected screens are removed from the public route tree. Both summaries are clearly labeled as record-based; no live daily-summary AI agent is connected.
 
 See [design implementation notes](docs/design/ui/IMPLEMENTATION.md). Browser visual checks were blocked by a saved local-URL browser-access preference; responsive rendering and real WebGL interaction need review.
 
 The workspace header uses separate identity/action and navigation rows, with consistent controls across routes and a compact mobile layout. The global demo banner and Public BIM project badge are removed; source attribution and generated-evidence labels remain.
 
+## Single public website
+
+The former `/demo` UI is now the main website at `/`. All workspace links use root URLs. Old `/demo/...` bookmarks redirect with their query and fragment intact; old login/private-project/QR/embed screens are retired. The public app no longer mounts an authentication provider or imports the older page tree. Existing local storage keys are unchanged, so records survive the move. The PWA starts at Home; production Nginx already supports SPA deep links.
+
+Canonical routing, navigation, bookmark preservation, saved-record persistence and retired-screen behavior are covered by DOM tests. Browser smoke tests now target the chosen website; previous connected-app tests are archived and excluded. The smoke suite has not been run under the saved browser restriction. The URL change does not make browser-local records a connected production service.
+
 ## Implemented foundations
 
-P3 now has a detailed public duplex import: 1,282 rendered elements, 22 spaces, four levels and six discipline layers. The default `/demo/building` page uses a full-width canvas with only Level, View and Layers controls and a corner preview for switching 3D/2D. Both sidebars and the project tabs are removed from this everyday view. `/bim-lab` retains detailed properties, inspection authoring and local review controls. All public workspace views now use this duplex; old illustrated-unit links open the building overview without inventing a room association. Legacy Hawthorne data remains under its original storage key. An optional seed adds the detailed project to the authorized connected app. See [the BIM audit](docs/BIM_AUDIT.md) for extraction results and source attribution.
+P3 now has a detailed public duplex import: 1,282 rendered elements, 22 spaces, four levels and six discipline layers. The default `/building` page uses a full-width canvas with only Level, View and Layers controls and a corner preview for switching 3D/2D. Both sidebars and the project tabs are removed from this everyday view. The retained BIM workbench source contains detailed properties, inspection authoring and local review controls; its old `/bim-lab` URL now redirects to Building. All public workspace views now use this duplex; old illustrated-unit links open the building overview without inventing a room association. Legacy Hawthorne data remains under its original storage key. An optional seed adds the detailed project to the authorized connected app. See [the BIM audit](docs/BIM_AUDIT.md) for extraction results and source attribution.
 
 Imported and connected model views default to an interior view: tagged exterior walls and roof are hidden, shared/untagged walls remain visible, and architecture renders solid. Visibility and transparency controls restore the shell or ghost context. The duplex roof slab's IFC predefined type is preserved; no source geometry changes.
 
@@ -30,17 +36,17 @@ IFC2x3 type classification, property truncation and duplicate room-name merging 
 
 | Foundation | Source location | Important limit |
 |---|---|---|
-| Designer daily-update demo | `web/src/workspace/`, route `/demo`; geometry in `web/src/viewer/ProjectScene.tsx` | Fictional records and generated images; browser-local state; sample checking and notifications are simulated |
-| Connected project workspace | `web/src/App.tsx`, `web/src/pages/` | Earlier coordination/progress workflow, not the new complete specification |
+| Designer daily-update demo | `web/src/workspace/`, root website `/`; geometry in `web/src/viewer/ProjectScene.tsx` | Fictional records and generated images; browser-local state; sample checking and notifications are simulated |
+| Retained connected project components | `web/src/pages/` | Not mounted in public routing; available for integration into the chosen interface |
 | IFC import and GLB generation | `backend/app/bim/` | A model is context, not evidence of actual installed quality |
 | DXF and vector-PDF conversion/review | `backend/app/conversion/` | Generated sample results do not establish general real-plan accuracy; DWG is unsupported |
-| 3D viewer and model controls | `web/src/viewer/`, `/bim-lab` | Detailed import, component inspection/pins/plans and saved progress projection implemented; live scoped AI completion and WebGL/device visual acceptance remain open |
+| 3D viewer and model controls | `web/src/viewer/`, `/building` | Detailed import, component inspection/pins/plans and saved progress projection implemented; live scoped AI completion and WebGL/device visual acceptance remain open |
 | Photo uploads and offline queue | `web/src/field/`, `backend/app/services/photos.py` | Device and production offline behavior need validation for the new flow |
 | Evidence-backed progress and review | `backend/app/services/progress.py` | Existing `done` semantics need separation into observed completion and acceptance |
 | AI photo-analysis integration | `backend/app/vision/`, `backend/app/services/vision_jobs.py` | Installed/missing/not-visible/uncertain results; not validated broad plan compliance |
 | Issues, notifications and history | `backend/app/api/`, `backend/app/services/` | New assessment-to-correction flow and consistent projections remain work |
 | Authentication and scoped access | `backend/app/auth/`, `backend/app/rbac.py` | Extend the same controls to new records and derived AI outputs |
-| Tests and evaluation harnesses | `backend/tests/`, `web/src/test/`, `web/e2e/`, `samples/` | 63 frontend tests pass; targeted model/workflow/backend suites pass (details below); browser E2E and live AI evaluations were not run |
+| Tests and evaluation harnesses | `backend/tests/`, `web/src/test/`, `web/e2e/`, `samples/` | 76 frontend tests pass; targeted model/workflow/backend suites pass (details below); browser E2E and live AI evaluations were not run |
 
 ## Known migration gaps
 
@@ -49,7 +55,7 @@ IFC2x3 type classification, property truncation and duplicate room-name merging 
 3. **Quality beyond presence.** Recognizing a visible component does not prove that its installation matches the plan, required measurements or code.
 4. **Reference provenance.** The new flow requires per-assessment source snapshots, applicable approved changes and stale-result handling.
 5. **Progress denominators.** Existing summaries count elements; this is not automatically physical, labor or schedule completion.
-6. **Demo versus connected product.** The new daily workflow persists locally. The connected overview uses the existing API; full assessment and correction synchronization still requires integration.
+6. **Demo versus connected product.** The new daily workflow persists locally. Retained connected components use the existing API; full assessment and correction synchronization still requires integration.
 7. **Field validation.** Real-site detection performance, user effort, customer savings and willingness to pay are not established.
 
 ## Remaining production work
@@ -64,8 +70,8 @@ IFC2x3 type classification, property truncation and duplicate room-name merging 
 
 ## Verification and next work
 
-The frontend passes 63 tests and production compilation. Frontend lint completes with existing warnings. Initial targeted import/progress verification passed 16 backend tests; final workflow/progress/history/legacy-vision regression verification passed 20 tests, with AI mocked/off. Ruff passes for the changed backend files. Tests include source hierarchy bindings, shared model projections, reversible floor expansion, camera sequencing, first-upload onboarding, offline revision identity, fresh-evidence reopening and stale submission/approval rejection. Browser visual acceptance remains unverified under the saved local-URL preference. No live AI evaluations were run.
+The frontend passes 76 tests and production compilation. Frontend lint completes with existing warnings. Initial targeted import/progress verification passed 16 backend tests; final workflow/progress/history/legacy-vision regression verification passed 20 tests, with AI mocked/off. Ruff passes for the changed backend files. Tests include source hierarchy bindings, shared model projections, reversible floor expansion, camera sequencing, first-upload onboarding, offline revision identity, fresh-evidence reopening and stale submission/approval rejection. Browser visual acceptance remains unverified under the saved local-URL preference. No live AI evaluations were run.
 
-New connected projects open a guided upload → review → approve flow. Field queues retain their checklist revision; immutable upload audit events record revision, element and photo IDs. Old received retries stay idempotent. Evidence against a superseded baseline cannot approve work on the new model. The local demo prepares structured assessment requests; new agent execution is deferred. See [the model workflow](docs/MODEL_WORKFLOW.md).
+Retained connected onboarding components implement a guided upload → review → approve flow, but are no longer exposed as website routes. Field queues retain their checklist revision; immutable upload audit events record revision, element and photo IDs. Old received retries stay idempotent. Evidence against a superseded baseline cannot approve work on the new model. The local demo prepares structured assessment requests; new agent execution is deferred. See [the model workflow](docs/MODEL_WORKFLOW.md).
 
 Begin with **P0** in [TODO.md](TODO.md): examples, state contract, completion policy and screen flow. Follow [PLAN.md](PLAN.md) for dependencies. Update this file with actual checks and known limitations as implementation progresses.

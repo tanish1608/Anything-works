@@ -8,10 +8,10 @@ Owners are suggested contributor roles, not assignments. Each package needs a na
 
 ## Completed in the designer implementation
 
-- [x] Implement Home, Work & Issues, review, correction, Building, Logs, People, Setup, capture and result screens in React at `/demo`.
+- [x] Implement Home, Work & Issues, review, correction, Building, Logs, People, Setup, capture and result screens in React; now the main website at `/`.
 - [x] Apply the designer's typography, colors and navigation; bundle fonts and supplied sample images locally.
 - [x] Add an authenticated Home overview at `/p/:pid/home` (legacy `/today` redirects) using existing authorized API records.
-- [x] Verify the redesigned frontend with 63 passing tests, production compilation and lint completion with warnings. Tests use mocked APIs and a stubbed 3D renderer; browser/device verification remains open.
+- [x] Verify the redesigned frontend with 76 passing tests, production compilation and lint completion with warnings. Tests use mocked APIs and a stubbed 3D renderer; browser/device verification remains open.
 - [x] Document routes, interactions, fixture boundaries and implementation files in [the implementation guide](docs/design/ui/IMPLEMENTATION.md).
 
 The detailed completed demo interactions are checked in the packages below. No production backend package or live AI capability is complete merely because its demo works.
@@ -32,6 +32,16 @@ The detailed completed demo interactions are checked in the packages below. No p
 - [x] Replay recorded component status and completion provenance in connected Logs on current geometry.
 - [ ] Reconstruct historical design revisions, per-assessment evidence and complete issue reopening intervals in connected Logs.
 - [ ] Review Home, People and Logs on desktop/mobile and with real WebGL; renderer-stub tests do not establish visual acceptance.
+
+## Single website and canonical routing — October 6
+
+- [x] Make the chosen workspace the root website; remove the older auth/project/field/embed screens from public routing.
+- [x] Move every workspace link to root URLs, including capture, results, reviews, corrections, model focus and reset.
+- [x] Redirect old `/demo/...` bookmarks while preserving queries/fragments; do not reinterpret private project IDs as sample records.
+- [x] Preserve existing local records and availability keys; set PWA launch/scope to `/`.
+- [x] Verify canonical navigation, deep links, saved records and retired-route behavior in DOM tests; update the production build and route documentation.
+- [x] Archive obsolete connected-app browser tests and replace the active E2E suite with website smoke tests.
+- [ ] Run the updated browser smoke suite and review real desktop/mobile rendering when browser access is available.
 
 ## Header cleanup — October 6
 
@@ -58,7 +68,7 @@ The detailed completed demo interactions are checked in the packages below. No p
 - [ ] Review the screens with the designer and teammates; record usability feedback before marking the UX package accepted.
 - [ ] Visually verify desktop/mobile layouts, real WebGL rendering, keyboard navigation and dialogs. Browser review was blocked by the saved local-URL access preference during implementation.
 - [ ] Test camera capture, photo resizing, storage limits, reconnect and PWA caching on actual iPhone and Android devices.
-- [ ] Connect the new workspace to authorized project APIs instead of its local fixture store, following P0.2 and P1; retain a clearly labeled standalone demo.
+- [ ] Connect the new workspace to authorized project APIs instead of its local fixture store, following P0.2 and P1 inside the chosen UI; keep sample records and simulated results explicitly identified.
 - [ ] Replace illustrated reference comparisons with authorized plan/detail files and per-assessment source revisions.
 - [ ] Connect real assessment jobs and correction rechecks; keep real uploads unassessed until a traceable result or explicit human review exists.
 - [ ] Connect issue assignments and follow-ups to real delivery/notification records instead of simulated demo delivery.

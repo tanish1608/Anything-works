@@ -84,9 +84,9 @@ function LoadedWorkspace({ model }: { model: ModelDataset }) {
   const navigate = useNavigate(),
     location = useLocation(),
     searchRef = useRef<HTMLInputElement>(null);
-  const homePage =
-    location.pathname === "/demo" || location.pathname === "/demo/";
-  const importedBuilding = location.pathname === "/demo/building";
+  const currentPage = location.pathname.replace(/\/+$/, "") || "/";
+  const homePage = currentPage === "/";
+  const importedBuilding = currentPage === "/building";
   const act = useCallback((action: Action) => {
     try {
       const next = transition(stateRef.current, action);
@@ -177,7 +177,7 @@ function LoadedWorkspace({ model }: { model: ModelDataset }) {
         </a>
         <header className="topbar workspace-header">
           <div className="topbar-in workspace-header-main">
-            <Link className="brand" to="/demo">
+            <Link className="brand" to="/">
               <span className="brand-mark">
                 <Icon name="bolt" size={17} />
               </span>
@@ -196,9 +196,9 @@ function LoadedWorkspace({ model }: { model: ModelDataset }) {
               {projectMenu && (
                 <div className="project-dropdown card card-pad stack">
                   <Link to="/">
-                    All projects <Icon name="arrow" size={14} />
+                    Project overview <Icon name="arrow" size={14} />
                   </Link>
-                  <Link to="/demo/setup">Project settings</Link>
+                  <Link to="/setup">Project settings</Link>
                   <Button
                     icon="reset"
                     onClick={() => {
@@ -230,8 +230,8 @@ function LoadedWorkspace({ model }: { model: ModelDataset }) {
                         key={i.id}
                         to={
                           i.issue
-                            ? `/demo/issue/${i.id}`
-                            : `/demo/review/${i.id}`
+                            ? `/issue/${i.id}`
+                            : `/review/${i.id}`
                         }
                       >
                         <strong>
@@ -248,7 +248,7 @@ function LoadedWorkspace({ model }: { model: ModelDataset }) {
               </div>
               <Link
                 className="icon-button"
-                to="/demo/work?filter=review"
+                to="/work?filter=review"
                 aria-label="Open review queue"
               >
                 <Icon name="bell" />
@@ -274,7 +274,7 @@ function LoadedWorkspace({ model }: { model: ModelDataset }) {
               <NavLink
                 key={n.path}
                 end
-                to={`/demo${n.path ? `/${n.path}` : ""}`}
+                to={`/${n.path}`}
                 className={({ isActive }) => (isActive ? "on" : "")}
               >
                 {n.label}
@@ -291,12 +291,12 @@ function LoadedWorkspace({ model }: { model: ModelDataset }) {
                 <NavLink
                   end
                   key={n.path}
-                  to={`/demo${n.path ? `/${n.path}` : ""}`}
+                  to={`/${n.path}`}
                 >
                   {n.label}
                 </NavLink>
               ))}
-              <Link to="/demo/capture">Field capture</Link>
+              <Link to="/capture">Field capture</Link>
             </nav>
           )}
         </header>
@@ -306,8 +306,8 @@ function LoadedWorkspace({ model }: { model: ModelDataset }) {
         >
           <Routes>
             <Route index element={<Home />} />
-            <Route path="home" element={<Navigate to="/demo" replace />} />
-            <Route path="today" element={<Navigate to="/demo" replace />} />
+            <Route path="home" element={<Navigate to="/" replace />} />
+            <Route path="today" element={<Navigate to="/" replace />} />
             <Route path="work" element={<Work />} />
             <Route path="review/:id" element={<Review />} />
             <Route path="issue/:id" element={<Issue />} />
@@ -316,28 +316,28 @@ function LoadedWorkspace({ model }: { model: ModelDataset }) {
             <Route path="people" element={<People />} />
             <Route
               path="report"
-              element={<Navigate to="/demo/logs" replace />}
+              element={<Navigate to="/logs" replace />}
             />
             <Route path="setup" element={<Setup />} />
             <Route path="capture" element={<Capture />} />
             <Route path="result/:id" element={<Result />} />
             <Route
               path="field"
-              element={<Navigate to="/demo/capture" replace />}
+              element={<Navigate to="/capture" replace />}
             />
             <Route
               path="evidence"
-              element={<Navigate to="/demo/work?filter=review" replace />}
+              element={<Navigate to="/work?filter=review" replace />}
             />
             <Route
               path="activity"
-              element={<Navigate to="/demo/logs" replace />}
+              element={<Navigate to="/logs" replace />}
             />
             <Route
               path="handoffs"
-              element={<Navigate to="/demo/work" replace />}
+              element={<Navigate to="/work" replace />}
             />
-            <Route path="*" element={<Navigate to="/demo" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
         {!importedBuilding && !homePage && (
@@ -377,7 +377,7 @@ function LoadedWorkspace({ model }: { model: ModelDataset }) {
               <Button
                 kind="primary"
                 onClick={() => {
-                  navigate("/demo/work?filter=review");
+                  navigate("/work?filter=review");
                   setAssistant(false);
                 }}
               >
@@ -386,7 +386,7 @@ function LoadedWorkspace({ model }: { model: ModelDataset }) {
               <Button
                 onClick={() => {
                   navigate(
-                    `/demo/building${attention[0] ? `?work=${attention[0].id}` : ""}`,
+                    `/building${attention[0] ? `?work=${attention[0].id}` : ""}`,
                   );
                   setAssistant(false);
                 }}
@@ -466,7 +466,7 @@ function LoadedWorkspace({ model }: { model: ModelDataset }) {
                   stateRef.current = fresh;
                   setState(fresh);
                   setReset(false);
-                  navigate("/demo");
+                  navigate("/");
                   setMessage("Demo restored.");
                 } catch {
                   setMessage("This browser could not reset local storage.");

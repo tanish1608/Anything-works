@@ -1,5 +1,8 @@
 # One project model and the daily-update workflow
 
+Routing update, October 6: the chosen workspace is now the website at `/`, `/building`, `/logs`, `/people`, `/setup` and `/capture`. Old `/demo/...` links redirect. Connected onboarding and field components described below remain implementation foundations for integration, not public website routes. The current website uses local records and public sample geometry.
+
+
 Implemented October 6, 2026. Live agent orchestration is deferred.
 
 ## One model across the workspace
