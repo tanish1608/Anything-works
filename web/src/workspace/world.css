@@ -109,6 +109,13 @@
   border-radius: 10px;
   color: #73b8ff;
 }
+.world-brand-logo img {
+  width: 29px;
+  height: 29px;
+  object-fit: contain;
+  border-radius: 6px;
+  background: #fff;
+}
 .world-brand b {
   font-size: 14px;
   font-weight: 600;

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Icon } from "../studio/Icon";
 import Agent from "./Agent";
-import AgentIsle from "./AgentIsle";
+import ProjectCopilot from "./ProjectCopilot";
 import {
   loadDemoModel,
   loadPublicProject,
@@ -400,9 +400,7 @@ function BuildingWorkspace({
             onClick={overview}
             aria-label="Placeholder AI — building overview"
           >
-            <span>
-              <Icon name="cube" size={24} />
-            </span>
+            <span className="world-brand-logo"><img src="/placeholder-ai-logo.png" alt="" /></span>
             <b>
               Placeholder <em>AI</em>
             </b>
@@ -503,7 +501,7 @@ function BuildingWorkspace({
             </details>
           </div>
         </header>
-        <AgentIsle projectName={state.projectName} page={panel || "overview"} label={panel ? TITLES[panel] : "Building overview"}
+        <ProjectCopilot projectName={state.projectName} page={panel || "overview"} label={panel ? TITLES[panel] : "Building overview"}
           displayContext={JSON.stringify({ provenance: "browser-local sample; not authenticated project evidence",
             sampleProject: state.projectName, modelRevision: model.version,
             selectedWork: work ? { id: work.id, title: work.title, trade: work.trade, status: work.status,
