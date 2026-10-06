@@ -18,7 +18,9 @@ import ModelPage from './pages/ModelPage'
 import ProjectLayout from './pages/ProjectLayout'
 import ProjectsPage from './pages/ProjectsPage'
 import StructurePage from './pages/StructurePage'
-import Studio from './studio/Studio'
+import TodayPage from './pages/TodayPage'
+import { Icon } from './studio/Icon'
+import Workspace from './workspace/Workspace'
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth()
@@ -33,9 +35,10 @@ function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="app">
       <header className="topbar">
-        <Link to="/" className="brand">SiteMesh</Link>
+        <Link to="/" className="brand connected-brand"><span className="connected-brand-mark"><Icon name="bolt" size={17} /></span>Everything Works AI</Link>
         <span className="grow" />
         <Link to="/field" className="btn small">Field app</Link>
+        <Link to="/demo" className="btn small">Explore demo</Link>
         <NotificationBell />
         <span className="muted">{user?.name}</span>
         <button className="small" onClick={logout}>Sign out</button>
@@ -49,10 +52,11 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/demo/*" element={<Studio />} />
+      <Route path="/demo/*" element={<Workspace />} />
       <Route path="/" element={<RequireAuth><Shell><ProjectsPage /></Shell></RequireAuth>} />
       <Route path="/p/:pid" element={<RequireAuth><Shell><ProjectLayout /></Shell></RequireAuth>}>
         <Route index element={<Navigate to="model" replace />} />
+        <Route path="today" element={<TodayPage />} />
         <Route path="model" element={<ModelPage />} />
         <Route path="issues" element={<IssuesPage />} />
         <Route path="progress" element={<ProgressPage />} />

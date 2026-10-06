@@ -41,13 +41,13 @@ A PM can review exceptions, confirm or dismiss a finding, and track a correction
 
 This repository contains an earlier **SiteMesh** prototype:
 
-- A browser-local interactive 3D demo at `/demo`, with fictional units, tasks, evidence, approvals and handoffs.
+- An interactive designer workspace at `/demo`, with daily overview, work filters, comparison, corrections, local mobile capture, reports and 3D status navigation.
 - A connected application with model import, drawing review, 3D viewing, issues, photo uploads, progress review and event history.
 - An offline field upload queue and an existing Gemini photo-analysis integration.
 
 These are foundations. The new daily quality-checking workflow, calibrated automatic completion, reliable plan comparison and broad real-site coverage are **not yet delivered or validated**. Existing “installed” verdicts do not establish correct installation.
 
-See [current implementation and gaps](STATUS.md). Package names and UI branding still say SiteMesh; this documentation update does not rename application code.
+See [current implementation and gaps](STATUS.md) and [design implementation notes](docs/design/ui/IMPLEMENTATION.md). UI branding now uses Everything Works AI; internal SiteMesh identifiers remain.
 
 ## Read and share
 
@@ -67,4 +67,4 @@ See [current implementation and gaps](STATUS.md). Package names and UI branding 
 
 Follow the [developer guide](docs/DEVELOPMENT.md). The local frontend runs at `http://localhost:5173`; visit `/demo` for the interactive example or use the seeded accounts for the connected workspace.
 
-Documentation reset: October 5, 2026. Application code is unchanged by this reset.
+Documentation reset and designer UI implementation: October 5, 2026. Release checked October 6, 2026. The full new assessment workflow still requires backend integration and field validation.

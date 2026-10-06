@@ -1,0 +1,774 @@
+.ew-app {
+  min-height: 100vh;
+  color: var(--ink-2);
+  background: var(--field);
+  --text: #0f172a;
+  --border: #e2e8f0;
+  --panel: #fff;
+  --accent: #0f172a;
+}
+.ew-app.connected-overview {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+}
+.ew-app h1,
+.ew-app h2,
+.ew-app h3 {
+  margin: 0;
+}
+.ew-app a:hover {
+  text-decoration: none;
+}
+.ew-app .page {
+  overflow: visible;
+  width: 100%;
+  padding-bottom: 90px;
+}
+.ew-app .page-head h1 {
+  margin-top: 4px;
+  max-width: 1080px;
+}
+.ew-app .topbar {
+  display: block;
+  height: auto;
+  padding: 0;
+}
+.ew-app .topbar-in {
+  max-width: 1440px;
+  gap: 12px;
+}
+.ew-app .brand {
+  font-size: 14px;
+}
+.ew-app .btn {
+  padding: 0 12px;
+}
+.ew-app a.btn {
+  display: inline-flex;
+  color: var(--ink);
+}
+.ew-app .btn.primary,
+.ew-app a.btn.primary {
+  color: #fff;
+}
+.ew-app .btn:disabled {
+  opacity: 0.45;
+}
+.ew-app button:focus-visible,
+.ew-app a:focus-visible,
+.ew-app input:focus,
+.ew-app textarea:focus,
+.ew-app select:focus {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+.ew-app input,
+.ew-app select,
+.ew-app textarea {
+  font: inherit;
+  color: var(--ink);
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 10px;
+  min-width: 0;
+  width: 100%;
+}
+.ew-app input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--ink);
+  flex: none;
+}
+.ew-app label {
+  font-size: 12px;
+  color: var(--ink-3);
+  gap: 6px;
+}
+.ew-app label.checkbox-label,
+.ew-app label.inline-label {
+  flex-direction: row;
+  align-items: center;
+  font-size: 13px;
+  gap: 10px;
+}
+.ew-app .seg button {
+  border: 0;
+  background: transparent;
+  color: var(--ink-3);
+  padding: 4px 10px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.ew-app .seg button.on {
+  background: white;
+  color: var(--ink);
+  box-shadow: var(--shadow-1);
+}
+.ew-app .seg.dark button.on {
+  background: var(--ink);
+  color: white;
+}
+.ew-app .nav {
+  margin-left: 0;
+  gap: 0;
+}
+.ew-app .nav a {
+  padding: 6px 8px;
+  font-size: 12px;
+}
+.ew-app .project-control {
+  position: relative;
+  flex-shrink: 0;
+}
+.ew-app .project-pill {
+  cursor: pointer;
+}
+.ew-app .project-dropdown {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  width: 260px;
+  z-index: 65;
+  box-shadow: var(--shadow-2);
+}
+.ew-app .workspace-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line-soft);
+  background: var(--line-soft);
+  border-radius: 8px;
+  padding: 5px 8px;
+  width: 184px;
+}
+.ew-app .workspace-search input {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 11px;
+  flex: 1;
+}
+.ew-app .workspace-search kbd {
+  font-size: 10px;
+  white-space: nowrap;
+}
+.ew-app .search-results {
+  position: absolute;
+  top: 38px;
+  right: 0;
+  width: 360px;
+  max-width: 90vw;
+  box-shadow: var(--shadow-2);
+  padding: 8px;
+}
+.ew-app .search-results a {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  border-radius: 6px;
+}
+.ew-app .search-results a:hover {
+  background: var(--field);
+}
+.ew-app .search-results strong {
+  font-size: 12px;
+  color: var(--ink);
+}
+.ew-app .search-results small {
+  color: var(--ink-3);
+}
+.ew-app .search-results p {
+  padding: 12px;
+}
+.ew-app .icon-button {
+  display: inline-flex;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-3);
+}
+.ew-app .mobile-menu {
+  display: none;
+}
+.ew-app .mobile-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 16px 14px;
+  gap: 4px;
+  background: #fff;
+  border-top: 1px solid var(--line);
+}
+.ew-app .mobile-nav a {
+  padding: 9px 12px;
+  border-radius: 8px;
+}
+.ew-app .mobile-nav a.active {
+  background: var(--ink);
+  color: #fff;
+}
+.ew-app .red-text {
+  color: #b91c1c;
+}
+.ew-app .accent-green {
+  box-shadow: inset 3px 0 0 var(--green);
+}
+.ew-app .kpi {
+  min-height: 124px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.ew-app .kpi .v {
+  margin-top: 2px;
+}
+.ew-app .item {
+  min-width: 0;
+}
+.ew-app .item-title {
+  font-size: 13px;
+}
+.ew-app .item-detail {
+  margin-top: 4px;
+}
+.ew-app .item-tags {
+  margin-top: 6px;
+}
+.ew-app .row-actions {
+  flex-shrink: 0;
+}
+.ew-app .empty {
+  text-align: center;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+.ew-app .coverage {
+  gap: 10px;
+}
+.ew-app .legend {
+  flex-direction: row;
+}
+.ew-app .coverage > p:last-child {
+  margin-top: 8px;
+}
+.ew-app .filters {
+  align-items: end;
+}
+.ew-app .filters > label:not(.grow) {
+  width: 180px;
+}
+.ew-app .comparison {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+.ew-app .comparison.single {
+  grid-template-columns: minmax(0, 1fr);
+}
+.ew-app .evidence-photo {
+  margin: 0;
+  height: 320px;
+}
+.ew-app .evidence-photo img {
+  object-position: center;
+}
+.ew-app .evidence-photo .region {
+  top: 25%;
+  left: 5%;
+  width: 22%;
+  height: 50%;
+}
+.ew-app .reference-sheet {
+  min-height: 320px;
+}
+.ew-app .reference-sheet svg {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+}
+.ew-app .comparison.overlay {
+  position: relative;
+}
+.ew-app .comparison.overlay .photo {
+  grid-column: 1/-1;
+}
+.ew-app .comparison.overlay .sheet {
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.ew-app .state-table {
+  margin: 0;
+  font-size: 12px;
+}
+.ew-app .state-table > div {
+  display: grid;
+  grid-template-columns: 40% minmax(0, 1fr);
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line-soft);
+  align-items: start;
+}
+.ew-app .state-table > div:last-child {
+  border: 0;
+}
+.ew-app .state-table dt {
+  color: var(--ink-3);
+}
+.ew-app .state-table dd {
+  margin: 0;
+}
+.ew-app .state-table .chip {
+  white-space: normal;
+}
+.ew-app .warning {
+  border-color: var(--amber-line);
+  background: var(--amber-bg);
+  color: var(--amber-ink);
+  font-size: 12px;
+}
+.ew-app .lifecycle {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.ew-app .lc {
+  padding: 20px 14px;
+  border-right: 1px solid var(--line);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+}
+.ew-app .lc:last-child {
+  border: 0;
+}
+.ew-app .lc .n {
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  min-width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+}
+.ew-app .lc.done .n {
+  background: var(--ink);
+  color: white;
+}
+.ew-app .lc.now {
+  background: var(--amber-bg);
+}
+.ew-app .report-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  line-height: 1.8;
+  margin: 0;
+  color: var(--ink-2);
+}
+.ew-app .setup-grid {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  gap: 20px;
+}
+.ew-app .setup-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-self: start;
+  position: sticky;
+  top: 80px;
+}
+.ew-app .setup-nav a {
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+.ew-app .setup-nav a:hover {
+  background: white;
+}
+.ew-app .anchor-section {
+  scroll-margin-top: 90px;
+}
+.ew-app .capture-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 430px) minmax(0, 380px);
+  justify-content: center;
+  gap: 32px;
+  align-items: start;
+}
+.ew-app .capture-device {
+  overflow: hidden;
+  box-shadow: var(--shadow-2);
+}
+.ew-app .capture-body {
+  padding: 20px;
+  background: var(--field);
+  min-height: 420px;
+}
+.ew-app .capture-file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  overflow: hidden;
+}
+.ew-app .shot {
+  position: relative;
+}
+.ew-app .shot button {
+  position: absolute;
+  right: 3px;
+  top: 3px;
+  padding: 3px;
+  display: grid;
+  place-items: center;
+  background: #fff;
+}
+.ew-app .shot > span {
+  position: absolute;
+  bottom: 3px;
+  left: 3px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+.ew-app .beaver-launch {
+  position: fixed;
+  right: 24px;
+  bottom: 20px;
+  z-index: 55;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 5px;
+  border: 1px solid var(--line);
+  background: #fff;
+  box-shadow: var(--shadow-2);
+  font-size: 12px;
+  color: var(--ink);
+}
+.ew-app .beaver-launch img {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+}
+.ew-app .beaver {
+  bottom: 76px;
+}
+.ew-app .beaver .btn {
+  font-size: 11px;
+  padding: 0 8px;
+}
+.ew-app .workspace-toast {
+  position: fixed;
+  z-index: 100;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: white;
+  max-width: min(580px, 90vw);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-2);
+  font-size: 13px;
+}
+.ew-app .workspace-toast button {
+  border: 0;
+  background: transparent;
+  color: white;
+  padding: 0;
+}
+.ew-modal {
+  width: min(560px, calc(100vw - 32px));
+  padding: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 20px 70px #0f172a30;
+  max-height: 90vh;
+}
+.ew-modal::backdrop {
+  background: #0f172a66;
+  backdrop-filter: blur(3px);
+}
+.ew-modal .ew-app {
+  min-height: 0;
+}
+.ew-app .ew-skip {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  transform: translateY(-200%);
+  background: var(--ink);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  z-index: 200;
+}
+.ew-app .ew-skip:focus {
+  transform: translateY(0);
+}
+.ew-app .spatial-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 20px;
+  align-items: start;
+}
+.ew-app .model-card {
+  overflow: hidden;
+}
+.ew-app .spatial-canvas-wrap {
+  position: relative;
+  background: #e5eae7;
+}
+.ew-app .spatial-canvas {
+  width: 100%;
+  height: 570px;
+}
+.ew-app .spatial-canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.ew-app .canvas-label {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--ink);
+}
+.ew-app .canvas-tools {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 4px;
+}
+.ew-app .canvas-tools .btn {
+  background: rgba(255, 255, 255, 0.95);
+  font-size: 11px;
+  padding: 0 8px;
+}
+.ew-app .canvas-switches {
+  position: absolute;
+  bottom: 18px;
+  left: 16px;
+  display: flex;
+  gap: 6px;
+}
+.ew-app .orbit-hint {
+  position: absolute;
+  bottom: 22px;
+  right: 16px;
+  color: var(--ink-3);
+  font-size: 10px;
+}
+.ew-app .spatial-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 60px 30px;
+  text-align: center;
+  background: var(--field);
+}
+.ew-app .unit-plan {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.ew-app .unit-plan button {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 80px;
+  font-size: 11px;
+  background: var(--field);
+  border-width: 2px;
+  gap: 5px;
+  padding: 12px;
+}
+.ew-app .unit-plan button.selected {
+  box-shadow: 0 0 0 2px var(--ink);
+}
+.ew-app .unit-plan button span {
+  font-size: 10px;
+}
+.ew-app .item-record {
+  margin-top: 8px;
+}
+@media (max-width: 1300px) {
+  .ew-app .workspace-search {
+    display: none;
+  }
+}
+@media (max-width: 1080px) {
+  .ew-app .spatial-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ew-app .topbar-in {
+    gap: 10px;
+  }
+  .ew-app .who {
+    display: none;
+  }
+  .ew-app .project-pill {
+    display: none;
+  }
+  .ew-app .beaver {
+    position: fixed;
+    right: 20px;
+    bottom: 76px;
+    width: 340px;
+    margin: 0;
+  }
+}
+@media (max-width: 900px) {
+  .ew-app .setup-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ew-app .setup-nav {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .ew-app .capture-layout {
+    grid-template-columns: minmax(0, 430px);
+  }
+}
+@media (max-width: 760px) {
+  .ew-app .mobile-menu {
+    display: inline-flex;
+  }
+  .ew-app .topbar-in {
+    height: 58px;
+  }
+  .ew-app .brand {
+    font-size: 13px;
+  }
+  .ew-app .top-right {
+    gap: 10px;
+  }
+  .ew-app .page {
+    padding-bottom: 90px;
+  }
+  .ew-app .page-head h1 {
+    font-size: 23px;
+    line-height: 1.35;
+  }
+  .ew-app .page-head .sub {
+    font-size: 13px;
+  }
+  .ew-app .row-actions {
+    margin: 8px 0 0 48px;
+  }
+  .ew-app .item .grow {
+    min-width: 0;
+  }
+  .ew-app .item-meta {
+    overflow-wrap: anywhere;
+  }
+  .ew-app .card-head {
+    padding: 14px 16px;
+  }
+  .ew-app .card-pad {
+    padding: 16px;
+  }
+  .ew-app .card-head h2 {
+    font-size: 16px;
+  }
+  .ew-app .comparison {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ew-app .comparison.overlay {
+    min-height: 320px;
+  }
+  .ew-app .comparison.overlay .sheet {
+    width: 100%;
+  }
+  .ew-app .lifecycle {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ew-app .lc {
+    padding: 14px 12px;
+  }
+  .ew-app .filters > label:not(.grow) {
+    width: calc(50% - 4px);
+  }
+  .ew-app .filters .grow {
+    flex-basis: 100%;
+  }
+  .ew-app .beaver {
+    width: calc(100% - 32px);
+    right: 16px;
+  }
+  .ew-app .beaver-launch {
+    right: 16px;
+  }
+  .ew-app .capture-layout {
+    gap: 20px;
+  }
+  .ew-app .capture-device {
+    width: 100%;
+  }
+  .ew-app .capture-body {
+    padding: 16px;
+  }
+  .ew-app .spatial-canvas {
+    height: 440px;
+  }
+  .ew-app .canvas-label {
+    top: 12px;
+    left: 12px;
+  }
+  .ew-app .canvas-tools {
+    top: 64px;
+    left: 12px;
+    right: auto;
+  }
+  .ew-app .orbit-hint {
+    display: none;
+  }
+  .ew-app .unit-plan {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ew-app .context {
+    align-items: start;
+  }
+  .ew-app .inline-label {
+    max-width: 100%;
+  }
+  .ew-app .inline-label select {
+    max-width: 210px;
+  }
+}
+@media print {
+  .ew-app .topbar,
+  .ew-app .mock-strip,
+  .ew-app .beaver-launch,
+  .ew-app .beaver,
+  .ew-app .workspace-toast {
+    display: none;
+  }
+  .ew-app .page {
+    max-width: none;
+    padding: 0;
+  }
+}

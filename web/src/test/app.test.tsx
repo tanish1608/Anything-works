@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen } from '@testing-library/react'
+import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -34,11 +34,29 @@ function renderAt(path: string) {
 }
 
 afterEach(() => {
+  cleanup()
   vi.restoreAllMocks()
   tokenStore.set(null)
 })
 
 describe('app', () => {
+  it('uses real project records in the designer-styled Today page', async () => {
+    tokenStore.set({ access_token: 'a', refresh_token: 'r' })
+    mockApi({
+      'GET /auth/me': { id: 'u1', email: 'pm@example.com', name: 'Pat' },
+      'GET /projects/p1': { id: 'p1', name: 'Maple Court', my_role: 'pm', settings: {} },
+      'GET /projects/p1/progress': { totals: { done: 2, needs_review: 1, not_started: 3 } },
+      'GET /projects/p1/issues': [{ id: 'i1', number: 12, title: 'Routing correction', status: 'open', trade: 'Plumbing', assignee_name: 'Crew lead', priority: 'high' }],
+      'GET /projects/p1/uploads': [],
+      'GET /projects/p1/reviews': [],
+    })
+    renderAt('/p/p1/today')
+    expect(await screen.findByRole('heading', { name: 'Maple Court. The latest work, in context.' })).toBeInTheDocument()
+    expect(await screen.findByText('#12 · Routing correction')).toBeInTheDocument()
+    expect(await screen.findByText('6 tracked elements on the current model')).toBeInTheDocument()
+    expect(screen.queryByText('Fixture result')).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Locate issue' })).toHaveAttribute('href', '/p/p1/model?issue=i1')
+  })
   it('redirects to login when signed out, then signs in', async () => {
     mockApi({
       'POST /auth/login': { access_token: 'a', refresh_token: 'r' },

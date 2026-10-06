@@ -1,36 +1,21 @@
 :root {
-  --bg: #f6f7f9;
+  --bg: #f8fafc;
   --panel: #ffffff;
-  --text: #1b1f24;
-  --muted: #5b6573;
-  --border: #dde1e6;
-  --accent: #1f6feb;
+  --text: #0f172a;
+  --muted: #475569;
+  --border: #e2e8f0;
+  --accent: #0f172a;
   --accent-text: #ffffff;
-  --danger: #c62828;
-  --ok: #2e7d32;
-  --warn: #b26a00;
-  --hover: #eef1f5;
-  --radius: 8px;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04);
+  --danger: #b91c1c;
+  --ok: #047857;
+  --warn: #92400e;
+  --hover: #f1f5f9;
+  --radius: 16px;
+  --shadow: 0 1px 2px rgba(15,23,42,.03);
   color-scheme: light;
   font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   font-size: 14px;
   line-height: 1.45;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0f1216;
-    --panel: #171b21;
-    --text: #e6e9ee;
-    --muted: #9aa4b2;
-    --border: #2a313a;
-    --accent: #4c8dff;
-    --hover: #1f252d;
-    --danger: #ef5350;
-    --ok: #66bb6a;
-    --warn: #ffb74d;
-    color-scheme: dark;
-  }
 }
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; margin: 0; }
@@ -38,7 +23,7 @@ body { background: var(--bg); color: var(--text); }
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 h1, h2, h3 { margin: 0 0 12px; line-height: 1.2; }
-h1 { font-size: 22px; } h2 { font-size: 18px; } h3 { font-size: 15px; }
+h1 { font-size: 26px; letter-spacing: -.02em; font-weight: 600; } h2 { font-size: 18px; font-weight: 600; } h3 { font-size: 15px; font-weight: 600; }
 
 button, .btn {
   font: inherit; cursor: pointer; border-radius: 6px; padding: 6px 12px;
@@ -73,15 +58,22 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border);
 th { color: var(--muted); font-weight: 500; font-size: 12px; }
 
 /* layout */
-.topbar { height: 48px; display: flex; align-items: center; gap: 16px; padding: 0 16px; background: var(--panel); border-bottom: 1px solid var(--border); }
-.brand { font-weight: 700; letter-spacing: 0.2px; color: var(--text); }
+.topbar { min-height: 60px; display: flex; align-items: center; gap: 16px; padding: 0 24px; background: var(--panel); border-bottom: 1px solid var(--border); }
+.brand { font-weight: 600; letter-spacing: -.01em; color: var(--text); }
+.connected-brand { display: inline-flex; gap: 8px; align-items: center; }
+.connected-brand-mark { width: 28px; height: 28px; border-radius: 7px; background: #0f172a; color: #34d399; display: grid; place-items: center; }
 .app { display: flex; flex-direction: column; height: 100%; }
 .main { flex: 1; min-height: 0; display: flex; }
 .page { padding: 20px; max-width: 1100px; width: 100%; margin: 0 auto; overflow: auto; }
 .sidenav { width: 200px; flex-shrink: 0; border-right: 1px solid var(--border); background: var(--panel); padding: 12px 8px; display: flex; flex-direction: column; gap: 2px; overflow: auto; }
-.sidenav a { padding: 7px 10px; border-radius: 6px; color: var(--text); }
+.sidenav a { padding: 9px 10px; border-radius: 8px; color: var(--text); display: flex; align-items: center; gap: 8px; font-size: 13px; }
 .sidenav a:hover { background: var(--hover); text-decoration: none; }
-.sidenav a.active { background: var(--hover); color: var(--accent); font-weight: 600; }
+.sidenav a.active { background: var(--accent); color: white; font-weight: 500; }
+.app .main { flex-direction: column; }
+.app .sidenav { width: 100%; flex-direction: row; border-right: 0; border-bottom: 1px solid var(--border); padding: 10px 24px; gap: 4px; align-items: center; overflow-x: auto; }
+.app .sidenav .title { min-width: 170px; margin: 0 12px 0 0; padding: 0; flex-shrink: 0; }
+.app .sidenav a { white-space: nowrap; flex-shrink: 0; }
+@media (max-width: 720px) { .app > .topbar { flex-wrap: wrap; min-height: 60px; height: auto; padding: 10px 16px; gap: 8px; } .app > .topbar .grow { display: none; } .app > .topbar .connected-brand { flex-basis: 100%; } .app .sidenav { padding: 8px 16px; } }
 .sidenav .title { padding: 4px 10px 10px; font-weight: 600; }
 .content { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: auto; }
 .auth-wrap { min-height: 100%; display: grid; place-items: center; padding: 16px; }

@@ -4,6 +4,8 @@ Static HTML screens for the daily-update workflow described in the [product spec
 
 Open [`index.html`](index.html) in a browser. Pages load Inter and Material Symbols from Google Fonts. Offline, text falls back to the system font and icons show as their names. [`screenshots/`](screenshots/) has a 1440 px render of each page for viewing on GitHub.
 
+**React implementation:** these references now have an interactive counterpart at `/demo`, plus a connected project overview and shared app styling. See [IMPLEMENTATION.md](IMPLEMENTATION.md) for routes, behaviors and the distinction between fixture and live data. The static files below remain unchanged design references.
+
 ## Where these came from
 
 These screens rework a Google Stitch export (“3D construction observability platform”: *Today*, *Work & Blockers*, *Building*, *Evidence*, the Unit 404/405 detail flows and a component guide). That export was designed from this repository **before** the October 5 documentation reset. It still described an autonomous coordination product: auto-approvals, AI-negotiated trade agreements, LiDAR measurements and “verified / ready for drywall” badges.

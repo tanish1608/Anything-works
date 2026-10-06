@@ -238,6 +238,7 @@ export class BuildingScene {
   }
   setState(state: DemoState) {
     for (const r of this.roomMeshes) {
+      delete r.mesh.userData.customColor
       const status = unitStatus(state, r.unit)
       r.mesh.userData.status = status
       ;(r.mesh.material as THREE.MeshStandardMaterial).color.set(this.options.coloring ? palette[status] : '#d4d6c6')
@@ -256,6 +257,27 @@ export class BuildingScene {
     }
     this.update(this.options)
   }
+  /** Presentation adapter for the new workspace's independent status dimensions. */
+  setAppearance(rooms: Record<string, { color: string; marker?: boolean }>) {
+    for (const r of this.roomMeshes) {
+      r.mesh.userData.customColor = rooms[r.unit]?.color || '#e2e8f0'
+    }
+    for (const m of this.markers) {
+      this.scene.remove(m.group)
+      m.group.traverse(o => { if (o instanceof THREE.Mesh) { o.geometry.dispose(); (o.material as THREE.Material).dispose() } })
+    }
+    this.markers = []
+    for (const u of UNITS.filter(u => rooms[u.id]?.marker)) {
+      const group = new THREE.Group(), color = rooms[u.id].color
+      const material = new THREE.MeshStandardMaterial({ color, roughness: .4 })
+      const ball = new THREE.Mesh(new THREE.SphereGeometry(.3, 14, 10), material)
+      const stem = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, .8, 6), material.clone())
+      stem.position.y = -.55; ball.userData.unit = u.id; stem.userData.unit = u.id
+      group.add(ball, stem); group.position.set(u.x, (u.floor - 1) * 3.6 + 2, u.z + 3)
+      this.scene.add(group); this.markers.push({ unit: u.id, group, floor: u.floor - 1 })
+    }
+    this.update(this.options)
+  }
   update(options: SceneOptions) {
     this.options = options
     for (let i = 0; i < 6; i++) {
@@ -268,7 +290,7 @@ export class BuildingScene {
     for (const [key, mat] of this.mats) if (['wall', 'column', 'beam', 'lintel'].includes(key)) {
       mat.transparent = options.xray; mat.opacity = options.xray ? .14 : 1; mat.depthWrite = !options.xray
     }
-    for (const r of this.roomMeshes) (r.mesh.material as THREE.MeshStandardMaterial).color.set(options.coloring ? palette[r.mesh.userData.status as keyof typeof palette] || '#d4d6c6' : '#d4d6c6')
+    for (const r of this.roomMeshes) (r.mesh.material as THREE.MeshStandardMaterial).color.set(options.coloring ? r.mesh.userData.customColor || palette[r.mesh.userData.status as keyof typeof palette] || '#d4d6c6' : '#d4d6c6')
     for (const m of this.markers) {
       m.group.visible = (!options.floor || options.floor === m.floor + 1) && m.floor < options.phase
       m.group.position.y = (options.floor ? 0 : m.floor * (options.exploded ? 6.4 : 3.6)) + 2

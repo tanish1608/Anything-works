@@ -2,11 +2,12 @@
 
 React, TypeScript, Vite PWA, TanStack Query and three.js.
 
-The target experience checks daily construction updates for mistakes and incomplete work, updates supported completion, and locates findings in 3D. It applies across construction stages. This documentation change does not implement that new workflow.
+The target experience checks daily construction updates for mistakes and incomplete work, updates supported completion, and locates findings in 3D. It applies across construction stages. The designer's UI is implemented as a local interactive demo, alongside the connected project app.
 
 ## Current surfaces
 
-- `/demo`: fictional browser-local Studio experience in `src/studio/`; independent of backend AI and live notifications.
+- `/demo`: designer daily-update workspace in `src/workspace/`, using the existing procedural building scene. Includes capture, results, review, correction and reports; AI results are labeled fixtures.
+- `/p/:pid/today`: connected overview using real project progress, issues and upload records.
 - `/` and `/p/:pid/...`: authenticated project workspace.
 - `/field`: mobile field workflow and IndexedDB upload queue.
 - `/embed/p/:pid/viewer`: authenticated embedded viewer.
@@ -35,7 +36,9 @@ The last command needs the backend environment and Playwright browsers. See the 
 
 ## Next frontend work
 
-Implement daily capture/results, the exception inbox, evidence-to-plan comparison, supported completion badges and the correction loop. Project consistent statuses into model, list and report views. Keep offline, inadequate-evidence and failed-analysis states visible.
+Connect the local daily capture/results, exception inbox, reference comparison and correction flows to new backend assessment records. Validate completion checks and policy gates. The existing connected overview, auth, viewer and field routes continue using their current APIs.
+
+See [implementation notes](../docs/design/ui/IMPLEMENTATION.md) for working interactions, verification and browser-review limitations.
 
 Automatic progress completion, human acceptance and formal inspection need distinct labels. A local draft is not a checked upload. Use text/icons with color and a 2D fallback.
 

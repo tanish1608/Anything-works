@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
-import { Navigate, useLocation } from 'react-router-dom'
+import { Link, Navigate, useLocation } from 'react-router-dom'
+import { Icon } from '../studio/Icon'
 import { useAuth } from '../auth/AuthContext'
 
 export default function LoginPage() {
@@ -31,7 +32,7 @@ export default function LoginPage() {
   return (
     <div className="auth-wrap">
       <form className="panel auth-card stack" onSubmit={submit}>
-        <h1>SiteMesh</h1>
+        <div className="connected-brand"><span className="connected-brand-mark"><Icon name="bolt" size={17} /></span><h1 style={{ margin: 0, fontSize: 22 }}>Everything Works AI</h1></div>
         <p className="muted" style={{ margin: 0 }}>
           {mode === 'login' ? 'Sign in to your projects.' : 'Create an account for your company.'}
         </p>
@@ -63,6 +64,7 @@ export default function LoginPage() {
         <button type="button" className="link" onClick={() => setMode(mode === 'login' ? 'register' : 'login')}>
           {mode === 'login' ? 'New here? Create an account' : 'Have an account? Sign in'}
         </button>
+        <Link className="btn" to="/demo" style={{ textAlign: 'center' }}>Explore the interactive demo</Link>
       </form>
     </div>
   )

@@ -1,10 +1,31 @@
 # Implementation backlog — Everything Works AI
 
-Reset October 5, 2026. This is the new backlog, replacing the old TODO. All boxes below represent future work; existing foundations are in [STATUS.md](STATUS.md).
+Updated October 6, 2026 for the designer UI release. Checked items identify completed work and explicitly state when it is limited to a test/demo. Unchecked items remain open; existing foundations and verification limits are in [STATUS.md](STATUS.md).
 
 Product scope: AI checking daily updates across construction stages, identifying mistakes and incomplete work, and updating completion and issues in 3D. Before-drywall checking is one use case.
 
 Owners are suggested contributor roles, not assignments. Each package needs a named owner when coding begins. Requirements R1–R10 are defined in the [product specification](docs/PRODUCT_SPEC.md).
+
+## Completed in the designer implementation
+
+- [x] Implement Today, Work & Issues, review, correction, Building, Daily Report, Setup, capture and result screens in React at `/demo`.
+- [x] Apply the designer's typography, colors and navigation; bundle fonts and supplied sample images locally.
+- [x] Add an authenticated Today overview at `/p/:pid/today` using existing authorized API records.
+- [x] Verify the frontend with 32 passing tests, production compilation and lint completion with warnings. Tests use mocked APIs and a stubbed 3D renderer; browser/device verification remains open.
+- [x] Document routes, interactions, fixture boundaries and implementation files in [the implementation guide](docs/design/ui/IMPLEMENTATION.md).
+
+The detailed completed demo interactions are checked in the packages below. No production backend package or live AI capability is complete merely because its demo works.
+
+## Next work after the UI implementation
+
+- [ ] Review the screens with the designer and teammates; record usability feedback before marking the UX package accepted.
+- [ ] Visually verify desktop/mobile layouts, real WebGL rendering, keyboard navigation and dialogs. Browser review was blocked by the saved local-URL access preference during implementation.
+- [ ] Test camera capture, photo resizing, storage limits, reconnect and PWA caching on actual iPhone and Android devices.
+- [ ] Connect the new workspace to authorized project APIs instead of its local fixture store, following P0.2 and P1; retain a clearly labeled standalone demo.
+- [ ] Replace illustrated reference comparisons with authorized plan/detail files and per-assessment source revisions.
+- [ ] Connect real assessment jobs and correction rechecks; keep real uploads unassessed until a traceable result or explicit human review exists.
+- [ ] Connect issue assignments and follow-ups to real delivery/notification records instead of simulated demo delivery.
+- [ ] Split the large frontend/3D bundle and resolve the new route-menu reset and WebGL-fallback lint warnings.
 
 ## P0 — Define and prepare
 
@@ -32,15 +53,18 @@ Owners are suggested contributor roles, not assignments. Each package needs a na
 
 ### P0.3 UX and demo script — design + frontend
 
-- [ ] Design mobile submission, update result, exception inbox, comparison panel and issue correction views.
-- [ ] Define shared labels, icons, 3D color precedence and accessible 2D fallback.
+- [x] Implement designer screens for mobile submission, update result, exception inbox, comparison panel and issue correction in the local demo.
+- [x] Define shared labels, icons, demo 3D color precedence and a 2D unit-selection fallback.
+- [ ] Verify the fallback and controls for accessibility with keyboard and assistive technology.
 - [ ] Script a daily update with a supported completion, a mistake and an evidence request across at least two stages.
-- [ ] Inventory reusable Studio components and distinguish local demo behavior from connected features.
-- [ ] Label sample evidence, fixture AI and simulated notifications in the demo.
+- [x] Reuse Studio geometry/icons and document local demo behavior separately from connected features.
+- [x] Label sample evidence, fixture AI and simulated notifications in the demo.
 
 **Done when:** a teammate can explain the full workflow and the difference between AI completion and inspection approval from the prototype screens.
 
-Draft screens for review: [docs/design/ui](docs/design/ui/README.md). They don't complete these boxes until the team has reviewed them.
+Design references and screens awaiting team review: [docs/design/ui](docs/design/ui/README.md). Completed implementation tasks above do not close the package's usability acceptance.
+
+The designer screens now have an interactive React implementation at `/demo`; see [implementation notes](docs/design/ui/IMPLEMENTATION.md). Local review/correction/capture behavior and a real-data connected overview are available. Backend persistence, live checking, field validation and teammate review remain separate acceptance work.
 
 ## P1 — Daily workflow
 
@@ -56,9 +80,11 @@ Draft screens for review: [docs/design/ui](docs/design/ui/README.md). They don't
 
 ### P1.2 Capture and synchronization — frontend + backend (R2, R9)
 
-- [ ] Build photo-and-text daily submissions with multiple work items and worker claims.
+- [x] Build a single-work-item photo/text submission with a separate worker claim in the local demo.
+- [ ] Support multiple work items per submission and persist submissions through the backend.
 - [ ] Add check-specific capture guidance and retake requests.
-- [ ] Persist local drafts and stable client submission IDs.
+- [x] Persist local demo drafts and preserve the same update ID when moving a queued submission to local review.
+- [ ] Persist stable client IDs across real upload retries and reconcile them with server receipts.
 - [ ] Reconcile queued, uploading, received, checking and failed states.
 - [ ] Make upload/job retries idempotent and preserve partial upload recovery.
 - [ ] Test mobile camera/file selection, reconnect, duplicate submission and interrupted upload.
@@ -68,10 +94,12 @@ Draft screens for review: [docs/design/ui](docs/design/ui/README.md). They don't
 
 ### P1.3 Review foundation — frontend + backend (R3, R5)
 
-- [ ] Build daily update detail and exception inbox against deterministic assessment fixtures.
-- [ ] Show evidence alongside the plan/detail with source revision and check scope.
-- [ ] Add request-evidence, confirm-finding, dismiss-with-reason and human-accept actions.
-- [ ] Persist decision actors and timestamps; preserve superseded results.
+- [x] Build daily update detail and exception inbox against deterministic assessment fixtures.
+- [x] Show sample evidence beside illustrated references with fixture revision labels and check scope.
+- [ ] Show real approved plan/details and persist their assessment-specific source snapshots.
+- [x] Add local request-evidence, confirm-finding, dismiss-with-reason and human-accept actions.
+- [x] Persist demo decision actors, reasons and timestamps locally; preserve prior assessment snapshots after new submissions.
+- [ ] Persist authenticated decisions and superseded results on the server with authorization and append-only history.
 
 **Done when:** a reviewer can reach a decision with context and the history explains how it was made.
 
@@ -120,32 +148,36 @@ Draft screens for review: [docs/design/ui](docs/design/ui/README.md). They don't
 ### P3.1 Shared model status — frontend + backend (R4, R7)
 
 - [ ] Project persisted assessments and issues into viewer colors and badges.
-- [ ] Add floor/room/trade filtering, selected-item evidence and room-level pins for uncertain element matches.
-- [ ] Show AI-checked versus human-accepted completion, issue overrides and inspection separately.
-- [ ] Show required-item coverage and explain completion denominators.
-- [ ] Update daily summary and model from the same source of truth.
+- [x] Add demo floor/unit selection, discipline layers, selected-unit evidence and approximate room-context pins; keep core records separate from apartments.
+- [ ] Connect viewer locations and pins to actual work-package/model associations, including uncertain matches.
+- [x] Show fixture AI-checked versus human-accepted completion, issue color precedence and inspection separately.
+- [x] Show demo work-item coverage with its denominator; distinguish work counts from labor, cost and schedule percentages.
+- [x] Update the demo daily summary, lists, model colors and report from the same local records.
+- [ ] Project the same persisted backend records into every connected view and verify consistency after refresh.
 - [ ] Ensure captures never silently modify approved geometry.
 
 **Done when:** model, list and daily report agree after refresh, and every completion/issue is traceable.
 
 ### P3.2 Correction loop — frontend + backend (R5, R6)
 
-- [ ] Convert a confirmed finding into an assigned issue with due date and clear resolution requirements.
-- [ ] Link before/after evidence and recheck the affected items.
-- [ ] Support accepted correction, more evidence needed and rejected correction.
-- [ ] Require an explicit issue-resolution decision; do not close issues merely because a new photo arrived.
-- [ ] Preserve prior evidence, AI results, assignment changes and review reasons.
+- [x] Convert a local finding into an assigned demo issue with due date and explicit resolution requirements.
+- [x] Show sample before/after evidence and explicitly requested fixture rechecks; route real uploaded photos to manual review.
+- [x] Support local accepted correction, more evidence needed and rejected correction.
+- [x] Require explicit local issue resolution; new photos and queue sync retain the open issue.
+- [x] Preserve prior demo evidence, assessment snapshots, assignment changes and review reasons.
+- [ ] Persist the complete correction loop through authorized backend APIs and run traceable live rechecks.
 - [ ] Add in-app follow-ups using existing notification infrastructure; label any simulated delivery.
 
 **Done when:** another teammate can follow an issue from discovery to resolution and understand every decision.
 
 ### P3.3 Daily report and integrated demo — frontend + product (R7, R10)
 
-- [ ] Summarize new completions, partial work, open issues, evidence gaps and required actions.
-- [ ] Link each summary statement to records; do not infer unreported hours, costs or weather.
-- [ ] Adapt the detailed Studio building to the multi-stage daily-check narrative.
-- [ ] Provide repeatable reset/seed behavior and explicitly identified fixtures.
+- [x] Summarize fixture completions, partial work, open issues, evidence gaps and required actions.
+- [x] Link demo summaries to records without inventing hours, costs or weather; add downloadable reports with immutable locally signed text snapshots.
+- [x] Adapt the detailed Studio building to the multi-stage daily-check narrative with status projection and a plan fallback.
+- [x] Provide repeatable reset/seed behavior and explicitly identified fixtures.
 - [ ] Run the full capture → check → completion/issue → correction → 3D update demonstration.
+- [x] Add state/component tests for capture, queuing, review, correction, model projection and report snapshots.
 - [ ] Verify mobile layout, keyboard navigation, readable legends and key empty/error states.
 
 **Done when:** a new person can test the full story without guidance and identify what is simulated.

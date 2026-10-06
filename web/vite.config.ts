@@ -8,13 +8,13 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg'],
+      includeAssets: ['favicon.svg', 'design-assets/*.jpg'],
       manifest: {
-        name: 'SiteMesh',
-        short_name: 'SiteMesh',
-        description: '3D construction coordination and daily progress',
-        theme_color: '#1f6feb',
-        background_color: '#f6f7f9',
+        name: 'Everything Works AI',
+        short_name: 'Everything Works',
+        description: 'Daily construction updates, progress and issues in 3D',
+        theme_color: '#0f172a',
+        background_color: '#f8fafc',
         display: 'standalone',
         start_url: '/field',
         icons: [
@@ -23,6 +23,7 @@ export default defineConfig({
         ],
       },
       workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api\//],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
