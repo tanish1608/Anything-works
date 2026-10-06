@@ -96,11 +96,15 @@ def audit(output: Path = OUTPUT):
                 buildings = {b.id: b.name for b in db.scalars(select(Building))}
                 rows = db.execute(select(Element, ElementRevision).join(ElementRevision)
                                   .where(ElementRevision.version_id == version.id)).all()
+                from app.bim.envelope import exterior_wall, roof_element
+
                 records = [{"id": el.id, "ifc_guid": el.ifc_guid, "name": rev.name,
                             "ifc_class": rev.ifc_class, "discipline": rev.discipline, "trade": rev.trade,
                             "level_id": rev.level_id, "zone_id": rev.zone_id, "bbox": rev.bbox,
                             "props": rev.props, "status": "not_started", "flags": [], "open_issues": 0,
-                            "context": False, "source": "imported", "confidence": None}
+                            "context": False, "source": "imported", "confidence": None,
+                            "exterior_wall": exterior_wall(rev.ifc_class, rev.props),
+                            "roof": roof_element(rev.ifc_class, rev.props, rev.name)}
                            for el, rev in rows]
                 plans = [{"id": lv.id, "name": f"{buildings[lv.building_id]} · {lv.name}",
                           "elevation_m": lv.elevation_m, "provenance": "IFC-derived plan silhouettes; not an approved drawing",

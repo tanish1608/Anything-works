@@ -38,7 +38,8 @@ Open `http://localhost:5173`. Vite proxies API calls to port 8000.
 
 ## Application surfaces
 
-- **`/demo`:** fictional Studio building, 48 units over six levels, local tasks/evidence/decisions and a reset control. Actions persist in the browser. This is not a live AI or multi-user project workflow.
+- **`/demo`:** designer daily-update workspace with local tasks/evidence/decisions and a reset control. Actions persist in the browser. This is not a live AI or multi-user project workflow.
+- **`/demo/building`:** imported duplex BIM within shared app navigation, defaulting to solid context with exterior walls/roof hidden. The Daily workflow tab retains the illustrated 48-unit building; `?unit=` links keep their fictional locations.
 - **`/` and `/field`:** authenticated connected workspace and field capture. Seed the backend for example projects.
 - **`/bim-lab`:** detailed public duplex IFC import with component-level 3D inspection and model-derived 2D plans. Evidence/pins/progress here are local test records, and AI results are simulated. See [the BIM audit](BIM_AUDIT.md).
 

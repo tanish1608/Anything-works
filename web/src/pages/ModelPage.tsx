@@ -274,6 +274,9 @@ export default function ModelPage() {
   const [componentSearch, setComponentSearch] = useState("");
   const [isolated, setIsolated] = useState<string | null>(null);
   const [hidden, setHidden] = useState<Set<string>>(new Set());
+  const [interior, setInterior] = useState(true);
+  const [hideRoof, setHideRoof] = useState(true);
+  const [ghostContext, setGhostContext] = useState(false);
   const versionRef = useRef<string | null>(null);
 
   const q = versionParam ? `?version=${versionParam}` : "";
@@ -325,6 +328,7 @@ export default function ModelPage() {
     if (import.meta.env.DEV)
       (window as unknown as { __viewer?: SiteViewer | null }).__viewer = v; // e2e hook
     if (!v) return;
+    v.setGhostContext(false);
     v.on("select", (id) => {
       setSelected(id);
       if (id) setPanel("details");
@@ -385,14 +389,36 @@ export default function ModelPage() {
     [disciplines, allDisciplines],
   );
   const els = useMemo(() => elements.data ?? [], [elements.data]);
+  const displayed = useMemo(
+    () =>
+      visibleIds(els, {
+        disciplines: shown,
+        levelId,
+        zoneId,
+        hidden,
+        isolated,
+        interior,
+        hideRoof,
+        revealed: selected,
+      }),
+    [
+      els,
+      shown,
+      levelId,
+      zoneId,
+      hidden,
+      isolated,
+      interior,
+      hideRoof,
+      selected,
+    ],
+  );
 
   useEffect(() => {
     const v = viewerRef.current;
     if (!v || loading) return;
-    const visible = visibleIds(els, { disciplines: shown, levelId, zoneId });
-    for (const id of visible)
-      if (hidden.has(id) || (isolated && id !== isolated)) visible.delete(id);
-    v.setVisible(visible);
+    v.setGhostContext(ghostContext);
+    v.setVisible(displayed);
     if (overlay && issues.data) {
       const byEl = new Map<string, string>();
       for (const i of [...issues.data].reverse())
@@ -410,11 +436,13 @@ export default function ModelPage() {
     issues.data,
     hidden,
     isolated,
+    displayed,
+    ghostContext,
   ]);
 
   // Issue pins
   useEffect(() => {
-    const visible = visibleIds(els, { disciplines: shown, levelId, zoneId });
+    const visible = displayed;
     viewerRef.current?.setMarkers(
       (issues.data ?? [])
         .filter(
@@ -443,6 +471,7 @@ export default function ModelPage() {
     zoneId,
     hidden,
     isolated,
+    displayed,
   ]);
 
   // Deep link: ?issue=ID flies to its saved view once the model is loaded.
@@ -760,11 +789,46 @@ export default function ModelPage() {
                 setLevelId(null);
                 setZoneId(null);
                 setDisciplines(null);
+                setInterior(true);
+                setHideRoof(true);
+                setGhostContext(false);
               }}
             >
               Reset visibility
             </button>
           </div>
+        </section>
+        <section>
+          <h3>Interior view</h3>
+          <label className="row">
+            <input
+              type="checkbox"
+              checked={interior}
+              onChange={(e) => setInterior(e.target.checked)}
+            />
+            Hide exterior walls
+          </label>
+          <label className="row">
+            <input
+              type="checkbox"
+              checked={hideRoof}
+              onChange={(e) => setHideRoof(e.target.checked)}
+            />
+            Hide roof
+          </label>
+          <label className="row">
+            <input
+              type="checkbox"
+              checked={ghostContext}
+              onChange={(e) => setGhostContext(e.target.checked)}
+            />
+            Transparent building context
+          </label>
+          <p className="muted small">
+            Exterior-wall tags come from the source IFC. Shared and untagged
+            walls stay visible. A selected exterior component is revealed; the
+            model file is unchanged.
+          </p>
         </section>
         <section>
           <div className="row">
@@ -1069,11 +1133,7 @@ export default function ModelPage() {
                 plan={generatedPlan.data}
                 selected={selected}
                 colors={colorMap(els, statusColoring)}
-                visible={visibleIds(els, {
-                  disciplines: shown,
-                  levelId,
-                  zoneId,
-                })}
+                visible={displayed}
                 onSelect={selectComponent}
                 onPoint={(p) => {
                   const target = buildingToThree(

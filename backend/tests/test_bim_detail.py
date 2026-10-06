@@ -9,10 +9,42 @@ import trimesh
 from sqlalchemy import select
 from tests_helpers import jpeg
 
+from app.bim.envelope import exterior_wall, roof_element
 from app.bim.ifc_import import Item, SpaceInfo, _flat_props, _resolved_class, create_version
 from app.bim.meshes import ifc_to_three, three_to_ifc
 from app.disciplines import discipline_for
 from app.models import ElementRevision, Project
+
+
+def test_shell_metadata_keeps_shared_and_untagged_walls():
+    assert exterior_wall("IfcWallStandardCase", {"Pset_WallCommon.IsExternal": True}) is True
+    assert exterior_wall("IfcWall", {"Pset_WallCommon.IsExternal": "false"}) is False
+    assert exterior_wall("IfcWall", {"Pset_WallCommon.IsExternal": True, "PSet_Revit_Type_Construction.Function": 5}) is False
+    assert exterior_wall("IfcWall", {}) is None
+    assert exterior_wall("IfcPipeSegment", {"Pset_WallCommon.IsExternal": True}) is False
+    assert roof_element("IfcSlab", {"IFC.predefined_type": "ROOF"}) is True
+    assert roof_element("IfcSlab", {"IFC.predefined_type": "FLOOR"}, "Basic Roof: stale label") is False
+    assert roof_element("IfcSlab", {}, "Basic Roof: legacy import") is True
+    assert roof_element("IfcRoof", {}) is True
+
+
+def test_shell_hints_are_consistent_in_authorized_list_and_detail(db, api, client):
+    h = api.register("shell@example.com")
+    pid = api.project(h)
+    props = [{"Pset_WallCommon.IsExternal": True},
+             {"Pset_WallCommon.IsExternal": True, "PSet_Revit_Type_Construction.Function": 5},
+             {"Pset_WallCommon.IsExternal": False}, {}]
+    items = [Item(guid=f"wall-{i}", ifc_class="IfcWallStandardCase", name=f"Wall {i}", discipline="architecture",
+                  storey=("Building", "Level 1", 0), props=p,
+                  verts=np.array([[i, 0, 0], [i + .1, 0, 0], [i, 0, 3]]), faces=np.array([[0, 1, 2]]))
+             for i, p in enumerate(props)]
+    v = create_version(db, db.get(Project, pid), items, [], actor_id=None, source="ifc_import", message="shell test")
+    db.commit()
+    rows = client.get(f"/api/projects/{pid}/elements?version={v.id}", headers=h).json()
+    assert {e["name"]: e["exterior_wall"] for e in rows} == {"Wall 0": True, "Wall 1": False, "Wall 2": False, "Wall 3": None}
+    for e in rows:
+        detail = client.get(f"/api/elements/{e['id']}?version={v.id}", headers=h)
+        assert detail.status_code == 200 and detail.json()["exterior_wall"] == e["exterior_wall"]
 
 
 def test_ifc2x3_specific_type_and_properties_are_not_truncated():
@@ -29,6 +61,8 @@ def test_ifc2x3_specific_type_and_properties_are_not_truncated():
     props = _flat_props(product)
     assert props["Details.Field-84"] == "84"
     assert props["IFC.type_name"] == "25mm elbow"
+    slab = f.create_entity("IfcSlab", GlobalId=ifcopenshell.guid.new(), PredefinedType="ROOF")
+    assert _flat_props(slab)["IFC.predefined_type"] == "ROOF"
 
 
 def test_duplicate_room_names_keep_distinct_codes_and_element_assignment(db, api):
@@ -78,6 +112,7 @@ def test_surface_pin_plan_and_photo_review_round_trip(client, api):
     assert upload.status_code == 201, upload.text
     verification = upload.json()["verifications"][0]
     before = client.get(f"/api/elements/{duct['id']}", headers=h).json()
+    assert before["exterior_wall"] is False and duct["exterior_wall"] is False
     assert before["status"] == "needs_review" and before["completion_basis"] is None
     assert client.post(f"/api/verifications/{verification['id']}/approve", headers=h, json={}).status_code == 200
     after = client.get(f"/api/elements/{duct['id']}", headers=h).json()

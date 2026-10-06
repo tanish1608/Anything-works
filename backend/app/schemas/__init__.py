@@ -222,6 +222,8 @@ class ViewerManifest(BaseModel):
 
 
 class ElementOut(BaseModel):
+    exterior_wall: bool | None = None
+    roof: bool = False
     id: str
     ifc_guid: str
     name: str | None

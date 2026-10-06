@@ -12,7 +12,7 @@ import { Icon } from "../studio/Icon";
 import { Button, Modal } from "./components";
 import { Today, Work, Review, Issue, Report, Setup } from "./pages";
 import { Capture, Result } from "./capture";
-import Spatial from "./Spatial";
+import Building from "./Building";
 import {
   ASSETS,
   STORE_KEY,
@@ -48,6 +48,11 @@ export default function Workspace() {
   const navigate = useNavigate(),
     location = useLocation(),
     searchRef = useRef<HTMLInputElement>(null);
+  const buildingParams = new URLSearchParams(location.search);
+  const importedBuilding =
+    location.pathname === "/demo/building" &&
+    !buildingParams.has("unit") &&
+    buildingParams.get("view") !== "workflow";
   const act = useCallback((action: Action) => {
     try {
       const next = transition(stateRef.current, action);
@@ -138,8 +143,9 @@ export default function Workspace() {
         </a>
         <div className="mock-strip">
           <span>
-            <b>Interactive demo</b> · fictional project · labeled sample AI
-            results · saved in this browser
+            <b>Interactive demo</b> ·{" "}
+            {importedBuilding ? "public duplex BIM" : "fictional project"} ·
+            labeled sample AI results · saved in this browser
           </span>
           <Link to="/">
             Connected workspace <Icon name="arrow" size={12} />
@@ -159,8 +165,12 @@ export default function Workspace() {
                 onClick={() => setProjectMenu(!projectMenu)}
                 aria-expanded={projectMenu}
               >
-                <span className="strong">{state.projectName}</span>
-                <span className="tag">Fictional</span>
+                <span className="strong">
+                  {importedBuilding ? "Duplex Apartment" : state.projectName}
+                </span>
+                <span className="tag">
+                  {importedBuilding ? "Public BIM" : "Fictional"}
+                </span>
                 <Icon name="down" size={13} />
               </button>
               {projectMenu && (
@@ -168,9 +178,13 @@ export default function Workspace() {
                   <Link to="/">
                     Open connected projects <Icon name="arrow" size={14} />
                   </Link>
-                  <Button icon="reset" onClick={() => setReset(true)}>
-                    Reset this demo
-                  </Button>
+                  {importedBuilding ? (
+                    <Link to="/demo">Open daily workflow demo</Link>
+                  ) : (
+                    <Button icon="reset" onClick={() => setReset(true)}>
+                      Reset this demo
+                    </Button>
+                  )}
                 </div>
               )}
             </div>
@@ -190,52 +204,58 @@ export default function Workspace() {
               ))}
             </nav>
             <div className="top-right">
-              <div className="workspace-search">
-                <Icon name="search" size={15} />
-                <input
-                  ref={searchRef}
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search rooms, items, issues"
-                  aria-label="Search workspace"
-                  onKeyDown={(e) => e.key === "Escape" && setSearch("")}
-                />
-                <kbd>⌘K</kbd>
-                {search && (
-                  <div className="search-results card">
-                    {searchItems.map((i) => (
-                      <Link
-                        key={i.id}
-                        to={
-                          i.issue
-                            ? `/demo/issue/${i.id}`
-                            : `/demo/review/${i.id}`
-                        }
-                      >
-                        <strong>
-                          Unit {i.unit} · {i.title}
-                        </strong>
-                        <small>
-                          {i.id} · {i.trade}
-                        </small>
-                      </Link>
-                    ))}
-                    {!searchItems.length && <p>No matching work items.</p>}
+              {!importedBuilding && (
+                <div className="workspace-search">
+                  <Icon name="search" size={15} />
+                  <input
+                    ref={searchRef}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Search rooms, items, issues"
+                    aria-label="Search workspace"
+                    onKeyDown={(e) => e.key === "Escape" && setSearch("")}
+                  />
+                  <kbd>⌘K</kbd>
+                  {search && (
+                    <div className="search-results card">
+                      {searchItems.map((i) => (
+                        <Link
+                          key={i.id}
+                          to={
+                            i.issue
+                              ? `/demo/issue/${i.id}`
+                              : `/demo/review/${i.id}`
+                          }
+                        >
+                          <strong>
+                            Unit {i.unit} · {i.title}
+                          </strong>
+                          <small>
+                            {i.id} · {i.trade}
+                          </small>
+                        </Link>
+                      ))}
+                      {!searchItems.length && <p>No matching work items.</p>}
+                    </div>
+                  )}
+                </div>
+              )}
+              {!importedBuilding && (
+                <>
+                  <Link
+                    className="icon-button"
+                    to="/demo/work?filter=review"
+                    aria-label="Open review queue"
+                  >
+                    <Icon name="bell" />
+                  </Link>
+                  <span className="avatar">SJ</span>
+                  <div className="who">
+                    <b>Sarah Jenkins</b>
+                    <span>Project manager</span>
                   </div>
-                )}
-              </div>
-              <Link
-                className="icon-button"
-                to="/demo/work?filter=review"
-                aria-label="Open review queue"
-              >
-                <Icon name="bell" />
-              </Link>
-              <span className="avatar">SJ</span>
-              <div className="who">
-                <b>Sarah Jenkins</b>
-                <span>Project manager</span>
-              </div>
+                </>
+              )}
               <button
                 className="icon-button mobile-menu"
                 aria-label="Open navigation"
@@ -271,7 +291,7 @@ export default function Workspace() {
             <Route path="work" element={<Work />} />
             <Route path="review/:id" element={<Review />} />
             <Route path="issue/:id" element={<Issue />} />
-            <Route path="building" element={<Spatial />} />
+            <Route path="building" element={<Building />} />
             <Route path="report" element={<Report />} />
             <Route path="setup" element={<Setup />} />
             <Route path="capture" element={<Capture />} />
@@ -295,16 +315,18 @@ export default function Workspace() {
             <Route path="*" element={<Navigate to="/demo" replace />} />
           </Routes>
         </main>
-        <button
-          className="beaver-launch"
-          aria-expanded={assistant}
-          onClick={() => setAssistant(!assistant)}
-        >
-          <img src={ASSETS + "works-beaver.jpg"} alt="" />
-          Works Beaver
-          <Icon name={assistant ? "close" : "spark"} size={16} />
-        </button>
-        {assistant && (
+        {!importedBuilding && (
+          <button
+            className="beaver-launch"
+            aria-expanded={assistant}
+            onClick={() => setAssistant(!assistant)}
+          >
+            <img src={ASSETS + "works-beaver.jpg"} alt="" />
+            Works Beaver
+            <Icon name={assistant ? "close" : "spark"} size={16} />
+          </button>
+        )}
+        {assistant && !importedBuilding && (
           <aside className="beaver" aria-label="Works Beaver assistant">
             <div className="beaver-head">
               <img

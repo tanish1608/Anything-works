@@ -1,6 +1,20 @@
 .ew-app.bim-lab {
   min-height: 100dvh;
 }
+.building-project-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.bim-embedded {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.bim-embedded .bim-layout {
+  height: max(650px, calc(100dvh - 245px));
+}
 .bim-layout {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr) 330px;

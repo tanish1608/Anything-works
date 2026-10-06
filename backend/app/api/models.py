@@ -170,6 +170,7 @@ def model_plan(version_id: str, level_id: str, user: User = Depends(current_user
 
 
 def element_rows(db: Session, project_id: str, member, version: ModelVersion) -> list[ElementOut]:
+    from app.bim.envelope import exterior_wall, roof_element
     from app.services.issues import open_issue_counts  # M2
 
     vis = visible_disciplines(db, member, DISCIPLINES)
@@ -185,7 +186,9 @@ def element_rows(db: Session, project_id: str, member, version: ModelVersion) ->
                               discipline=rev.discipline, trade=rev.trade, level_id=rev.level_id, zone_id=rev.zone_id,
                               bbox=rev.bbox, status=el.status.value, flags=el.flags or [], source=rev.source,
                               confidence=rev.confidence, open_issues=counts.get(el.id, 0), context=vis[rev.discipline],
-                              completion_basis=basis.get(el.id) if el.status.value == "done" else None))
+                              completion_basis=basis.get(el.id) if el.status.value == "done" else None,
+                              exterior_wall=exterior_wall(rev.ifc_class, rev.props),
+                              roof=roof_element(rev.ifc_class, rev.props, rev.name)))
     return out
 
 
@@ -210,6 +213,7 @@ def list_elements(project_id: str, version: str | None = None, user: User = Depe
 @router.get("/elements/{element_id}", response_model=ElementDetail)
 def element_detail(element_id: str, version: str | None = None, user: User = Depends(current_user),
                    db: Session = Depends(get_db)):
+    from app.bim.envelope import exterior_wall, roof_element
     el = db.get(Element, element_id)
     if el is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Element not found")
@@ -232,6 +236,8 @@ def element_detail(element_id: str, version: str | None = None, user: User = Dep
                          bbox=rev.bbox, status=el.status.value, flags=el.flags or [], source=rev.source,
                          confidence=rev.confidence, props=rev.props or {}, context=vis[rev.discipline],
                          completion_basis=completion_basis(db, el.project_id).get(el.id) if el.status.value == "done" else None,
+                         exterior_wall=exterior_wall(rev.ifc_class, rev.props),
+                         roof=roof_element(rev.ifc_class, rev.props, rev.name),
                          open_issues=open_issue_counts(db, el.project_id).get(el.id, 0),
                          history=[EventOut.model_validate(e).model_copy(update={"actor_name": n}) for e, n in hist])
 

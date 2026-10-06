@@ -1,10 +1,14 @@
 # P3: detailed BIM import and inspection
 
-Verified October 6, 2026; retained locally on `codex/p3-bim-workbench` after releasing the designer UI to `main`. This work replaces assumptions about our procedural demo with a measured import of a public residential BIM dataset. It does not validate live AI photo checking.
+Verified October 6, 2026 and integrated into the app's Building flow. This work replaces assumptions about our procedural demo with a measured import of a public residential BIM dataset. It does not validate live AI photo checking.
 
 ## Open and test
 
-Open `/bim-lab` in the frontend. It uses the real exported duplex geometry without a backend login. Click **Inspect bedroom pipe elbow**, then **Isolate** and **Focus selected**. Search works across component names, GUIDs, types and source properties. Top, front, side and isometric camera views, close zoom, discipline filters and height cuts are available.
+Open `/demo/building` in the frontend, or `/bim-lab` for the standalone workbench. Building uses shared app navigation and identifies the public duplex separately from fictional daily-workflow records. The **Daily workflow** tab and existing `?unit=` links retain the illustrated building and its own evidence. No apartment IDs are silently mapped onto unrelated duplex components.
+
+The real exported duplex geometry works without a backend login. Click **Inspect bedroom pipe elbow**, then **Isolate** and **Focus selected**. Search works across component names, GUIDs, types and source properties. Top, front, side and isometric camera views, close zoom, discipline filters and height cuts are available.
+
+**Interior view** hides 19 source-tagged exterior walls and the roof by default, preserving four shared/party walls, untagged walls and all pipes. Turn off the exterior-wall/roof controls to restore the shell. Selecting a shell component reveals it. Remaining architecture renders solid; transparency is optional, avoiding the earlier overlapping translucent surfaces. These are visibility/material settings, not edits to approved geometry. The source roof is an `IfcSlab` with `PredefinedType=ROOF`; import now retains that property. Existing imports can recognize Revit's explicit `Basic Roof:` name prefix when the property was omitted. Unknown walls are not inferred from bounding boxes.
 
 Click **Pin an exact model location**, then click a component surface and save a title. The workbench retains the element GUID, hit point, source revision and camera/section viewpoint locally. **Reopen saved view** returns to that location. This is a model-coordinate location, not an automatically localized phone photo or a survey measurement.
 
@@ -75,7 +79,7 @@ The 3D engine and inspection routes now load separately from the base app. The p
 
 ## Verification and remaining work
 
-126 backend tests and 39 frontend tests pass; production compilation succeeds; backend Ruff passes and frontend lint finishes with existing warnings. The new checks include real GLB node identity and surface ray hits, close-fit/coordinate math, room-code preservation, model-version pin persistence, authorized plan-layer filtering and photo/proposal → human review → saved element completion. The GLB bytes remain unchanged after progress updates. Interface tests also cover scoped fixture projection and 2D selection through pointer capture.
+128 backend tests and 43 frontend tests pass; production compilation succeeds; backend Ruff passes and frontend lint finishes with existing warnings. The new checks include real GLB node identity and surface ray hits, close-fit/coordinate math, room-code preservation, model-version pin persistence, authorized plan-layer filtering and photo/proposal → human review → saved element completion. The GLB bytes remain unchanged after progress updates. Interface tests also cover scoped fixture projection, 2D selection through pointer capture, shared Building navigation and reversible shell visibility in both the public and authorized connected viewer.
 
 Browser inspection remained blocked by the saved local-URL browser-access preference. CPU geometry tests and renderer stubs do not verify WebGL appearance, actual gestures, PDF rendering or mobile usability. Keep those acceptance tasks open.
 

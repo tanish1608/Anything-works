@@ -43,7 +43,7 @@ This repository contains an earlier **SiteMesh** prototype:
 
 - An interactive designer workspace at `/demo`, with daily overview, work filters, comparison, corrections, local mobile capture, reports and 3D status navigation.
 - A connected application with model import, drawing review, 3D viewing, issues, photo uploads, progress review and event history.
-- A detailed imported duplex at `/bim-lab`: 1,282 actual IFC components, bedroom pipe fittings, close-up inspection, precise model pins and linked 2D silhouettes. Its evidence/progress demonstrations are local test records.
+- A detailed imported duplex in Building at `/demo/building` and standalone `/bim-lab`: 1,282 actual IFC components, an interior view with exterior walls/roof hidden, bedroom pipe fittings, close-up inspection, precise model pins and linked 2D silhouettes. Its evidence/progress demonstrations are local test records; illustrated daily-workflow locations remain in a separate tab.
 - An offline field upload queue and an existing Gemini photo-analysis integration.
 
 These are foundations. The new daily quality-checking workflow, calibrated automatic completion, reliable plan comparison and broad real-site coverage are **not yet delivered or validated**. Existing “installed” verdicts do not establish correct installation.

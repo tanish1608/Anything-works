@@ -110,6 +110,8 @@ export interface ViewerManifest {
 }
 
 export interface ElementInfo {
+  exterior_wall?: boolean | null
+  roof?: boolean
   completion_basis?: 'human' | 'legacy_ai' | 'legacy' | null
   id: string
   ifc_guid: string

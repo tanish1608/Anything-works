@@ -76,6 +76,7 @@ export class SiteViewer {
   private flight: { from: Viewpoint; to: Viewpoint; t: number } | null = null;
   private container: HTMLElement;
   private loadGeneration = 0;
+  private ghostContext = true;
 
   constructor(container: HTMLElement) {
     this.container = container;
@@ -165,9 +166,9 @@ export class SiteViewer {
           mesh.material = new THREE.MeshLambertMaterial({
             color: 0xcccccc,
             side: THREE.DoubleSide,
-            transparent: layer.context,
-            opacity: layer.context ? CONTEXT_OPACITY : 1,
-            depthWrite: !layer.context,
+            transparent: layer.context && this.ghostContext,
+            opacity: layer.context && this.ghostContext ? CONTEXT_OPACITY : 1,
+            depthWrite: !(layer.context && this.ghostContext),
             clippingPlanes: this.clipPlanes,
           });
           meshes.set(id, [...(meshes.get(id) ?? []), mesh]);
@@ -249,6 +250,21 @@ export class SiteViewer {
   }
 
   // ------------------------------------------------------------------ appearance
+  /** Solid context avoids alpha overlap; ghost mode remains an explicit inspection option. */
+  setGhostContext(ghost: boolean) {
+    this.ghostContext = ghost;
+    this.meshes.forEach((meshes) =>
+      meshes.forEach((m) => {
+        const mat = m.material as THREE.MeshLambertMaterial;
+        const translucent = ghost && m.userData.context;
+        mat.transparent = !!translucent;
+        mat.opacity = translucent ? CONTEXT_OPACITY : 1;
+        mat.depthWrite = !translucent;
+        mat.needsUpdate = true;
+      }),
+    );
+    this.invalidate();
+  }
   /** Show only these element ids (null = all). Context elements follow the same rule. */
   setVisible(ids: Set<string> | null) {
     this.meshes.forEach((ms, id) =>
@@ -397,7 +413,7 @@ export class SiteViewer {
       return null;
     }
     const candidates = this.allMeshes().filter(
-      (m) => m.visible && !m.userData.context,
+      (m) => m.visible && (!m.userData.context || !this.ghostContext),
     );
     const hits = ray
       .intersectObjects(candidates, false)

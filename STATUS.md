@@ -18,7 +18,9 @@ See [design implementation notes](docs/design/ui/IMPLEMENTATION.md). Browser vis
 
 ## Implemented foundations
 
-P3 now has a detailed public duplex import: 1,282 rendered elements, 22 spaces, four levels and six discipline layers. `/bim-lab` exposes actual IFC geometry, component properties, close-up inspection, precise local pins and linked model-derived 2D silhouettes. An optional seed adds the same detailed project to the authorized connected app. See [the BIM audit](docs/BIM_AUDIT.md) for extraction results and source attribution.
+P3 now has a detailed public duplex import: 1,282 rendered elements, 22 spaces, four levels and six discipline layers. It is the default `/demo/building` view within shared navigation, with `/bim-lab` retained as a standalone entry. Both expose actual IFC geometry, component properties, close-up inspection, precise local pins and linked model-derived 2D silhouettes. The illustrated daily-workflow project remains separate; old `?unit=` links retain their fictional location. An optional seed adds the detailed project to the authorized connected app. See [the BIM audit](docs/BIM_AUDIT.md) for extraction results and source attribution.
+
+Imported and connected model views default to an interior view: tagged exterior walls and roof are hidden, shared/untagged walls remain visible, and architecture renders solid. Visibility and transparency controls restore the shell or ghost context. The duplex roof slab's IFC predefined type is preserved; no source geometry changes.
 
 IFC2x3 type classification, property truncation and duplicate room-name merging are fixed. Connected pins now retain their model version; progress projections distinguish actual human acceptance from legacy automatic approvals. Original PDF/CAD references and generated plans are separate; an unaligned sheet cannot silently locate work in 3D. Live automatic completion and exact photo localization are still pending.
 
@@ -34,7 +36,7 @@ IFC2x3 type classification, property truncation and duplicate room-name merging 
 | AI photo-analysis integration | `backend/app/vision/`, `backend/app/services/vision_jobs.py` | Installed/missing/not-visible/uncertain results; not validated broad plan compliance |
 | Issues, notifications and history | `backend/app/api/`, `backend/app/services/` | New assessment-to-correction flow and consistent projections remain work |
 | Authentication and scoped access | `backend/app/auth/`, `backend/app/rbac.py` | Extend the same controls to new records and derived AI outputs |
-| Tests and evaluation harnesses | `backend/tests/`, `web/src/test/`, `web/e2e/`, `samples/` | 126 backend and 39 frontend tests pass; browser E2E and live AI evaluations were not run |
+| Tests and evaluation harnesses | `backend/tests/`, `web/src/test/`, `web/e2e/`, `samples/` | 128 backend and 43 frontend tests pass; browser E2E and live AI evaluations were not run |
 
 ## Known migration gaps
 
@@ -58,6 +60,6 @@ IFC2x3 type classification, property truncation and duplicate room-name merging 
 
 ## Verification and next work
 
-The current implementation passes 126 backend and 39 frontend tests and production compilation. Backend Ruff passes; frontend lint completes with warnings, including the earlier route-menu reset and procedural-WebGL-fallback warnings. Actual GLB ray hits, component identity, close-fit math, persisted pins/plans and evidence-to-element decisions are tested. Browser visual review remains blocked by the saved local-URL preference. No live AI evaluations were run.
+The current implementation passes 128 backend and 43 frontend tests and production compilation. Backend Ruff passes; frontend lint completes with warnings, including the earlier route-menu reset and procedural-WebGL-fallback warnings. Actual GLB ray hits, component identity, close-fit math, persisted pins/plans, evidence-to-element decisions, shell visibility and Building integration are tested. Browser visual review remains blocked by the saved local-URL preference. No live AI evaluations were run.
 
 Begin with **P0** in [TODO.md](TODO.md): examples, state contract, completion policy and screen flow. Follow [PLAN.md](PLAN.md) for dependencies. Update this file with actual checks and known limitations as implementation progresses.

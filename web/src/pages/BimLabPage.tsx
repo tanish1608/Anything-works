@@ -10,6 +10,8 @@ import {
   type ViewDirection,
 } from "../viewer/spatialMath";
 import { DISCIPLINE_COLORS, DISCIPLINE_LABELS } from "../viewer/colors";
+import { visibleIds } from "../viewer/filters";
+import { exteriorWall } from "../viewer/envelope";
 import {
   emptyLab,
   labStatus,
@@ -51,7 +53,11 @@ export interface BimDataset {
 }
 const KEY = "ew-real-bim-lab-v1";
 
-export default function BimLabPage() {
+export default function BimLabPage({
+  embedded = false,
+}: {
+  embedded?: boolean;
+}) {
   const [data, setData] = useState<BimDataset | null>(null),
     [error, setError] = useState("");
   useEffect(() => {
@@ -72,7 +78,7 @@ export default function BimLabPage() {
   }, []);
   if (!data)
     return (
-      <div className="ew-app page">
+      <div className={embedded ? "page" : "ew-app page"}>
         <Link to="/demo">← Daily workspace</Link>
         <h1>Imported BIM workbench</h1>
         <p role={error ? "alert" : undefined}>
@@ -80,10 +86,16 @@ export default function BimLabPage() {
         </p>
       </div>
     );
-  return <Workbench key={data.version} data={data} />;
+  return <Workbench key={data.version} data={data} embedded={embedded} />;
 }
 
-export function Workbench({ data }: { data: BimDataset }) {
+export function Workbench({
+  data,
+  embedded = false,
+}: {
+  data: BimDataset;
+  embedded?: boolean;
+}) {
   const [local, setLocal] = useState<LabState>(() => {
     try {
       const state = JSON.parse(localStorage.getItem(KEY) || "null");
@@ -118,6 +130,9 @@ export function Workbench({ data }: { data: BimDataset }) {
   const [planOpen, setPlanOpen] = useState(true),
     [coloring, setColoring] = useState(true),
     [cut, setCut] = useState(1);
+  const [interior, setInterior] = useState(true),
+    [hideRoof, setHideRoof] = useState(true),
+    [ghostContext, setGhostContext] = useState(false);
   const [pinDraft, setPinDraft] = useState<LabPin | null>(null),
     [pinTitle, setPinTitle] = useState(""),
     [picking, setPicking] = useState(false);
@@ -141,6 +156,7 @@ export function Workbench({ data }: { data: BimDataset }) {
       viewer.current = v;
       setReady(!!v);
       if (!v) return;
+      v.setGhostContext(false);
       v.on("select", (id) => {
         setSelected(id);
         setReason("");
@@ -205,19 +221,17 @@ export function Workbench({ data }: { data: BimDataset }) {
   const rooms = data.plans.flatMap((p) => p.rooms);
   const visible = useMemo(
     () =>
-      new Set(
-        data.elements
-          .filter(
-            (e) =>
-              layers.has(e.discipline) &&
-              (!level || e.level_id === level) &&
-              (!room || e.zone_id === room) &&
-              !hidden.has(e.id) &&
-              (!isolated || e.id === isolated),
-          )
-          .map((e) => e.id),
-      ),
-    [data, layers, level, room, hidden, isolated],
+      visibleIds(data.elements, {
+        disciplines: layers,
+        levelId: level || null,
+        zoneId: room || null,
+        hidden,
+        isolated,
+        interior,
+        hideRoof,
+        revealed: selected,
+      }),
+    [data, layers, level, room, hidden, isolated, interior, hideRoof, selected],
   );
   const colors = useMemo(
     () =>
@@ -236,10 +250,11 @@ export function Workbench({ data }: { data: BimDataset }) {
   );
   useEffect(() => {
     if (!loaded) return;
+    viewer.current?.setGhostContext(ghostContext);
     viewer.current?.setVisible(visible);
     viewer.current?.setColors(colors);
     viewer.current?.select(selected);
-  }, [loaded, visible, colors, selected]);
+  }, [loaded, visible, colors, selected, ghostContext]);
   useEffect(() => {
     if (loaded)
       viewer.current?.setMarkers(
@@ -295,28 +310,30 @@ export function Workbench({ data }: { data: BimDataset }) {
     }
   };
   return (
-    <div className="ew-app bim-lab">
-      <header className="topbar">
-        <Link className="brand" to="/demo">
-          <span className="mark">
-            <Icon name="bolt" />
-          </span>
-          Everything Works AI
-        </Link>
-        <Link className="btn" to="/demo/building">
-          Daily demo
-        </Link>
-        <span className="grow" />
-        <b>Imported BIM workbench</b>
-        <a
-          className="btn"
-          href={`https://github.com/${data.source.repository}/tree/${data.source.revision}/IFC%202.3.0.1%20(IFC%202x3)/Duplex%20Apartment`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          Source project ↗
-        </a>
-      </header>
+    <div className={`${embedded ? "bim-embedded" : "ew-app"} bim-lab`}>
+      {!embedded && (
+        <header className="topbar">
+          <Link className="brand" to="/demo">
+            <span className="mark">
+              <Icon name="bolt" />
+            </span>
+            Everything Works AI
+          </Link>
+          <Link className="btn" to="/demo/building?view=workflow">
+            Daily workflow building
+          </Link>
+          <span className="grow" />
+          <b>Imported BIM workbench</b>
+          <a
+            className="btn"
+            href={`https://github.com/${data.source.repository}/tree/${data.source.revision}/IFC%202.3.0.1%20(IFC%202x3)/Duplex%20Apartment`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Source project ↗
+          </a>
+        </header>
+      )}
       <div className="mock-strip">
         Real imported IFC geometry · {data.audit.elements.toLocaleString()}{" "}
         elements · {data.audit.rooms} rooms · {data.source.license}. Pins and
@@ -429,6 +446,36 @@ export function Workbench({ data }: { data: BimDataset }) {
             </label>
           ))}
           <h3>View</h3>
+          <label className="bim-check">
+            <input
+              type="checkbox"
+              checked={interior}
+              onChange={(e) => setInterior(e.target.checked)}
+            />
+            Interior view · hide exterior walls
+          </label>
+          <label className="bim-check">
+            <input
+              type="checkbox"
+              checked={hideRoof}
+              onChange={(e) => setHideRoof(e.target.checked)}
+            />
+            Hide roof
+          </label>
+          <label className="bim-check">
+            <input
+              type="checkbox"
+              checked={ghostContext}
+              onChange={(e) => setGhostContext(e.target.checked)}
+            />
+            Transparent building context
+          </label>
+          <p className="xs muted">
+            {data.elements.filter((e) => exteriorWall(e) === true).length}{" "}
+            exterior walls identified from source properties. Shared walls
+            remain visible; selected shell components are revealed. No geometry
+            is removed.
+          </p>
           <div className="inspection-controls">
             {(["iso", "top", "front", "side"] as ViewDirection[]).map((v) => (
               <button
@@ -472,6 +519,9 @@ export function Workbench({ data }: { data: BimDataset }) {
                 setRoom("");
                 setLevel("");
                 setCut(1);
+                setInterior(true);
+                setHideRoof(true);
+                setGhostContext(false);
               }}
             >
               Reset visibility

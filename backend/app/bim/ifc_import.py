@@ -85,6 +85,8 @@ def _flat_props(product) -> dict:
         out["IFC.type_name"] = typ.Name if typ else None
         out["IFC.description"] = product.Description
         out["IFC.tag"] = getattr(product, "Tag", None)
+        if getattr(product, "PredefinedType", None):
+            out["IFC.predefined_type"] = product.PredefinedType
         out["IFC.materials"] = [m.Name for m in uel.get_materials(product) if m.Name]
         groups = [r.RelatingGroup for r in getattr(product, "HasAssignments", ())
                   if r.is_a("IfcRelAssignsToGroup") and r.RelatingGroup.is_a("IfcSystem")]

@@ -11,6 +11,8 @@ import {
 import { emptyLab, labStatus, labTransition } from "../viewer/labState";
 import { elementColor, STATUS_COLORS } from "../viewer/colors";
 import type { BimDataset } from "../pages/BimLabPage";
+import { exteriorWall, roofElement } from "../viewer/envelope";
+import { visibleIds } from "../viewer/filters";
 
 const dataset = JSON.parse(
   readFileSync(
@@ -20,6 +22,47 @@ const dataset = JSON.parse(
 ) as BimDataset;
 
 describe("detailed BIM geometry and camera", () => {
+  it("removes the real tagged exterior shell while preserving the duplex shared walls and every pipe", () => {
+    const walls = dataset.elements.filter((e) =>
+      e.ifc_class.startsWith("IfcWall"),
+    );
+    expect(walls.filter((e) => exteriorWall(e) === true)).toHaveLength(19);
+    const party = walls.filter(
+      (e) => e.props["PSet_Revit_Type_Construction.Function"] === 5,
+    );
+    expect(party).toHaveLength(4);
+    const visible = visibleIds(dataset.elements, {
+      disciplines: new Set(dataset.layers.map((l) => l.discipline)),
+      levelId: null,
+      zoneId: null,
+      interior: true,
+      hideRoof: true,
+    });
+    expect(party.every((e) => visible.has(e.id))).toBe(true);
+    const roofs = dataset.elements.filter(roofElement);
+    expect(roofs).toHaveLength(1);
+    expect(roofs[0].ifc_class).toBe("IfcSlab");
+    expect(visible.has(roofs[0].id)).toBe(false);
+    expect(
+      dataset.elements
+        .filter((e) => e.discipline === "plumbing")
+        .every((e) => visible.has(e.id)),
+    ).toBe(true);
+    expect(
+      walls
+        .filter((e) => exteriorWall(e) === true)
+        .every((e) => !visible.has(e.id)),
+    ).toBe(true);
+    const exterior = walls.find((e) => exteriorWall(e) === true)!;
+    const revealed = visibleIds(dataset.elements, {
+      disciplines: new Set(["architecture"]),
+      levelId: null,
+      zoneId: null,
+      interior: true,
+      revealed: exterior.id,
+    });
+    expect(revealed.has(exterior.id)).toBe(true);
+  });
   it("fits a 35mm fitting closely and respects a narrow mobile viewport", () => {
     const box = new Box3(
       new Vector3(0, 0, 0),
