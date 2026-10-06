@@ -4,13 +4,16 @@ import type { ChatCreate, ChatResult } from "../api/agent.generated";
 import { Icon } from "../studio/Icon";
 import "./project-copilot.css";
 
-type Context = { projectName?: string; page: ChatCreate["page"]; label: string; displayContext: string };
+type CopilotAction = "capture" | "issues" | "team" | "activity";
+type Context = { projectName?: string; page: ChatCreate["page"]; label: string; displayContext: string; onAction?: (action: CopilotAction) => void };
+type SpeechRecognitionLike = { lang: string; interimResults: boolean; onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null; onerror: (() => void) | null; onend: (() => void) | null; start: () => void; stop: () => void };
+type SpeechWindow = Window & { SpeechRecognition?: new () => SpeechRecognitionLike; webkitSpeechRecognition?: new () => SpeechRecognitionLike };
 
 export default function ProjectCopilot(context: Context) {
   const [open, setOpen] = useState(false), [activated, setActivated] = useState(false);
   return <section className={`project-copilot ${open ? "is-open" : ""}`} aria-label="Project Copilot">
     {open && <div id="project-copilot-body" className="project-copilot-window">
-      <div className="project-copilot-window-head"><div className="project-copilot-brand"><img src="/project-copilot-avatar.png" alt="Project Copilot" /><div><strong>Placeholder AI</strong><span>{context.projectName || "Current project"}</span></div><b>Active</b></div>
+      <div className="project-copilot-window-head"><div className="project-copilot-brand"><img src="/project-copilot-avatar.png" alt="Project Copilot" /><div><strong>Placeholder AI</strong><span>Project Copilot</span></div><b>Active</b></div>
         <button className="project-copilot-icon-button" aria-label="Close Project Copilot" onClick={() => setOpen(false)}><Icon name="close" size={16} /></button></div>
       <Conversation key={`public:${context.page}:${context.displayContext}`} {...context} publicMode />
     </div>}
@@ -26,8 +29,20 @@ type Message = { role: "user" | "assistant"; text: string; result?: ChatResult }
 function Conversation({ publicMode = false, ...context }: Context & { publicMode?: boolean }) {
   const [messages, setMessages] = useState<Message[]>([]), [text, setText] = useState("");
   const [busy, setBusy] = useState(false), [error, setError] = useState("");
+  const [listening, setListening] = useState(false);
   const current = useRef<string | null>(null);
-  useEffect(() => () => { current.current = null; }, []);
+  const recognition = useRef<SpeechRecognitionLike | null>(null);
+  useEffect(() => () => { current.current = null; recognition.current?.stop(); }, []);
+  const toggleVoice = () => {
+    if (listening) { recognition.current?.stop(); return; }
+    const Recognition = (window as SpeechWindow).SpeechRecognition || (window as SpeechWindow).webkitSpeechRecognition;
+    if (!Recognition) { setError("Voice input is unavailable in this browser. You can still type the update."); return; }
+    const recorder = new Recognition(); recorder.lang = "en-US"; recorder.interimResults = false;
+    recorder.onresult = event => setText(value => `${value} ${Array.from(event.results).map(result => result[0].transcript).join(" ")}`.trim());
+    recorder.onerror = () => { setError("Voice input could not start. Check microphone access or type the update."); setListening(false); };
+    recorder.onend = () => { recognition.current = null; setListening(false); };
+    recognition.current = recorder; setError(""); setListening(true); recorder.start();
+  };
   const send = async (event: FormEvent) => {
     event.preventDefault(); if (!text.trim() || busy) return;
     const revision = crypto.randomUUID(), question = text.trim(); current.current = revision;
@@ -46,19 +61,19 @@ function Conversation({ publicMode = false, ...context }: Context & { publicMode
     finally { if (current.current === revision) setBusy(false); }
   };
   return <>
-    <div className="project-copilot-status"><span className="project-copilot-status-dot" />{context.projectName || "Current project"} · using this screen</div>
     <div className="project-copilot-conversation" role="log" aria-label="Copilot conversation" aria-live="polite">
       {!messages.length && <>
         <p>What needs attention here? Ask for next steps, evidence to collect, or help understanding a work issue.</p>
         <div className="project-copilot-actions" aria-label="Copilot quick actions">
           <span>Quick actions</span>
           {[
-            ["Daily update", "Prepare a daily site update from this screen"],
-            ["Inspect photo", "What photo should I capture for this work?"],
-            ["Assign work", "Who should own the next step on this work?"],
-            ["Progress review", "Summarize progress and blockers for the PM"],
-            ["LiDAR scan", "How should I use a LiDAR scan for this review?"],
-          ].map(([label, prompt]) => <button key={label} type="button" onClick={() => setText(prompt)}>{label}</button>)}
+            ["Daily update", "Prepare a daily site update from this screen", "capture"],
+            ["Inspect photo", "What photo should I capture for this work?", "capture"],
+            ["Assign work", "Who should own the next step on this work?", "team"],
+            ["Progress review", "Summarize progress and blockers for the PM", "activity"],
+            ["Review approvals", "Which work items are waiting for a human approval?", "issues"],
+            ["LiDAR scan", "How should I use a LiDAR scan for this review?", ""],
+          ].map(([label, prompt, action]) => <button key={label} type="button" onClick={() => { setText(prompt); if (action) context.onAction?.(action as CopilotAction); }}>{label}</button>)}
         </div>
       </>}
       {messages.map((item, index) => <article key={index} className={`project-copilot-message ${item.role}`}>
@@ -72,8 +87,9 @@ function Conversation({ publicMode = false, ...context }: Context & { publicMode
     </div>
     {error && <p role="alert">{error}</p>}
     <form className="project-copilot-composer" onSubmit={event => void send(event)}>
-      <label className="project-copilot-sr-only">Message Placeholder AI<input aria-label="Message Placeholder AI" autoComplete="off" value={text} maxLength={2000} onChange={e => setText(e.target.value)}
-        placeholder={`Ask about ${context.projectName || "this project"}…`} disabled={busy} /></label>
+      <label><span className="project-copilot-sr-only">Message Placeholder AI</span><input aria-label="Message Placeholder AI" autoComplete="off" value={text} maxLength={2000} onChange={e => setText(e.target.value)}
+        placeholder="Ask about this project…" disabled={busy} /></label>
+      <button type="button" aria-label={listening ? "Stop voice input" : "Voice input"} title={listening ? "Stop voice input" : "Voice input"} disabled={busy} onClick={toggleVoice}><Icon name="mic" size={15} /></button>
       <button type="submit" disabled={busy || !text.trim()}>{busy ? "Thinking…" : "Send"}</button>
       <button type="button" disabled={busy || !messages.length} onClick={() => { setMessages([]); setText(""); setError(""); }}>Clear</button>
     </form>

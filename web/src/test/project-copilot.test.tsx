@@ -41,11 +41,12 @@ it('opens as a floating local-context assistant without login', async () => {
   render(<ProjectCopilot {...context} />);
   expect(http.api).not.toHaveBeenCalled();
   await open();
-  expect(screen.getByText(/using this screen/)).toBeVisible();
+  expect(screen.getByText('Placeholder AI')).toBeVisible();
   expect(screen.queryByRole('button', { name: 'Connect project records' })).not.toBeInTheDocument();
   expect(screen.queryByText('Ask Agent Isle')).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Inspect photo' }));
   expect(screen.getByLabelText('Message Placeholder AI')).toHaveValue('What photo should I capture for this work?');
+  expect(screen.getByRole('button', { name: 'Voice input' })).toBeVisible();
   fireEvent.change(screen.getByLabelText('Message Placeholder AI'), { target: { value: 'How should I check this?' } });
   fireEvent.click(screen.getByRole('button', { name: 'Send' }));
   await screen.findByText('Collect a clear view of the pipe connection.');

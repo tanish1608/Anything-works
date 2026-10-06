@@ -501,7 +501,7 @@ function BuildingWorkspace({
             </details>
           </div>
         </header>
-        <ProjectCopilot projectName={state.projectName} page={panel || "overview"} label={panel ? TITLES[panel] : "Building overview"}
+        <ProjectCopilot projectName={state.projectName} onAction={action => open(action, work?.id)} page={panel || "overview"} label={panel ? TITLES[panel] : "Building overview"}
           displayContext={JSON.stringify({ provenance: "browser-local sample; not authenticated project evidence",
             sampleProject: state.projectName, modelRevision: model.version,
             selectedWork: work ? { id: work.id, title: work.title, trade: work.trade, status: work.status,
