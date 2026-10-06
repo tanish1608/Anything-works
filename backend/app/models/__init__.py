@@ -503,3 +503,22 @@ class WorkSubmission(Base):
     payload_hash: Mapped[str] = mapped_column(String(64))
     reference: Mapped[dict] = mapped_column(JSON)
     claim: Mapped[str] = mapped_column(String(100), default="")
+
+
+class WorkAssessment(Base):
+    """One AI check run over one received work submission. Review-only: results are suggestions a PM
+    decides on; they never change work status, completion or issues by themselves."""
+
+    __tablename__ = "work_assessments"
+    __table_args__ = (UniqueConstraint("upload_id", "input_hash"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    work_id: Mapped[str] = mapped_column(ForeignKey("work_packages.id", ondelete="CASCADE"), index=True)
+    upload_id: Mapped[str] = mapped_column(ForeignKey("uploads.id", ondelete="CASCADE"), index=True)
+    status: Mapped[str] = mapped_column(String(20), default="queued", index=True)  # queued|running|completed|failed|superseded
+    input_hash: Mapped[str] = mapped_column(String(64))
+    context: Mapped[dict] = mapped_column(JSON)
+    result: Mapped[dict] = mapped_column(JSON, default=dict)
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

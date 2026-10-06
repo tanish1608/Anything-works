@@ -18,16 +18,21 @@ The UI-only iteration backlog is [Design iteration 2](docs/UI_TODO_ITERATION_2.m
 - [x] Fix component/record camera focus in every sample building: cut away everything above the component, frame a room-scale area centred on it, make walls/slabs/roofs between the camera and the component see-through, and pin selected untracked components. Verified with real WebGL (headless SwiftShader) screenshots on duplex, Schependomlaan, clinic and Esplan.
 - [ ] Check the focus cutaway and see-through occluders on physical phones and with very large models (raycast cost on the 16k-component clinic).
 
-## AI checks — next work package (branch `ai-checks`)
+## AI checks — branch `ai-checks`
 
-The manual loop is connected; the AI plugs into it. Agree the contract first so the app and the AI side can be built in parallel.
+The manual loop is connected; the AI plugs into it as a reviewer's assistant. The assessment core was ported from `codex/design-iteration-2` (author: the AI teammate) and re-targeted at shared work packages. See [AI checks](docs/AI_CHECKS.md) for the contract, what was ported and what was changed.
 
-- [ ] **Contract:** define the check request (work item, confirmed location, approved reference revision and source details, required checks, photo IDs, worker note/claim) and the versioned result (per-check outcome: no discrepancy / potential discrepancy / insufficient evidence / unsupported / failed; evidence regions; source references; model, prompt, check and policy versions). Publish sample payloads in `docs/`.
-- [ ] **Job:** queue a check run when a work update is received (`app/jobs.py`), store each run with its inputs and outputs, retry/timeout, and never change completion when a run fails or returns malformed output.
-- [ ] **Shadow mode first:** show AI findings to the PM as suggestions on the work record (evidence request, potential issue, looks complete) — the PM still decides. No automatic completion until a check passes its evaluation gate.
-- [ ] **Retire the legacy path** for tracked work: `vision_jobs.py` skips done elements and can auto-approve by confidence; keep it isolated from the new flow.
-- [ ] **AI-raised issues** reuse the same pin/issue record as human-raised ones, marked as AI-suggested until a PM confirms.
-- [ ] **Evaluation:** extend `eval_vision.py` to report false completions, missed defects, false alerts and abstentions per check on labelled real photos.
+- [x] **Contract:** frozen check context (work, confirmed location, approved model component and properties, capture guidance, worker note/claim, open issue for corrections, photo checksums) and versioned per-component result (pass / potential discrepancy / insufficient evidence / unsupported / failed, observation, cited photos, model source, limitations, model/prompt/policy versions).
+- [x] **Job:** a check run is queued when a work update is received (`AGENT_ENABLED=true` with Gemini), stored with its inputs and outputs in `work_assessments`, and runs outside the DB transaction. Invalid model output, uncited passes, unknown IDs, checksum changes and provider errors fail closed; nothing changes.
+- [x] **Shadow mode:** the work record shows an "AI check" card with each result, what could not be verified and a suggested next step (accept / request evidence / confirm issue / accept or return a correction). The PM opens the suggested decision pre-filled and saves it under their own name; the AI run is recorded as provenance. Newer evidence or a reference change supersedes a run.
+- [x] **Live check:** verified with real Gemini on sample images against IFC work items: unrelated or ambiguous photos returned "insufficient evidence" with specific missing views; no false passes. A Gemini 400 caused by the Pydantic-generated schema (also present in the original branch) was fixed with an explicit schema.
+- [ ] **Real photos:** label real site photos (correct, wrong, incomplete, occluded, wrong room, corrected) and measure false passes, missed mistakes, false alerts and abstentions per check. No positive "pass" has been observed yet because no sample photo matches a sample-model component.
+- [ ] **Drawing references:** the original branch also checks against approved 2D drawing extractions (`AgentReference`); bring that in once real drawing conversion works (TODO §2.11a).
+- [ ] **Public samples:** the browser-only sample projects cannot call the AI; decide whether to offer a server-backed demo project.
+- [ ] **AI-raised issues:** let a "possible mistake" pin itself on the model as AI-suggested until a PM confirms it (today the PM confirms from the card).
+- [ ] **Multi-component updates, retries/leases and cost tracking** per run; the original branch's lease/recovery design is a good reference.
+- [ ] **Not ported (extras on `codex/design-iteration-2`):** Project Copilot chat, voice-note transcription, wording suggestions, AI daily summary, coordination/calendar helpers, Docker/OpenAPI tooling. Revisit individually; voice and daily summary are on the roadmap.
+- [ ] **Retire the legacy path** (`vision_jobs.py` confidence auto-approval) once nothing depends on zone uploads.
 
 ## Shared daily integration — October 6
 

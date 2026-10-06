@@ -83,6 +83,27 @@ export interface Activity {
   text: string;
   tone: Status;
 }
+export interface AiCheck {
+  id: string;
+  status: "queued" | "running" | "completed" | "failed" | "superseded";
+  checks: {
+    element_id: string;
+    outcome: "pass" | "potential_discrepancy" | "insufficient_evidence" | "unsupported" | "failed";
+    observation: string;
+    evidence_ids: string[];
+    limitations: string[];
+  }[];
+  suggestion?: {
+    outcome: string;
+    decision: "accept" | "confirm" | "request" | "resolve" | "reject" | null;
+    reason: string;
+  } | null;
+  model?: string | null;
+  error?: { code: string; message: string } | null;
+  promptVersion?: string;
+  policyVersion?: string;
+  at: string;
+}
 export interface Draft {
   clientId?: string;
   item: string;
@@ -118,7 +139,13 @@ export interface WorkspaceState {
       | "awaiting_agent"
       | "manual_review"
       | "fixture_complete"
-      | "superseded";
+      | "superseded"
+      | "ai_queued"
+      | "ai_running"
+      | "ai_suggested"
+      | "ai_failed";
+    /** Server AI check for this update: a suggestion for the PM, never a decision. */
+    ai?: AiCheck | null;
     at: string;
   }[];
 }
@@ -501,8 +528,10 @@ export type Action =
       reason: string;
       owner?: string;
       due?: string;
+      /** AI check the PM consulted; recorded as provenance only. */
+      assessment?: string;
     }
-  | { type: "confirm"; id: string; owner: string; due: string; reason: string }
+  | { type: "confirm"; id: string; owner: string; due: string; reason: string; assessment?: string }
   | {
       /** A person points out a problem on a model component. A PM may assign it at once;
        * anyone else's report waits for PM triage and is never a confirmed issue. */

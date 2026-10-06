@@ -11,8 +11,10 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app import jobs
+from app.agent import assessment as ai_check
 from app.auth.deps import current_user
-from app.db import get_db
+from app.db import SessionLocal, get_db
 from app.models import (
     OPEN_ISSUE_STATUSES,
     Issue,
@@ -21,6 +23,7 @@ from app.models import (
     Project,
     Upload,
     User,
+    WorkAssessment,
     WorkPackage,
     WorkSubmission,
     new_id,
@@ -52,6 +55,8 @@ class DecisionIn(BaseModel):
     update_id: str | None = None
     assignee_id: str | None = None
     due: str | None = None
+    # The AI check the PM consulted, kept as provenance; it never makes the decision.
+    assessment_id: str | None = None
 
 
 @router.get("/projects/{project_id}/workspace")
@@ -158,7 +163,8 @@ async def submit(work_id: str, client_uuid: str = Form(..., min_length=1, max_le
             db.add(photo)
             photos.append({"id": photo.id, "url": f"/api/photos/{photo.id}", "name": name[:300], "sample": False})
         reference = {k: deepcopy(work.state[k]) for k in ("location", "reference", "scope", "captureGuidance")}
-        db.add(WorkSubmission(work_id=work.id, upload_id=up.id, payload_hash=digest, reference=reference, claim=claim))
+        receipt = WorkSubmission(work_id=work.id, upload_id=up.id, payload_hash=digest, reference=reference, claim=claim)
+        db.add(receipt)
         state = deepcopy(work.state)
         state.setdefault("assessments", []).append({k: deepcopy(state[k]) for k in
                                                     ("update", "reference", "checks", "coverage", "progress", "photos")}
@@ -170,7 +176,9 @@ async def submit(work_id: str, client_uuid: str = Form(..., min_length=1, max_le
                      time=utcnow().isoformat(), detail=note)
         flow.save(db, work, state, work.revision)
         flow.project_progress(db, work, user)
-        flow.record(db, work, user, "submitted", f"{note} · Worker claim: {claim or 'Not specified'}. Manual review required.")
+        queued = ai_check.maybe_enqueue(db, work, up, receipt)
+        flow.record(db, work, user, "submitted", f"{note} · Worker claim: {claim or 'Not specified'}. "
+                    + ("AI check queued; project-manager review required." if queued else "Manual review required."))
         db.commit()
     except Exception as exc:
         db.rollback()
@@ -182,6 +190,8 @@ async def submit(work_id: str, client_uuid: str = Form(..., min_length=1, max_le
                 return prior
             raise HTTPException(409, "Work changed during upload. Retry with the same submission identity.") from None
         raise
+    if queued:
+        jobs.after_commit_run_inline(SessionLocal)
     return {"upload_id": up.id, "client_uuid": client_uuid, "received": True}
 
 
@@ -260,7 +270,13 @@ def decision(work_id: str, body: DecisionIn, user: User = Depends(current_user),
             state.update(status="review", dismissed=True, review=f"Finding dismissed by {user.name}", progress="Not assessed")
         if body.type not in ("assign", "confirm"):
             flow.save(db, work, state, body.expected_revision)
+    basis = ""
+    if body.assessment_id:
+        run = db.get(WorkAssessment, body.assessment_id)
+        if not run or run.work_id != work.id or run.upload_id != (body.update_id or "") or run.status != "completed":
+            raise HTTPException(409, "That AI check is not the current suggestion for this work")
+        basis = f" (PM decision after reviewing AI check {run.id[:8]}; AI suggested {run.result['suggestion']['outcome'].replace('_', ' ')})"
     flow.project_progress(db, work, user)
-    flow.record(db, work, user, body.type, f"{body.type}: {body.reason}")
+    flow.record(db, work, user, body.type, f"{body.type}: {body.reason}{basis}")
     db.commit()
     return flow.item(work)

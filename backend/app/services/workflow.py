@@ -134,6 +134,9 @@ def snapshot(db: Session, project_id: str, user: User):
         Event.project_id == project_id, Event.entity_type == "work", Event.entity_id.in_(ids))
         .order_by(Event.id.desc())).all()
     jobs = []
+    from app.agent.assessment import project as ai_runs
+    receipts = db.execute(select(WorkSubmission.upload_id).where(WorkSubmission.work_id.in_(ids))).scalars().all()
+    checks = ai_runs(db, list(receipts))
     for receipt, upload in db.execute(select(WorkSubmission, Upload)
                                      .join(Upload, Upload.id == WorkSubmission.upload_id)
                                      .where(WorkSubmission.work_id.in_(ids))):
@@ -143,7 +146,10 @@ def snapshot(db: Session, project_id: str, user: User):
                      "elements": receipt.reference["location"]["elements"], "photos": photos,
                      "note": upload.note, "claim": receipt.claim,
                      "reference": receipt.reference["reference"], "scope": receipt.reference["scope"],
-                     "state": "manual_review", "at": upload.created_at.isoformat()})
+                     "state": {"queued": "ai_queued", "running": "ai_running", "completed": "ai_suggested",
+                               "failed": "ai_failed", "superseded": "superseded"}.get(
+                         checks.get(upload.id, {}).get("status"), "manual_review"),
+                     "ai": checks.get(upload.id), "at": upload.created_at.isoformat()})
     projected = [item(w, project.current_version_id) for w in works]
     # Issues created by retained APIs still override any previous completion on the same component.
     from app.services.issues import open_issue_counts
@@ -153,7 +159,8 @@ def snapshot(db: Session, project_id: str, user: User):
             view.update(status="issue", progress="Open linked issue", detail="A linked component issue remains open. Resolve it before accepting work.")
     return {"state": {"version": 1, "items": projected,
                       "events": [{"id": str(e.id), "item": e.entity_id, "at": e.at.isoformat(),
-                                  "actor": name or "Former project member", "text": e.data["text"],
+                                  "actor": name or ("Placeholder AI · suggestion" if e.actor_id is None else "Former project member"),
+                                  "text": e.data["text"],
                                   "tone": e.data["tone"], "snapshot": e.data.get("snapshot")} for e, name in rows],
                       "draft": None, "projectName": project.name, "reportNote": "", "reportSigned": None,
                       "modelVersion": project.current_version_id, "modelApproved": bool(project.current_version_id),

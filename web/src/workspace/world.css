@@ -2020,3 +2020,28 @@
 .world-select-popup > button > svg { flex: none; }
 .world-select-popup > button:hover, .world-select-popup > button:focus { background: #2c435d; outline: 1px solid #6eaef0; outline-offset: -1px; }
 .world-select-popup > button[aria-selected="true"] { color: #9ccbff; }
+
+.world-app .world-ai-check h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.world-app .world-ai-tag {
+  font-size: 11px;
+  font-weight: 500;
+  color: #b9c9ff;
+  background: #24304d;
+  border: 1px solid #3a4a72;
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+.world-app .world-ai-result {
+  border-left: 3px solid #6b7c93;
+  padding: 6px 0 6px 12px;
+  margin: 8px 0;
+}
+.world-app .world-ai-result.pass { border-color: #34c38f; }
+.world-app .world-ai-result.potential_discrepancy { border-color: #f06a6a; }
+.world-app .world-ai-result.insufficient_evidence { border-color: #f0b44c; }
+.world-app .world-ai-result p { margin: 4px 0; }
+.world-app .world-ai-result small { color: #93a3b8; }

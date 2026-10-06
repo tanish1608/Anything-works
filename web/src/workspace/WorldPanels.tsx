@@ -454,22 +454,26 @@ export function RecordPanel({
   const plan = model.plans.find((p) => p.id === item.location?.levelId);
   const history = validHistory(state.events.filter((e) => e.item === item.id));
   const [basis, setBasis] = useState(item);
+  const [aiBasis, setAiBasis] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const perform = async () => {
     if (!review) return;
+    const assessment = aiBasis || undefined;
     const action: Action =
       review === "confirm" || review === "assign"
-        ? { type: review, id: item.id, owner, due, reason }
-        : { type: review, id: item.id, reason };
+        ? { type: review, id: item.id, owner, due, reason, assessment }
+        : { type: review, id: item.id, reason, assessment };
     setSaving(true);
     try { if (await commit(action, basis)) { setReview(null); setReason(""); } }
     finally { setSaving(false); }
   };
-  const startReview = (type: ReviewAction) => {
+  const startReview = (type: ReviewAction, prefill = "", ai: string | null = null) => {
     setBasis(item);
     setReview(type);
-    setReason("");
+    setReason(prefill);
+    setAiBasis(ai);
   };
+  const ai = latestJob?.update === item.update ? latestJob?.ai : null;
   return (
     <>
       <div className="world-record-heading">
@@ -630,6 +634,47 @@ export function RecordPanel({
             Scope: {item.scope}. Not established: {item.limits}. Inspection:{" "}
             {item.inspection}.
           </p>
+        </section>
+      )}
+      {ai && ai.status !== "superseded" && (
+        <section className="world-detail-section world-ai-check" aria-label="AI check">
+          <h3>
+            AI check <span className="world-ai-tag">Suggestion · PM decides</span>
+          </h3>
+          {ai.status === "queued" || ai.status === "running" ? (
+            <p className="world-muted">Checking these photos against the approved reference…</p>
+          ) : ai.status === "failed" ? (
+            <p className="world-muted">
+              The AI check could not be completed ({ai.error?.message || "unknown error"}). Review the evidence
+              manually; nothing was changed.
+            </p>
+          ) : (
+            <>
+              {ai.checks.map((c) => (
+                <div className={`world-ai-result ${c.outcome}`} key={c.element_id}>
+                  <strong>{AI_OUTCOMES[c.outcome] || c.outcome}</strong>
+                  <p>{c.observation}</p>
+                  {c.limitations.length > 0 && (
+                    <small>Not verified: {c.limitations.join(" · ")}</small>
+                  )}
+                </div>
+              ))}
+              {ai.suggestion?.decision && canReview && !review && (
+                <button
+                  className="world-secondary"
+                  onClick={() =>
+                    startReview(ai.suggestion!.decision!, `AI check: ${ai.suggestion!.reason}`, ai.id)
+                  }
+                >
+                  Review suggested step: {AI_DECISIONS[ai.suggestion.decision]}
+                </button>
+              )}
+              <p className="world-muted">
+                {ai.model} · {ai.promptVersion} · {ai.policyVersion}. The AI never accepts, completes or
+                inspects work; your decision is recorded under your name.
+              </p>
+            </>
+          )}
         </section>
       )}
       <section className="world-detail-section">
@@ -851,6 +896,20 @@ export function RecordPanel({
     </>
   );
 }
+const AI_OUTCOMES: Record<string, string> = {
+  pass: "Looks as expected",
+  potential_discrepancy: "Possible mistake",
+  insufficient_evidence: "Not enough evidence",
+  unsupported: "Can't be checked from photos",
+  failed: "Check failed",
+};
+const AI_DECISIONS: Record<string, string> = {
+  accept: "accept the work",
+  confirm: "confirm an issue",
+  request: "request more evidence",
+  resolve: "accept the correction",
+  reject: "return the correction",
+};
 export function ComponentPanel({ id, open }: { id: string; open: Open }) {
   const { model, state, commit, canPlan, canReview, connected, view } = useWorkspace();
   const [raising, setRaising] = useState(false),

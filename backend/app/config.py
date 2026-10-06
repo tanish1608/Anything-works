@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     vision_model: str = "gemini-3.8-flash"
     vision_effort: str = "high"  # Gemini thinking_level: low | medium | high
     gemini_api_key: str = ""
+    # Review-only AI checks on received work updates (shadow mode: suggestions for the PM, never completion).
+    agent_enabled: bool = False
+    agent_timeout_seconds: int = 90
     cors_origins: list[str] = ["http://localhost:5173"]
 
     @model_validator(mode="after")

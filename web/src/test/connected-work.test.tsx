@@ -75,7 +75,7 @@ beforeEach(async () => {
     }
     if (path.endsWith("/decisions")) {
       const body = JSON.parse(String(init!.body));
-      expect(body.expected_revision).toBe(work.serverRevision); expect(body.update_id).toBe(work.update);
+      expect(body.expected_revision).toBe(work.serverRevision); expect(body.update_id ?? "").toBe(work.update || ""); // the API treats null and "" alike
       expect(authenticated).toBe("pm");
       Object.assign(work, { serverRevision: work.serverRevision! + 1, review: `Reviewed by Alex` });
       if (body.type === "confirm") Object.assign(work, { issue: "issue-shared", status: "issue", correction: false, due: body.due, owner: "Maya", resolution: body.reason });
@@ -144,4 +144,42 @@ it("makes actual viewer access read-only and exposes the real project membership
   expect(await screen.findByText("maya@example.com")).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Add teammate" })).not.toBeInTheDocument();
   expect(screen.queryByLabelText("Preview user experience")).not.toBeInTheDocument();
+});
+
+it("shows the AI check as a suggestion and records it as provenance of the PM's own decision", async () => {
+  const work = plannedComponent(data, component.id, "Bedroom pipe", "Maya");
+  Object.assign(work, { serverRevision: 2, assigneeId: "crew", update: "received-0", status: "review", processing: "review",
+    photos: [{ id: "received-0", url: "/api/photos/received-0", name: "Field photo", sample: false }] });
+  state.items = [work];
+  state.assessmentJobs = [{ id: "r0", update: "received-0", item: work.id, modelVersion: data.version, elements: [component.id],
+    photos: ["received-0"], state: "ai_suggested", at: new Date().toISOString(), ai: {
+      id: "ai-run-1", status: "completed", model: "gemini-test", promptVersion: "work-check-v1", policyVersion: "review-only-v1",
+      at: new Date().toISOString(), suggestion: { outcome: "insufficient_evidence", decision: "request", reason: "Fitting is out of frame." },
+      checks: [{ element_id: component.id, outcome: "insufficient_evidence", observation: "Fitting is out of frame.",
+        evidence_ids: [], limitations: ["Connection hidden"] }] } }];
+  mount("record", work.id);
+  expect(await screen.findByText("Not enough evidence")).toBeInTheDocument();
+  expect(screen.getByText("Suggestion · PM decides")).toBeInTheDocument();
+  expect(state.items[0].status).toBe("review"); // the suggestion changed nothing on its own
+  await userEvent.click(screen.getByRole("button", { name: "Review suggested step: request more evidence" }));
+  expect(screen.getByLabelText("Decision reason")).toHaveValue("AI check: Fitting is out of frame.");
+  await userEvent.click(screen.getByRole("button", { name: "Save decision" }));
+  await waitFor(() => expect(requests.some((r) => r.path.endsWith("/decisions"))).toBe(true));
+  const sent = JSON.parse(String(requests.find((r) => r.path.endsWith("/decisions"))!.init!.body));
+  expect(sent).toMatchObject({ type: "request", assessment_id: "ai-run-1" });
+});
+
+it("lets a PM raise a shared issue directly from a selected component", async () => {
+  mount();
+  await screen.findByText("No assigned work records yet");
+  await userEvent.click(screen.getByRole("button", { name: "Select source component" }));
+  await userEvent.click(await screen.findByRole("button", { name: "Raise issue here" }));
+  await userEvent.type(screen.getByLabelText("What is wrong?"), "Trap arm slopes the wrong way");
+  await userEvent.selectOptions(screen.getByLabelText("Who fixes it?"), "crew");
+  await userEvent.type(screen.getByLabelText("Due date"), "2026-10-09");
+  await userEvent.click(screen.getByRole("button", { name: "Raise issue" }));
+  await waitFor(() => expect(state.items[0]?.issue).toBe("issue-shared"));
+  const decision = JSON.parse(String(requests.find((r) => r.path.endsWith("/decisions"))!.init!.body));
+  expect(decision).toMatchObject({ type: "confirm", reason: "Trap arm slopes the wrong way", assignee_id: "crew",
+    due: "2026-10-09", expected_revision: 1, update_id: null });
 });

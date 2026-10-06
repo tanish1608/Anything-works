@@ -120,7 +120,8 @@ export function useConnectedWork(model: ModelDataset, changed: (state: Workspace
         const item = basis || snapshot.state.items.find((i) => i.id === action.id)!;
         await api(`/work/${item.id}/decisions`, { method: "POST", json: { type: action.type,
           reason: action.reason, assignee_id: action.owner, due: action.due,
-          expected_revision: item.serverRevision, update_id: item.update || null } });
+          expected_revision: item.serverRevision, update_id: item.update || null,
+          ...("assessment" in action && action.assessment ? { assessment_id: action.assessment } : {}) } });
         message("Decision saved under your account. Shared progress is updated.");
       } else throw Error("This action is only available in public samples.");
       await refresh();
