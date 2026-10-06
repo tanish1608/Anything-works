@@ -17,7 +17,7 @@ import {
   projectStorageKey,
   availabilityStorageKey,
 } from "./projectState";
-import { transition, type Action } from "./state";
+import { transition, type Action, type Photo } from "./state";
 import { itemsAt } from "./history";
 import BuildingCanvas from "./BuildingCanvas";
 import {
@@ -121,6 +121,7 @@ function BuildingWorkspace({
   const [focusToken, setFocusToken] = useState(0),
     [reset, setReset] = useState(false);
   const [closeup, setCloseup] = useState(false);
+  const [photoHandoffRevision, setPhotoHandoffRevision] = useState(0);
   const searchRef = useRef<HTMLInputElement>(null),
     menuRef = useRef<HTMLDetailsElement>(null);
   const location = useLocation(),
@@ -370,7 +371,7 @@ function BuildingWorkspace({
             </div>
           );
         return (
-          <UpdatePanel key={workId || "draft"} work={workId} open={open} />
+          <UpdatePanel key={`${workId || "draft"}:${photoHandoffRevision}`} work={workId} open={open} />
         );
       case "activity":
         return (
@@ -501,7 +502,18 @@ function BuildingWorkspace({
             </details>
           </div>
         </header>
-        <ProjectCopilot projectName={state.projectName} onAction={action => open(action, work?.id)} page={panel || "overview"} label={panel ? TITLES[panel] : "Building overview"}
+        <ProjectCopilot projectName={state.projectName} onAction={action => open(action, work?.id)}
+          onAttachPhotos={(photos: Photo[], note: string) => {
+            const currentState = stateRef.current;
+            const target = work?.id || currentState.draft?.item || currentState.items[0]?.id;
+            if (!target) throw new Error("Create a work record before attaching photos.");
+            const draft = currentState.draft?.item === target ? currentState.draft : { item: target, photos: [], note: "", claim: "", step: 1 };
+            if (draft.photos.length + photos.length > 6) throw new Error("This update already has photos. Use up to six photos per update.");
+            if (!act({ type: "draft", draft: { ...draft, photos: [...draft.photos, ...photos], note: [draft.note, note.trim()].filter(Boolean).join("\n") } }))
+              throw new Error("Could not save the photo draft. Please try again.");
+            setPhotoHandoffRevision(value => value + 1);
+            open("capture", target);
+          }} page={panel || "overview"} label={panel ? TITLES[panel] : "Building overview"}
           displayContext={JSON.stringify({ provenance: "browser-local sample; not authenticated project evidence",
             sampleProject: state.projectName, modelRevision: model.version,
             selectedWork: work ? { id: work.id, title: work.title, trade: work.trade, status: work.status,

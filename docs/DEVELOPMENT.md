@@ -39,6 +39,7 @@ Open `http://localhost:5173`. Vite proxies API calls to port 8000.
 ## Application surfaces
 
 - **Project Copilot:** a compact floating bottom-right chatbot opens against the current building canvas and panel without login. It uses the explicitly untrusted local screen context and has no write authority.
+  Select **Inspect photo** or the camera button to choose images, preview/remove attachments, then select **Add to daily update**. Photos and the typed note are saved in the current work's device-local draft; confirm the location and submit in the capture form. This handoff does not perform AI image assessment; the public chat endpoint accepts text only.
 - **`/agent`:** authenticated assessments, recorded voice and text helpers remain available as the detailed agent workflow.
 
 - **`/`:** one building-centered website with optional right-side panels. It runs without backend/sign-in and stores testing records locally.

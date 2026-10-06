@@ -1,0 +1,31 @@
+import { expect, test } from '@playwright/test';
+
+test('copilot photo picker preserves the chosen work and hands real images into a saved draft', async ({ page }) => {
+  await page.goto('/?panel=record&work=ISS-031');
+  await expect(page.getByRole('complementary', { name: 'Work record', exact: true })).toBeVisible();
+  const copilot = page.getByRole('region', { name: 'Project Copilot', exact: true });
+  await copilot.getByRole('button', { name: 'Open Project Copilot', exact: true }).click();
+  const chooser = page.waitForEvent('filechooser');
+  await copilot.getByRole('button', { name: 'Inspect photo', exact: true }).click();
+  await (await chooser).setFiles('e2e/legacy/fixtures/site1.jpg');
+  await expect(copilot.getByRole('img', { name: 'site1.jpg', exact: true })).toBeVisible();
+  await copilot.getByLabel('Message Placeholder AI').fill('Photo from the selected work location');
+  await copilot.getByRole('button', { name: 'Add to daily update', exact: true }).click();
+  const update = page.getByRole('complementary', { name: 'Daily update', exact: true });
+  await expect(update).toBeVisible();
+  await expect(update.getByLabel('Work item')).toHaveValue('ISS-031');
+  await expect(update.getByLabel('What changed?')).toHaveValue('Photo from the selected work location');
+  await expect(update.getByRole('img', { name: 'site1.jpg', exact: true })).toBeVisible();
+  await page.reload();
+  await expect(update.getByRole('img', { name: 'site1.jpg', exact: true })).toBeVisible();
+  await copilot.getByRole('button', { name: 'Open Project Copilot', exact: true }).click();
+  const secondChooser = page.waitForEvent('filechooser');
+  await copilot.getByRole('button', { name: 'Attach photo', exact: true }).click();
+  await (await secondChooser).setFiles('e2e/legacy/fixtures/site2.jpg');
+  await expect(copilot.getByRole('img', { name: 'site2.jpg', exact: true })).toBeVisible();
+  await copilot.getByRole('button', { name: 'Add to daily update', exact: true }).click();
+  await expect(update.getByRole('img', { name: 'site1.jpg', exact: true })).toBeVisible();
+  await expect(update.getByRole('img', { name: 'site2.jpg', exact: true })).toBeVisible();
+  await expect(update.getByLabel('What changed?')).toHaveValue('Photo from the selected work location');
+  await expect(page.getByTestId('viewer')).toHaveCount(1);
+});
