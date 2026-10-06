@@ -493,6 +493,8 @@ export type Action =
         | "assign";
       id: string;
       reason: string;
+      owner?: string;
+      due?: string;
     }
   | { type: "confirm"; id: string; owner: string; due: string; reason: string }
   | { type: "project"; name: string }
@@ -503,6 +505,12 @@ export function transition(
   action: Action,
   now = new Date().toISOString(),
 ): WorkspaceState {
+  // Capture keystrokes must not rebuild model colors/markers or clone every evidence image.
+  if (action.type === "draft")
+    return {
+      ...state,
+      draft: action.draft ? structuredClone(action.draft) : null,
+    };
   const next = structuredClone(state);
   const record = (work: WorkItem, text: string, actor = "Sarah Jenkins") => {
     next.events.unshift({
@@ -514,10 +522,6 @@ export function transition(
       tone: work.status,
     });
   };
-  if (action.type === "draft") {
-    next.draft = action.draft;
-    return next;
-  }
   if (action.type === "plan") {
     const item = action.item;
     if (!state.modelApproved || item.location?.version !== state.modelVersion)
@@ -643,7 +647,11 @@ export function transition(
       work.progress = "Not assessed";
       work.detail =
         "On this device only. Reconnect to move this update into local demo review.";
-    } else if (action.sample && action.draft.photos.every((p) => p.sample)) {
+    } else if (
+      action.sample &&
+      action.draft.photos.every((p) => p.sample) &&
+      (work.fixture || initialState().items.some((i) => i.id === work.id))
+    ) {
       const fixture =
         work.fixture || initialState().items.find((i) => i.id === work.id)!;
       work.checks = structuredClone(fixture.checks).map((c) =>
@@ -703,7 +711,9 @@ export function transition(
         state: action.offline
           ? "queued_offline"
           : action.sample && action.draft.photos.every((p) => p.sample)
-            ? "fixture_complete"
+            ? work.processing === "completed" && work.checks.length > 0
+              ? "fixture_complete"
+              : "manual_review"
             : "awaiting_agent",
         at: now,
       });
@@ -778,7 +788,17 @@ export function transition(
         "Sample retry moved to manual review. No AI check has been performed.";
       break;
     case "assign":
-      work.review = `Assigned: ${action.reason}`;
+      if (action.owner !== undefined) {
+        if (
+          !action.owner.trim() ||
+          !action.due ||
+          !/^\d{4}-\d{2}-\d{2}$/.test(action.due)
+        )
+          throw Error("Owner and due date are required.");
+        work.owner = action.owner.trim();
+        work.due = action.due;
+      }
+      work.review = `Assignment updated: ${action.reason}`;
       break;
     case "reopen":
       work.status = work.issue ? "issue" : "review";
@@ -791,7 +811,10 @@ export function transition(
     .forEach((j) => {
       j.state = "manual_review";
     });
-  record(work, `${action.type}: ${action.reason}`);
+  record(
+    work,
+    `${action.type}: ${action.reason}${action.type === "assign" && action.owner ? ` · owner ${work.owner} · due ${work.due}` : ""}`,
+  );
   return next;
 }
 export function loadState(key = STORE_KEY): WorkspaceState {

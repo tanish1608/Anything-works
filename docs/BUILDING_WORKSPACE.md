@@ -53,4 +53,17 @@ The previous tabbed `LegacyWorkspace` is imported only by retained regression te
 
 All 85 frontend tests and production compilation pass. Tests cover one scene across panels, source hierarchy, room/tight focus, current evidence, capture target changes, correction history, offline identity, historical replay and immutable model references. Pin body/centre ray hits use real three.js geometry on the CPU. Frontend lint completes with warnings in retained components; new interface files have no reported warnings. Three updated browser smoke tests are discoverable; they have not been run under the saved browser restriction.
 
-DOM/stub/CPU checks do not establish visual acceptance. Review actual WebGL framing, occlusion, palette/contrast, exploded floor spacing, drag/zoom/pin picking, 2D fallback, photo capture and drawer behavior on desktop and physical phones. Complete keyboard access to untracked components and assistive-technology acceptance. Bring approved-model onboarding, reviewed unit metadata, persistent evidence/review/correction records and scoped identity into this interface before claiming a connected multi-user product.
+DOM/stub/CPU checks do not establish visual acceptance. Review actual WebGL framing, occlusion, palette/contrast, exploded floor spacing, drag/zoom/pin picking, 2D fallback, photo capture and drawer behavior on desktop and physical phones. Searchable/paged keyboard component access is implemented. Complete physical assistive-technology acceptance and reviewed unit metadata, persistent evidence/review/correction records and scoped identity before claiming a connected multi-user product.
+
+
+## Client-demo completion pass — October 6
+
+Project/model setup is available at `/?panel=import`. Connect/register an account, create a project, upload IFC, inspect the draft using the same 3D/2D canvas, and explicitly approve it. `/?project=api%3APROJECT_ID&version=VERSION_ID&panel=import` previews an authorized revision. Public samples remain open; private model requests never fall back to a sample. Actual private field records are deliberately disabled until persistence/actor integration exists.
+
+Project context offers public role previews. Customer is read-only; subcontractor/field lists and capture target assigned work; PM keeps decision/assignment actions. The renderer remains mounted when changing a preview. These are public presentation views, not private sharing/RBAC enforcement.
+
+Source lists paginate; source properties can be searched in full. Header search includes completed and planned work. Work filters/sorting and reassignment update real local owner/deadline/history. Failed images retain evidence identity and do not substitute another photo. Panel focus returns to its invoker and search retains typing focus. Draft edits preserve scene color/pin references. New work without defined fixture checks cannot produce a simulated completion from a generated image.
+
+The apartment now exports 100 rooms, preserving both source `1.02 · toilet` GUIDs. A nullable IFC GUID migration preserves legacy IDs only when the source footprint also matches. Previously saved local completion on a split room is archived and reopened for review.
+
+Use [CLIENT_DEMO.md](CLIENT_DEMO.md) to rehearse. Buildable iteration UI items are implemented; physical WebGL/camera/PWA/assistive acceptance is still open. Live checks, shared field records, original approved sheet/detail integration, private role scopes and chosen-interface surface-point placement remain pilot work.

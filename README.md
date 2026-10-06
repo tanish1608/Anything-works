@@ -31,7 +31,7 @@ The 3D model helps people find and understand the work. AI helps interpret the u
 
 Our initial customer hypothesis is US residential and multifamily general contractors and developer-builders. The product direction includes structure, MEP, interiors and closeout; individual checks will be introduced and validated in stages.
 
-The planned interface serves customers/clients, contractors/project managers, subcontractor leads and field crews through different views of the same project and building model. Their visibility and actions will follow project roles; see the [user-view backlog](TODO.md). The current website is a PM-oriented local testing experience with sign-in disabled.
+The planned interface serves customers/clients, contractors/project managers, subcontractor leads and field crews through different views of the same project and building model. Their visibility and actions will follow project roles; see the [user-view backlog](TODO.md). The website defaults to a public PM testing experience with optional public user-view previews. Private model onboarding connects an account inside the same workspace; public samples remain sign-in free.
 
 ## Example
 
@@ -46,7 +46,8 @@ The current website builds on the earlier **SiteMesh** prototype:
 - One large building workspace at `/`, with contextual panels for work/issues, evidence and decisions, daily updates, progress history, teams and project context. There are no separate Home/Logs/Building model pages.
 - A public duplex with 1,282 actual IFC components, exploded floors, exterior walls/roof initially hidden, source-system controls, component zoom, model pins and linked 2D silhouettes. Floor, reviewed Unit A/B and room locations share the original source geometry and IDs.
 - Browser-local capture, offline update identity, human review, corrections and progress replay on the same model. Uploaded photos await review; the live assessment agent is not connected.
-- Retained backend foundations for model import, drawing review, photo uploads, permissions and Gemini analysis. These are not yet connected to the chosen public interface.
+- Real authenticated project creation/IFC upload, draft preview and explicit reference approval inside the chosen interface. Private geometry uses authorized requests. Private field capture/review persistence and live AI remain pending.
+- Public customer, PM, subcontractor and field-worker previews, all-status search, team/due-date controls and a larger 3,504-component apartment sample.
 
 These are foundations. The new daily quality-checking workflow, calibrated automatic completion, reliable plan comparison and broad real-site coverage are **not yet delivered or validated**. Existing “installed” verdicts do not establish correct installation.
 
@@ -63,6 +64,7 @@ See [current implementation and gaps](STATUS.md) and [design implementation note
 | [Current status](STATUS.md) | What is implemented versus planned |
 | [UI iteration 2 backlog](docs/UI_TODO_ITERATION_2.md) | Dedicated interface checklist and acceptance work |
 | [Apartment import test](samples/ifc/schependomlaan/README.md) | Larger source project, import fidelity and real upload acceptance |
+| [Client demo](docs/CLIENT_DEMO.md) | Walkthrough, capability boundaries, rehearsal and pilot priorities |
 | [Building workspace](docs/BUILDING_WORKSPACE.md) | Current canvas/panel UI, source locations and testing boundaries |
 | [Shared model workflow](docs/MODEL_WORKFLOW.md) | Import/review setup, spatial hierarchy, daily evidence and shared progress |
 | [Detailed BIM audit](docs/BIM_AUDIT.md) | Real-project import results, viewer choice, precise locations and P3 verification |

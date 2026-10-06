@@ -520,3 +520,230 @@ describe("one building workspace", () => {
     expect(saved()?.assessmentJobs || []).toHaveLength(0);
   });
 });
+
+it("searches accepted work across the default attention filter and preserves search focus", async () => {
+  renderAt("/");
+  await ready();
+  const search = screen.getByLabelText("Search building records");
+  await userEvent.type(search, "Kitchen sink");
+  expect(search).toHaveFocus();
+  expect(screen.getByText("Searching all statuses.")).toBeInTheDocument();
+  await userEvent.click(
+    screen.getByRole("button", { name: /Kitchen sink connections\./ }),
+  );
+  expect(
+    screen.getByRole("heading", { name: "Kitchen sink connections" }),
+  ).toBeInTheDocument();
+});
+
+it("changes the responsible owner and due date without resolving an open issue", async () => {
+  renderAt("/?panel=record&work=ISS-031");
+  await ready();
+  await userEvent.click(
+    screen.getByRole("button", { name: "Change owner / due date" }),
+  );
+  await userEvent.clear(screen.getByLabelText("Assignee"));
+  await userEvent.type(screen.getByLabelText("Assignee"), "New plumbing lead");
+  fireEvent.change(screen.getByLabelText("Due date"), {
+    target: { value: "2026-10-15" },
+  });
+  await userEvent.type(
+    screen.getByLabelText("Decision reason"),
+    "Crew change; preserve the open correction.",
+  );
+  await userEvent.click(screen.getByRole("button", { name: "Save decision" }));
+  const record = saved().items.find((i) => i.id === "ISS-031")!;
+  expect(record.owner).toBe("New plumbing lead");
+  expect(record.due).toBe("2026-10-15");
+  expect(record.issue).toBeTruthy();
+  expect(record.status).toBe("issue");
+  expect(saved().events[0].text).toContain("owner New plumbing lead");
+});
+
+it("previews a read-only customer and scoped field worker without remounting the building", async () => {
+  renderAt("/?panel=project");
+  await ready();
+  const mounts = scene.mount.mock.calls.length;
+  await userEvent.selectOptions(
+    screen.getByLabelText("Preview user experience"),
+    "customer",
+  );
+  expect(screen.getByRole("button", { name: "New update" })).toBeDisabled();
+  await userEvent.click(
+    screen.getByRole("button", { name: "Model pin F-118" }),
+  );
+  expect(
+    screen.queryByRole("button", { name: "Confirm an issue" }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.getByText(/Project-manager review is required/),
+  ).toBeInTheDocument();
+  await userEvent.click(screen.getByRole("button", { name: "Return to PM" }));
+  await menu("Project context");
+  await userEvent.selectOptions(
+    screen.getByLabelText("Preview user experience"),
+    "worker",
+  );
+  expect(screen.getByRole("button", { name: "New update" })).toBeEnabled();
+  await userEvent.click(screen.getByRole("button", { name: "New update" }));
+  const options = within(screen.getByLabelText("Work item")).getAllByRole(
+    "option",
+  );
+  expect(options.length).toBeGreaterThan(0);
+  expect(options.length).toBeLessThan(model.elements.length);
+  expect(scene.mount.mock.calls.length).toBe(mounts);
+});
+
+it("focuses the contextual panel and restores the invoking button on close", async () => {
+  renderAt("/");
+  await ready();
+  const trigger = screen.getByLabelText("Open work and issues");
+  await userEvent.click(trigger);
+  expect(screen.getByRole("complementary")).toHaveFocus();
+  await userEvent.click(screen.getByLabelText("Close side panel"));
+  expect(trigger).toHaveFocus();
+});
+
+it("retains unavailable photo evidence instead of substituting an unrelated image", async () => {
+  renderAt("/?panel=record&work=F-118");
+  await ready();
+  const image = within(
+    screen.getByLabelText("Enlarge evidence photo"),
+  ).getByRole("img");
+  fireEvent.error(image);
+  expect(screen.getByText(/Photo unavailable/)).toBeInTheDocument();
+  expect(
+    screen.getByRole("heading", { name: "Bedroom door — placement review" }),
+  ).toBeInTheDocument();
+});
+
+it("creates a private project, previews a real draft in the shared canvas and requires explicit approval", async () => {
+  let created = false,
+    imported = false,
+    approved = false;
+  const requests: string[] = [];
+  const project = {
+    id: "private-project",
+    name: "Client apartment",
+    my_role: "owner",
+    my_trades: [],
+    my_zone_ids: null,
+  };
+  const level = model.plans.find((p) => p.elements.length)!,
+    version = () => ({
+      id: "private-revision",
+      number: 1,
+      status: approved ? "approved" : "draft",
+      is_current: approved,
+      message: "Client IFC",
+    });
+  vi.mocked(fetch).mockImplementation(async (input, init) => {
+    const path = String(input);
+    requests.push(path);
+    let body: unknown;
+    if (path === "/api/auth/login")
+      body = { access_token: "test-private", refresh_token: "test-refresh" };
+    else if (path === "/api/auth/me")
+      body = { id: "client-pm", name: "Client PM", email: "pm@example.com" };
+    else if (path === "/api/projects" && init?.method === "POST") {
+      created = true;
+      body = project;
+    } else if (path === "/api/projects") body = created ? [project] : [];
+    else if (path === "/api/projects/private-project") body = project;
+    else if (path.includes("/models/import")) {
+      imported = true;
+      expect((init?.body as FormData).getAll("files")).toHaveLength(1);
+      body = { id: "import-job", status: "queued" };
+    } else if (path === "/api/jobs/import-job")
+      body = {
+        id: "import-job",
+        status: "done",
+        result: { version_id: "private-revision" },
+      };
+    else if (path === "/api/models/private-revision/approve") {
+      approved = true;
+      body = version();
+    } else if (path.endsWith("/models")) body = imported ? [version()] : [];
+    else if (path.includes("/viewer"))
+      body = {
+        version: imported ? version() : null,
+        layers: imported
+          ? [
+              {
+                discipline: "architecture",
+                context: false,
+                url: "/api/models/private-revision/meshes/architecture.glb",
+              },
+            ]
+          : [],
+      };
+    else if (path.includes("/elements"))
+      body = imported
+        ? model.elements.filter((e) => e.level_id === level.id).slice(0, 2)
+        : [];
+    else if (path.endsWith("/tree"))
+      body = imported
+        ? [{ name: "Building", levels: [{ ...level, zones: level.rooms }] }]
+        : [];
+    else if (path.includes("/plans/")) body = level;
+    else throw Error(`Unexpected request ${path}`);
+    return new Response(JSON.stringify(body), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    });
+  });
+  renderAt("/?panel=import");
+  await ready();
+  await userEvent.type(screen.getByLabelText("Email"), "pm@example.com");
+  await userEvent.type(screen.getByLabelText("Password"), "test-password");
+  await userEvent.click(
+    screen.getByRole("button", { name: "Connect account" }),
+  );
+  await screen.findByText("Client PM");
+  await userEvent.type(
+    screen.getByLabelText("Project name"),
+    "Client apartment",
+  );
+  await userEvent.click(screen.getByRole("button", { name: "Create project" }));
+  await screen.findByText("No model yet. Upload IFC to begin.");
+  expect(screen.queryByText("Sarah Jenkins")).not.toBeInTheDocument();
+  await userEvent.upload(
+    await screen.findByLabelText("IFC model files"),
+    new File(["ISO-10303-21;"], "client.ifc"),
+  );
+  await userEvent.click(
+    screen.getByRole("button", { name: "Upload as draft" }),
+  );
+  const approve = await screen.findByRole("button", {
+    name: "Approve as project reference",
+  });
+  expect(approve).toBeDisabled();
+  expect(approved).toBe(false);
+  expect(scene.last!.data.source.apiProjectId).toBe("private-project");
+  expect(scene.last!.data.plans[0].elements.length).toBeGreaterThan(0);
+  expect(scene.last!.loader).toBeDefined();
+  expect(scene.last!.markers).toHaveLength(0);
+  expect(screen.getByRole("button", { name: "New update" })).toBeDisabled();
+  await userEvent.click(
+    screen.getByLabelText("I reviewed this source structure and geometry."),
+  );
+  await userEvent.click(approve);
+  await screen.findByText("Connected model · work records pending");
+  expect(approved).toBe(true);
+  expect(requests).toContain("/api/models/private-revision/approve");
+  expect(screen.getByRole("button", { name: "New update" })).toBeDisabled();
+}, 10000);
+
+it("keeps scene colors and pins stable while writing a daily-update draft", async () => {
+  renderAt("/?panel=capture&work=PLUMB-402");
+  await ready();
+  const colors = scene.last!.colors,
+    markers = scene.last!.markers;
+  await userEvent.type(
+    screen.getByLabelText("What changed?"),
+    "Finished the connection.",
+  );
+  expect(scene.last!.colors).toBe(colors);
+  expect(scene.last!.markers).toBe(markers);
+  expect(saved().draft?.note).toBe("Finished the connection.");
+});

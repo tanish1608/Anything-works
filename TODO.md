@@ -27,14 +27,20 @@ This supersedes the earlier tab-based Home/Logs/Building layout. The building is
 - [x] Redirect old page bookmarks to root query-state panels, preserving work selections and fragments.
 - [x] Add DOM workflow tests for the persistent viewer, source hierarchy, capture target changes, review/history and offline handoffs; verify pin body/centre picking with real three.js CPU ray tests. All 85 frontend tests and production compilation pass.
 - [ ] Review the dark theme, real WebGL camera paths/pins and responsive layout on desktop and physical phones. Renderer-stub/CPU tests do not establish visual acceptance.
-- [ ] Finish keyboard access to untracked model components and assistive-technology review of the spatial explorer.
-- [ ] Bring real project/model import, reviewed unit metadata, permissions and persistence into this canvas/panel interface; keep customer and trade views on the same model rather than adding separate model pages.
+- [x] Connect model reference approval to source-location invalidation: a changed room/floor association reopens prior completion even when geometry is unchanged.
+- [ ] Integrate precise surface-point pin placement into the chosen capture/record UI; current public work pins use component centers. Retained viewer/API point support is a foundation.
+- [x] Add searchable/paged keyboard access to source components and contextual panel focus/restoration.
+- [ ] Complete physical keyboard/screen-reader acceptance of the spatial explorer.
+- [x] Connect optional authenticated project creation/IFC import, draft preview and explicit model approval in this interface.
+- [ ] Bring reviewed unit metadata and persistent evidence/review/correction records with real actor/role scopes into this canvas/panel interface; keep customer and trade views on the same model rather than adding separate model pages.
 
 See [the building workspace handoff](docs/BUILDING_WORKSPACE.md) for UI behavior, source files and remaining integration boundaries.
 
+See [the client demo walkthrough](docs/CLIENT_DEMO.md) for current capability boundaries and rehearsal checks.
+
 ## Current testing setup and next priorities
 
-The chosen website is `/`, with one building canvas and contextual project pulse, work/issues, history, team, project context and capture panels. Authentication is disabled for this browser-local testing experience: no account, token or sign-in is required. The current view uses a sample PM identity and public model. Backend APIs retain their existing authentication and project permissions; the website does not bypass them or load private projects anonymously.
+The chosen website is `/`, with one building canvas and contextual project pulse, work/issues, history, team, project context and capture panels. Authentication is disabled for this browser-local testing experience: no account, token or sign-in is required. The public view uses a sample PM identity/model and offers user-experience previews. Optional private model onboarding connects an account inside the same UI. Backend APIs retain their existing authentication and project permissions; the website does not bypass them or load private projects anonymously.
 
 - [x] Open the root website and its pages without an authentication provider or sign-in gate; redirect the retired `/login` URL to Home.
 - [x] Preserve saved browser records when moving from `/demo` to root URLs.
@@ -44,7 +50,7 @@ The chosen website is `/`, with one building canvas and contextual project pulse
 - [ ] Restore sign-in, invitations and server-enforced project/role scopes in this UI before enabling real multi-user project data; keep any sample-only preview explicitly separate from private records.
 - [ ] Connect traceable assessment jobs after persisted evidence, reference revisions, review and correction workflows are working.
 
-Suggested order: role/view design → project storage and approved-model onboarding → capture/review/correction persistence → scoped user access → assessment integration → field/device acceptance. Role screens are still planned; the existing website is the shared PM testing experience.
+Suggested order: shared capture/review/correction persistence → approved drawing/detail context → scoped user access → assessment integration → field/device acceptance. Role screens are still planned; the existing website is the shared PM testing experience.
 
 ## Completed in the designer implementation
 
@@ -115,7 +121,7 @@ The detailed completed demo interactions are checked in the packages below. No p
 - [x] Split the frontend inspection routes and 3D engine into separate bundles; the production build no longer reports an oversized main bundle.
 - [ ] Resolve the remaining route-menu reset and WebGL-fallback lint warnings.
 
-## Role-specific user views — planned, not implemented
+## Role-specific user views — public previews implemented; production scopes pending
 
 Use one project, one model revision and the same work/evidence records, with different summaries, navigation and permitted actions. A role view filters the shared model and pins; it must not create a different building or a second progress history.
 
@@ -129,8 +135,9 @@ Use one project, one model revision and the same work/evidence records, with dif
 | Company / project administrator — later | Projects, invitations, teams, role/location scope and settings | Manage access and configuration explicitly granted to the administrator; do not implicitly grant construction acceptance authority. |
 
 - [ ] Agree on the initial role/action matrix and customer-visible fields with the team; ship customer, contractor/PM and subcontractor experiences first.
-- [ ] Design role-specific building summaries, contextual panels and permitted actions; provide a compact field-worker mode rather than exposing the PM dashboard on a phone.
-- [ ] Reuse the persistent building canvas and history, team, capture and review panels with role-aware projections; retain consistent pin selection, evidence links and completion provenance across views.
+- [x] Implement public PM/customer/subcontractor/field-worker presentation previews: customer read-only, crew-assigned work/capture, PM decisions and one persistent model.
+- [ ] Review customer sharing/release fields and field capture on real phones; public previews are not private permission enforcement.
+- [x] Reuse the persistent building canvas and shared local records with role-aware projections and consistent evidence/progress provenance in public previews.
 - [ ] Define customer sharing/release controls, customer questions and requested decisions; identify which milestones and evidence are visible before sharing them.
 - [ ] Scope subcontractor and worker work lists, model components, plans, evidence and contacts by project membership, trade and assigned locations.
 - [ ] Distinguish client/customer access from the existing backend `owner` role. Existing roles are `owner`, `pm`, `trade` and `viewer`; design any new role/permission migrations explicitly rather than giving clients administrative owner permissions.

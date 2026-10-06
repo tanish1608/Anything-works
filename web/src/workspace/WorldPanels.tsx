@@ -1,4 +1,6 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { api } from "../api/client";
+import type { ElementDetail } from "../api/types";
 import { Icon } from "../studio/Icon";
 import ModelPlan from "../viewer/ModelPlan";
 import { useWorkspace } from "./context";
@@ -18,6 +20,8 @@ import {
   workPath,
   type Panel,
 } from "./spatialNavigation";
+import EvidenceImage from "./EvidenceImage";
+import { VIEW_ROLES, type ViewRole } from "./viewRoles";
 import WorldDialog from "./WorldDialog";
 import { plannedComponent, availabilityStorageKey } from "./projectState";
 
@@ -64,7 +68,7 @@ function WorkRow({ item, open }: { item: WorkItem; open: Open }) {
   );
 }
 export function SummaryPanel({ open }: { open: Open }) {
-  const { state } = useWorkspace();
+  const { state, canCapture } = useWorkspace();
   const issues = state.items.filter((i) => i.issue),
     review = state.items.filter((i) =>
       ["review", "evidence", "failed", "unsupported"].includes(i.status),
@@ -99,9 +103,11 @@ export function SummaryPanel({ open }: { open: Open }) {
           View all <Icon name="arrow" size={13} />
         </button>
       </div>
-      {[...issues, ...review].slice(0, 4).map((i) => (
-        <WorkRow key={i.id} item={i} open={open} />
-      ))}
+      {[...new Map([...issues, ...review].map((i) => [i.id, i])).values()]
+        .slice(0, 4)
+        .map((i) => (
+          <WorkRow key={i.id} item={i} open={open} />
+        ))}
       <div className="world-note">
         <Icon name="spark" size={17} />
         <p>
@@ -112,6 +118,7 @@ export function SummaryPanel({ open }: { open: Open }) {
       <button
         className="world-primary world-wide"
         onClick={() => open("capture")}
+        disabled={!canCapture}
       >
         <Icon name="camera" size={16} />
         Add a daily update
@@ -122,21 +129,53 @@ export function SummaryPanel({ open }: { open: Open }) {
 export function IssuesPanel({ open, search }: { open: Open; search: string }) {
   const { state, model } = useWorkspace();
   const [filter, setFilter] = useState("attention");
-  const rows = state.items.filter((i) => {
-    if (filter === "issues" && !i.issue) return false;
-    if (
-      filter === "attention" &&
-      !["issue", "review", "evidence", "failed", "unsupported"].includes(
-        i.status,
-      )
-    )
-      return false;
-    if (filter === "complete" && !["human", "ai"].includes(i.status))
-      return false;
-    return `${i.id} ${i.title} ${i.owner} ${i.trade} ${workPath(model, i).join(" ")}`
-      .toLowerCase()
-      .includes(search.toLowerCase());
-  });
+  const [sort, setSort] = useState("priority");
+  const [owner, setOwner] = useState("");
+  const [limit, setLimit] = useState(40);
+  const rows = state.items
+    .filter((i) => {
+      // Header search spans all statuses; a planned or accepted item must remain findable.
+      if (!search.trim()) {
+        if (filter === "issues" && !i.issue) return false;
+        if (
+          filter === "attention" &&
+          !["issue", "review", "evidence", "failed", "unsupported"].includes(
+            i.status,
+          )
+        )
+          return false;
+        if (filter === "complete" && !["human", "ai"].includes(i.status))
+          return false;
+      }
+      if (owner && i.owner !== owner) return false;
+      return `${i.id} ${i.title} ${i.owner} ${i.trade} ${workPath(model, i).join(" ")}`
+        .toLowerCase()
+        .includes(search.toLowerCase().trim());
+    })
+    .sort((a, b) => {
+      if (sort === "due")
+        return (
+          (a.due || "9999").localeCompare(b.due || "9999") ||
+          a.title.localeCompare(b.title)
+        );
+      if (sort === "owner")
+        return a.owner.localeCompare(b.owner) || a.title.localeCompare(b.title);
+      const rank = (i: WorkItem) =>
+        i.issue
+          ? 0
+          : ["review", "failed"].includes(i.status)
+            ? 1
+            : ["evidence", "unsupported"].includes(i.status)
+              ? 2
+              : i.status === "none"
+                ? 3
+                : 4;
+      return (
+        rank(a) - rank(b) ||
+        (a.due || "9999").localeCompare(b.due || "9999") ||
+        a.title.localeCompare(b.title)
+      );
+    });
   return (
     <>
       <div className="world-panel-intro">
@@ -163,12 +202,51 @@ export function IssuesPanel({ open, search }: { open: Open; search: string }) {
           </button>
         ))}
       </div>
+      <div className="world-list-controls">
+        <label>
+          Sort
+          <select
+            aria-label="Sort work records"
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+          >
+            <option value="priority">Issues first</option>
+            <option value="due">Due date</option>
+            <option value="owner">Responsible team</option>
+          </select>
+        </label>
+        <label>
+          Team
+          <select
+            aria-label="Filter responsible team"
+            value={owner}
+            onChange={(e) => {
+              setOwner(e.target.value);
+              setLimit(40);
+            }}
+          >
+            <option value="">All teams</option>
+            {[...new Set(state.items.map((i) => i.owner))].sort().map((o) => (
+              <option key={o}>{o}</option>
+            ))}
+          </select>
+        </label>
+      </div>
+      {search.trim() && <p className="world-muted">Searching all statuses.</p>}
       <span className="world-list-count">
         {rows.length} {rows.length === 1 ? "record" : "records"}
       </span>
-      {rows.map((i) => (
+      {rows.slice(0, limit).map((i) => (
         <WorkRow key={i.id} item={i} open={open} />
       ))}
+      {rows.length > limit && (
+        <button
+          className="world-secondary world-wide"
+          onClick={() => setLimit((n) => n + 40)}
+        >
+          Show more records ({rows.length - limit} remaining)
+        </button>
+      )}
       {!rows.length && (
         <div className="world-empty">
           <Icon name="search" size={28} />
@@ -200,6 +278,7 @@ export function LocationsPanel({
 }) {
   const { model, state } = useWorkspace();
   const [query, setQuery] = useState("");
+  const [componentLimit, setComponentLimit] = useState(40);
   const plan = model.plans.find((p) => p.id === level);
   const groups = [
     ...new Set(plan?.rooms.map((r) => unitForRoom(model, r.code)) || []),
@@ -221,6 +300,17 @@ export function LocationsPanel({
           : unitForRoom(model, i.location?.spaceCode) === unit)) &&
       (!room || i.location?.roomId === room),
   );
+  const components = model.elements.filter((e) => {
+    if ((level && e.level_id !== level) || (room && e.zone_id !== room))
+      return false;
+    if (unit && !room && !rooms.some((r) => r.id === e.zone_id)) return false;
+    return (
+      !query.trim() ||
+      `${e.name} ${e.ifc_guid} ${e.id} ${e.discipline} ${e.ifc_class}`
+        .toLowerCase()
+        .includes(query.toLowerCase().trim())
+    );
+  });
   return (
     <>
       <div className="world-panel-intro">
@@ -270,7 +360,7 @@ export function LocationsPanel({
             <button
               className={`world-location-row ${room === r.id ? "selected" : ""}`}
               key={r.id}
-              aria-label={`Explore ${r.name} · ${r.code || "No space code"}`}
+              aria-label={`Explore ${r.name} · ${r.code || "No space code"}${rooms.filter((other) => other.code === r.code && other.name === r.name).length > 1 ? ` · source ${r.ifc_guid || r.id}` : ""}`}
               onClick={() => scope(plan.id, unitForRoom(model, r.code), r.id)}
             >
               <Icon name="cube" size={18} />
@@ -278,6 +368,11 @@ export function LocationsPanel({
                 <strong>{r.name}</strong>
                 <small>
                   {r.code || "No space code"}
+                  {rooms.filter(
+                    (other) => other.code === r.code && other.name === r.name,
+                  ).length > 1
+                    ? ` · source ${(r.ifc_guid || r.id).slice(0, 8)}`
+                    : ""}
                   {unitForRoom(model, r.code)
                     ? ` · Unit ${unitForRoom(model, r.code)}`
                     : ""}
@@ -313,42 +408,43 @@ export function LocationsPanel({
             type="search"
             value={query}
             placeholder="Name, system or source ID…"
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setComponentLimit(40);
+            }}
           />
         </label>
-        {model.elements
-          .filter((e) => {
-            if ((level && e.level_id !== level) || (room && e.zone_id !== room))
-              return false;
-            if (unit && !room && !rooms.some((r) => r.id === e.zone_id))
-              return false;
-            return (
-              !query.trim() ||
-              `${e.name} ${e.ifc_guid} ${e.id} ${e.discipline} ${e.ifc_class}`
-                .toLowerCase()
-                .includes(query.toLowerCase().trim())
-            );
-          })
-          .slice(0, 40)
-          .map((e) => (
-            <button
-              className="world-location-row"
-              key={e.id}
-              onClick={() => selectElement(e.id)}
-            >
-              <Icon name="cube" size={17} />
-              <span>
-                <strong>{e.name || e.ifc_class}</strong>
-                <small>
-                  {e.discipline} · {e.ifc_guid}
-                </small>
-              </span>
-              <Icon name="chevron" size={15} />
-            </button>
-          ))}
+        {components.slice(0, componentLimit).map((e) => (
+          <button
+            className="world-location-row"
+            key={e.id}
+            onClick={() => selectElement(e.id)}
+          >
+            <Icon name="cube" size={17} />
+            <span>
+              <strong>{e.name || e.ifc_class}</strong>
+              <small>
+                {e.discipline} · {e.ifc_guid}
+              </small>
+            </span>
+            <Icon name="chevron" size={15} />
+          </button>
+        ))}
         <p className="world-muted">
-          Showing up to 40 components. Search to narrow this selection.
+          Showing {Math.min(components.length, componentLimit)} of{" "}
+          {components.length} source components.
         </p>
+        {components.length > componentLimit && (
+          <button
+            className="world-secondary world-wide"
+            onClick={() => setComponentLimit((n) => n + 40)}
+          >
+            Show more components
+          </button>
+        )}
+        {!components.length && (
+          <p>No source components match this selection.</p>
+        )}
       </section>
     </>
   );
@@ -362,7 +458,7 @@ export function RecordPanel({
   open: Open;
   locate: () => void;
 }) {
-  const { model, state, act } = useWorkspace();
+  const { model, state, act, canReview, canCapture } = useWorkspace();
   const latestJob = state.assessmentJobs?.find(
     (j) => j.item === item.id && j.update === item.update,
   );
@@ -393,8 +489,8 @@ export function RecordPanel({
   const perform = () => {
     if (!review) return;
     const action: Action =
-      review === "confirm"
-        ? { type: "confirm", id: item.id, owner, due, reason }
+      review === "confirm" || review === "assign"
+        ? { type: review, id: item.id, owner, due, reason }
         : { type: review, id: item.id, reason };
     if (act(action)) {
       setReview(null);
@@ -422,7 +518,7 @@ export function RecordPanel({
             onClick={() => setLightbox(true)}
             aria-label="Enlarge evidence photo"
           >
-            <img src={displayedPhoto.url} alt={displayedPhoto.name} />
+            <EvidenceImage src={displayedPhoto.url} alt={displayedPhoto.name} />
             <span>
               <Icon name="expand" size={15} />
             </span>
@@ -450,7 +546,7 @@ export function RecordPanel({
                 onClick={() => setImage(n)}
                 aria-label={`Evidence photo ${n + 1}`}
               >
-                <img src={p.url} alt="" />
+                <EvidenceImage src={p.url} alt="" />
               </button>
             ))}
           </div>
@@ -469,7 +565,7 @@ export function RecordPanel({
           >
             <Icon name="close" />
           </button>
-          <img src={displayedPhoto.url} alt={displayedPhoto.name} />
+          <EvidenceImage src={displayedPhoto.url} alt={displayedPhoto.name} />
           <p>
             {displayedPhoto.sample
               ? "Generated sample image"
@@ -569,7 +665,20 @@ export function RecordPanel({
       )}
       <section className="world-detail-section">
         <h3>Next action</h3>
-        {item.processing === "queued" ? (
+        {!canReview ? (
+          <div className="world-note">
+            <Icon name="eye" />
+            <p>
+              Project-manager review is required for acceptance and issue
+              resolution.
+            </p>
+            {canCapture && (
+              <button onClick={() => open("capture", item.id)}>
+                Add daily update
+              </button>
+            )}
+          </div>
+        ) : item.processing === "queued" ? (
           <div className="world-note">
             <Icon name="wifi" />
             <p>
@@ -642,7 +751,7 @@ export function RecordPanel({
               className="world-text-action"
               onClick={() => startReview("assign")}
             >
-              Record an assignment note
+              Change owner / due date
             </button>
           </div>
         )}
@@ -666,7 +775,7 @@ export function RecordPanel({
             {review === "resolve" && item.condition && (
               <p className="world-condition">{item.condition}</p>
             )}
-            {review === "confirm" && (
+            {(review === "confirm" || review === "assign") && (
               <>
                 <label>
                   Assignee
@@ -774,12 +883,37 @@ export function RecordPanel({
   );
 }
 export function ComponentPanel({ id, open }: { id: string; open: Open }) {
-  const { model, state, act } = useWorkspace();
+  const { model, state, act, canPlan } = useWorkspace();
   const [tracking, setTracking] = useState(false),
     [title, setTitle] = useState(""),
     [owner, setOwner] = useState(""),
     [error, setError] = useState("");
-  const element = model.elements.find((e) => e.id === id);
+  const [detail, setDetail] = useState<{
+    version: string;
+    element: ElementDetail;
+  } | null>(null);
+  const [detailError, setDetailError] = useState("");
+  const [propertyQuery, setPropertyQuery] = useState("");
+  useEffect(() => {
+    if (!model.source.apiProjectId) return;
+    let active = true;
+    api<ElementDetail>(
+      `/elements/${encodeURIComponent(id)}?version=${encodeURIComponent(model.version)}`,
+    )
+      .then((element) => {
+        if (active) setDetail({ version: model.version, element });
+      })
+      .catch((e) => {
+        if (active) setDetailError(e.message);
+      });
+    return () => {
+      active = false;
+    };
+  }, [id, model.version, model.source.apiProjectId]);
+  const element =
+    detail?.version === model.version && detail.element.id === id
+      ? detail.element
+      : model.elements.find((e) => e.id === id);
   if (!element)
     return (
       <div className="world-empty">
@@ -842,7 +976,7 @@ export function ComponentPanel({ id, open }: { id: string; open: Open }) {
           </p>
         </div>
       )}
-      {!work.length && plan && !tracking && (
+      {!work.length && plan && !tracking && canPlan && (
         <button
           className="world-primary"
           onClick={() => {
@@ -902,6 +1036,39 @@ export function ComponentPanel({ id, open }: { id: string; open: Open }) {
           </div>
         </form>
       )}
+      <details className="world-source-details">
+        <summary>
+          All source properties ({Object.keys(element.props || {}).length})
+        </summary>
+        <label className="world-component-search">
+          Find a property
+          <input
+            value={propertyQuery}
+            onChange={(e) => setPropertyQuery(e.target.value)}
+            placeholder="Material, size, manufacturer…"
+          />
+        </label>
+        {model.source.apiProjectId && !detail && !detailError && (
+          <p role="status">Loading authorized component properties…</p>
+        )}
+        {detailError && (
+          <p role="alert">Source details could not load: {detailError}</p>
+        )}
+        <dl className="world-property-list">
+          {Object.entries(element.props || {})
+            .filter(([k, v]) =>
+              `${k} ${JSON.stringify(v)}`
+                .toLowerCase()
+                .includes(propertyQuery.toLowerCase()),
+            )
+            .map(([k, v]) => (
+              <div key={k}>
+                <dt>{k}</dt>
+                <dd>{typeof v === "object" ? JSON.stringify(v) : String(v)}</dd>
+              </div>
+            ))}
+        </dl>
+      </details>
       <details className="world-source-details">
         <summary>Source identity</summary>
         <p>{element.id}</p>
@@ -1040,7 +1207,7 @@ export function UpdatePanel({
           <div className="world-upload-grid">
             {draft.photos.map((p) => (
               <figure key={p.id}>
-                <img src={p.url} alt={p.name} />
+                <EvidenceImage src={p.url} alt={p.name} />
                 <button
                   type="button"
                   aria-label={`Remove ${p.name}`}
@@ -1258,7 +1425,7 @@ export function ActivityPanel({
   );
 }
 export function TeamPanel() {
-  const { state, model } = useWorkspace();
+  const { state, model, canReview } = useWorkspace();
   const peopleKey = availabilityStorageKey(model);
   const [availability, setAvailability] = useState<Record<string, string>>(
     () => {
@@ -1330,6 +1497,7 @@ export function TeamPanel() {
             <label>
               Availability
               <select
+                disabled={!canReview}
                 value={availability[owner] || "Not set"}
                 onChange={(e) => update(owner, e.target.value)}
               >
@@ -1350,8 +1518,17 @@ export function TeamPanel() {
     </>
   );
 }
-export function ProjectPanel({ reset }: { reset: () => void }) {
-  const { model, state, act } = useWorkspace();
+export function ProjectPanel({
+  reset,
+  openImport,
+  owners = [],
+}: {
+  reset: () => void;
+  openImport?: () => void;
+  owners?: string[];
+}) {
+  const { model, state, act, view, previewOwner, changeView, canReview } =
+    useWorkspace();
   const [name, setName] = useState(state.projectName);
   return (
     <>
@@ -1362,6 +1539,53 @@ export function ProjectPanel({ reset }: { reset: () => void }) {
           The design, spatial structure and work records behind this building.
         </p>
       </div>
+      {changeView && !model.source.apiProjectId && (
+        <section className="world-detail-section">
+          <h3>Preview a user experience</h3>
+          <label className="world-import-select">
+            View
+            <select
+              aria-label="Preview user experience"
+              value={view}
+              onChange={(e) =>
+                changeView(
+                  e.target.value as ViewRole,
+                  previewOwner || owners[0] || "",
+                )
+              }
+            >
+              {VIEW_ROLES.map((r) => (
+                <option value={r.id} key={r.id}>
+                  {r.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="world-import-select">
+            Crew for field / subcontractor preview
+            <select
+              aria-label="Preview crew"
+              value={previewOwner || owners[0] || ""}
+              onChange={(e) => changeView(view, e.target.value)}
+            >
+              {owners.map((o) => (
+                <option key={o}>{o}</option>
+              ))}
+            </select>
+          </label>
+          <p className="world-muted">
+            Public-sample presentation only. Customer: evidence and progress;
+            PM: decisions and coordination; subcontractor: assigned work and
+            corrections; field worker: assigned daily capture. These previews do
+            not grant private-project permissions.
+          </p>
+        </section>
+      )}
+      {openImport && (
+        <button className="world-primary world-wide" onClick={openImport}>
+          Add / import a project
+        </button>
+      )}
       <form
         className="world-update-form"
         onSubmit={(e) => {
@@ -1373,11 +1597,12 @@ export function ProjectPanel({ reset }: { reset: () => void }) {
           Project name
           <input
             required
+            disabled={!canReview}
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
         </label>
-        <button className="world-secondary" type="submit">
+        <button className="world-secondary" type="submit" disabled={!canReview}>
           Save project name
         </button>
       </form>
@@ -1402,20 +1627,23 @@ export function ProjectPanel({ reset }: { reset: () => void }) {
         <h3>Model and location context</h3>
         <p>{model.source.attribution}</p>
         <p className="world-muted">
-          {model.source.license}. Public sample geometry; not an approved
-          construction document. Unit display groups follow this sample's
-          reviewed room associations. Unknown locations remain unassigned.
+          {model.source.apiProjectId
+            ? `Private upload · ${model.source.approvalStatus} reference. Model approval does not establish installed progress or inspection approval. Unit associations need project review.`
+            : `${model.source.license}. Public sample geometry; not an approved construction document. Unit display groups follow this sample's reviewed room associations.`}{" "}
+          Unknown locations remain unassigned.
         </p>
         <details className="world-source-details">
           <summary>Revision & source</summary>
           <p>{model.version}</p>
-          <a
-            href={`https://github.com/${model.source.repository}/tree/${model.source.revision}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            View original source
-          </a>
+          {model.source.repository && (
+            <a
+              href={`https://github.com/${model.source.repository}/tree/${model.source.revision}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              View original source
+            </a>
+          )}
         </details>
       </section>
       <section className="world-detail-section">
@@ -1426,11 +1654,12 @@ export function ProjectPanel({ reset }: { reset: () => void }) {
           only after an explicit resolution.
         </p>
         <p className="world-muted">
-          Testing uses local records and a sample PM identity. Sign-in and model
-          uploads will return when real project storage is connected.
+          Public samples use local records and a sample PM identity. Private
+          model onboarding uses the connected account; its field records are
+          still pending integration.
         </p>
       </section>
-      <button className="world-danger" onClick={reset}>
+      <button className="world-danger" onClick={reset} disabled={!canReview}>
         <Icon name="reset" size={15} />
         Reset local workspace
       </button>

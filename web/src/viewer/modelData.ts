@@ -11,6 +11,8 @@ export interface ModelDataset {
     name?: string;
     slug?: string;
     room_units?: Record<string, string>;
+    apiProjectId?: string;
+    approvalStatus?: string;
   };
   layers: {
     discipline: string;

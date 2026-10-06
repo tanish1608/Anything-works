@@ -59,6 +59,7 @@ class SpaceInfo:
     name: str
     code: str | None
     polygon: list[list[float]]
+    guid: str | None = None
 
 
 def apply_building_aliases(items: list[Item], spaces: list[SpaceInfo], aliases: dict) -> None:
@@ -198,7 +199,7 @@ def read_ifc(path: str | Path, discipline_hint: str | None = None, *, audit: dic
                 if poly:
                     name = p.LongName or p.Name or "Space"
                     spaces.append(SpaceInfo(st[0], st[1], st[2], name, p.Name if p.LongName and p.Name != name else None,
-                                            poly))
+                                            poly, p.GlobalId))
                     space_sources.append({"guid": p.GlobalId, "code": p.Name,
                                           "geometry": "tessellated" if geo is not None else "explicit_footprint"})
             continue
@@ -261,16 +262,27 @@ class _Structure:
                           entity_type="level", entity_id=lv.id, data={"name": lname, "via": "model import"})
         return lv
 
-    def zone(self, lv: Level, name: str, code: str | None, polygon: list) -> Zone:
-        # Apartment A and B both have a "Bedroom 1". Their IFC space codes are distinct.
-        identity = Zone.code == code if code else (Zone.name == name) & Zone.code.is_(None)
+    def zone(self, lv: Level, name: str, code: str | None, polygon: list, guid: str | None = None) -> Zone:
+        # Display codes/names are not identity: distinct IfcSpaces can share both.
+        label = Zone.code == code if code else (Zone.name == name) & Zone.code.is_(None)
+        identity = Zone.ifc_guid == guid if guid else label & Zone.ifc_guid.is_(None)
         z = self.db.scalar(select(Zone).where(Zone.level_id == lv.id, identity))
+        if z is None and guid:
+            legacy = list(self.db.scalars(select(Zone).where(Zone.level_id == lv.id, label, Zone.ifc_guid.is_(None))))
+            # Preserve an old association only when its explicit footprint also matches.
+            matching = [candidate for candidate in legacy if candidate.polygon == polygon]
+            if len(matching) == 1:
+                z = matching[0]
+                z.ifc_guid = guid
+                events.record(self.db, project_id=self.pid, actor_id=self.actor, type="zone.source_identity_bound",
+                              entity_type="zone", entity_id=z.id, zone_id=z.id, data={"ifc_guid": guid})
         if z is None:
-            z = Zone(id=new_id(), level_id=lv.id, name=name, code=code, polygon=polygon)
+            z = Zone(id=new_id(), level_id=lv.id, name=name, code=code, polygon=polygon, ifc_guid=guid)
             self.db.add(z)
             self.db.flush()
             events.record(self.db, project_id=self.pid, actor_id=self.actor, type="zone.created",
-                          entity_type="zone", entity_id=z.id, zone_id=z.id, data={"name": name, "via": "model import"})
+                          entity_type="zone", entity_id=z.id, zone_id=z.id,
+                          data={"name": name, "ifc_guid": guid, "via": "model import"})
         elif not z.polygon:
             z.polygon = polygon
         return z
@@ -297,7 +309,7 @@ def create_version(db: Session, project: Project, items: list[Item], spaces: lis
                    stats: dict | None = None) -> ModelVersion:
     st = _Structure(db, project.id, actor_id)
     for s in spaces:
-        st.zone(st.level(s.building, s.storey, s.elevation), s.name, s.code, s.polygon)
+        st.zone(st.level(s.building, s.storey, s.elevation), s.name, s.code, s.polygon, s.guid)
     db.flush()
 
     number = (db.scalar(select(func.max(ModelVersion.number)).where(ModelVersion.project_id == project.id)) or 0) + 1
@@ -349,7 +361,7 @@ def create_version(db: Session, project: Project, items: list[Item], spaces: lis
     plans = {}
     for level_id, elements in by_level.items():
         level = db.get(Level, level_id)
-        rooms = [{"id": z.id, "name": z.name, "code": z.code, "polygon": z.polygon}
+        rooms = [{"id": z.id, "name": z.name, "code": z.code, "polygon": z.polygon, "ifc_guid": z.ifc_guid}
                  for z in db.scalars(select(Zone).where(Zone.level_id == level_id)) if z.polygon]
         data = {"id": level_id, "name": level.name, "elevation_m": level.elevation_m,
                 "provenance": "IFC-derived plan silhouettes; not an approved construction drawing",

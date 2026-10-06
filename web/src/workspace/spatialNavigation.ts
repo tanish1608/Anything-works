@@ -11,6 +11,7 @@ export const PANELS = [
   "record",
   "component",
   "locations",
+  "import",
 ] as const;
 export type Panel = (typeof PANELS)[number];
 export const floorName = (name: string) => name.replace(/^Building\s*·\s*/, "");

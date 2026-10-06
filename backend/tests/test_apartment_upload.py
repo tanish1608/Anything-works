@@ -44,10 +44,19 @@ def test_real_apartment_upload_review_and_evidence_round_trip(api, client):
     tree = client.get(f"/api/projects/{pid}/tree", headers=h).json()
     levels = [lv for building in tree for lv in building["levels"]]
     assert len(levels) == 6
-    # The source contains two same-name/code 1.02 spaces; current import yields 99 distinct zone identities.
-    assert sum(len(lv["zones"]) for lv in levels) == 99
+    # The two same-name/code 1.02 spaces retain their distinct source GUID identities.
+    assert sum(len(lv["zones"]) for lv in levels) == 100
     elements = client.get(f"/api/projects/{pid}/elements", headers=h).json()
     assert len(elements) == 3504
+    all_plan_rooms = []
+    for level in levels:
+        response = client.get(f"/api/models/{vid}/plans/{level['id']}", headers=h)
+        if response.status_code == 200:
+            all_plan_rooms.extend(response.json()["rooms"])
+    duplicates = [room for room in all_plan_rooms if room["code"] == "1.02" and room["name"] == "toilet"]
+    assert len(duplicates) == 2
+    assert len({room["id"] for room in duplicates}) == 2
+    assert len({room["ifc_guid"] for room in duplicates}) == 2
     target = next(e for e in elements if e["ifc_class"] == "IfcDoor" and e["zone_id"])
     mesh = client.get(f"/api/models/{vid}/meshes/architecture.glb", headers=h)
     assert mesh.status_code == 200
@@ -76,7 +85,7 @@ def test_real_apartment_upload_review_and_evidence_round_trip(api, client):
     assert after["history"][0]["evidence_ids"]
     assert client.get(f"/api/models/{vid}/meshes/architecture.glb", headers=h).content == mesh.content
     report = {"source_sha256": manifest["files"][IFC.name], "source_bytes": len(content),
-              "elements": len(elements), "levels": len(levels), "spaces_read": 100, "distinct_zones": 99,
+              "elements": len(elements), "levels": len(levels), "spaces_read": 100, "distinct_zones": 100,
               "upload_draft_approval": "passed", "unauthenticated_access": "rejected",
               "plan_and_glb_identity": "passed", "photo_manual_review": "passed", "open_issue_preserved": True,
               "geometry_unchanged": True, "live_ai_called": False,

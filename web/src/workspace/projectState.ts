@@ -83,7 +83,8 @@ export function initialProjectState(data: ModelDataset): WorkspaceState {
       draft: null,
       projectName: data.source.name || "Imported building",
       modelVersion: data.version,
-      modelApproved: true,
+      modelApproved:
+        !data.source.apiProjectId || data.source.approvalStatus === "approved",
       assessmentJobs: [],
     };
   const items = template.items.flatMap((i): WorkItem[] => {
@@ -225,6 +226,38 @@ export function loadProjectState(data: ModelDataset) {
         raw,
       );
     return initialProjectState(data);
+  }
+  // A source-space identity repair must not silently relocate a previous green decision.
+  const rooms = new Set(data.plans.flatMap((p) => p.rooms.map((r) => r.id)));
+  let repaired = false;
+  for (const item of saved.items) {
+    if (!item.location?.roomId || rooms.has(item.location.roomId)) continue;
+    repaired = true;
+    item.location = {
+      ...item.location,
+      roomId: null,
+      roomName: "Source room identity requires review",
+      spaceCode: "",
+    };
+    if (["human", "ai"].includes(item.status)) {
+      item.status = item.issue ? "issue" : "review";
+      item.progress = "Not verified";
+    }
+    item.review = "Source room identity requires reconfirmation";
+    saved.events.unshift({
+      id: crypto.randomUUID(),
+      item: item.id,
+      at: new Date().toISOString(),
+      actor: "Source identity migration",
+      text: "Duplicate source room identity split. Previous location retained in archived records; completion requires location review.",
+      tone: item.status,
+    });
+  }
+  if (repaired) {
+    const raw = localStorage.getItem(key);
+    if (raw)
+      localStorage.setItem(`${key}:archive:room-identity:${Date.now()}`, raw);
+    localStorage.setItem(key, JSON.stringify(saved));
   }
   return saved;
 }

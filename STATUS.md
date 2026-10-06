@@ -10,9 +10,13 @@ The original implementation was built as SiteMesh. The UI now uses Everything Wo
 
 ## Design iteration 2 — October 6
 
-On `codex/design-iteration-2`, contextual panels use wider responsive proportions and larger photo space. The initial camera now fits projected bounds rather than a distant sphere; floor explosion gaps are 1.2 m. A compact project selector adds Schependomlaan Apartments (3,504 components, six source levels and 99 distinct room identities) alongside the duplex. Projects keep separate local records, drafts, decisions and availability; the original duplex key is unchanged. Untracked components can explicitly become planned work, and a searchable source-component directory supports keyboard selection.
+On `codex/design-iteration-2`, contextual panels use wider responsive proportions and larger photos. Projected camera fitting and 1.2 m explosion gaps keep the overview closer. The project selector adds Schependomlaan Apartments (3,504 components, six source levels and **100 distinct source spaces**), with isolated local records/drafts/history. All 100 outlines are recovered, including 94 explicit IFC FootPrint polylines; duplicate room codes retain separate IFC GUID identities. Existing local decisions tied to the former merged room are archived and require review rather than silently moving green progress.
 
-The apartment import exposed 94 spaces represented only by explicit IFC FootPrint outlines. Support for closed source polylines recovers all 100 space outlines; the existing duplicate-code rule yields 99 zones. Real multipart IFC upload, draft approval, authorization, plan/mesh retrieval and synthetic-photo-backed human review passed in disposable storage; progress left geometry bytes unchanged and retained the open issue. See [the source/test report](samples/ifc/schependomlaan/README.md) and [UI-only backlog](docs/UI_TODO_ITERATION_2.md). The bundled selector is not arbitrary IFC upload or production project onboarding. All 90 frontend tests and production compilation pass. The real-file upload acceptance and 18 targeted backend regression tests pass; Ruff passes for changed backend files. Frontend lint retains warnings in older components. Real WebGL/mobile appearance remains unverified.
+The chosen interface now connects optional account authentication, actual project creation, IFC upload/conversion with resumable job identity, draft preview in its shared canvas, authorized 2D/GLB retrieval and explicit reference approval. Public samples remain open without sign-in. Private field capture is disabled: its evidence/review/correction persistence and actual actor integration are not delivered. Private API responses use network-only service-worker handling; historical shared API/model caches are cleared on session changes.
+
+Public customer/PM/subcontractor/field-worker presentation previews share the same model and local record stream. Customers are read-only; crew lists/capture are assignment-scoped; PMs record decisions. These previews are not server permissions or customer-sharing controls. Search spans all statuses; work can be filtered by team and sorted by due date. Reassignment updates owner/deadline with a reason and preserves open issues. Component/property lists are searchable, source lists are paged, failed photos remain explicit, contextual focus is restored and draft typing does not rebuild scene colors/pins.
+
+Verification: **99 frontend tests** and production compilation pass. **21 backend tests** cover real-file apartment upload plus model/detail/project/seed regressions; geometry remains unchanged by progress and open issues survive human review. Disposable SQLite migration upgrade/downgrade/upgrade passes; the local dev database was backed up and upgraded to `0008` without resetting projects. Ruff passes and active UI files have no lint warnings; retained legacy warnings remain. PostgreSQL execution and browser-rendered/physical-device acceptance were not verified. See [the UI checklist](docs/UI_TODO_ITERATION_2.md) and [client demo walkthrough](docs/CLIENT_DEMO.md).
 
 ## Current building-centered interface
 
@@ -44,7 +48,7 @@ The former `/demo` UI is now the main website at `/`. All workspace links use ro
 
 Canonical routing, navigation, bookmark preservation, saved-record persistence and retired-screen behavior are covered by DOM tests. Browser smoke tests now target the chosen website; previous connected-app tests are archived and excluded. The smoke suite has not been run under the saved browser restriction. The URL change does not make browser-local records a connected production service.
 
-Authentication is intentionally disabled for current website testing: no account or token is required, including on direct page visits. The local view uses the sample PM identity. Existing backend authentication and project permissions remain active. Customer/client, contractor/PM, subcontractor and field-worker views are now specified in [TODO.md](TODO.md) as planned work; they are not implemented or enforced by the current local PM interface. Real-user sign-in, role scopes and attribution must be integrated into this chosen UI when connecting private project data.
+Public website samples remain open without an account or token and use a sample PM identity. Optional account connection/private model onboarding and public role presentation previews are now implemented inside the chosen UI. Private APIs retain server authentication and project permissions. Production customer sharing, persisted field records and their real actor/role scopes remain pending; public previews do not establish those permissions.
 
 ## Implemented foundations
 
@@ -66,7 +70,7 @@ IFC2x3 type classification, property truncation and duplicate room-name merging 
 | AI photo-analysis integration | `backend/app/vision/`, `backend/app/services/vision_jobs.py` | Installed/missing/not-visible/uncertain results; not validated broad plan compliance |
 | Issues, notifications and history | `backend/app/api/`, `backend/app/services/` | New assessment-to-correction flow and consistent projections remain work |
 | Authentication and scoped access | `backend/app/auth/`, `backend/app/rbac.py` | Extend the same controls to new records and derived AI outputs |
-| Tests and evaluation harnesses | `backend/tests/`, `web/src/test/`, `web/e2e/`, `samples/` | 85 frontend tests pass; targeted model/workflow/backend suites pass (details below); browser E2E and live AI evaluations were not run |
+| Tests and evaluation harnesses | `backend/tests/`, `web/src/test/`, `web/e2e/`, `samples/` | 99 frontend tests and 21 targeted backend/import tests pass; browser E2E, physical acceptance and live AI evaluations were not run |
 
 ## Known migration gaps
 
