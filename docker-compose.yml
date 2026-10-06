@@ -1,6 +1,6 @@
 name: sitemesh
-# Full stack: docker compose up --build   →  web on http://localhost:8080, API on http://localhost:8000
-# Secrets come from .env (copy .env.example). Nothing secret is hard-coded here.
+# Local stack: docker compose up --build --wait → web on 8080, API on 8011.
+# Keep the inherited project name so existing named database/storage volumes are reused.
 services:
   db:
     image: postgres:16-alpine
@@ -18,16 +18,29 @@ services:
     build:
       context: ./backend
       secrets: [extra_ca]
-    env_file: [{ path: .env, required: false }]
+    env_file:
+      - { path: .env, required: false }
+      - { path: ./backend/.env, required: false }
     environment:
       APP_ENV: ${APP_ENV:-dev}
       DATABASE_URL: postgresql+psycopg://sitemesh:${POSTGRES_PASSWORD:-sitemesh-local}@db:5432/sitemesh
       STORAGE_DIR: /data/storage
-      CORS_ORIGINS: '["http://localhost:8080","http://localhost:5173"]'
+      AGENT_ENABLED: ${AGENT_ENABLED:-true}
+      CORS_ORIGINS: '["http://localhost:${WEB_PORT:-8080}","http://127.0.0.1:${WEB_PORT:-8080}"]'
     volumes:
       - storage:/data/storage
       - ./samples:/samples:ro  # demo seed data (python -m app.seed)
-    ports: ["8000:8000"]
+    ports: ["127.0.0.1:${API_PORT:-8011}:8000"]
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import json,sys,urllib.request; s=json.load(urllib.request.urlopen('http://127.0.0.1:8000/openapi.json', timeout=3)); sys.exit(0 if '/api/agent/public-chat' in s['paths'] else 1)"
+      interval: 5s
+      timeout: 5s
+      start_period: 30s
+      retries: 12
     depends_on:
       db: { condition: service_healthy }
 
@@ -35,8 +48,14 @@ services:
     build:
       context: ./web
       secrets: [extra_ca]
-    ports: ["8080:80"]
-    depends_on: [api]
+    ports: ["127.0.0.1:${WEB_PORT:-8080}:80"]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/api/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    depends_on:
+      api: { condition: service_healthy }
 
 volumes:
   pgdata:
