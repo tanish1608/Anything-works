@@ -49,7 +49,7 @@ The current website builds on the earlier **SiteMesh** prototype:
 
 - One large building workspace at `/`, with contextual panels for work/issues, evidence and decisions, daily updates, progress history, teams and project context. There are no separate Home/Logs/Building model pages.
 - A public duplex with 1,282 actual IFC components, exploded floors, exterior walls/roof initially hidden, source-system controls, component zoom, model pins and linked 2D silhouettes. Floor, reviewed Unit A/B and room locations share the original source geometry and IDs.
-- Browser-local capture, offline update identity, human review, corrections and progress replay on the same model. Agent Isle stays above the same canvas and contextual panels; opening it does not remount the model. Authenticated assessment, voice, helper and chat requests use the backend.
+- Browser-local capture, offline update identity, human review, corrections and progress replay on the same model. Agent Isle is a floating bottom-right assistant that opens against the current screen's local context without login; connecting is optional for scoped records and citations. Authenticated assessment, voice, helper and chat requests use the backend.
 - Retained backend foundations for model import, drawing review, photo uploads, permissions and Gemini analysis. These are not yet connected to the chosen public interface.
 
 These are foundations. The new daily quality-checking workflow, calibrated automatic completion, reliable plan comparison and broad real-site coverage are **not yet delivered or validated**. Existing “installed” verdicts do not establish correct installation.

@@ -503,7 +503,7 @@ function BuildingWorkspace({
             </details>
           </div>
         </header>
-        <AgentIsle page={panel || "overview"} label={panel ? TITLES[panel] : "Building overview"}
+        <AgentIsle projectName={state.projectName} page={panel || "overview"} label={panel ? TITLES[panel] : "Building overview"}
           displayContext={JSON.stringify({ provenance: "browser-local sample; not authenticated project evidence",
             sampleProject: state.projectName, modelRevision: model.version,
             selectedWork: work ? { id: work.id, title: work.title, trade: work.trade, status: work.status,

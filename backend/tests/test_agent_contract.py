@@ -9,7 +9,8 @@ from app.main import app
 CONTRACT = yaml.safe_load((Path(__file__).resolve().parents[2] / "contracts/openapi.yaml").read_text())
 IMPLEMENTED = {"listAgentRuns", "createAgentRun", "getAgentRun", "cancelAgentRun", "decideAgentAction",
                "suggestAgentInput", "getAgentDailySummary", "refreshAgentDailySummary", "createAgentVoice",
-               "getAgentVoice", "correctAgentVoice", "getAgentVoiceFile", "listAgentVoice", "answerAgentChat"}
+               "getAgentVoice", "correctAgentVoice", "getAgentVoiceFile", "listAgentVoice", "answerAgentChat",
+               "answerPublicAgentChat"}
 SCHEMAS = {"RunCreate", "Run", "CheckResult", "SourceRef", "ProposedAction", "DecisionCreate", "Decision", "Error",
            "SuggestionCreate", "Suggestion", "SuggestionResult", "SummaryStatement", "DailySummary", "SummaryRefresh",
            "VoiceCreate", "VoiceCorrection", "VoiceNote", "ChatTurn", "ChatCreate", "ChatResult"}
@@ -36,6 +37,14 @@ def normalize(value):
     return result
 
 
+def normalize_security(value):
+    # FastAPI names the generated HTTP bearer scheme after the dependency
+    # class, while the checked-in contract uses the stable public name.
+    if value in ([{"HTTPBearer": []}], [{"bearerAuth": []}]):
+        return [{"bearerAuth": []}]
+    return value
+
+
 def test_agent_dtos_match_authoritative_openapi():
     generated = app.openapi()["components"]["schemas"]
     for name in SCHEMAS:
@@ -52,7 +61,8 @@ def test_assessment_operations_match_contract():
             found.add(expected["operationId"])
             actual = generated["paths"][f"/api{path}"][method]
             assert actual["operationId"] == expected["operationId"]
-            assert actual["security"]
+            assert normalize_security(actual.get("security", [])) == normalize_security(
+                expected.get("security", [{"bearerAuth": []}]))
             def parameters(operation):
                 return sorted([normalize({**parameter, "required": parameter.get("required", False)})
                                for parameter in operation.get("parameters", [])], key=lambda item: (item["in"], item["name"]))

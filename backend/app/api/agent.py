@@ -167,3 +167,8 @@ def voice_file(voice_id: UUIDString, user: User = Depends(current_user), db: Ses
 @router.post("/projects/{project_id}/agent/chat", response_model=ChatResult, operation_id="answerAgentChat")
 def answer_chat(project_id: UUIDString, body: ChatCreate, user: User = Depends(current_user), db: Session = Depends(get_db)):
     return chat.answer(db, project_id, user.id, body)
+
+
+@router.post("/agent/public-chat", response_model=ChatResult, operation_id="answerPublicAgentChat")
+def answer_public_chat(body: ChatCreate):
+    return chat.public_answer(body)

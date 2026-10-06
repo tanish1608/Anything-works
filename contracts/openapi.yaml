@@ -500,6 +500,33 @@ paths:
           $ref: '#/components/responses/Invalid'
         '429':
           $ref: '#/components/responses/Limited'
+  /agent/public-chat:
+    post:
+      operationId: answerPublicAgentChat
+      summary: Answer from the current local canvas without login
+      description: Public, read-only local-sample assistance. The request contains only explicitly labeled
+        browser display context and session turns. No authenticated project records, citations, tools,
+        URLs, progress changes, assignments, messages or durable chat memory are available. The endpoint
+        returns unavailable when the provider cannot answer or attempts to cite a source.
+      tags:
+      - Agent
+      security: []
+      x-implementation-status: implemented
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatCreate'
+      responses:
+        '200':
+          description: Local-context answer or explained unavailable result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResult'
+        '422':
+          $ref: '#/components/responses/Invalid'
 components:
   securitySchemes:
     bearerAuth:

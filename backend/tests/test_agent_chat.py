@@ -50,6 +50,42 @@ def test_chat_provider_failure_retains_no_fake_answer(client, project, monkeypat
     assert result["sources"] == [] and result["suggested_questions"] == []
 
 
+def test_public_chat_uses_no_login_or_project_facts(client, monkeypatch):
+    captured = []
+
+    def answer(context):
+        captured.append(context)
+        return DraftChat(message="Use the current view to collect one clear progress photo.",
+                         source_ids=[], suggested_questions=["What angle should I capture?"])
+
+    monkeypatch.setattr(provider, "chat", answer)
+    result = client.post("/api/agent/public-chat", json={
+        "input_revision": "public-1", "message": "What should I do next?", "page": "record",
+        "display_context": "LOCAL SAMPLE: sink awaiting review", "history": []})
+    assert result.status_code == 200, result.text
+    body = result.json()
+    assert body["status"] == "available" and body["sources"] == []
+    assert captured[0]["mode"] == "local_sample_only"
+    assert "server_facts" not in captured[0]
+    assert result.headers["cache-control"] == "no-store"
+
+
+def test_public_chat_rejects_provider_citations_and_hides_failures(client, monkeypatch):
+    monkeypatch.setattr(provider, "chat", lambda context: DraftChat(message="Unsupported claim", source_ids=["issue:1"], suggested_questions=[]))
+    cited = client.post("/api/agent/public-chat", json={
+        "input_revision": "public-2", "message": "Tell me about the issue", "page": "record",
+        "display_context": "LOCAL SAMPLE: issue", "history": []}).json()
+    assert cited["status"] == "unavailable" and cited["sources"] == []
+
+    def fail(context):
+        raise ValueError("provider secret")
+    monkeypatch.setattr(provider, "chat", fail)
+    failed = client.post("/api/agent/public-chat", json={
+        "input_revision": "public-3", "message": "Try again", "page": "record",
+        "display_context": "LOCAL SAMPLE: issue", "history": []}).json()
+    assert failed["status"] == "unavailable" and "provider secret" not in failed["message"]
+
+
 def test_chat_revalidates_model_and_membership_after_inference(client, db, project, monkeypatch):
     def change(context):
         db.get(Project, project["pid"]).current_version_id = None

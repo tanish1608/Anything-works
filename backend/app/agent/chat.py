@@ -73,3 +73,26 @@ def answer(db: Session, project_id: str, actor_id: str, body: ChatCreate) -> Cha
     return ChatResult(input_revision=body.input_revision, status="available", message=draft.message,
                       sources=[refs[key] for key in draft.source_ids], suggested_questions=draft.suggested_questions,
                       partial_context=True)
+
+
+def public_answer(body: ChatCreate) -> ChatResult:
+    """Answer from the visible local canvas only; no authenticated project facts are available."""
+    unavailable = ChatResult(input_revision=body.input_revision, status="unavailable",
+        message="Agent Isle could not answer from this local context. Connect project records or try again.",
+        sources=[], suggested_questions=[], partial_context=True)
+    try:
+        draft = provider.chat({
+            "mode": "local_sample_only",
+            "partial_coverage": "The browser supplied a local sample snapshot; there are no authenticated project facts.",
+            "local_display_context": body.display_context,
+            "question": body.message,
+            "page": body.page,
+            "untrusted_session_history": [turn.model_dump() for turn in body.history],
+        })
+        if (not draft.message.strip() or draft.source_ids or
+                any(not q.strip() or len(q) > 200 for q in draft.suggested_questions)):
+            return unavailable
+    except Exception:  # noqa: BLE001 - never expose provider details or invent a local answer
+        return unavailable
+    return ChatResult(input_revision=body.input_revision, status="available", message=draft.message,
+                      sources=[], suggested_questions=draft.suggested_questions, partial_context=True)

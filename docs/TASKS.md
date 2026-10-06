@@ -21,7 +21,7 @@ BEAV-002 supplies assessment behavior; BEAV-003 supplies durable shared records 
 | BEAV-006 | IN_PROGRESS | Codex | `codex/design-iteration-2` / none | BEAV-000/003; actual qualifications/calendar APIs | Rank eligible members with reasons and fresh availability; audit assignment policy, no-match and schedule rechecks; implement autocomplete and cited bounded analysis. |
 | BEAV-007 | BACKLOG | Unassigned | none | BEAV-003; connector release/accounts and approved channel policy | Validate native MCP identity isolation and one ready-made calendar integration; implement reviewed follow-up outbox/flow with retry dedupe, quiet hours, opt-out, stop-on-resolution and real provider delivery states. Phone adapters follow provider selection. |
 | BEAV-008 | REVIEW | Codex | `codex/design-iteration-2` / none | Independent review of business scenarios; user selected at least two people for demo | Document actor/story/flow/acceptance for nine business use cases; trace to requirements/tasks; explain two-person milestone and later concurrency/isolation path. Validate links/IDs; no implementation or capacity claims. |
-| BEAV-010 | IN_PROGRESS | Codex | `codex/design-iteration-2` / none | Live browser/provider acceptance | Keep iteration-2 layout and one model; add top-of-page contextual Agent Isle with scoped read-only responses, verified button flows and explicit sample/server provenance. |
+| BEAV-010 | IN_PROGRESS | Codex | `codex/design-iteration-2` / none | Live browser/provider acceptance | Keep iteration-2 layout and one model; add a floating contextual Agent Isle with no-login local responses, optional scoped read-only records, verified button flows and explicit sample/server provenance. |
 | BEAV-009 | BACKLOG | Unassigned | none | BEAV-003; larger rollout requested, workload/SLO agreement and contract review | Prove multiple worker/API instances with shared storage/DB, tenant isolation, fair scheduling, provider budgets and scoped projections. Test shift-end burst, restart/lease fencing, reviewer conflicts, cross-project assignment reservations and credential isolation as relevant features ship; record latency/queue age/failures/cost against selected targets. No new infrastructure solely for two-person demo. |
 
 ## How the documents relate
@@ -30,7 +30,7 @@ BEAV-002 supplies assessment behavior; BEAV-003 supplies durable shared records 
 |---|---|---|
 | `.kiro/specs/placeholder-agent/requirements.md` | What business outcome and observable behavior must work? | A worker's update reaches the PM once; only the PM can accept the current proposal. |
 | `docs/architecture.md` | Which components, records and boundaries make that behavior possible? | Shared project DB, separate per-submission runs, scoped APIs and revision-safe writes. |
-| `contracts/openapi.yaml` | What messages can web or later mobile exchange with the server? | Queue/read/cancel a run; decide an exact proposed action; use recorded voice, helper and read-only Agent Isle operations. Fourteen operations are implemented and contract-tested. |
+| `contracts/openapi.yaml` | What messages can web or later mobile exchange with the server? | Queue/read/cancel a run; decide an exact proposed action; use recorded voice, helper and read-only Agent Isle operations. Fifteen operations are implemented and contract-tested, including the no-login local-context chat endpoint. |
 | `docs/TASKS.md` | What delivery work remains, who owns it and what proves it? | BEAV-002 assessment, BEAV-003 shared demo, BEAV-004 evaluated automation. |
 
 ## Capability delivery status

@@ -38,7 +38,7 @@ Open `http://localhost:5173`. Vite proxies API calls to port 8000.
 
 ## Application surfaces
 
-- **Agent Isle:** a collapsible contextual chatbot sits above the same building canvas and panels. It connects to an authenticated project, receives the current panel/selection as explicitly untrusted local context, cites bounded server facts, and has no write authority.
+- **Agent Isle:** a floating bottom-right contextual chatbot opens against the current building canvas and panel without login. It uses the explicitly untrusted local screen context; an optional connection adds bounded server facts and citations. It has no write authority.
 - **`/agent`:** authenticated assessments, recorded voice and text helpers remain available as the detailed agent workflow.
 
 - **`/`:** one building-centered website with optional right-side panels. It runs without backend/sign-in and stores testing records locally.
@@ -120,7 +120,7 @@ npm install
 API_URL=http://127.0.0.1:8010 npm run dev -- --host 127.0.0.1 --port 5174 --strictPort
 ```
 
-Open `http://127.0.0.1:5174/`. Agent Isle is at the top of the building workspace. For the detailed workflow, open `http://127.0.0.1:5174/agent`. Use two separate browser profiles (or one normal and one private window): `plumber@example.com` for the worker, `pm@example.com` for the PM. **Fresh seed accounts** default to `demo-password` unless `DEMO_PASSWORD` was set at creation. Seed does not reset passwords of existing accounts.
+Open `http://127.0.0.1:5174/`. Agent Isle is the floating button in the bottom-right of the building workspace; open it to ask about the visible project without logging in. Use “Connect project records” only when you need authenticated issues, model status and citations. For the detailed workflow, open `http://127.0.0.1:5174/agent`. Use two separate browser profiles (or one normal and one private window): `plumber@example.com` for the worker, `pm@example.com` for the PM. **Fresh seed accounts** default to `demo-password` unless `DEMO_PASSWORD` was set at creation. Seed does not reset passwords of existing accounts.
 
 1. Both identities select **Maple Court (demo)**, which the seed converts from explicitly sample DXF drawings. The imported IFC-only sample projects have no approved drawing extraction and deliberately abstain.
 2. Worker selects an allowed room, plumbing components, photos and a note, then submits. Intake is saved before assessment; a failed create request can retry without uploading photos again. This view requires connectivity; it does not implement a new offline queue.

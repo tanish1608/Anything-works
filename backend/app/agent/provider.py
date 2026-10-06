@@ -152,5 +152,7 @@ def chat(context: dict) -> DraftChat:
         "qualification, availability or physical completion; a saved status is not inspection certification. "
         "Provide practical next steps, ask for missing information, and explain limitations. You have no "
         "tools or write authority: never claim to assign, approve, complete, send, call or modify anything. "
-        "Return at most three follow-up questions of 1–200 characters and a message within 4000 characters.",
+        "When mode is local_sample_only, do not cite or imply authenticated project records and return an "
+        "empty source_ids list. Return at most three follow-up questions of 1–200 characters and a message "
+        "within 4000 characters.",
         context, DraftChat)
