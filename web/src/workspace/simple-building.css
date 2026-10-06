@@ -1,0 +1,232 @@
+.simple-building {
+  position: relative;
+  height: calc(100dvh - 160px);
+  min-height: 420px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #eef1f5;
+}
+.ew-app .page.simple-building-page {
+  max-width: none;
+  padding: 16px 20px 20px;
+}
+.simple-building-3d,
+.simple-building-plan {
+  position: absolute;
+  inset: 0;
+}
+.simple-building-3d .viewer-canvas {
+  height: 100%;
+}
+.simple-building-plan .model-plan {
+  height: 100%;
+  background: #f8fafc;
+}
+.simple-building-plan svg {
+  padding: 70px 80px 40px;
+  box-sizing: border-box;
+}
+.simple-building-controls {
+  position: absolute;
+  z-index: 3;
+  top: 18px;
+  left: 18px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 6px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffffef;
+  box-shadow: 0 4px 18px #0f172a0a;
+}
+.ew-app .simple-building-controls > label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #64748b;
+}
+.ew-app .simple-building-controls select {
+  min-width: 110px;
+  max-width: 180px;
+  padding: 3px 18px 3px 0;
+  border: 0;
+  box-shadow: none;
+  background-color: transparent;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 500;
+}
+.simple-building-layers {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  border-left: 1px solid #e2e8f0;
+}
+.simple-building-layers summary {
+  padding: 15px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  list-style: none;
+}
+.simple-building-layers summary::after {
+  content: "⌄";
+  margin-left: 12px;
+  color: #64748b;
+}
+.simple-building-layer-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  box-shadow: 0 8px 24px #0f172a14;
+}
+.ew-app .simple-building-layer-menu label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.simple-building-layer-menu input {
+  width: auto;
+}
+.simple-building-layer-menu i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.simple-building-preview {
+  position: absolute;
+  z-index: 2;
+  top: 18px;
+  right: 18px;
+  width: 160px;
+  height: 128px;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid white;
+  border-radius: 12px;
+  background: #f8fafc;
+  box-shadow: 0 4px 18px #0f172a18;
+  cursor: pointer;
+}
+.simple-building-preview:hover {
+  border-color: #94a3b8;
+}
+.simple-building-preview svg,
+.simple-building-preview img {
+  display: block;
+  width: 100%;
+  height: 96px;
+  object-fit: cover;
+  padding: 6px;
+  box-sizing: border-box;
+}
+.simple-building-preview img {
+  padding: 0;
+}
+.simple-building-preview-label {
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  background: white;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 600;
+}
+.simple-building-preview-empty {
+  height: 96px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  color: #64748b;
+}
+.simple-building-caption,
+.simple-building-source {
+  position: absolute;
+  bottom: 14px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: #ffffffcc;
+  color: #64748b;
+  font-size: 10px;
+}
+.simple-building-caption {
+  left: 14px;
+}
+.simple-building-source {
+  right: 14px;
+}
+.simple-building-error {
+  position: absolute;
+  left: 18px;
+  right: 195px;
+  top: 95px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #fff1f2;
+  color: #9f1239;
+  font-size: 12px;
+}
+@media (max-width: 720px) {
+  .simple-building {
+    min-height: 440px;
+    height: calc(100dvh - 140px);
+    border-radius: 12px;
+  }
+  .simple-building-controls {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    width: fit-content;
+    max-width: calc(100% - 20px);
+  }
+  .ew-app .simple-building-controls > label {
+    padding: 2px 4px;
+  }
+  .ew-app .simple-building-controls select {
+    min-width: 80px;
+    max-width: 105px;
+    font-size: 12px;
+  }
+  .simple-building-layers summary {
+    padding: 15px 8px;
+    font-size: 12px;
+  }
+  .simple-building-preview {
+    top: 85px;
+    right: 10px;
+    width: 108px;
+    height: 90px;
+  }
+  .simple-building-preview svg,
+  .simple-building-preview img,
+  .simple-building-preview-empty {
+    height: 58px;
+  }
+  .simple-building-plan svg {
+    padding: 150px 20px 45px;
+  }
+  .simple-building-error {
+    top: 190px;
+    left: 10px;
+    right: 10px;
+  }
+  .simple-building-caption {
+    max-width: 55%;
+  }
+}

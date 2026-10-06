@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { DISCIPLINE_COLORS } from "./colors";
+import { planViewBox } from "./planGeometry";
 
 export interface ModelPlanData {
   id: string;
@@ -24,6 +25,7 @@ export default function ModelPlan({
   colors,
   onSelect,
   onPoint,
+  minimal = false,
 }: {
   plan: ModelPlanData;
   selected: string | null;
@@ -31,6 +33,7 @@ export default function ModelPlan({
   colors?: Map<string, string>;
   onSelect: (id: string) => void;
   onPoint?: (p: [number, number]) => void;
+  minimal?: boolean;
 }) {
   const svg = useRef<SVGSVGElement>(null);
   const [viewport, setViewport] = useState<ViewBox | null>(null);
@@ -41,23 +44,9 @@ export default function ModelPlan({
     moved: boolean;
     element: string | null;
   } | null>(null);
-  const base = useMemo(() => {
-    const points = [
-      ...plan.elements.flatMap((e) => e.points),
-      ...plan.rooms.flatMap((r) => r.polygon),
-    ];
-    const xs = points.map((p) => p[0]),
-      ys = points.map((p) => -p[1]);
-    if (!points.length) return [0, 0, 10, 10] as ViewBox;
-    const minx = Math.min(...xs),
-      miny = Math.min(...ys);
-    return [
-      minx - 0.5,
-      miny - 0.5,
-      Math.max(...xs) - minx + 1,
-      Math.max(...ys) - miny + 1,
-    ] as ViewBox;
-  }, [plan]);
+  const pointers = useRef(new Map<number, [number, number]>());
+  const pinch = useRef<{ distance: number; box: ViewBox } | null>(null);
+  const base = useMemo(() => planViewBox(plan), [plan]);
   const box = viewport ?? base;
   const point = (x: number, y: number) => {
     const matrix = svg.current?.getScreenCTM();
@@ -92,16 +81,29 @@ export default function ModelPlan({
   };
   return (
     <div className="model-plan">
-      <div className="model-plan-heading">
-        <b>{plan.name}</b>
-        <span>{plan.provenance}</span>
-      </div>
+      {!minimal && (
+        <div className="model-plan-heading">
+          <b>{plan.name}</b>
+          <span>{plan.provenance}</span>
+        </div>
+      )}
       <svg
         ref={svg}
         viewBox={box.join(" ")}
         aria-label="Model-derived level plan"
         onWheel={(e) => zoom(e.deltaY > 0 ? 1.15 : 1 / 1.15)}
         onPointerDown={(e) => {
+          pointers.current.set(e.pointerId, [e.clientX, e.clientY]);
+          if (pointers.current.size === 2) {
+            const [a, b] = [...pointers.current.values()];
+            pinch.current = {
+              distance: Math.max(1, Math.hypot(a[0] - b[0], a[1] - b[1])),
+              box: [...box],
+            };
+            drag.current = null;
+            e.currentTarget.setPointerCapture?.(e.pointerId);
+            return;
+          }
           drag.current = {
             x: e.clientX,
             y: e.clientY,
@@ -112,6 +114,26 @@ export default function ModelPlan({
           e.currentTarget.setPointerCapture?.(e.pointerId);
         }}
         onPointerMove={(e) => {
+          if (pointers.current.has(e.pointerId))
+            pointers.current.set(e.pointerId, [e.clientX, e.clientY]);
+          if (pinch.current && pointers.current.size === 2) {
+            const [a, b] = [...pointers.current.values()],
+              p = pinch.current;
+            const factor = Math.max(
+              0.05,
+              Math.min(
+                20,
+                p.distance / Math.max(1, Math.hypot(a[0] - b[0], a[1] - b[1])),
+              ),
+            );
+            setViewport([
+              p.box[0] + (p.box[2] * (1 - factor)) / 2,
+              p.box[1] + (p.box[3] * (1 - factor)) / 2,
+              p.box[2] * factor,
+              p.box[3] * factor,
+            ]);
+            return;
+          }
           const d = drag.current;
           if (!d) return;
           const dx = e.clientX - d.x,
@@ -128,6 +150,12 @@ export default function ModelPlan({
           ]);
         }}
         onPointerUp={(e) => {
+          pointers.current.delete(e.pointerId);
+          if (pinch.current) {
+            if (!pointers.current.size) pinch.current = null;
+            drag.current = null;
+            return;
+          }
           const d = drag.current;
           drag.current = null;
           if (!d || d.moved) return;
@@ -139,6 +167,8 @@ export default function ModelPlan({
           }
         }}
         onPointerCancel={() => {
+          pointers.current.clear();
+          pinch.current = null;
           drag.current = null;
         }}
       >
@@ -200,18 +230,20 @@ export default function ModelPlan({
             );
           })}
       </svg>
-      <div className="model-plan-tools">
-        <button onClick={() => zoom(0.7)} aria-label="Zoom plan in">
-          +
-        </button>
-        <button onClick={() => zoom(1.4)} aria-label="Zoom plan out">
-          −
-        </button>
-        <button onClick={() => setViewport(null)}>Fit plan</button>
-        <button disabled={!selected} onClick={focus}>
-          Focus component
-        </button>
-      </div>
+      {!minimal && (
+        <div className="model-plan-tools">
+          <button onClick={() => zoom(0.7)} aria-label="Zoom plan in">
+            +
+          </button>
+          <button onClick={() => zoom(1.4)} aria-label="Zoom plan out">
+            −
+          </button>
+          <button onClick={() => setViewport(null)}>Fit plan</button>
+          <button disabled={!selected} onClick={focus}>
+            Focus component
+          </button>
+        </div>
+      )}
     </div>
   );
 }

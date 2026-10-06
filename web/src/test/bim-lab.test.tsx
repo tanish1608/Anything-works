@@ -10,6 +10,8 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { Workbench, type BimDataset } from "../pages/BimLabPage";
 import type { ElementDetail } from "../api/types";
 import Workspace from "../workspace/Workspace";
+import SimpleBuilding from "../workspace/SimpleBuilding";
+import ModelPlan from "../viewer/ModelPlan";
 import ModelPage from "../pages/ModelPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -40,6 +42,7 @@ const viewer = vi.hoisted(() => ({
   on: vi.fn(),
   getViewpoint: vi.fn(),
   setGhostContext: vi.fn(),
+  snapshot: vi.fn(() => "data:image/jpeg;base64,cHJldmlldw=="),
 }));
 vi.mock("../viewer/ViewerCanvas", async () => {
   const React = await import("react");
@@ -49,7 +52,7 @@ vi.mock("../viewer/ViewerCanvas", async () => {
         onReady(viewer);
         return () => onReady(null);
       }, [onReady]);
-      return <div>Renderer stub</div>;
+      return <div data-testid="viewer">Renderer stub</div>;
     },
   };
 });
@@ -147,7 +150,7 @@ it("opens the real BIM viewer inside Building with shared navigation and a disti
     </MemoryRouter>,
   );
   expect(
-    await screen.findByRole("heading", { name: "Explore the duplex" }),
+    await screen.findByRole("region", { name: "Building viewer" }),
   ).toBeInTheDocument();
   expect(screen.getByText("Duplex Apartment")).toBeInTheDocument();
   expect(
@@ -158,13 +161,90 @@ it("opens the real BIM viewer inside Building with shared navigation and a disti
   ).toHaveLength(1);
   expect(screen.queryByLabelText("Search workspace")).not.toBeInTheDocument();
   expect(
-    screen.getByRole("link", { name: "Daily workflow · illustrated building" }),
-  ).toHaveAttribute("href", "/demo/building?view=workflow");
+    screen.queryByText("Daily workflow · illustrated building"),
+  ).not.toBeInTheDocument();
+  expect(screen.getByLabelText("Level")).toBeInTheDocument();
+  expect(screen.getByLabelText("View")).toBeInTheDocument();
+  expect(screen.getByText("Layers")).toBeInTheDocument();
   expect(
-    screen.getByRole("checkbox", {
-      name: "Interior view · hide exterior walls",
-    }),
-  ).toBeChecked();
+    screen.queryByLabelText("Decision / resolution reason"),
+  ).not.toBeInTheDocument();
+  expect(document.querySelector(".bim-controls")).toBeNull();
+  expect(document.querySelector(".bim-details")).toBeNull();
+});
+
+it("switches the corner preview between 3D and 2D without reloading the model or losing filters", async () => {
+  render(<SimpleBuilding data={data} />);
+  await waitFor(() => expect(viewer.loadLayers).toHaveBeenCalledTimes(1));
+  fireEvent.change(screen.getByLabelText("Level"), { target: { value: "L2" } });
+  fireEvent.change(screen.getByLabelText("View"), {
+    target: { value: "front" },
+  });
+  await waitFor(() =>
+    expect(viewer.frame).toHaveBeenLastCalledWith(["elbow"], "front"),
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Switch to 2D plan" }));
+  expect(screen.getByLabelText("Model-derived level plan")).toBeInTheDocument();
+  expect(
+    screen.getByRole("img", { name: "Current 3D building view" }),
+  ).toHaveAttribute("src", "data:image/jpeg;base64,cHJldmlldw==");
+  expect(viewer.snapshot).toHaveBeenCalledWith("image/jpeg", 0.6);
+  expect(
+    screen.queryByRole("button", { name: "Fit plan" }),
+  ).not.toBeInTheDocument();
+  expect(screen.getAllByTestId("viewer")).toHaveLength(1);
+  fireEvent.click(screen.getByText("Layers"));
+  fireEvent.click(screen.getByLabelText("Plumbing"));
+  await waitFor(() =>
+    expect(viewer.setVisible).toHaveBeenLastCalledWith(new Set()),
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Switch to 3D model" }));
+  expect(
+    screen.queryByLabelText("Model-derived level plan"),
+  ).not.toBeInTheDocument();
+  expect(screen.getByLabelText("Level")).toHaveValue("L2");
+  expect(screen.getByLabelText("View")).toHaveValue("front");
+  expect(screen.getByLabelText("Plumbing")).not.toBeChecked();
+  expect(viewer.loadLayers).toHaveBeenCalledTimes(1);
+});
+
+it("keeps a usable 2D plan when WebGL cannot start", async () => {
+  // A rejected layer load takes the same fallback path as an unavailable renderer.
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => ({ ok: false })),
+  );
+  render(<SimpleBuilding data={data} />);
+  expect(
+    await screen.findByLabelText("Model-derived level plan"),
+  ).toBeInTheDocument();
+  expect(screen.getByRole("alert")).toBeInTheDocument();
+  expect(
+    screen.getByRole("button", { name: "Switch to 3D model" }),
+  ).toBeDisabled();
+});
+
+it("supports touch pinch zoom in the minimal plan without selecting a component", () => {
+  const onSelect = vi.fn();
+  render(
+    <ModelPlan
+      plan={data.plans[0]}
+      minimal
+      selected={null}
+      onSelect={onSelect}
+    />,
+  );
+  const svg = screen.getByLabelText("Model-derived level plan");
+  const initial = Number(svg.getAttribute("viewBox")!.split(" ")[2]);
+  fireEvent.pointerDown(svg, { pointerId: 1, clientX: 10, clientY: 10 });
+  fireEvent.pointerDown(svg, { pointerId: 2, clientX: 30, clientY: 10 });
+  fireEvent.pointerMove(svg, { pointerId: 2, clientX: 50, clientY: 10 });
+  expect(Number(svg.getAttribute("viewBox")!.split(" ")[2])).toBeLessThan(
+    initial,
+  );
+  fireEvent.pointerUp(svg, { pointerId: 1 });
+  fireEvent.pointerUp(svg, { pointerId: 2 });
+  expect(onSelect).not.toHaveBeenCalled();
 });
 
 it("hides tagged exterior walls and roof, retains party walls and restores the shell on demand", async () => {

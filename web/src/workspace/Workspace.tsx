@@ -284,7 +284,10 @@ export default function Workspace() {
             </nav>
           )}
         </header>
-        <main className="page" id="workspace-main">
+        <main
+          className={importedBuilding ? "page simple-building-page" : "page"}
+          id="workspace-main"
+        >
           <Routes>
             <Route index element={<Today />} />
             <Route path="today" element={<Navigate to="/demo" replace />} />

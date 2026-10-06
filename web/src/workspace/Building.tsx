@@ -10,20 +10,22 @@ export default function Building() {
   const workflow = params.get("view") === "workflow" || params.has("unit");
   return (
     <>
-      <div className="building-project-tabs" aria-label="Building project">
-        <NavLink
-          className={!workflow ? "btn primary" : "btn"}
-          to="/demo/building"
-        >
-          Imported duplex · detailed BIM
-        </NavLink>
-        <NavLink
-          className={workflow ? "btn primary" : "btn"}
-          to="/demo/building?view=workflow"
-        >
-          Daily workflow · illustrated building
-        </NavLink>
-      </div>
+      {workflow && (
+        <div className="building-project-tabs" aria-label="Building project">
+          <NavLink
+            className={!workflow ? "btn primary" : "btn"}
+            to="/demo/building"
+          >
+            Imported duplex · detailed BIM
+          </NavLink>
+          <NavLink
+            className={workflow ? "btn primary" : "btn"}
+            to="/demo/building?view=workflow"
+          >
+            Daily workflow · illustrated building
+          </NavLink>
+        </div>
+      )}
       {workflow ? (
         <Spatial />
       ) : (

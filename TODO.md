@@ -149,6 +149,7 @@ The designer screens now have an interactive React implementation at `/demo`; se
 Detailed import results, viewer choice, reproduction steps and verification limits: [BIM audit](docs/BIM_AUDIT.md). `/bim-lab` uses the real imported duplex geometry; its progress/pins are local test records. The connected project uses actual authorized API persistence. Visual/device acceptance and live automatic AI completion remain open.
 
 - [x] Integrate the real BIM viewer as the default `/demo/building` view with shared navigation and a public-project identity; retain illustrated daily-workflow locations in their own tab and preserve `?unit=` links.
+- [x] Simplify the default Building page to a full-width canvas with floating Level, View and Layers controls; remove both inspection sidebars and switch 3D/2D through a corner preview. Preserve filters and the mounted renderer, support touch plan zoom and retain detailed authoring at `/bim-lab`.
 - [x] Default both imported and connected views to solid architecture with exterior walls/roof hidden; preserve shared/untagged walls, reveal selected shell components and offer restoration/transparency controls. Verify real source tags and API hints, including the roof slab's IFC predefined type.
 
 ### P3.0 Real-project import and viewer audit — backend + frontend

@@ -4,7 +4,9 @@ Verified October 6, 2026 and integrated into the app's Building flow. This work 
 
 ## Open and test
 
-Open `/demo/building` in the frontend, or `/bim-lab` for the standalone workbench. Building uses shared app navigation and identifies the public duplex separately from fictional daily-workflow records. The **Daily workflow** tab and existing `?unit=` links retain the illustrated building and its own evidence. No apartment IDs are silently mapped onto unrelated duplex components.
+Open `/demo/building` for the simple everyday viewer: a full-width canvas, floating **Level**, **View** and **Layers**, and a top-right preview that switches between 3D and 2D. The preview uses the actual level silhouette or a snapshot of the loaded model. Both inspection sidebars and the project tabs are removed from this surface. The same renderer stays mounted during switching; filters are retained and 2D supports pan, wheel/pinch zoom and component selection. Existing local progress colors/pins are projected without exposing review authoring here.
+
+Open `/bim-lab` for the detailed workbench described below. Building uses shared app navigation and identifies the public duplex separately from fictional daily-workflow records. Existing `?unit=` and `?view=workflow` links retain the illustrated building and its own evidence. No apartment IDs are silently mapped onto unrelated duplex components.
 
 The real exported duplex geometry works without a backend login. Click **Inspect bedroom pipe elbow**, then **Isolate** and **Focus selected**. Search works across component names, GUIDs, types and source properties. Top, front, side and isometric camera views, close zoom, discipline filters and height cuts are available.
 
@@ -79,7 +81,7 @@ The 3D engine and inspection routes now load separately from the base app. The p
 
 ## Verification and remaining work
 
-128 backend tests and 43 frontend tests pass; production compilation succeeds; backend Ruff passes and frontend lint finishes with existing warnings. The new checks include real GLB node identity and surface ray hits, close-fit/coordinate math, room-code preservation, model-version pin persistence, authorized plan-layer filtering and photo/proposal → human review → saved element completion. The GLB bytes remain unchanged after progress updates. Interface tests also cover scoped fixture projection, 2D selection through pointer capture, shared Building navigation and reversible shell visibility in both the public and authorized connected viewer.
+46 frontend tests and production compilation pass after the Building simplification; the unchanged backend last passed 128 tests and Ruff. Frontend lint finishes with existing warnings. Checks include real GLB node identity and surface ray hits, close-fit/coordinate math, room-code preservation, model-version pin persistence, authorized plan-layer filtering and photo/proposal → human review → saved element completion. The GLB bytes remain unchanged after progress updates. Interface tests cover scoped fixture projection, 2D selection/pinch zoom, shared Building navigation, retained filters and a single renderer across view switching, 2D fallback and reversible shell visibility in the workbench and authorized connected viewer.
 
 Browser inspection remained blocked by the saved local-URL browser-access preference. CPU geometry tests and renderer stubs do not verify WebGL appearance, actual gestures, PDF rendering or mobile usability. Keep those acceptance tasks open.
 

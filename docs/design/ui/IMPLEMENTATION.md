@@ -16,7 +16,7 @@ The authenticated app also uses the shared typography, colors, project navigatio
 | `/demo/work` | Status, trade and level filters; search; record navigation |
 | `/demo/review/:id` | Photo/reference views, check results, separate record dimensions, finding confirmation, evidence requests, dismissal reasons |
 | `/demo/issue/:id` | Before/after evidence, assignment, correction requirements, explicit resolution, rejection and history |
-| `/demo/building` | Detailed imported duplex with search, properties, close focus, surface pins, plans and interior view; Daily workflow tab retains the illustrated geometry and status projection |
+| `/demo/building` | Full-width imported duplex viewer with floating Level/View/Layers, fixed interior defaults and a clickable corner preview to switch 3D/2D |
 | `/demo/report` | Evidence-backed summary, notes, download, history and immutable signed text snapshots |
 | `/demo/setup` | References and check catalog, editable local project name and links to real project tools |
 | `/demo/capture` | Three-step mobile capture, photo/file input, resized local evidence, saved drafts, worker claim and offline simulation |
@@ -34,7 +34,7 @@ Every work item has separate processing, coverage, progress, review and inspecti
 
 State is stored under `everything-works-designer-v1`, separately from the earlier Studio demo and authenticated project data. Reset clears only this local demo. Export the daily report before resetting if a record is needed.
 
-The Daily workflow building tab remains illustrative geometry with six modeled levels and 48 units. Level 14 and Level 3 are the active fixture locations. Room colors and pins come from work records; no field update changes planned geometry. Core-level records retain their location rather than being assigned to an apartment. Those pins are approximate room context, not surveyed positions. The default Building tab now contains the separate imported duplex with real component geometry and precise model-coordinate pins; see [the BIM audit](../../BIM_AUDIT.md). Fictional apartment work records are not mapped onto that unrelated project.
+The illustrated building remains available through `?view=workflow` and existing `?unit=` links, with six modeled levels and 48 units. Level 14 and Level 3 are the active fixture locations. Room colors and pins come from work records; no field update changes planned geometry. Core-level records retain their location rather than being assigned to an apartment. Those pins are approximate room context, not surveyed positions. The default Building page now shows the separate imported duplex in a simple viewer; detailed properties/pin/review authoring remain at `/bim-lab`. See [the BIM audit](../../BIM_AUDIT.md). Fictional apartment work records are not mapped onto that unrelated project.
 
 Offline simulation and reconnect move a submission into **local demo review**, not a server receipt or an AI pass. The connected field app retains its existing backend upload queue. Full new-workflow server persistence remains future work.
 
@@ -52,7 +52,7 @@ Inter and JetBrains Mono are bundled locally. Icons use the existing SVG compone
 
 ## Verification and limits
 
-The initial designer release passed 32 frontend tests. After BIM integration, 43 frontend and 128 backend tests pass along with production compilation. The 3D engine and inspection routes now load separately, removing the oversized main-bundle warning. Frontend lint completes with warnings, including route-menu reset and WebGL fallback. Tests cover finding confirmation, local persistence, explicit resolution, unassessed correction uploads, capture, offline queuing, report snapshots, model status projection, shared Building navigation and connected shell controls with mocked API records.
+The initial designer release passed 32 frontend tests. After Building simplification, 46 frontend tests and production compilation pass; the unchanged backend last passed 128 tests. The 3D engine and inspection routes load separately, removing the oversized main-bundle warning. Frontend lint completes with existing warnings. Tests cover review/capture/report workflows, model projection, simple Building navigation, preview switching with retained filters and no geometry reload, plan pinch zoom, 2D fallback and connected shell controls with mocked API records.
 
 The 3D interface tests use a renderer stub. They verify the adapter and controls, not WebGL output or camera gestures. Browser visual review was blocked by the user's saved local-URL browser-access preference. Desktop/mobile screenshots and real-device checks remain outstanding.
 

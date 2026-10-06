@@ -22,6 +22,7 @@ import {
 } from "../viewer/labState";
 import { ASSETS, COLORS, LABELS } from "../workspace/state";
 import { Icon } from "../studio/Icon";
+import SimpleBuilding from "../workspace/SimpleBuilding";
 import "../workspace/design.css";
 import "../workspace/workspace.css";
 import "../viewer/inspection.css";
@@ -86,7 +87,11 @@ export default function BimLabPage({
         </p>
       </div>
     );
-  return <Workbench key={data.version} data={data} embedded={embedded} />;
+  return embedded ? (
+    <SimpleBuilding key={data.version} data={data} />
+  ) : (
+    <Workbench key={data.version} data={data} />
+  );
 }
 
 export function Workbench({
