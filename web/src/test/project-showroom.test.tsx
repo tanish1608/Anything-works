@@ -123,7 +123,7 @@ it("browses a real model without opening it, then opens with stale work context 
   ).toHaveAttribute("aria-pressed", "true");
   await userEvent.click(screen.getByRole("button", { name: "Open project" }));
   expect(screen.getByTestId("url").textContent).toBe(
-    "/?project=schependomlaan",
+    "/?project=schependomlaan&panel=issues",
   );
 });
 
@@ -135,20 +135,24 @@ it("returns to the original issue and pin even after browsing another building",
   expect(screen.getByTestId("url").textContent).toBe("/?panel=issues#pin");
 });
 
-it("pauses on interaction and honors source shell hints when peeking inside", async () => {
+it("shows the interior and rotates by default without preview-control buttons", async () => {
   mount();
   await screen.findByTestId("showroom-scene");
   expect(deps.scene!.autoRotate).toBe(true);
+  expect([...deps.scene!.visible]).toEqual(["inner"]);
+  expect(
+    screen.queryByRole("button", {
+      name: /rotation|Rotate building|Peek inside|Show exterior/,
+    }),
+  ).not.toBeInTheDocument();
+  expect(screen.getAllByRole("button", { name: /^Preview / })).toHaveLength(4);
   await userEvent.click(screen.getByRole("button", { name: "Drag building" }));
   expect(deps.scene!.autoRotate).toBe(false);
   await userEvent.click(
-    screen.getByRole("button", { name: "Rotate building" }),
+    screen.getByRole("button", { name: "Preview Medical-Dental Clinic" }),
   );
+  await waitFor(() => expect(deps.publicModel).toHaveBeenCalledWith("clinic"));
   expect(deps.scene!.autoRotate).toBe(true);
-  await userEvent.click(screen.getByRole("button", { name: "Peek inside" }));
-  expect([...deps.scene!.visible]).toEqual(["inner"]);
-  await userEvent.click(screen.getByRole("button", { name: "Show exterior" }));
-  expect(deps.scene!.visible.size).toBe(3);
 });
 
 it("keeps model-load failures explicit and can retry the selected project", async () => {
@@ -194,19 +198,21 @@ it("does not substitute a sample for an inaccessible private project", async () 
   expect(deps.privateModel).not.toHaveBeenCalled();
 });
 
-it("starts still for reduced motion and pauses a rotating preview when backgrounded", async () => {
-  vi.stubGlobal("matchMedia", () => ({
+it("respects reduced motion across project changes and pauses a rotating preview when backgrounded", async () => {
+  const motion = {
     matches: true,
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
-  }));
+  };
+  vi.stubGlobal("matchMedia", () => motion);
   mount();
   await screen.findByTestId("showroom-scene");
   expect(deps.scene!.autoRotate).toBe(false);
-  await userEvent.click(
-    screen.getByRole("button", { name: "Rotate building" }),
-  );
-  expect(deps.scene!.autoRotate).toBe(true);
+  await userEvent.click(screen.getByRole("button", { name: "Next project" }));
+  expect(deps.scene!.autoRotate).toBe(false);
+  motion.matches = false;
+  await userEvent.click(screen.getByRole("button", { name: "Next project" }));
+  await waitFor(() => expect(deps.scene!.autoRotate).toBe(true));
   vi.spyOn(document, "visibilityState", "get").mockReturnValue("hidden");
   fireEvent(document, new Event("visibilitychange"));
   expect(deps.scene!.autoRotate).toBe(false);
@@ -221,4 +227,44 @@ it("uses the private layer loader for the current approved connected model", asy
   expect(deps.scene!.loader).toBe(deps.privateLayer);
   expect(deps.privateModel).toHaveBeenCalledWith("private", null, true);
   expect(deps.publicModel).not.toHaveBeenCalled();
+});
+
+it("pages a larger catalog without scrolling or losing access to any project", async () => {
+  deps.token = { access: "test" };
+  deps.api.mockResolvedValue(
+    Array.from({ length: 5 }, (_, i) => ({
+      id: `private-${i}`,
+      name: `Site ${i + 1}`,
+    })),
+  );
+  deps.privateModel.mockResolvedValue({ model });
+  mount();
+  await screen.findByRole("button", { name: "Next project page" });
+  expect(screen.getAllByRole("button", { name: /^Preview / })).toHaveLength(4);
+  await userEvent.click(
+    screen.getByRole("button", { name: "Next project page" }),
+  );
+  await screen.findByRole("button", { name: "Preview Site 1" });
+  expect(screen.getAllByRole("button", { name: /^Preview / })).toHaveLength(4);
+  await userEvent.click(
+    screen.getByRole("button", { name: "Next project page" }),
+  );
+  await screen.findByRole("button", { name: "Preview Site 5" });
+  expect(screen.getAllByRole("button", { name: /^Preview / })).toHaveLength(1);
+  await userEvent.click(
+    screen.getByRole("button", { name: "Next project page" }),
+  );
+  expect(
+    screen.getByRole("button", { name: "Preview Duplex Apartment" }),
+  ).toHaveAttribute("aria-pressed", "true");
+});
+
+it("can stop default motion with the keyboard without adding preview buttons", async () => {
+  mount();
+  await screen.findByTestId("showroom-scene");
+  fireEvent.keyDown(
+    screen.getByRole("region", { name: "Property model preview" }),
+    { key: " " },
+  );
+  expect(deps.scene!.autoRotate).toBe(false);
 });

@@ -33,11 +33,37 @@ export interface ModelDataset {
 /** Public sample only; authorized uploads use their own API manifest and loader. */
 let publicDataset: Promise<ModelDataset> | undefined;
 export const PUBLIC_PROJECTS = [
-  { id: "duplex", name: "Duplex Apartment", url: "/bim-duplex/model.json" },
+  {
+    id: "duplex",
+    name: "Duplex Apartment",
+    url: "/bim-duplex/model.json",
+    category: "Residential",
+    description:
+      "A two-unit residential building with detailed plumbing, electrical and mechanical systems.",
+  },
   {
     id: "schependomlaan",
     name: "Schependomlaan Apartments",
     url: "/bim-schependomlaan/model.json",
+    category: "Residential",
+    description:
+      "A larger residential block with ten reviewed apartment groups, shared spaces and detailed source components.",
+  },
+  {
+    id: "clinic",
+    name: "Medical-Dental Clinic",
+    url: "/bim-clinic/model.json",
+    category: "Healthcare",
+    description:
+      "A two-storey clinic with architecture, structure and sample engineering systems for detailed coordination workflows.",
+  },
+  {
+    id: "esplan",
+    name: "Esplan Building",
+    url: "/bim-esplan/model.json",
+    category: "Architectural source",
+    description:
+      "A detailed building from Estonia with source rooms, levels and architectural components. No field progress is inferred.",
   },
 ] as const;
 export type PublicProjectId = (typeof PUBLIC_PROJECTS)[number]["id"];

@@ -48,7 +48,8 @@ The current website builds on the earlier **SiteMesh** prototype:
 - Browser-local capture, offline update identity, human review, corrections and progress replay on the same model. Uploaded photos await review; the live assessment agent is not connected.
 - Real authenticated project creation/IFC upload, draft preview and explicit reference approval inside the chosen interface. Private geometry uses authorized requests. Private field capture/review persistence and live AI remain pending.
 - Public customer, PM, subcontractor and field-worker previews, all-status search, team/due-date controls and a larger 3,504-component apartment sample.
-- A project showroom at `/?screen=projects`: a rotating actual building model, source facts, browsable property strip and explicit Open project action. Browsing preserves the current workspace until a project is opened.
+- A viewport-sized project showroom at `/?screen=projects`: a rotating interior source model, source facts, a four-project grid and explicit Open project action. Preview controls and horizontal card scrolling are removed; larger connected catalogs use page controls. Opening a project starts with Work & issues beside the building.
+- Medical-Dental Clinic adds 16,071 source components across architectural, structural and sample MEP layers. Esplan Building adds 1,958 components and 285 source spaces, with precise survey-coordinate geometry. New projects begin with no inferred field progress.
 
 These are foundations. The new daily quality-checking workflow, calibrated automatic completion, reliable plan comparison and broad real-site coverage are **not yet delivered or validated**. Existing “installed” verdicts do not establish correct installation.
 
@@ -67,6 +68,8 @@ See [current implementation and gaps](STATUS.md) and [design implementation note
 | [Subcontractor mobile build prompt](docs/SUBCONTRACTOR_MOBILE_BUILD_PROMPT.md) | Self-contained Claude brief for a minimal daily-update PWA; the mobile app is not built yet |
 | [Apartment import test](samples/ifc/schependomlaan/README.md) | Larger source project, import fidelity and real upload acceptance |
 | [Client demo](docs/CLIENT_DEMO.md) | Walkthrough, capability boundaries, rehearsal and pilot priorities |
+| [Customer stories and workflow gaps](docs/USER_STORIES.md) | Fictional PM/crew/onboarding journeys, fixes made and concrete next acceptance criteria |
+| [Clinic sample](samples/ifc/clinic/README.md) / [Esplan sample](samples/ifc/esplan/README.md) | Source attribution, measured import results, fidelity limits and reproduction |
 | [Building workspace](docs/BUILDING_WORKSPACE.md) | Current canvas/panel UI, source locations and testing boundaries |
 | [Shared model workflow](docs/MODEL_WORKFLOW.md) | Import/review setup, spatial hierarchy, daily evidence and shared progress |
 | [Detailed BIM audit](docs/BIM_AUDIT.md) | Real-project import results, viewer choice, precise locations and P3 verification |

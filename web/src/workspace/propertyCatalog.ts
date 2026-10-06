@@ -6,6 +6,7 @@ export interface PropertyChoice {
   id: string;
   name: string;
   description: string;
+  category?: string;
   address?: string | null;
   thumbnail?: string;
   private: boolean;
@@ -15,14 +16,13 @@ export const PUBLIC_PROPERTIES: PropertyChoice[] = PUBLIC_PROJECTS.map((p) => ({
   name: p.name,
   private: false,
   thumbnail: `/project-previews/${p.id}.svg`,
-  description:
-    p.id === "duplex"
-      ? "A two-unit residential building with detailed plumbing, electrical and mechanical systems."
-      : "A larger residential block with ten reviewed apartment groups, shared spaces and detailed source components.",
+  description: p.description,
+  category: p.category,
 }));
 export function projectUrl(id: string) {
   const params = new URLSearchParams();
   if (id !== "duplex") params.set("project", id);
+  params.set("panel", "issues");
   return params.size ? `/?${params}` : "/";
 }
 export function showroomUrl(returnTo: string, current: string) {

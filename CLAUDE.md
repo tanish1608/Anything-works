@@ -17,6 +17,7 @@ The code still uses SiteMesh identifiers. Do not rename packages, storage keys o
 - Keep the product original and preserve third-party sample attribution.
 - Use focused changes and relevant tests. Do not claim a test passed without running it.
 - Do not commit/push or contact customers solely because a planning document mentions those future activities.
+- The user authorized committing and pushing completed, verified work to `main` by default on October 6, 2026. Continue that preference for subsequent implementation; use ordinary pushes, preserve upstream changes and never force-push main.
 
 ## Product invariants for the new workflow
 

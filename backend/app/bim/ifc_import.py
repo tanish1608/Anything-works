@@ -62,14 +62,18 @@ class SpaceInfo:
     guid: str | None = None
 
 
-def apply_building_aliases(items: list[Item], spaces: list[SpaceInfo], aliases: dict) -> None:
-    """Only apply an explicitly reviewed federation map; identical floor names alone are insufficient."""
+def apply_building_aliases(items: list[Item], spaces: list[SpaceInfo], aliases: dict,
+                           level_aliases: dict | None = None) -> None:
+    """Apply explicit, building-scoped display aliases; never move geometry or infer a federation."""
+    level_aliases = level_aliases or {}
     for item in items:
         if item.storey:
             building, name, elevation = item.storey
-            item.storey = (aliases.get(building, building), name, elevation)
+            building = aliases.get(building, building)
+            item.storey = (building, level_aliases.get(building, {}).get(name, name), elevation)
     for space in spaces:
         space.building = aliases.get(space.building, space.building)
+        space.storey = level_aliases.get(space.building, {}).get(space.storey, space.storey)
 
 
 def _flat_props(product) -> dict:
@@ -391,6 +395,8 @@ def import_ifc(db: Session, project: Project, files: list[tuple[str, str | None]
         spaces += s
         audits.append(audit)
     aliases = (project.settings or {}).get("model_building_aliases", {})
-    apply_building_aliases(items, spaces, aliases)
+    level_aliases = (project.settings or {}).get("model_level_aliases", {})
+    apply_building_aliases(items, spaces, aliases, level_aliases)
     return create_version(db, project, items, spaces, actor_id=actor_id, message=message, source="ifc_import",
-                          extra_files={"ifc": [k for k, _ in files]}, stats={"import_audit": audits, "building_aliases": aliases})
+                          extra_files={"ifc": [k for k, _ in files]},
+                          stats={"import_audit": audits, "building_aliases": aliases, "level_aliases": level_aliases})

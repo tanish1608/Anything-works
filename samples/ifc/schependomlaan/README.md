@@ -29,4 +29,4 @@ The audit creates an isolated in-memory project/storage and exports stable publi
 
 Open `/?project=schependomlaan` in the website, or use the project switcher. The project begins with **no field progress**. Select/search a source component, choose **Track work here**, supply a title/owner, then submit a daily update. Records, drafts, decisions and availability save separately from the duplex. Source geometry presence never implies construction completion.
 
-The website currently selects bundled public projects. This API upload test does not mean arbitrary IFC upload, private-project onboarding or multi-user synchronization is connected to the public UI. Browser/WebGL and phone visual checks remain unverified.
+The website selects bundled public projects and offers optional authenticated private project/model onboarding, draft review and approval. Shared private field evidence/review/correction records are not yet integrated into the chosen PM UI. This API acceptance test does not verify a browser-rendered upload journey or multi-user synchronization. Browser/WebGL and phone visual checks remain unverified.

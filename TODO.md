@@ -6,11 +6,15 @@ Product scope: AI checking daily updates across construction stages, identifying
 
 Owners are suggested contributor roles, not assignments. Each package needs a named owner when coding begins. Requirements R1–R10 are defined in the [product specification](docs/PRODUCT_SPEC.md).
 
-The UI-only iteration backlog is [Design iteration 2](docs/UI_TODO_ITERATION_2.md). It tracks proportions/camera, the second apartment project, sample switching, component exploration and remaining visual acceptance.
+The UI-only iteration backlog is [Design iteration 2](docs/UI_TODO_ITERATION_2.md). It tracks proportions/camera, four audited source projects, sample switching, component exploration and remaining visual acceptance.
 
 ## Building-centered workspace — current UI, October 6
 
-- [x] Add a rotating source-building project showroom with property facts, selection strip, explicit open/cancel and authorized private previews; preserve project-local records and show only one WebGL scene at a time.
+- [x] Fit the showroom to the viewport with four visible cards, default interior/rotation and no preview buttons. Open Work & issues by default; preserve explicit panel dismissal and deep links.
+- [x] Import/audit clinic (16,071 components) and Esplan (1,958 components), with project isolation, explicit federation labels, preserved survey-coordinate precision and real GLB identity/bounds/picking tests.
+- [x] Write [customer stories and workflow review](docs/USER_STORIES.md); improve empty-site and empty-attention guidance from the walkthroughs.
+
+- [x] Add a rotating source-building project showroom with property facts, viewport selection grid, explicit open/cancel and authorized private previews; preserve project-local records and show only one WebGL scene at a time.
 - [x] Write the standalone [subcontractor mobile build prompt](docs/SUBCONTRACTOR_MOBILE_BUILD_PROMPT.md) for a minimal daily-update PWA with 3D context and actual API contracts.
 - [ ] Build/test that mobile companion on physical phones and integrate its authenticated evidence into the chosen PM panels; the handoff document does not complete this integration.
 
@@ -41,6 +45,17 @@ This supersedes the earlier tab-based Home/Logs/Building layout. The building is
 See [the building workspace handoff](docs/BUILDING_WORKSPACE.md) for UI behavior, source files and remaining integration boundaries.
 
 See [the client demo walkthrough](docs/CLIENT_DEMO.md) for current capability boundaries and rehearsal checks.
+
+### Next integration priorities from the stories
+
+- [ ] Connect authenticated crew uploads to the chosen PM queue and return correction requests to the actual assignee. Acceptance: two accounts on separate devices complete one traceable issue journey with server IDs and real actors.
+- [ ] Define reusable trade/location work packages and required capture views before crews begin. Avoid asking crews to recreate title/owner/context on each daily update.
+- [ ] Support one update covering multiple work items, with outcomes/evidence scoped per item; a single photo cannot complete an entire room.
+- [ ] Add reviewed client-facing federation, unit/room association and duplicate-space reconciliation. Expose aliases/units/source coverage during draft review; never silently merge room identities or retain affected old green.
+- [ ] Attach actual approved sheets/details/spec revisions and requested evidence views; model-derived silhouettes are contextual references, not those authoritative documents.
+- [ ] Add traceable safety/impact/dependency prioritization and actual correction notifications; evaluate them with qualified site users.
+- [ ] Measure large-model loading/memory on target devices. The clinic has about 59 MB of detailed metadata and 52 MB of meshes; consider lazy properties/layers and LOD from measured results.
+
 
 ## Current testing setup and next priorities
 

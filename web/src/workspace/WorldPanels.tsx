@@ -247,13 +247,53 @@ export function IssuesPanel({ open, search }: { open: Open; search: string }) {
           Show more records ({rows.length - limit} remaining)
         </button>
       )}
-      {!rows.length && (
+      {!rows.length && state.items.length === 0 && (
         <div className="world-empty">
-          <Icon name="search" size={28} />
-          <h3>No matching records</h3>
-          <p>Try another location, trade or work item.</p>
+          <Icon name="work" size={28} />
+          <h3>
+            {model.source.apiProjectId
+              ? "Field records aren't connected yet"
+              : "No field updates yet"}
+          </h3>
+          <p>
+            {model.source.apiProjectId
+              ? "This project has model context only. Shared evidence and issue tracking still need integration; an empty list does not mean the site has no issues."
+              : "The source model shows the design. Choose a component and create planned work before submitting its daily photos. No installed progress is assumed."}
+          </p>
+          <button className="world-secondary" onClick={() => open("locations")}>
+            Explore building work
+          </button>
         </div>
       )}
+      {!rows.length &&
+        state.items.length > 0 &&
+        !search.trim() &&
+        !owner &&
+        filter === "attention" && (
+          <div className="world-empty">
+            <Icon name="work" size={28} />
+            <h3>No updates need attention</h3>
+            <p>
+              Planned and reviewed work is still available. This list is not an
+              inspection result.
+            </p>
+            <button
+              className="world-secondary"
+              onClick={() => setFilter("all")}
+            >
+              Show all work
+            </button>
+          </div>
+        )}
+      {!rows.length &&
+        state.items.length > 0 &&
+        (search.trim() || owner || filter !== "attention") && (
+          <div className="world-empty">
+            <Icon name="search" size={28} />
+            <h3>No matching records</h3>
+            <p>Try another location, trade or work item.</p>
+          </div>
+        )}
     </>
   );
 }

@@ -69,8 +69,10 @@ describe("project showroom camera and navigation", () => {
       "/?screen=projects",
       null,
     ]) {
-      expect(safeReturnUrl(unsafe, "duplex")).toBe("/");
+      expect(safeReturnUrl(unsafe, "duplex")).toBe("/?panel=issues");
     }
-    expect(projectUrl("api:private")).toBe("/?project=api%3Aprivate");
+    expect(projectUrl("api:private")).toBe(
+      "/?project=api%3Aprivate&panel=issues",
+    );
   });
 });

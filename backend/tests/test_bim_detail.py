@@ -16,6 +16,40 @@ from app.disciplines import discipline_for
 from app.models import ElementRevision, Project
 
 
+def test_reviewed_floor_aliases_are_building_scoped_and_do_not_move_geometry():
+    from app.bim.ifc_import import apply_building_aliases
+
+    verts = np.array([[0, 0, 4.57], [1, 0, 4.57], [0, 1, 5]])
+    item = Item(guid="clinic-pipe", ifc_class="IfcPipeSegment", name="Pipe", discipline="plumbing",
+                storey=("Medical Clinic", "Level 2", 4.57), verts=verts.copy(), faces=np.array([[0, 1, 2]]))
+    unrelated = Item(guid="separate-wing", ifc_class="IfcWall", name="Wall", discipline="architecture",
+                     storey=("Other building", "Level 2", 4.57), verts=verts.copy(), faces=np.array([[0, 1, 2]]))
+    space = SpaceInfo("Medical Clinic", "Level 2", 4.57, "Room", "201", [[0, 0], [1, 0], [1, 1]], "space-guid")
+    original_hash = item.geom_hash
+    apply_building_aliases([item, unrelated], [space], {"Medical Clinic": "Building"},
+                           {"Building": {"Level 2": "Second Floor"}})
+    assert item.storey == ("Building", "Second Floor", 4.57)
+    assert unrelated.storey == ("Other building", "Level 2", 4.57)
+    assert (space.building, space.storey, space.elevation, space.guid) == ("Building", "Second Floor", 4.57, "space-guid")
+    assert item.geom_hash == original_hash
+    assert np.array_equal(item.verts, verts)
+
+
+def test_glb_preserves_centimetre_detail_at_real_survey_coordinates():
+    from app.bim.meshes import build_glb
+
+    points = np.array([[538450.5301, 6591584.1431, 14.1001],
+                       [538450.5651, 6591584.1431, 14.1001],
+                       [538450.5301, 6591584.1781, 14.1351]])
+    original = points.copy()
+    result = trimesh.load(io.BytesIO(build_glb([("survey-fitting", points, np.array([[0, 1, 2]]))])), file_type="glb")
+    transform, geometry = result.graph["survey-fitting"]
+    actual = trimesh.transform_points(result.geometry[geometry].vertices, transform)
+    assert np.allclose(actual, ifc_to_three(points), rtol=0, atol=1e-6)
+    assert np.array_equal(original, points)
+    assert np.max(np.abs(result.geometry[geometry].vertices)) < 0.04
+
+
 def test_shell_metadata_keeps_shared_and_untagged_walls():
     assert exterior_wall("IfcWallStandardCase", {"Pset_WallCommon.IsExternal": True}) is True
     assert exterior_wall("IfcWall", {"Pset_WallCommon.IsExternal": "false"}) is False

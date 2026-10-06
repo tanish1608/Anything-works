@@ -69,7 +69,7 @@ def audit(output: Path = OUTPUT, source_dir: Path = SOURCE):
         all_items += items
         spaces += rooms
         reports.append(report)
-    apply_building_aliases(all_items, spaces, source.get("building_aliases", {}))
+    apply_building_aliases(all_items, spaces, source.get("building_aliases", {}), source.get("level_aliases", {}))
     unique = {i.guid: i for i in reversed(all_items)}
     settings = get_settings()
     previous_storage = settings.storage_dir

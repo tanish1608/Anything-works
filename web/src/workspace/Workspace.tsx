@@ -6,6 +6,7 @@ import {
   loadPublicProject,
   PUBLIC_PROJECTS,
   type ModelDataset,
+  type PublicProjectId,
 } from "../viewer/modelData";
 import { WorkspaceContext, type Decision } from "./context";
 import {
@@ -93,7 +94,7 @@ export default function Workspace() {
         )
       : project === "duplex"
         ? loadDemoModel()
-        : loadPublicProject(project as "schependomlaan")
+        : loadPublicProject(project as PublicProjectId)
     )
       .then((m) => {
         if (alive) setLoaded({ project: identity, model: m });
@@ -222,6 +223,10 @@ function BuildingWorkspace({
     menuRef.current?.removeAttribute("open");
   };
   const open = (next: Panel, id?: string) => {
+    if (document.activeElement !== searchRef.current) {
+      previousFocus.current = document.activeElement as HTMLElement;
+      if (next === panel) panelRef.current?.focus();
+    }
     const target =
       id ||
       (next === "capture"
@@ -299,6 +304,7 @@ function BuildingWorkspace({
   const overviewUrl = useCallback(() => {
     const next = new URLSearchParams();
     if (project !== "duplex") next.set("project", project);
+    next.set("panel", "issues");
     if (model.source.apiProjectId && params.get("version"))
       next.set("version", params.get("version")!);
     return workspaceUrl(next);
@@ -309,7 +315,7 @@ function BuildingWorkspace({
     menuRef.current?.removeAttribute("open");
   };
   const close = () => {
-    go({ panel: null, work: null, element: null, date: null });
+    go({ panel: "none", work: null, element: null, date: null });
     setSearch("");
   };
   const act = useCallback(
@@ -400,7 +406,11 @@ function BuildingWorkspace({
       ) {
         if (reset) setReset(false);
         else {
-          navigate(overviewUrl());
+          const dismissed = new URLSearchParams(
+            new URL(overviewUrl(), window.location.origin).search,
+          );
+          dismissed.set("panel", "none");
+          navigate(workspaceUrl(dismissed));
           setSearch("");
           menuRef.current?.removeAttribute("open");
         }

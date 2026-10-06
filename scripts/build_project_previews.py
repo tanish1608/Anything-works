@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 (ROOT / 'web/public/project-previews').mkdir(parents=True, exist_ok=True)
-for slug in ('duplex', 'schependomlaan'):
+for slug in ('duplex', 'schependomlaan', 'clinic', 'esplan'):
     model = json.loads((ROOT / 'web/public' / f'bim-{slug}' / 'model.json').read_text())
     boxes = [e['bbox'] for e in model['elements'] if e.get('bbox') and e['discipline'] in ('architecture', 'structure')]
     center = [(min(b[i] for b in boxes) + max(b[i + 3] for b in boxes)) / 2 for i in range(3)]

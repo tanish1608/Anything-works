@@ -1,0 +1,13 @@
+{
+  "name": "Esplan Building",
+  "slug": "esplan",
+  "folder": "IFC 2.3.0.1 (IFC 2x3)/Esplanades",
+  "attribution": "Esplan, Estonia; distributed by buildingSMART Community Sample Test Files. IFC-to-GLB/plan derivatives by Everything Works AI.",
+  "source_note": "Architectural IFC example supplied by Esplan. No inferred apartment grouping, MEP federation or field progress.",
+  "files": {
+    "1807_EP_AR_v18.ifc": "b97db10a2cb679a6543ccf4e34cfa8e77753f14e67f51b403e6cd9a819e3748f"
+  },
+  "repository": "buildingsmart-community/Community-Sample-Test-Files",
+  "revision": "7ddf57a201f88a0c213d5322b02ed15e94a60a40",
+  "license": "CC BY 4.0"
+}

@@ -30,6 +30,7 @@ export function unitForRoom(
     return null;
   if (model.source.slug === "schependomlaan")
     return model.source.room_units?.[code || ""] || null;
+  if (model.source.slug && model.source.slug !== "duplex") return null;
   return /^([AB])\d{3}$/.exec(code || "")?.[1] || null;
 }
 export function workPath(model: ModelDataset, work: WorkItem) {
@@ -75,6 +76,9 @@ export function initialNavigation(pathname: string, search: string) {
     params.delete("view");
     if (!/^[AB]$/.test(params.get("unit") || "")) params.delete("unit");
   }
+  // Start with operations, while preserving an explicit close (`panel=none`) and deep links.
+  if (!params.has("panel") && params.get("screen") !== "projects")
+    params.set("panel", "issues");
   return params;
 }
 export function workspaceUrl(params: URLSearchParams) {

@@ -16,7 +16,11 @@ import { AppRoutes } from "../App";
 import type ProjectScene from "../viewer/ProjectScene";
 import type { ModelDataset } from "../viewer/modelData";
 import { COLORS, STORE_KEY, type WorkspaceState } from "../workspace/state";
-import { projectStorageKey } from "../workspace/projectState";
+import {
+  projectStorageKey,
+  initialProjectState,
+  plannedComponent,
+} from "../workspace/projectState";
 
 const model = JSON.parse(
   readFileSync("public/bim-duplex/model.json", "utf8"),
@@ -148,6 +152,51 @@ afterEach(() => {
 });
 
 describe("one building workspace", () => {
+  it("starts a new source project with issues and a direct path to planning work", async () => {
+    renderAt("/?project=schependomlaan");
+    await ready();
+    expect(
+      screen.getByRole("complementary", { name: "Work & issues" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("No field updates yet")).toBeInTheDocument();
+    expect(screen.queryByText("No matching records")).not.toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole("button", { name: "Explore building work" }),
+    );
+    expect(
+      screen.getByRole("complementary", { name: "Explore building" }),
+    ).toBeInTheDocument();
+  });
+  it("offers existing planned work when attention is empty and preserves explicit panel dismissal on reload", async () => {
+    const item = plannedComponent(
+      apartment,
+      apartment.elements.find((e) => e.ifc_class === "IfcDoor" && e.zone_id)!
+        .id,
+      "Install room door",
+      "Fit-out crew",
+    );
+    localStorage.setItem(
+      projectStorageKey(apartment),
+      JSON.stringify({ ...initialProjectState(apartment), items: [item] }),
+    );
+    const view = renderAt("/?project=schependomlaan");
+    await ready();
+    expect(screen.getByText("No updates need attention")).toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole("button", { name: "Show all work" }),
+    );
+    expect(
+      screen.getByRole("button", { name: /Install room door\./ }),
+    ).toBeInTheDocument();
+    await userEvent.click(screen.getByLabelText("Close side panel"));
+    expect(screen.getByTestId("url").textContent).toBe(
+      "/?project=schependomlaan&panel=none",
+    );
+    view.unmount();
+    renderAt("/?project=schependomlaan&panel=none");
+    await ready();
+    expect(screen.queryByRole("complementary")).not.toBeInTheDocument();
+  });
   it("replaces the workspace canvas with one showroom preview and restores the original panel on cancel", async () => {
     renderAt("/?panel=issues");
     await ready();
@@ -175,9 +224,11 @@ describe("one building workspace", () => {
     await switchProject("schependomlaan");
     await ready();
     expect(scene.last!.data).toBe(apartment);
-    expect(screen.queryByRole("complementary")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("complementary", { name: "Work & issues" }),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("url").textContent).toBe(
-      "/?project=schependomlaan",
+      "/?project=schependomlaan&panel=issues",
     );
     await userEvent.click(screen.getByRole("button", { name: "New update" }));
     expect(screen.getByText("Choose the work first.")).toBeInTheDocument();
@@ -233,7 +284,7 @@ describe("one building workspace", () => {
     await switchProject("duplex");
     await ready();
     expect(scene.last!.data).toBe(model);
-    expect(screen.getByTestId("url").textContent).toBe("/");
+    expect(screen.getByTestId("url").textContent).toBe("/?panel=issues");
     await userEvent.click(screen.getByLabelText("Open work and issues"));
     expect(screen.queryByText("Apartment pipe check")).not.toBeInTheDocument();
     await switchProject("schependomlaan");
@@ -264,7 +315,7 @@ describe("one building workspace", () => {
     await ready();
     await userEvent.keyboard("{Escape}");
     expect(screen.getByTestId("url").textContent).toBe(
-      "/?project=schependomlaan",
+      "/?project=schependomlaan&panel=none",
     );
     expect(scene.last!.data).toBe(apartment);
   });
@@ -277,7 +328,9 @@ describe("one building workspace", () => {
     expect(
       screen.queryByRole("button", { name: "Sign in" }),
     ).not.toBeInTheDocument();
-    expect(screen.queryByRole("complementary")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("complementary", { name: "Work & issues" }),
+    ).toBeInTheDocument();
     const firstData = scene.last!.data;
     for (const name of [
       "Project pulse",
@@ -352,7 +405,9 @@ describe("one building workspace", () => {
     renderAt(path);
     await ready();
     await waitFor(() =>
-      expect(screen.getByTestId("url").textContent).toBe("/"),
+      expect(screen.getByTestId("url").textContent).toBe(
+        path === "/unknown-page" ? "/?panel=issues" : "/",
+      ),
     );
     expect(globalThis.fetch).not.toHaveBeenCalled();
   });

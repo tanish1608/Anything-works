@@ -10,12 +10,12 @@ This is a guided prototype demo for customer discovery. Public work records are 
 
 ## Five-minute walkthrough
 
-1. **Orient:** open the duplex. Show its whole building, exploded floors and hidden outer shell. Navigate floor → Unit A/B → room. Briefly switch to the model-derived 2D silhouette and return to 3D. Explain that this is source geometry, not proof that anything was installed.
-2. **Find the problem:** open Work & issues and select “Bedroom door — placement review.” The same canvas focuses its linked component. Show evidence, source identity, missing checks, owner and history. The generated illustration is explicitly labeled; it is not evidence from this building.
+1. **Orient:** open the duplex with Work & issues already beside the model. Show its whole building, exploded floors and hidden outer shell. Navigate floor → Unit A/B → room. Briefly switch to the model-derived 2D silhouette and return to 3D. Explain that this is source geometry, not proof that anything was installed.
+2. **Find the problem:** select “Bedroom door — placement review.” The same canvas focuses its linked component. Show evidence, source identity, missing checks, owner and history. The generated illustration is explicitly labeled; it is not evidence from this building.
 3. **Make a decision:** confirm an issue with an owner, due date, resolution requirement and reason. The issue stays open. Change the owner/due date if needed; this updates the actual local record without resolving it.
 4. **Submit evidence:** use Add daily update, confirm the displayed location, attach a test photo and describe the work. Submission goes to review; it does not run AI or make the component green. For a phone-role preview, choose Project context → Field worker and select the relevant crew. Return to PM to review.
 5. **Close the loop:** inspect correction evidence and record explicit acceptance/resolution with a reason. Show the component's progress and dated history on the same model. A later update can reopen review. Human acceptance does not establish formal inspection approval.
-6. **Show scale/onboarding briefly:** switch to Schependomlaan Apartments, explore a real room-assigned door and create planned work. Or use Add / import project to connect an account, create a project, upload IFC, view the draft in the same canvas, inspect 2D/3D and explicitly approve it. Private field capture stays disabled until its storage integration exists.
+6. **Show scale/onboarding briefly:** switch to Schependomlaan Apartments, explore a real room-assigned door and create planned work. The showroom also includes Esplan for a larger architectural source and the Medical-Dental Clinic for complex discipline exploration (roughly 59 MB metadata plus 52 MB meshes; rehearse loading first). Or use Add / import project to connect an account, create a project, upload IFC, view the draft in the same canvas, inspect 2D/3D and explicitly approve it. Private field capture stays disabled until its storage integration exists.
 
 Use a test photo or permission-cleared customer evidence. Keep actual customer records out of the public sample browser. Do not send notifications during the walkthrough; messaging is not connected.
 
@@ -37,11 +37,14 @@ Use a test photo or permission-cleared customer evidence. Keep actual customer r
 - [ ] Open the production build on a laptop and a physical phone; verify camera framing, exterior visibility, pin selection and no clipped controls.
 - [ ] Finish the above correction journey with a teammate using keyboard and touch, including a photo from the phone camera.
 - [ ] Check portrait and narrow landscape, slow loading, an unavailable photo and a lost connection. No failed load may silently become completed work.
-- [ ] Record apartment load time, memory and frame behavior on the intended devices. The source manifest is approximately 17 MB, plus 4.7 MB of meshes; no phone performance claim is established yet.
+- [ ] Verify all four showroom cards fit together on the intended laptop viewport, the interior preview rotates by default and project entry opens Work & issues.
+- [ ] Record apartment and clinic load time, memory and frame behavior on the intended devices. The source manifest is approximately 17 MB, plus 4.7 MB of meshes; no phone performance claim is established yet.
 - [ ] Rehearse IFC upload against the intended demo backend with migrations applied. DOM API-contract tests and real-file backend tests have passed separately; a browser-rendered end-to-end upload rehearsal is still required.
 - [ ] Confirm who will present the PM, crew and customer journeys; explain which actions are local, server-backed or planned.
 
 Automated tests cover the record/scene linkage, project isolation, approval gates, role previews, search, assignment, photo failures, focus and real backend import. They do not establish visual or physical-device acceptance.
+
+For longer role-based rehearsals and the gaps uncovered, use [the customer stories](USER_STORIES.md). They are fictional test scenarios, not validated customer outcomes.
 
 ## Before a customer pilot
 

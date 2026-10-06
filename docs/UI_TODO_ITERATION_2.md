@@ -1,6 +1,6 @@
 # Design iteration 2 — UI backlog
 
-Updated October 6, 2026. Branch: `codex/design-iteration-2`.
+Updated October 6, 2026. Current branch: `main`; the earlier iteration is preserved on `codex/design-iteration-2`.
 
 The building is the main workspace. Use one renderer per selected project, with contextual workflows beside it. This list concerns the interface; live AI, server persistence and role enforcement remain in the main [TODO](../TODO.md).
 
@@ -18,9 +18,11 @@ The building is the main workspace. Use one renderer per selected project, with 
 
 - [x] Add a larger public apartment BIM project with pinned source, attribution and reproducible import.
 - [x] Add a compact project switcher without bringing back page tabs or a permanent left sidebar.
-- [x] Replace the dropdown with a project showroom: large rotating source model, property description/facts, selection strip, explicit open/cancel, authorized private previews and empty-project setup.
+- [x] Replace the dropdown with a project showroom: large rotating source model, property description/facts, selection grid, explicit open/cancel, authorized private previews and empty-project setup.
+- [x] Make interior visibility and idle rotation default; remove preview buttons/extra heading and fit the picker into the viewport. Show four public cards together, with pages for larger connected catalogs and no horizontal scrolling. Keep keyboard Space/manual pause and reduced-motion/background handling.
+- [x] Add clinic and Esplan public projects with pinned sources, licenses, reproducible imports, separate local identities and actual geometry tests. Preserve centimetre detail for large survey coordinates and explicit building/floor aliases without changing geometry.
 - [x] Fit the full horizontal rotation envelope; pause on manual interaction/backgrounding and default to still for reduced motion. Show only the selected project's WebGL scene; use inexpensive source-bound silhouettes for public cards.
-- [ ] Check the showroom's real mesh appearance, camera composition and carousel on desktop/iPhone/Android; DOM/CPU checks do not verify its visual quality.
+- [ ] Check the showroom's real mesh appearance, camera composition and grid on desktop/iPhone/Android; DOM/CPU checks do not verify its visual quality.
 - [x] Isolate each project's updates, drafts, decisions, history and selection; preserve existing duplex records.
 - [x] Show source floors/rooms and only reviewed unit associations; unknown units stay unassigned.
 - [x] Let untracked source components become planned work through an explicit local action, with no inferred completion.
@@ -34,6 +36,7 @@ The building is the main workspace. Use one renderer per selected project, with 
 ## Workflow polish and acceptance
 
 - [x] Improve empty states for new projects and updates without a selected work package.
+- [x] Open Work & issues by default, preserve requested deep links and explicit panel dismissal, and guide empty projects into work setup. Distinguish empty Attention from no records and disconnected private evidence.
 - [x] Make component exploration accessible through a searchable list as well as pointer picking.
 - [x] Implement/test contextual-panel focus and restoration; keep header search focus, native dialog Escape behavior and landscape layout safeguards.
 - [ ] Complete physical keyboard/screen-reader, mobile camera and narrow/landscape visual acceptance.
@@ -50,13 +53,14 @@ The building is the main workspace. Use one renderer per selected project, with 
 - [ ] Rehearse a browser-rendered IFC upload and correction journey with a teammate on the intended backend/devices.
 - [x] Write a self-contained [subcontractor mobile build prompt](SUBCONTRACTOR_MOBILE_BUILD_PROMPT.md) with theme, 3D reuse, current API contracts, reliable capture/queue requirements and honest PM-integration boundaries.
 - [ ] Build the separate minimal subcontractor PWA and connect its backend uploads to the chosen PM interface; the prompt is a handoff, not a shipped mobile app.
+- [x] Write [USER_STORIES.md](USER_STORIES.md) for PM triage, crew capture/correction and project onboarding; record observed flow gaps and concrete pilot acceptance.
 
 ## Verification record
 
 Verified October 6, 2026:
 
-- Frontend DOM/CPU checks: **111 passing tests**; production compilation succeeds. Showroom browsing/open/cancel, authorized previews, reduced-motion/background/manual pause and full-orbit fitting are covered.
-- Real IFC upload acceptance plus backend model/detail/project/seed regression checks: **21 passing tests**.
+- Frontend DOM/CPU checks: **121 passing tests**; production compilation succeeds. Showroom browsing/paging/open/cancel, source interiors, authorized previews, motion handling, defaults/empty states and precise source bounds/picking are covered.
+- Targeted backend model/detail/project/seed checks: **22 passing tests**, including reviewed floor aliases and centimetre detail at large survey coordinates. Clinic and Esplan were imported/exported through the real IFC CLI in isolated database/storage. The earlier apartment API upload acceptance remains recorded in its sample report; that long API test was not rerun in this pass. New samples' browser-upload/physical-device acceptance remains open.
 - Disposable SQLite migration upgrade/downgrade/upgrade passes. The local development database was backed up and upgraded to `0008`; no project reset was performed. PostgreSQL migration execution was not tested in this session.
 - Ruff passes on modified backend code/tests. Active iteration files have no frontend lint warnings; retained legacy warnings remain.
 

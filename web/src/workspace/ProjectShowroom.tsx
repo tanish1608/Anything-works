@@ -51,7 +51,6 @@ export default function ProjectShowroom({ current }: { current: string }) {
   const [visibleTab, setVisibleTab] = useState(
     document.visibilityState === "visible",
   );
-  const [interior, setInterior] = useState(false);
   useEffect(() => tokenStore.subscribe(() => setSession((n) => n + 1)), []);
   useEffect(() => {
     const update = () => setVisibleTab(document.visibilityState === "visible");
@@ -101,6 +100,12 @@ export default function ProjectShowroom({ current }: { current: string }) {
     [catalog, session],
   );
   const selected = properties.find((p) => p.id === selectedId);
+  const selectedIndex = Math.max(
+    0,
+    properties.findIndex((p) => p.id === selectedId),
+  );
+  const pageStart = Math.floor(selectedIndex / 4) * 4;
+  const page = properties.slice(pageStart, pageStart + 4);
   const key = `${selectedId}:${selected?.private ? session : "public"}:${retry}`;
   useEffect(() => {
     if (!selected) return;
@@ -128,12 +133,10 @@ export default function ProjectShowroom({ current }: { current: string }) {
     () =>
       new Set(
         model?.elements
-          .filter(
-            (e) => !interior || (exteriorWall(e) !== true && !roofElement(e)),
-          )
+          .filter((e) => exteriorWall(e) !== true && !roofElement(e))
           .map((e) => e.id) || [],
       ),
-    [model, interior],
+    [model],
   );
   const colors = useMemo(
     () =>
@@ -150,6 +153,9 @@ export default function ProjectShowroom({ current }: { current: string }) {
     [model],
   );
   const choose = (id: string) => {
+    setRotating(
+      !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches,
+    );
     const next = new URLSearchParams(location.search);
     next.set("preview", id);
     navigate(`/?${next}`, { replace: true });
@@ -203,18 +209,27 @@ export default function ProjectShowroom({ current }: { current: string }) {
           <Icon name="cube" size={26} />
           Everything Works <span>AI</span>
         </a>
-        <button onClick={() => navigate(returnTo)}>
-          <Icon name="close" size={17} />
-          Back to building
-        </button>
+        <div className="showroom-header-actions">
+          <button onClick={() => navigate("/?panel=import")}>
+            <Icon name="plus" size={16} /> Add project
+          </button>
+          <button onClick={() => navigate(returnTo)}>
+            <Icon name="close" size={17} /> Back to building
+          </button>
+        </div>
       </header>
-      <section className="showroom-heading">
-        <span className="showroom-eyebrow">YOUR PROJECTS</span>
-        <h1>Every site has a story.</h1>
-        <p>Find your building. Pick up where the work left off.</p>
-      </section>
       <div className="showroom-hero">
-        <section className="showroom-model" aria-label="Property model preview">
+        <section
+          className="showroom-model"
+          aria-label="Property model preview"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === " ") {
+              e.preventDefault();
+              setRotating((v) => !v);
+            }
+          }}
+        >
           <div className="showroom-stage-label">
             <span>
               {String(
@@ -270,25 +285,9 @@ export default function ProjectShowroom({ current }: { current: string }) {
               )}
             </div>
           )}
-          <div className="showroom-preview-controls">
-            <button
-              aria-pressed={rotating}
-              onClick={() => setRotating((v) => !v)}
-              disabled={!model?.layers.length}
-            >
-              {rotating ? "Pause rotation" : "Rotate building"}
-            </button>
-            <button
-              aria-pressed={interior}
-              onClick={() => setInterior((v) => !v)}
-              disabled={!model?.layers.length}
-            >
-              <Icon name="layers" size={15} />
-              {interior ? "Show exterior" : "Peek inside"}
-            </button>
-          </div>
           <small className="showroom-orbit-hint">
-            Drag to explore · scrolling zooms · interaction pauses rotation
+            Drag to explore · interaction pauses rotation · Space toggles
+            rotation
           </small>
         </section>
         <section
@@ -297,9 +296,11 @@ export default function ProjectShowroom({ current }: { current: string }) {
           aria-live="polite"
         >
           <span className="showroom-property-type">
-            {selected?.private ? "YOUR TEAM'S PROJECT" : "RESIDENTIAL"}
+            {selected?.private
+              ? "YOUR TEAM'S PROJECT"
+              : selected?.category || "PROJECT"}
           </span>
-          <h2>{selected?.name || "Project unavailable"}</h2>
+          <h1>{selected?.name || "Project unavailable"}</h1>
           <p>{selected?.description}</p>
           {selected?.address && (
             <p className="showroom-address">
@@ -314,7 +315,7 @@ export default function ProjectShowroom({ current }: { current: string }) {
                 <dd>{facts.levels}</dd>
               </div>
               <div>
-                <dt>Spaces</dt>
+                <dt>Source spaces</dt>
                 <dd>{facts.rooms}</dd>
               </div>
               <div>
@@ -356,10 +357,44 @@ export default function ProjectShowroom({ current }: { current: string }) {
       <section className="showroom-collection" aria-label="Building collection">
         <div className="showroom-collection-heading">
           <span>
-            {properties.length}{" "}
-            {properties.length === 1 ? "building" : "buildings"} in view
+            {properties.length <= 4
+              ? `${properties.length} buildings`
+              : `${pageStart + 1}–${Math.min(pageStart + 4, properties.length)} of ${properties.length} buildings`}
           </span>
           <div>
+            {properties.length > 4 && (
+              <>
+                <button
+                  aria-label="Previous project page"
+                  onClick={() =>
+                    choose(
+                      properties[
+                        (pageStart - 4 + Math.ceil(properties.length / 4) * 4) %
+                          (Math.ceil(properties.length / 4) * 4)
+                      ].id,
+                    )
+                  }
+                >
+                  <Icon
+                    name="chevron"
+                    className="showroom-previous"
+                    size={18}
+                  />
+                </button>
+                <button
+                  aria-label="Next project page"
+                  onClick={() =>
+                    choose(
+                      properties[
+                        pageStart + 4 >= properties.length ? 0 : pageStart + 4
+                      ].id,
+                    )
+                  }
+                >
+                  <Icon name="chevron" size={18} />
+                </button>
+              </>
+            )}
             <button aria-label="Previous project" onClick={() => step(-1)}>
               <Icon name="chevron" className="showroom-previous" size={18} />
             </button>
@@ -369,7 +404,7 @@ export default function ProjectShowroom({ current }: { current: string }) {
           </div>
         </div>
         <div className="showroom-project-strip">
-          {properties.map((p) => (
+          {page.map((p) => (
             <button
               className={`showroom-project-card ${selectedId === p.id ? "selected" : ""}`}
               key={p.id}
@@ -396,14 +431,6 @@ export default function ProjectShowroom({ current }: { current: string }) {
               </div>
             </button>
           ))}
-          <button
-            className="showroom-add-project"
-            onClick={() => navigate("/?panel=import")}
-          >
-            <Icon name="plus" size={28} />
-            <strong>Add a project</strong>
-            <small>Bring your building into view</small>
-          </button>
         </div>
         {catalog?.session === session && catalog.error && (
           <p className="showroom-catalog-error" role="alert">
