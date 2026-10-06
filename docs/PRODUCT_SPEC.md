@@ -25,7 +25,7 @@ The long-term dream is an agentic construction operating system. The current pro
 
 Initial buyer hypothesis: US residential and multifamily GCs or developer-builders. Confirm the buyer, daily user and party bearing rework costs through interviews.
 
-These users receive different views of the same project, model and recorded progress. Customer access does not imply administrative project ownership; trade/worker access follows assigned locations and work. The [role-view backlog](../TODO.md) defines the planned surfaces and permission work. The current website is the PM sample view with sign-in disabled for local testing; the separate user views are not shipped yet.
+These users receive different views of the same project, model and recorded progress. Customer access does not imply administrative project ownership; trade/worker access follows assigned locations and work. The [role-view backlog](../TODO.md) defines the planned surfaces and permission work. The website includes sign-in-free public role previews and a connected private manual workflow with actual PM/owner, assigned trade and read-only viewer permissions. The shared panels are shipped; dedicated customer sharing and the standalone phone companion remain open. See [shared daily integration](SHARED_DAILY_WORKFLOW.md).
 
 ## 3. Product boundaries
 

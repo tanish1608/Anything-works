@@ -1,3 +1,5 @@
+> **October 6 API update:** The chosen PM website now supports shared private daily work. For the companion's core task/correction flow, use the contract in [SHARED_DAILY_WORKFLOW.md](SHARED_DAILY_WORKFLOW.md), especially `GET /api/projects/{id}/workspace` and `POST /api/work/{id}/updates`. Select assigned server work IDs, submit actual photos with stable `client_uuid`, `captured_by`, confirmed source version/location, note, claim and capture time, then reconcile `upload_id`. Fetch returned photos with authorization. Crew roles cannot approve or close an issue; fresh correction photos remain red until explicit PM review. Public sample IDs remain unrelated. The legacy zone/checklist/upload contracts below are compatibility context and must not be used to submit an element that has shared tracked work.
+
 # Placeholder AI — subcontractor mobile app build prompt
 
 Updated October 6, 2026. This is a self-contained brief to give Claude in a new conversation. The mobile app is **not built yet**. Copy everything below the divider into Claude; it does not need this conversation.
@@ -43,7 +45,7 @@ Only subcontractors/field crews use this app. Their backend membership role is `
 3. **Choose location/work.** Building → floor → room/zone, with a simple searchable list. Show unit numbers only if reviewed metadata establishes them; never infer Unit 403 or invent a room. Select zero or more allowed source components from that zone/trade checklist. Highlight selected components in the 3D context when geometry exists. Require a checkbox confirming the location before submission. If a component has no room association, do not silently attach it to an arbitrary room; offer the supported zone-level report or explain the missing association.
 4. **Capture daily update.** Confirm trade, floor and room. Add 1–6 photos using camera or gallery; show previews with remove/retake. A required short “What changed today?” note, with a placeholder such as “Installed cold-water connection; pressure test still needed.” Keep the location chip visible. Use the current approved source version as capture context. Avoid extra forms; hours, crew count, structured materials and completion percentage are not needed in version one.
 5. **Review and submit.** One summary with selected project/location/work, photos and note; Back to edit and Submit. Save a durable local draft before making a network request. Show truthful progress and distinct states: **Draft**, **Queued on this device**, **Uploading**, **Submitted — awaiting review**, **Needs attention**. A successful response with an upload ID is the only basis for “Submitted.” Offline mode must say the update is still on this device.
-6. **My updates/detail.** Actual own uploads, newest first, with date, zone, trade, thumbnails and note. Open an update to see evidence and returned review information. Pending, uncertain and correction requests remain distinct from human confirmation. Display a legacy installation verdict as a reviewer observation, not comprehensive quality approval. Show local unsent drafts separately from server submissions. Correction photos are a new update with an explicit reference in the note; the current API does not offer a complete linked correction-request contract, so do not pretend it does.
+6. **My updates/detail.** Actual own uploads, newest first, with date, zone, trade, thumbnails and note. Open an update to see evidence and returned review information. Pending, uncertain and correction requests remain distinct from human confirmation. Display a legacy installation verdict as a reviewer observation, not comprehensive quality approval. Show local unsent drafts separately from server submissions. Correction photos are a new update with an explicit reference in the note; the shared work contract now carries the issue/correction state and history; use it for linked correction updates.
 
 Use a compact bottom navigation if useful: **Site · Updates**. The capture button is the main action. There is no desktop sidebar and no repeated 3D viewer on every screen. Keep one renderer on the site/location screen and dispose it when leaving that screen. Capture itself should prioritize photos.
 
@@ -76,7 +78,20 @@ Limit pixel ratio and unnecessary layers for phones, pause rendering when idle/b
 
 If WebGL or model loading fails, keep the authorized floor/room/checklist selector and photo submission usable, with a clear “3D unavailable” explanation. Do not make successful camera capture depend on WebGL. Only show a 2D fallback when actual model-derived plan data exists.
 
-## Existing API contract
+## Primary shared-work contract (use this for the new companion)
+
+Use the existing bearer authentication and project/model loaders below. The phone app must select **an assigned private work package** returned by the workspace endpoint. A zone checklist alone does not establish a shared task in the PM interface.
+
+- `GET /api/projects/{projectId}/workspace` returns `{state, user, role, permissions}`. `state.items` are the permitted assigned records, with `id`, `title`, `trade`, `owner`, `assigneeId`, `serverRevision`, `location` (approved version, source elements, floor/room and anchor), `captureGuidance`, `photos`, `update`, `review`, `issue`, `correction`, `progress` and history. Use `permissions.capture`; a role preview cannot grant permission.
+- Confirm the chosen task/location and required capture views. Post multipart to `POST /api/work/{workId}/updates`: `client_uuid` generated once, `captured_by` = authenticated `user.id`, captured `model_version_id`, `confirmed=true`, required `note`, optional separate `claim`, ISO `captured_at`, and 1–6 `files` (JPEG/PNG/WebP, server max 25 MB each). The response `{upload_id, client_uuid, received:true}` is the receipt, not AI approval.
+- Refresh the workspace after receipt and on foreground/reconnect (the PM app polls every ten seconds). Show `state.events` and latest `state.assessmentJobs` receipt/reference/actor context for task history. Shared photos use authenticated `GET /api/photos/{id}` to an object URL; never put bearer tokens in URLs.
+- A PM request changes the task's recorded review/detail. Submit correction photos as a **new UUID on the same work ID**. The issue stays open until a PM/owner records a review decision. The crew app must not call `/work/{id}/decisions` to approve/resolve, nor legacy issue PATCH as a shortcut.
+- Show actual in-app follow-ups from `GET /api/notifications?unread=true`, filtered by project. Mark read through `POST /api/notifications/{id}/read`. No external message delivery is implemented.
+- A 409 means changed reference, stale context or conflicting identity. Keep the photos; let the PM reconfirm the work reference, then have the crew explicitly reconfirm and create a new draft submission. A lost response with unchanged payload retries the original UUID. A denied/removed assignment keeps the evidence on that user's device until access is restored.
+
+The PM creates/assigns the task and capture requirements; crews do not re-enter ownership. An administrative owner is a manager, while a customer is a read-only viewer. Public browser sample records are not imported into this server contract. Private model loading requires a network; preserve confirmed drafts/outbox until reconnection without claiming offline 3D.
+
+## Legacy intake and model API context
 
 All paths below include the `/api` prefix. Use the server implementation/types as final authority if anything differs. The API base URL must be configurable, e.g. `VITE_API_BASE_URL`; use a same-origin proxy in development where possible. No embedded production credentials or invented endpoints.
 
@@ -118,7 +133,7 @@ Do not manually set multipart `Content-Type`; the browser supplies its boundary.
 
 The upload response includes `id,zone_id,trade,user_id,user_name,zone_name,note,client_uuid,captured_at,created_at,analysis_status,photos,verifications`. Photo entries include authorized `url` and `thumb_url`. Verifications include `element_id,verdict,confidence,reason,source,state,confirmed_by,confirmed_at,overridden` and other provenance fields. Inspect existing types for exact enums; don't manufacture an AI-approved state.
 
-The backend supports uploads without selected element IDs, allowing a zone-level update where appropriate. The app should require the short note and confirmed location even where the server accepts an empty note. It does not currently expose the public demo's work-package/owner/due-date records as a shared private API; don't submit their browser IDs as element IDs.
+The backend supports uploads without selected element IDs, allowing a zone-level update where appropriate. The app should require the short note and confirmed location even where the server accepts an empty note. Shared private work is now exposed through the workspace/work endpoints above; public demo browser IDs are still not private work or element IDs.
 
 ## Reliable photos, drafts and offline behavior
 

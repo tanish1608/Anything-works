@@ -23,6 +23,7 @@ from app.models import (
     Upload,
     User,
     Verification,
+    WorkSubmission,
     Zone,
 )
 from app.rbac import Perm, require, zone_visible
@@ -86,6 +87,9 @@ async def create_upload(project_id: str, zone_id: str = Form(...), trade: str = 
     m = require(db, project_id, user.id, Perm.progress_upload)
     existing = db.scalar(select(Upload).where(Upload.project_id == project_id, Upload.client_uuid == client_uuid))
     if existing:
+        if existing.user_id != user.id or db.scalar(select(WorkSubmission.id).where(WorkSubmission.upload_id == existing.id)):
+            raise HTTPException(409, "Submission identity belongs to a different upload workflow")
+        _load_upload(db, existing.id, user)
         return _upload_out(db, existing)
     z = db.get(Zone, zone_id)
     if z is None or project_of_zone(db, z) != project_id or not zone_visible(m, zone_id):
@@ -178,7 +182,15 @@ def list_uploads(project_id: str, zone_id: str | None = None, mine: bool = False
     if mine or m.role == Role.trade:
         q = q.where(Upload.user_id == user.id) if mine or m.zone_ids is not None else q.where(Upload.trade.in_(m.trades))
     rows = db.scalars(q.order_by(Upload.created_at.desc()).limit(min(limit, 200)))
-    return [_upload_out(db, u) for u in rows if u.zone_id is None or zone_visible(m, u.zone_id)]
+    visible_rows = []
+    for u in rows:
+        try:
+            _load_upload(db, u.id, user)
+            visible_rows.append(u)
+        except HTTPException as exc:
+            if exc.status_code != 404:
+                raise
+    return [_upload_out(db, u) for u in visible_rows]
 
 
 def _load_upload(db: Session, upload_id: str, user: User) -> tuple[Upload, ProjectMember]:
@@ -186,6 +198,10 @@ def _load_upload(db: Session, upload_id: str, user: User) -> tuple[Upload, Proje
     if u is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Upload not found")
     m = require(db, u.project_id, user.id, Perm.history_view)
+    receipt = db.scalar(select(WorkSubmission).where(WorkSubmission.upload_id == u.id))
+    if receipt:
+        from app.services.workflow import load
+        load(db, receipt.work_id, user, Perm.history_view)
     if m.role == Role.trade and u.user_id != user.id and (u.trade not in m.trades or (u.zone_id and not zone_visible(m, u.zone_id))):
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Upload not found")
     return u, m
@@ -211,7 +227,7 @@ def get_photo(photo_id: str, thumb: bool = False, user: User = Depends(current_u
         buf = io.BytesIO()
         img.save(buf, "JPEG", quality=80)
         data, ctype = buf.getvalue(), "image/jpeg"
-    return Response(data, media_type=ctype, headers={"Cache-Control": "private, max-age=86400"})
+    return Response(data, media_type=ctype, headers={"Cache-Control": "private, no-store"})
 
 
 @router.get("/projects/{project_id}/reviews", response_model=list[UploadOut])

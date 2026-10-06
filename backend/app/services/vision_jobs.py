@@ -14,7 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app import jobs
-from app.models import Element, ElementStatus, Photo, Project, ProjectMember, Role, Upload, Verification, Zone
+from app.models import Element, ElementStatus, Photo, Project, ProjectMember, Role, Upload, Verification, WorkPackage, Zone
 from app.services import events, progress
 from app.services.notify import notify
 from app.services.photos import analysis_copy
@@ -37,7 +37,7 @@ def expected_elements(db: Session, project: Project, upload: Upload) -> list[dic
     z = db.get(Zone, upload.zone_id)
     out = []
     for rev, el in progress.current_revisions(db, project, upload.zone_id, upload.trade):
-        if el.status == ElementStatus.done:
+        if el.status == ElementStatus.done or db.scalar(select(WorkPackage.id).where(WorkPackage.element_id == el.id)):
             continue  # already verified; don't re-litigate
         out.append({"id": el.id, "ifc_class": rev.ifc_class, "name": rev.name, "props": rev.props or {},
                     "position_hint": position_hint(rev.bbox, z.polygon if z else None)})
@@ -52,7 +52,7 @@ def apply_verdicts(db: Session, project: Project, upload: Upload, result: vision
     missing_names, retake_names = [], []
     for v in result.verdicts:
         el = db.get(Element, v.element_id)
-        if el is None or el.status == ElementStatus.done:
+        if el is None or el.status == ElementStatus.done or db.scalar(select(WorkPackage.id).where(WorkPackage.element_id == el.id)):
             continue
         confident_install = v.verdict == "installed" and v.confidence >= threshold
         ver = Verification(project_id=upload.project_id, upload_id=upload.id, element_id=el.id, verdict=v.verdict,

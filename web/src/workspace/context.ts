@@ -1,6 +1,7 @@
 import { createContext, useContext } from "react";
 import type { Action, WorkItem, WorkspaceState } from "./state";
 import type { ViewRole } from "./viewRoles";
+import type { useConnectedWork } from "./useConnectedWork";
 import type { ModelDataset } from "../viewer/modelData";
 
 export interface Decision {
@@ -16,6 +17,8 @@ export interface Decision {
     | "assign";
 }
 interface Context {
+  connected?: ReturnType<typeof useConnectedWork>;
+  commit?: (action: Action, basis?: WorkItem) => Promise<boolean>;
   model: ModelDataset;
   state: WorkspaceState;
   act: (action: Action) => boolean;
@@ -34,8 +37,9 @@ export function useWorkspace() {
   return {
     ...value,
     view,
-    canReview: !connected && view === "pm",
-    canCapture: !connected && view !== "customer",
-    canPlan: !connected && view === "pm",
+    commit: value.commit || (async (action: Action) => value.act(action)),
+    canReview: connected ? !!value.connected?.snapshot?.permissions.review && !value.connected.error && value.online && value.model.version === value.connected.snapshot.state.modelVersion && value.model.source.approvalStatus === "approved" : view === "pm",
+    canCapture: connected ? !!value.connected?.snapshot?.permissions.capture && value.model.source.approvalStatus === "approved" && value.connected.snapshot.state.modelVersion === value.model.version : view !== "customer",
+    canPlan: connected ? !!value.connected?.snapshot?.permissions.plan && !value.connected.error && value.model.source.approvalStatus === "approved" && value.connected.snapshot.state.modelVersion === value.model.version : view === "pm",
   };
 }

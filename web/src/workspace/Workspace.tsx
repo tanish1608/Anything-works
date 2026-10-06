@@ -41,6 +41,9 @@ import WorldDialog from "./WorldDialog";
 import { VIEW_ROLES, viewState, type ViewRole } from "./viewRoles";
 import ProjectImportPanel from "./ProjectImportPanel";
 import { loadAuthorizedModel } from "../viewer/authorizedModel";
+import { useConnectedWork } from "./useConnectedWork";
+import ConnectedTeam from "./ConnectedTeam";
+import WorkOutbox from "./WorkOutbox";
 import { tokenStore } from "../api/client";
 
 const TITLES: Record<Panel, string> = {
@@ -152,11 +155,17 @@ function BuildingWorkspace({
   const storageKey = projectStorageKey(model);
   const [view, setView] = useState<ViewRole>("pm");
   const [previewOwner, setPreviewOwner] = useState("");
-  const [state, setState] = useState(() => loadProjectState(model)),
+  const [state, setState] = useState(() => model.source.apiProjectId ? initialProjectState(model) : loadProjectState(model)),
     stateRef = useRef(state);
   const [online, setOnline] = useState(navigator.onLine),
     [message, setMessage] = useState(""),
     [search, setSearch] = useState("");
+  const receive = useCallback((value: typeof state) => { stateRef.current = value; setState(value); }, []);
+  const connected = useConnectedWork(model, receive, setMessage);
+  const saveConnectedDraft = connected.saveDraft;
+  const effectiveView: ViewRole = model.source.apiProjectId
+    ? connected.snapshot?.role === "trade" ? "worker" : connected.snapshot?.role === "viewer" ? "customer" : "pm"
+    : view;
   const [focusToken, setFocusToken] = useState(0),
     [reset, setReset] = useState(false);
   const [closeup, setCloseup] = useState(false);
@@ -186,8 +195,8 @@ function BuildingWorkspace({
     previousPanel.current = !!panel;
   }, [panel]);
   const scopedState = useMemo(
-    () => viewState(state, view, previewOwner),
-    [state, view, previewOwner],
+    () => model.source.apiProjectId ? state : viewState(state, view, previewOwner),
+    [state, view, previewOwner, model.source.apiProjectId],
   );
   const workId =
       params.get("work") ||
@@ -319,10 +328,12 @@ function BuildingWorkspace({
   const act = useCallback(
     (action: Action) => {
       try {
-        if (model.source.apiProjectId)
-          throw Error(
-            "Private work records are not connected yet. Use a public sample to test this flow.",
-          );
+        if (model.source.apiProjectId) {
+          if (action.type !== "draft") throw Error("Use the shared workflow to save this action.");
+          saveConnectedDraft(action.draft);
+          receive({ ...stateRef.current, draft: action.draft });
+          return true;
+        }
         if (view === "customer" && action.type !== "sync")
           throw Error("The customer preview is read-only.");
         if (view === "subcontractor" || view === "worker") {
@@ -367,7 +378,7 @@ function BuildingWorkspace({
         return false;
       }
     },
-    [storageKey, model.source.apiProjectId, view, previewOwner],
+    [storageKey, model.source.apiProjectId, view, previewOwner, saveConnectedDraft, receive],
   );
   useEffect(() => {
     const update = () => {
@@ -418,14 +429,16 @@ function BuildingWorkspace({
     return () => window.removeEventListener("keydown", key);
   }, [navigate, reset, project, overviewUrl]);
   const decide = (item: Decision["item"]) => selectWork(item.id);
-  const issues = scopedState.items.filter((i) => i.issue).length;
+  const issues = scopedState.items.filter((i) => i.issue || i.status === "issue").length;
   const context = {
     model,
+    connected: model.source.apiProjectId ? connected : undefined,
+    commit: model.source.apiProjectId ? connected.commit : undefined,
     state: scopedState,
     act,
     decide,
     online,
-    view,
+    view: effectiveView,
     previewOwner,
     changeView: (role: ViewRole, owner: string) => {
       setView(role);
@@ -434,6 +447,11 @@ function BuildingWorkspace({
     },
   };
   const renderPanel = () => {
+    if (model.source.apiProjectId && panel !== "import" && !connected.snapshot) return <div className="world-empty">
+      <h2>{connected.error ? "Shared records couldn't load" : "Loading shared work records"}</h2>
+      <p>{connected.error || "Checking your project permissions and fetching the team's evidence."}</p>
+      <button onClick={() => void connected.refresh()}>Retry records</button>
+    </div>;
     switch (panel) {
       case "issues":
         return (
@@ -480,17 +498,22 @@ function BuildingWorkspace({
           />
         ) : null;
       case "capture":
-        if (view === "customer" || model.source.apiProjectId)
+        if (model.source.apiProjectId && params.get("work") && (!work || work.location?.version !== model.version)) return <div className="world-empty">
+          <h2>{work ? "Work reference needs reconfirmation" : "Assigned work not found"}</h2>
+          <p>{work ? "Ask the project manager to reconfirm this task against the current model before capturing new evidence. Queued photos remain on your device." : "This link does not identify work available to your account. Choose one of your assigned records."}</p>
+          <button onClick={() => open("issues")}>Browse assigned work</button>
+        </div>;
+        if (effectiveView === "customer" || (model.source.apiProjectId && (!connected.snapshot?.permissions.capture || model.source.approvalStatus !== "approved" || connected.snapshot.state.modelVersion !== model.version)))
           return (
             <div className="world-empty">
               <h2>
                 {model.source.apiProjectId
-                  ? "Field records are not connected yet."
+                  ? "Capture is unavailable for this reference."
                   : "Customer progress view"}
               </h2>
               <p>
                 {model.source.apiProjectId
-                  ? "Use a public sample to test the daily evidence flow."
+                  ? "Choose the current approved model and sign in with a project role that can submit work."
                   : "Browse work evidence and progress. Your project manager records decisions."}
               </p>
               <button onClick={() => open("issues")}>
@@ -524,17 +547,7 @@ function BuildingWorkspace({
           />
         );
       case "team":
-        return model.source.apiProjectId ? (
-          <div className="world-empty">
-            <h2>Team view pending integration</h2>
-            <p>
-              The account uses server project permissions. No sample contacts
-              are shown for private projects.
-            </p>
-          </div>
-        ) : (
-          <TeamPanel />
-        );
+        return model.source.apiProjectId ? <ConnectedTeam /> : <TeamPanel />;
       case "import":
         return (
           <ProjectImportPanel
@@ -584,7 +597,7 @@ function BuildingWorkspace({
             <h1>{state.projectName}</h1>
             <span>
               {model.source.apiProjectId
-                ? `${model.source.approvalStatus === "draft" ? "Draft reference" : model.source.approvalStatus === "missing" ? "Awaiting model" : "Connected model"} · work records pending`
+                ? `${model.source.approvalStatus === "draft" ? "Draft reference" : model.source.approvalStatus === "missing" ? "Awaiting model" : "Connected model"} · shared project records`
                 : online
                   ? "Project workspace"
                   : "Offline · device storage"}
@@ -620,7 +633,7 @@ function BuildingWorkspace({
             <button
               className="world-primary"
               aria-label="New update"
-              disabled={view === "customer" || !!model.source.apiProjectId}
+              disabled={effectiveView === "customer" || (!!model.source.apiProjectId && (!connected.snapshot?.permissions.capture || model.source.approvalStatus !== "approved" || connected.snapshot.state.modelVersion !== model.version))}
               onClick={() => open("capture", work?.id)}
             >
               <Icon name="plus" size={17} />
@@ -654,6 +667,11 @@ function BuildingWorkspace({
                   </button>
                 ))}
                 </div>
+                {model.source.apiProjectId && <div className="world-user-previews">
+                  <strong>{connected.snapshot?.user.name || "Connected account"}</strong>
+                  <small>{connected.snapshot?.role || "Loading permissions"}</small>
+                  <button onClick={() => { tokenStore.set(null); navigate("/"); }}>Disconnect account</button>
+                </div>}
                 {!model.source.apiProjectId && <div className="world-user-previews">
                   <label>View as
                     <select aria-label="Preview user experience" value={view} onChange={(e) => {
@@ -731,6 +749,7 @@ function BuildingWorkspace({
                 className="world-drawer-scroll"
                 key={`${panel}:${workId || element || ""}`}
               >
+                {model.source.apiProjectId && <WorkOutbox />}
                 {renderPanel()}
               </div>
             </aside>

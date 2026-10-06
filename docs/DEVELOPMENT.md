@@ -38,6 +38,8 @@ Open `http://localhost:5173`. Vite proxies API calls to port 8000.
 
 If public models work but connected projects show a gateway failure, verify the backend is running on port 8000 and that `/api/health` returns 200 through the Vite proxy. An unauthenticated `/api/projects` returning 401 is expected; do not disable API authorization to fix a gateway outage.
 
+Apply Alembic through `0009` when updating an existing checkout. The [shared daily workflow](SHARED_DAILY_WORKFLOW.md) includes two-account rehearsal, work/update/decision contracts and offline limits.
+
 ## Application surfaces
 
 - **`/`:** rotating project showroom/home; choose a building or Add / import project. Opening a project enters the building workspace with optional right-side panels. It runs without backend/sign-in and stores testing records locally.

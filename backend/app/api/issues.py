@@ -23,6 +23,7 @@ from app.models import (
     ProjectMember,
     Role,
     User,
+    WorkPackage,
     Zone,
 )
 from app.rbac import Perm, require, zone_visible
@@ -174,6 +175,8 @@ def get_issue(issue_id: str, user: User = Depends(current_user), db: Session = D
 @router.patch("/issues/{issue_id}", response_model=IssueOut)
 def update_issue(issue_id: str, body: IssuePatch, user: User = Depends(current_user), db: Session = Depends(get_db)):
     issue, m = _load(db, issue_id, user, Perm.issue_create)
+    if db.scalar(select(WorkPackage.id).where(WorkPackage.issue_id == issue.id)):
+        raise HTTPException(409, "Review and update this issue through its shared work record")
     changes = body.model_dump(exclude_unset=True)
     manager = m.role in (Role.owner, Role.pm)
     if not manager:

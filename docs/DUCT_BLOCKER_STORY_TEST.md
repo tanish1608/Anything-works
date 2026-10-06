@@ -2,6 +2,10 @@
 
 October 6, 2026 · Placeholder AI. Scenario from the user's slide: a panel installer reports, “Duct is not well installed; I cannot install the panel.” This is an automated workflow assessment, not a real-site defect evaluation or proof of reduced cost/delay.
 
+## Subsequent integration
+
+The chosen website now supports the authenticated manual PM/crew evidence and correction loop described in [SHARED_DAILY_WORKFLOW.md](SHARED_DAILY_WORKFLOW.md). Real accounts share assigned work, photos, decisions, in-app follow-ups and 3D progress. Server and UI tests exercise independent sessions/mounts. The original review below is retained as the starting assessment. The **cross-trade reporter/fixer link and downstream panel blocker** remain open; shared persistence alone does not complete that broader scenario.
+
 ## Verdict
 
 **The manual review/correction loop works in the public single-browser demo. The complete two-trade, two-device customer story is not connected yet.** Its most important missing concept is a linked blocker: the panel crew reports the obstruction, the HVAC crew owns the correction, and the panel task stays separately blocked until someone verifies it can resume.

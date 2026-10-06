@@ -475,3 +475,31 @@ class Verification(Base):
     override_reason: Mapped[str | None] = mapped_column(Text)
     created_by: Mapped[str | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class WorkPackage(Base):
+    """Authoritative manual field workflow; never inferred from a worker claim or legacy AI verdict."""
+
+    __tablename__ = "work_packages"
+    __table_args__ = (UniqueConstraint("project_id", "element_id"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    element_id: Mapped[str] = mapped_column(ForeignKey("elements.id", ondelete="CASCADE"), index=True)
+    version_id: Mapped[str] = mapped_column(ForeignKey("model_versions.id"), index=True)
+    assignee_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    issue_id: Mapped[str | None] = mapped_column(ForeignKey("issues.id"), index=True)
+    revision: Mapped[int] = mapped_column(Integer, default=1)
+    state: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class WorkSubmission(Base):
+    """Immutable capture/reference receipt. Photos and intake metadata reuse Upload/Photo."""
+
+    __tablename__ = "work_submissions"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    work_id: Mapped[str] = mapped_column(ForeignKey("work_packages.id", ondelete="CASCADE"), index=True)
+    upload_id: Mapped[str] = mapped_column(ForeignKey("uploads.id", ondelete="CASCADE"), unique=True)
+    payload_hash: Mapped[str] = mapped_column(String(64))
+    reference: Mapped[dict] = mapped_column(JSON)
+    claim: Mapped[str] = mapped_column(String(100), default="")

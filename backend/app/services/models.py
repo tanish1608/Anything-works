@@ -1,10 +1,11 @@
+from copy import deepcopy
 from datetime import UTC, datetime
 
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import Element, ElementRevision, ElementStatus, ModelVersion, Project, ProjectMember, Role
+from app.models import Element, ElementRevision, ElementStatus, ModelVersion, Project, ProjectMember, Role, User, WorkPackage
 from app.rbac import trade_visible, zone_visible
 from app.services import events
 
@@ -12,7 +13,7 @@ from app.services import events
 def approve_version(db: Session, version: ModelVersion, actor_id: str, message: str | None = None) -> None:
     if version.status != "draft":
         raise HTTPException(status.HTTP_409_CONFLICT, f"Version is {version.status}, not draft")
-    project = db.get(Project, version.project_id)
+    project = db.scalar(select(Project).where(Project.id == version.project_id).with_for_update().execution_options(populate_existing=True))
     if version.branch == "main":
         reset_changed_progress(db, project, version, actor_id)
     version.status = "approved"
@@ -29,6 +30,20 @@ def approve_version(db: Session, version: ModelVersion, actor_id: str, message: 
 
 def reset_changed_progress(db: Session, project: Project, version: ModelVersion, actor_id: str | None) -> None:
     """Geometry or source-location changes invalidate a prior finished decision."""
+    from app.services.workflow import record
+    actor = db.get(User, actor_id) if actor_id else None
+    for work in db.scalars(select(WorkPackage).where(WorkPackage.project_id == project.id)):
+        if work.version_id == version.id:
+            continue
+        state = deepcopy(work.state)
+        state.update(status="issue" if state.get("issue") else "review", progress="Not assessed",
+                     review="Approved reference changed; reconfirm location and submit fresh evidence", correction=False)
+        work.state = state
+        work.revision += 1
+        element = db.get(Element, work.element_id)
+        element.status = ElementStatus.needs_review
+        if actor:
+            record(db, work, actor, "reference_changed", "Approved model changed. Prior evidence and decisions retained; current work requires reconfirmation.")
     previous = {}
     if project.current_version_id:
         previous = {r.element_id: (r.geom_hash, r.level_id, r.zone_id)

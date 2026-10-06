@@ -11,7 +11,7 @@ from app.auth.deps import current_user
 from app.bim.ifc_import import import_ifc
 from app.db import SessionLocal, get_db
 from app.disciplines import DISCIPLINES
-from app.models import Element, ElementRevision, Event, Job, ModelVersion, Project, Role, User, Verification
+from app.models import Element, ElementRevision, Event, Job, ModelVersion, Project, Role, User, Verification, WorkPackage
 from app.rbac import Perm, require, zone_visible
 from app.schemas import (
     ApproveIn,
@@ -199,6 +199,11 @@ def completion_basis(db: Session, project_id: str) -> dict[str, str]:
                         .order_by(Verification.confirmed_at.desc(), Verification.created_at.desc())):
         if v.element_id not in out:
             out[v.element_id] = "human" if v.confirmed_by else "legacy_ai" if v.source == "ai" else "legacy"
+    for work in db.scalars(select(WorkPackage).where(WorkPackage.project_id == project_id)):
+        if work.state["status"] == "human":
+            out[work.element_id] = "human"
+        else:
+            out.pop(work.element_id, None)
     return out
 
 

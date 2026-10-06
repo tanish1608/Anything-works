@@ -15,12 +15,15 @@ export function validHistory(events: Activity[]) {
     .sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime());
 }
 
-/** Only reconstruct recorded status. Current evidence and reference are not historical snapshots. */
+/** Connected events carry immutable work snapshots; public fixtures retain status-only replay. Geometry remains current. */
 export function itemsAt(state: WorkspaceState, day: string): WorkItem[] {
   const status = new Map<string, WorkItem["status"]>();
   for (const e of validHistory(state.events))
     if (dayKey(e.at) <= day) status.set(e.item, e.tone);
-  return state.items.map((i) => ({
+  const snapshots = new Map<string, WorkItem>();
+  for (const e of validHistory(state.events))
+    if (e.snapshot && dayKey(e.at) <= day) snapshots.set(e.item, e.snapshot);
+  return state.items.map((i) => snapshots.get(i.id) || ({
     ...i,
     status: status.get(i.id) || "none",
     issue: status.get(i.id) === "issue" ? i.id : undefined,

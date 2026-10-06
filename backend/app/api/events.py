@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from app.auth.deps import current_user
 from app.db import get_db
-from app.models import Event, Role, User
+from app.models import Event, Role, User, WorkPackage
 from app.rbac import Perm, require
 from app.schemas import EventOut
 
@@ -29,6 +29,11 @@ def list_events(
         q = q.where(Event.zone_id.is_not(None))
         if member.zone_ids is not None:
             q = q.where(Event.zone_id.in_(member.zone_ids))
+    if member.role == Role.trade:
+        from app.services.workflow import visible
+        ids = [w.id for w in db.scalars(select(WorkPackage).where(WorkPackage.project_id == project_id)) if visible(member, w)]
+        q = q.where(or_(Event.entity_type != "work", Event.entity_id.in_(ids)))
+        q = q.where(or_(Event.data["work_id"].as_string().is_(None), Event.data["work_id"].as_string().in_(ids)))
     if before_id is not None:
         q = q.where(Event.id < before_id)
     if zone_id is not None:

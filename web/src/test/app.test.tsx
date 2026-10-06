@@ -1,3 +1,4 @@
+import "fake-indexeddb/auto";
 import { readFileSync } from "node:fs";
 import { useEffect, type ComponentProps } from "react";
 import {
@@ -267,8 +268,9 @@ describe("one building workspace", () => {
     await userEvent.click(
       screen.getByRole("button", { name: "Submit for review" }),
     );
+    await screen.findByRole("complementary", { name: "Work record" });
     await userEvent.click(
-      screen.getByRole("button", { name: "Accept reviewed work" }),
+      await screen.findByRole("button", { name: "Accept reviewed work" }),
     );
     await userEvent.type(
       screen.getByLabelText("Decision reason"),
@@ -474,6 +476,7 @@ describe("one building workspace", () => {
     await userEvent.click(
       screen.getByRole("button", { name: "Submit for review" }),
     );
+    await screen.findByRole("complementary", { name: "Work record" });
     expect(
       screen.getByRole("complementary", { name: "Work record" }),
     ).toBeInTheDocument();
@@ -721,6 +724,13 @@ it("creates a private project, previews a real draft in the shared canvas and re
       body = project;
     } else if (path === "/api/projects") body = created ? [project] : [];
     else if (path === "/api/projects/private-project") body = project;
+    else if (path === "/api/projects/private-project/workspace") body = {
+      user: { id: "client-pm", name: "Client PM", email: "pm@example.com" }, role: "owner",
+      permissions: { review: true, capture: true, plan: true },
+      state: { version: 1, items: [], events: [], draft: null, projectName: project.name, reportNote: "", reportSigned: null,
+        modelVersion: approved ? "private-revision" : null, modelApproved: approved, assessmentJobs: [] },
+    };
+    else if (path === "/api/projects/private-project/members" || path.startsWith("/api/notifications")) body = [];
     else if (path.includes("/models/import")) {
       imported = true;
       expect((init!.body as FormData).getAll("files")).toHaveLength(1);
@@ -799,10 +809,10 @@ it("creates a private project, previews a real draft in the shared canvas and re
     screen.getByLabelText("I reviewed this source structure and geometry."),
   );
   await userEvent.click(approve);
-  await screen.findByText("Connected model · work records pending");
+  await screen.findByText("Connected model · shared project records");
   expect(approved).toBe(true);
   expect(requests).toContain("/api/models/private-revision/approve");
-  expect(screen.getByRole("button", { name: "New update" })).toBeDisabled();
+  await waitFor(() => expect(screen.getByRole("button", { name: "New update" })).toBeEnabled());
 }, 10000);
 
 it("keeps scene colors and pins stable while writing a daily-update draft", async () => {
@@ -833,13 +843,14 @@ it("walks the duct-blocking-panel report through manual PM assignment, crew corr
   await userEvent.clear(screen.getByLabelText("What changed?"));
   await userEvent.type(screen.getByLabelText("What changed?"), "Panel installer reports: duct is not well installed; I cannot install the panel.");
   await userEvent.click(screen.getByRole("button", { name: "Submit for review" }));
+  await screen.findByRole("complementary", { name: "Work record" });
   const read = () => JSON.parse(localStorage.getItem(key)!) as WorkspaceState;
   expect(read().items[0].status).toBe("review");
   expect(read().events[0].text).toContain("cannot install the panel");
   expect(read().assessmentJobs![0].modelVersion).toBe(clinic.version);
   expect(scene.last!.focus!.elements).toContain(duct.id);
 
-  await userEvent.click(screen.getByRole("button", { name: "Confirm an issue" }));
+  await userEvent.click(await screen.findByRole("button", { name: "Confirm an issue" }));
   await userEvent.clear(screen.getByLabelText("Assignee"));
   await userEvent.type(screen.getByLabelText("Assignee"), "HVAC crew");
   fireEvent.change(screen.getByLabelText("Due date"), { target: { value: "2026-10-08" } });
@@ -857,9 +868,10 @@ it("walks the duct-blocking-panel report through manual PM assignment, crew corr
   await userEvent.upload(screen.getByLabelText("Upload evidence photos"), new File(["correction"], "duct-correction.jpg", { type: "image/jpeg" }));
   await userEvent.type(screen.getByLabelText("What changed?"), "Duct adjusted; panel crew must verify installation can continue.");
   await userEvent.click(screen.getByRole("button", { name: "Submit for review" }));
+  await screen.findByRole("complementary", { name: "Work record" });
   expect(read().items[0]).toMatchObject({ issue, status: "issue", correction: true });
   expect(scene.last!.colors.get(duct.id)).toBe(COLORS.issue);
-  expect(screen.getByRole("img", { name: "duct-correction.jpg" })).toBeInTheDocument();
+  expect(await screen.findByRole("img", { name: "duct-correction.jpg" })).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Accept correction & resolve" })).not.toBeInTheDocument();
 
   await userEvent.click(screen.getByRole("button", { name: "Return to PM" }));

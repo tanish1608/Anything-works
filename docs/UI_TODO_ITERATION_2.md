@@ -71,3 +71,11 @@ Verified October 6, 2026:
 - Ruff passes on modified backend code/tests. Active iteration files have no frontend lint warnings; retained legacy warnings remain.
 
 DOM and CPU geometry checks do not replace browser/device visual acceptance. Browser inspection remains unavailable under the saved local-URL access restriction. Physical acceptance tasks are deliberately left open.
+
+## Shared daily integration — October 6
+
+- [x] Connect the chosen work/capture/review/correction/3D/history panels to real authorized server records and identities.
+- [x] Show actual project members, eligible assignments and in-app team updates; preserve sign-in-free local samples.
+- [x] Keep queued/failed photos in an account-bound IndexedDB outbox with stable retries and reference/scope recovery.
+- [x] Protect stale decisions and model-reference changes; require fresh correction photos and explicit PM resolution.
+- [ ] Physical phone/WebGL/offline PWA acceptance, live AI and cross-trade dependencies remain open. See [shared integration](SHARED_DAILY_WORKFLOW.md).

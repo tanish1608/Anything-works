@@ -1,3 +1,5 @@
+> The manual shared workflow is now connected. Start with the [two-account rehearsal](SHARED_DAILY_WORKFLOW.md) for actual crew upload → PM review → correction → model progress. Public walkthroughs below remain local samples; live AI and device acceptance remain open.
+
 # Client demo — Placeholder AI
 
 Updated October 6, 2026 · design iteration 2.
@@ -6,7 +8,7 @@ Updated October 6, 2026 · design iteration 2.
 
 A PM can find a piece of work in its building context, inspect the evidence and reference, assign a correction, review a fresh update and see the recorded decision in progress/history. The building stays on screen throughout.
 
-This is a guided prototype demo for customer discovery. Public work records are local to one browser. Private project/model onboarding uses real authenticated APIs; private field records are not yet connected. Live AI checking remains planned. Do not present fixture results as checks performed on a client's photos.
+This is a guided prototype demo for customer discovery. Public work records are local to one browser. Private project/model onboarding and the shared manual field loop use real authenticated APIs. Live AI checking remains planned. Do not present fixture results as checks performed on a client's photos.
 
 ## Five-minute walkthrough
 
@@ -15,9 +17,9 @@ This is a guided prototype demo for customer discovery. Public work records are 
 3. **Make a decision:** confirm an issue with an owner, due date, resolution requirement and reason. The issue stays open. Change the owner/due date if needed; this updates the actual local record without resolving it.
 4. **Submit evidence:** use Add daily update, confirm the displayed location, attach a test photo and describe the work. Submission goes to review; it does not run AI or make the component green. For a phone-role preview, choose the user menu → View as → Field worker and select the relevant crew. Return to PM to review.
 5. **Close the loop:** inspect correction evidence and record explicit acceptance/resolution with a reason. Show the component's progress and dated history on the same model. A later update can reopen review. Human acceptance does not establish formal inspection approval.
-6. **Show scale/onboarding briefly:** switch to Schependomlaan Apartments, explore a real room-assigned door and create planned work. The showroom also includes Esplan for a larger architectural source and the Medical-Dental Clinic for complex discipline exploration (roughly 59 MB metadata plus 52 MB meshes; rehearse loading first). Or use Add / import project to connect an account, create a project, upload IFC, view the draft in the same canvas, inspect 2D/3D and explicitly approve it. Private field capture stays disabled until its storage integration exists.
+6. **Show scale/onboarding briefly:** switch to Schependomlaan Apartments, explore a real room-assigned door and create planned work. The showroom also includes Esplan for a larger architectural source and the Medical-Dental Clinic for complex discipline exploration (roughly 59 MB metadata plus 52 MB meshes; rehearse loading first). Or use Add / import project to connect an account, create a project, upload IFC, view the draft in the same canvas, inspect 2D/3D and explicitly approve it. Private crews now capture assigned work through the shared server workflow.
 
-Use a test photo or permission-cleared customer evidence. Keep actual customer records out of the public sample browser. Do not send notifications during the walkthrough; messaging is not connected.
+Use a test photo or permission-cleared customer evidence. Keep actual customer records out of the public sample browser. Public sample notifications are simulated. Private work creates actual in-app follow-ups; external messaging remains unconnected.
 
 ## Current capability boundaries
 

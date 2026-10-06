@@ -2,7 +2,7 @@
 
 October 6, 2026. These are **fictional product walkthroughs and test scenarios**, not customer testimonials or validated time/cost savings. They describe how a PM and a crew should use Placeholder AI, then compare that journey with the current implementation.
 
-The promise to demonstrate is **daily evidence → review/check → a located issue or supported progress → correction**. The building explains where the work is; it is not the task itself. AI checking remains future integration. Public samples save records on one browser; private model onboarding is connected, but shared private field records are not.
+The promise to demonstrate is **daily evidence → review/check → a located issue or supported progress → correction**. The building explains where the work is; it is not the task itself. AI checking remains future integration. Public samples save records on one browser. The subsequent [shared integration](SHARED_DAILY_WORKFLOW.md) now connects actual private crew/PM accounts, work/evidence, manual review/corrections, notifications and 3D progress. Live AI, cross-trade blockers and physical-device acceptance remain open. The friction notes below record the original review; the shared-loop gaps are addressed by this integration.
 
 ## Story 1 — the PM's morning starts with decisions
 
@@ -71,11 +71,11 @@ For a private project, the current issues panel states that field records are no
 
 The user-supplied slide is now assessed in [the tested duct-blocker story](DUCT_BLOCKER_STORY_TEST.md). The manual PM → HVAC correction → PM review loop is exercised on an actual clinic source component in DOM tests, and retained backend assignment/evidence/status handoff is tested separately. Cross-trade reporting and a linked panel-task blocker are not delivered. The assessment records a fixed backend warning-count bug, capability boundaries and the next two-crew acceptance.
 
-## Highest-value gaps to cover next
+## Original review priorities and current completion
 
 | Priority | Missing connection / inefficiency | Concrete acceptance |
 |---|---|---|
-| P0 | Real crew update → chosen PM evidence queue → crew correction response | Two authenticated users on separate devices complete the same issue/correction journey, with server IDs and real actor history |
+| Completed manual integration | Real crew update → chosen PM evidence queue → crew correction response | Two authenticated users on separate devices complete the same issue/correction journey, with server IDs and real actor history |
 | P0 | Reliable account-scoped phone capture/offline recovery | Camera/gallery failures, reload, network timeout, duplicate retry, logout/account change and revision conflicts preserve evidence without leaking or duplicating it |
 | P0 | Cross-trade blocker with separate reporter/fixer and downstream task | Panel crew reports against its task/location; PM links a duct issue to HVAC; correction review resumes panel work without marking it complete |
 | P0 | Work and evidence setup before crews start | PM defines a trade/location package and required views once; crew sees that assigned work without re-entering project/owner data |
@@ -83,7 +83,7 @@ The user-supplied slide is now assessed in [the tested duct-blocker story](DUCT_
 | P1 | Reviewed import federation and room reconciliation | Show source units, file origins, building/floor aliases and duplicate-space candidates; mappings require review and affected old progress reopens |
 | P1 | Original approved reference and capture guidance | Reviewer can open the actual sheet/detail/spec revision and crew sees requested evidence; source silhouettes are clearly separate |
 | P1 | Safety/impact/dependency prioritization | PM can see and record why a risk is urgent or blocks another trade; priority is not invented from an unvalidated AI score |
-| P1 | Durable correction ownership/notifications | Assignee receives a real in-app task linked to the issue/evidence, overdue status is traceable, and reassignment/resolution keeps history |
+| Completed in-app integration | Durable correction ownership/notifications | Assignee receives a real in-app task linked to the issue/evidence, overdue status is traceable, and reassignment/resolution keeps history |
 | P1 | Complex-model loading on field devices | Measure the clinic's roughly 59 MB metadata and 52 MB meshes on target devices; add lazy metadata/layer loading or LOD as measurements warrant |
 
 These are integration and usability priorities, not a reason to add accounting, payroll, procurement or a broad agentic operating system. The strongest next demo proves that **two people can coordinate real evidence through one traceable construction issue**.

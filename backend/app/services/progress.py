@@ -19,6 +19,7 @@ from app.models import (
     Role,
     Upload,
     Verification,
+    WorkPackage,
 )
 from app.rbac import zone_visible
 from app.services import events
@@ -42,6 +43,8 @@ def photo_ids(db: Session, upload_id: str | None) -> list[str]:
 def set_status(db: Session, el: Element, new: ElementStatus, *, actor_id: str | None, reason: str,
                upload_id: str | None, zone_id: str | None, add_flags: set[str] = frozenset(),
                remove_flags: set[str] = frozenset(), verification_id: str | None = None) -> None:
+    if db.scalar(select(WorkPackage.id).where(WorkPackage.element_id == el.id)):
+        raise HTTPException(409, "Review this component through its assigned shared work record")
     evidence = photo_ids(db, upload_id)
     verification = db.get(Verification, verification_id) if verification_id else None
     basis = ("legacy_ai" if verification.source == "ai" else "human") if verification and new == ElementStatus.done else None

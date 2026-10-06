@@ -8,6 +8,16 @@ Owners are suggested contributor roles, not assignments. Each package needs a na
 
 The UI-only iteration backlog is [Design iteration 2](docs/UI_TODO_ITERATION_2.md). It tracks proportions/camera, four audited source projects, sample switching, component exploration and remaining visual acceptance.
 
+## Shared daily integration — October 6
+
+- [x] Connect the chosen building UI to authorized server work packages, actual team assignment, private photos and shared manual evidence/review/correction records.
+- [x] Persist actual actor decisions and immutable reference/evidence history; project the same state into list, pins, 3D progress and historical work snapshots.
+- [x] Add an account/project-scoped durable outbox, atomic enqueue/draft removal, stable receipt retries, rejected-upload recovery and authenticated in-app follow-ups.
+- [x] Reject stale review/update revisions, invalidate completion on approved model changes, require reference reconfirmation/fresh photos, and isolate tracked work from legacy automatic approval.
+- [x] Test separate authenticated backend sessions and separate UI mounts through the correction loop. Document [API contracts and rehearsal](docs/SHARED_DAILY_WORKFLOW.md).
+- [ ] Validate actual phones, offline reload/camera behavior, WebGL and PostgreSQL; profile/paginate larger server history projections.
+- [ ] Add cross-trade linked blockers, multi-item submissions and live evaluated checks. The connected manual loop does not complete these packages.
+
 ## Building-centered workspace — current UI, October 6
 
 - [x] Make the showroom home, add explicit Switch project, keep the title non-interactive, move Add/import to standalone home setup, retire pulse/context screens and retain user previews in the account menu. Theme Sort/Team popups, contain preview loading and recover connected-list outages. Restore local API for the reproduced 502 without bypassing authentication.
@@ -20,7 +30,7 @@ The UI-only iteration backlog is [Design iteration 2](docs/UI_TODO_ITERATION_2.m
 
 - [x] Add a rotating source-building project showroom with property facts, viewport selection grid, explicit open/cancel and authorized private previews; preserve project-local records and show only one WebGL scene at a time.
 - [x] Write the standalone [subcontractor mobile build prompt](docs/SUBCONTRACTOR_MOBILE_BUILD_PROMPT.md) for a minimal daily-update PWA with 3D context and actual API contracts.
-- [ ] Build/test that mobile companion on physical phones and integrate its authenticated evidence into the chosen PM panels; the handoff document does not complete this integration.
+- [ ] Build/test that mobile companion on physical phones using the shared work/update contract; the chosen website now integrates private evidence, but the native/standalone companion is not built.
 
 This supersedes the earlier tab-based Home/Logs/Building layout. The building is the website: one persistent model canvas with optional contextual panels on the right (below the canvas on small screens). The earlier implementation sections below describe retained foundations, not the current navigation.
 
@@ -232,9 +242,10 @@ The designer screens now form the website at `/`; see [implementation notes](doc
 - [ ] Support multiple work items per submission and persist submissions through the backend.
 - [ ] Add check-specific capture guidance and retake requests.
 - [x] Persist local demo drafts and preserve the same update ID when moving a queued submission to local review.
-- [ ] Persist stable client IDs across real upload retries and reconcile them with server receipts.
+- [x] Persist stable client IDs across real upload retries and reconcile them with server receipts in the shared work outbox.
 - [ ] Reconcile queued, uploading, received, checking and failed states.
-- [ ] Make upload/job retries idempotent and preserve partial upload recovery.
+- [x] Make shared photo-batch upload retries idempotent, returning the same receipt and preserving rejected evidence.
+- [ ] Add chunk/partial-transfer recovery and assessment-job retry policies.
 - [ ] Test mobile camera/file selection, reconnect, duplicate submission and interrupted upload.
 - [ ] Verify access control for every attachment, location and derived result.
 
@@ -247,7 +258,7 @@ The designer screens now form the website at `/`; see [implementation notes](doc
 - [ ] Show real approved plan/details and persist their assessment-specific source snapshots.
 - [x] Add local request-evidence, confirm-finding, dismiss-with-reason and human-accept actions.
 - [x] Persist demo decision actors, reasons and timestamps locally; preserve prior assessment snapshots after new submissions.
-- [ ] Persist authenticated decisions and superseded results on the server with authorization and append-only history.
+- [x] Persist authenticated manual decisions, prior submission/reference snapshots and superseded evidence on the server with authorization and append-only history. Live AI results remain pending.
 
 **Done when:** a reviewer can reach a decision with context and the history explains how it was made.
 
@@ -363,7 +374,7 @@ Detailed import results, viewer choice, reproduction steps and verification limi
 - [x] Show fixture AI-checked versus human-accepted completion, issue color precedence and inspection separately.
 - [x] Show demo work-item coverage with its denominator; distinguish work counts from labor, cost and schedule percentages.
 - [x] Update the demo daily summary, lists, model colors and report from the same local records.
-- [ ] Project the same persisted backend records into every connected view and verify consistency after refresh.
+- [x] Project the same shared task/evidence/issue records into the chosen list, model and history and verify consistency across refreshed sessions.
 - [ ] Ensure captures never silently modify approved geometry.
 
 **Done when:** model, list and Logs agree after refresh, and every completion/issue is traceable.
@@ -375,8 +386,9 @@ Detailed import results, viewer choice, reproduction steps and verification limi
 - [x] Support local accepted correction, more evidence needed and rejected correction.
 - [x] Require explicit local issue resolution; new photos and queue sync retain the open issue.
 - [x] Preserve prior demo evidence, assessment snapshots, assignment changes and review reasons.
-- [ ] Persist the complete correction loop through authorized backend APIs and run traceable live rechecks.
-- [ ] Add in-app follow-ups using existing notification infrastructure; label any simulated delivery.
+- [x] Persist the manual correction loop through authorized APIs with fresh evidence and explicit PM closure.
+- [ ] Run traceable live supported-check rechecks after evaluation/policy release.
+- [x] Add actual in-app follow-ups for shared assignments, submissions, requests and decisions using existing notifications; public simulated delivery remains labeled.
 
 **Done when:** another teammate can follow an issue from discovery to resolution and understand every decision.
 

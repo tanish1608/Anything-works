@@ -15,6 +15,9 @@ export interface Check {
   release: string;
 }
 export interface WorkItem {
+  serverRevision?: number;
+  assigneeId?: string;
+  captureGuidance?: string;
   location?: {
     version: string;
     building: string;
@@ -72,6 +75,7 @@ export interface Photo {
   name: string;
 }
 export interface Activity {
+  snapshot?: WorkItem;
   id: string;
   item: string;
   at: string;
@@ -80,6 +84,7 @@ export interface Activity {
   tone: Status;
 }
 export interface Draft {
+  clientId?: string;
   item: string;
   note: string;
   claim: string;
@@ -490,7 +495,8 @@ export type Action =
         | "resolve"
         | "reject"
         | "retry"
-        | "assign";
+        | "assign"
+        | "reference";
       id: string;
       reason: string;
       owner?: string;

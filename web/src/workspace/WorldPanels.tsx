@@ -1,3 +1,4 @@
+import { eligibleMembers } from "./useConnectedWork";
 import SelectControl from "./SelectControl";
 import { useEffect, useRef, useState } from "react";
 import { api } from "../api/client";
@@ -35,7 +36,8 @@ export type ReviewAction =
   | "reopen"
   | "dismiss"
   | "retry"
-  | "assign";
+  | "assign"
+  | "reference";
 export function WorkState({ item }: { item: WorkItem }) {
   return (
     <span className="world-state" style={{ color: COLORS[item.status] }}>
@@ -177,12 +179,12 @@ export function IssuesPanel({ open, search }: { open: Open; search: string }) {
           <Icon name="work" size={28} />
           <h3>
             {model.source.apiProjectId
-              ? "Field records aren't connected yet"
+              ? "No assigned work records yet"
               : "No field updates yet"}
           </h3>
           <p>
             {model.source.apiProjectId
-              ? "This project has model context only. Shared evidence and issue tracking still need integration; an empty list does not mean the site has no issues."
+              ? "Choose a source component and assign work to a project member. Crews submit daily evidence against that work; an empty list does not mean the site has no issues."
               : "The source model shows the design. Choose a component and create planned work before submitting its daily photos. No installed progress is assumed."}
           </p>
           <button className="world-secondary" onClick={() => open("locations")}>
@@ -423,7 +425,7 @@ export function RecordPanel({
   open: Open;
   locate: () => void;
 }) {
-  const { model, state, act, canReview, canCapture } = useWorkspace();
+  const { model, state, commit, canReview, canCapture, connected } = useWorkspace();
   const latestJob = state.assessmentJobs?.find(
     (j) => j.item === item.id && j.update === item.update,
   );
@@ -438,7 +440,7 @@ export function RecordPanel({
     [compare, setCompare] = useState(false),
     [review, setReview] = useState<ReviewAction | null>(null);
   const [reason, setReason] = useState(""),
-    [owner, setOwner] = useState(item.owner),
+    [owner, setOwner] = useState(connected ? item.assigneeId || "" : item.owner),
     [due, setDue] = useState(item.due || "");
   const [lightbox, setLightbox] = useState(false);
   const photo = item.photos[image] || item.photos[0];
@@ -451,18 +453,20 @@ export function RecordPanel({
   );
   const plan = model.plans.find((p) => p.id === item.location?.levelId);
   const history = validHistory(state.events.filter((e) => e.item === item.id));
-  const perform = () => {
+  const [basis, setBasis] = useState(item);
+  const [saving, setSaving] = useState(false);
+  const perform = async () => {
     if (!review) return;
     const action: Action =
       review === "confirm" || review === "assign"
         ? { type: review, id: item.id, owner, due, reason }
         : { type: review, id: item.id, reason };
-    if (act(action)) {
-      setReview(null);
-      setReason("");
-    }
+    setSaving(true);
+    try { if (await commit(action, basis)) { setReview(null); setReason(""); } }
+    finally { setSaving(false); }
   };
   const startReview = (type: ReviewAction) => {
+    setBasis(item);
     setReview(type);
     setReason("");
   };
@@ -704,6 +708,7 @@ export function RecordPanel({
                 </button>
               </>
             )}
+            {connected && item.location?.version !== model.version && <button className="world-primary" onClick={() => startReview("reference")}>Reconfirm against current reference</button>}
             <div className="world-action-pair">
               <button onClick={() => startReview("request")}>
                 Request evidence
@@ -744,11 +749,10 @@ export function RecordPanel({
               <>
                 <label>
                   Assignee
-                  <input
-                    required
-                    value={owner}
-                    onChange={(e) => setOwner(e.target.value)}
-                  />
+                  {connected ? <select required value={owner} onChange={(e) => setOwner(e.target.value)}>
+                    <option value="">Select a project member</option>
+                    {eligibleMembers(connected.members, item).map((m) => <option key={m.user.id} value={m.user.id}>{m.user.name} · {m.user.email}</option>)}
+                  </select> : <input required value={owner} onChange={(e) => setOwner(e.target.value)} />}
                 </label>
                 <label>
                   Due date
@@ -772,9 +776,9 @@ export function RecordPanel({
                 placeholder="What did you review, and what must happen next?"
               />
             </label>
+            {connected && basis.serverRevision !== item.serverRevision && <p role="alert">This work changed while the decision was open. Cancel and review the latest evidence before recording a new decision.</p>}
             <p>
-              Recorded under the sample PM identity. Notifications are
-              simulated; no external message is sent.
+              {connected ? `Recorded as ${connected.snapshot?.user.name}. The responsible team receives an in-app update; no external message is sent.` : "Recorded under the sample PM identity. Notifications are simulated; no external message is sent."}
             </p>
             <div className="world-action-pair">
               <button type="button" onClick={() => setReview(null)}>
@@ -783,7 +787,7 @@ export function RecordPanel({
               <button
                 className="world-primary"
                 type="submit"
-                disabled={!reason.trim()}
+                disabled={saving || !canReview || (!!connected && basis.serverRevision !== item.serverRevision) || !reason.trim()}
               >
                 Save decision
               </button>
@@ -848,7 +852,8 @@ export function RecordPanel({
   );
 }
 export function ComponentPanel({ id, open }: { id: string; open: Open }) {
-  const { model, state, act, canPlan } = useWorkspace();
+  const { model, state, commit, canPlan, connected } = useWorkspace();
+  const [guidance, setGuidance] = useState("Context view and close-up of the reported condition");
   const [tracking, setTracking] = useState(false),
     [title, setTitle] = useState(""),
     [owner, setOwner] = useState(""),
@@ -955,14 +960,13 @@ export function ComponentPanel({ id, open }: { id: string; open: Open }) {
       {!work.length && tracking && (
         <form
           className="world-update-form"
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
             try {
               const item = plannedComponent(model, element.id, title, owner);
-              if (act({ type: "plan", item })) open("record", item.id);
-            } catch (e) {
-              setError((e as Error).message);
-            }
+              if (connected) { item.assigneeId = owner; item.captureGuidance = guidance; }
+              if (await commit({ type: "plan", item })) open("record", item.id);
+            } catch (e) { setError((e as Error).message); }
           }}
         >
           <label>
@@ -976,13 +980,12 @@ export function ComponentPanel({ id, open }: { id: string; open: Open }) {
           </label>
           <label>
             Responsible person or team
-            <input
-              required
-              value={owner}
-              onChange={(e) => setOwner(e.target.value)}
-              placeholder="Who will do this work?"
-            />
+            {connected ? <select required value={owner} onChange={(e) => setOwner(e.target.value)}>
+              <option value="">Select a project member</option>
+              {eligibleMembers(connected.members, { trade: element.trade || element.discipline, location: { roomId: element.zone_id } } as WorkItem).map((m) => <option key={m.user.id} value={m.user.id}>{m.user.name} · {m.user.email}</option>)}
+            </select> : <input required value={owner} onChange={(e) => setOwner(e.target.value)} placeholder="Who will do this work?" />}
           </label>
+          {connected && <label>Required capture views<textarea value={guidance} onChange={(e) => setGuidance(e.target.value)} /></label>}
           <p className="world-muted">
             This creates planned work at the selected source component. It does
             not record installation or completion.
@@ -994,7 +997,7 @@ export function ComponentPanel({ id, open }: { id: string; open: Open }) {
             </button>
             <button
               className="world-primary"
-              disabled={!title.trim() || !owner.trim()}
+              disabled={!canPlan || connected?.busy || !title.trim() || !owner.trim()}
             >
               Create work record
             </button>
@@ -1049,16 +1052,17 @@ export function UpdatePanel({
   work: string | null;
   open: Open;
 }) {
-  const { state, model, act, online } = useWorkspace();
+  const { state, model, act, commit, online, connected } = useWorkspace();
   const requested = state.items.find((i) => i.id === work);
   const [draft, setDraft] = useState<Draft>(() =>
-    state.draft && (!requested || state.draft.item === requested.id)
+    state.draft && state.items.some((i) => i.id === state.draft!.item) && (!requested || state.draft.item === requested.id)
       ? state.draft
       : {
           item:
             requested?.id ||
             state.items.find((i) => i.status === "none")?.id ||
             state.items[0].id,
+          clientId: connected ? crypto.randomUUID() : undefined,
           photos: [],
           note: "",
           claim: "",
@@ -1090,7 +1094,7 @@ export function UpdatePanel({
       if (input.current) input.current.value = "";
     }
   };
-  const submit = () => {
+  const submit = async () => {
     if (!confirmed) {
       setError("Confirm the model location before submitting.");
       return;
@@ -1099,8 +1103,9 @@ export function UpdatePanel({
       setError("Attach evidence before submitting.");
       return;
     }
-    if (act({ type: "submit", draft, offline: !online, sample: false }))
-      open("record", item.id);
+    setBusy(true);
+    try { if (await commit({ type: "submit", draft, offline: !online, sample: false })) open("record", item.id); }
+    finally { setBusy(false); }
   };
   return (
     <>
@@ -1143,6 +1148,7 @@ export function UpdatePanel({
             Locate
           </button>
         </div>
+        {item.captureGuidance && <div className="world-note"><p>Required views: {item.captureGuidance}</p></div>}
         <label className="world-checkbox">
           <input
             type="checkbox"
@@ -1191,7 +1197,7 @@ export function UpdatePanel({
             ))}
           </div>
         )}
-        <button
+        {!connected && <button
           className="world-text-action"
           type="button"
           disabled={draft.photos.length >= 6}
@@ -1210,7 +1216,7 @@ export function UpdatePanel({
           }
         >
           Use a generated sample to test the workflow
-        </button>
+        </button>}
         <label>
           What changed?
           <textarea
@@ -1242,7 +1248,7 @@ export function UpdatePanel({
           <Icon name={online ? "eye" : "wifi"} size={17} />
           <p>
             {online
-              ? "Evidence is saved on this device and awaits review. Submission does not mark work complete or run an AI check."
+              ? connected ? "Photos upload to the shared project and await an authenticated review. Submission does not mark work complete or run an AI check." : "Evidence is saved on this device and awaits review. Submission does not mark work complete or run an AI check."
               : "You are offline. The same update will remain queued on this device until you reconnect."}
           </p>
         </div>
@@ -1254,7 +1260,7 @@ export function UpdatePanel({
           }
         >
           <Icon name="arrow" size={16} />
-          {online ? "Submit for review" : "Queue update"}
+          {busy ? "Saving update…" : online ? "Submit for review" : "Queue update"}
         </button>
         <p className="world-muted">Drafts save on this device as you work.</p>
       </form>
