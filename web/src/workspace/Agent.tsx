@@ -10,23 +10,23 @@ import { DailyBriefing, NoteSuggestions, VoiceCapture } from "./AgentTools";
 import "./operations.css";
 import "./agent.css";
 
-export default function Agent() {
+export default function Agent({ captureOnly = false }: { captureOnly?: boolean }) {
   const [client] = useState(() => new QueryClient({ defaultOptions: { queries: { retry: false } } }));
-  return <QueryClientProvider client={client}><AuthProvider><AgentSession /></AuthProvider></QueryClientProvider>;
+  return <QueryClientProvider client={client}><AuthProvider><AgentSession captureOnly={captureOnly} /></AuthProvider></QueryClientProvider>;
 }
 
-function AgentSession() {
+function AgentSession({ captureOnly }: { captureOnly: boolean }) {
   const auth = useAuth();
   const cache = useQueryClient();
   const [email, setEmail] = useState(""), [password, setPassword] = useState(""), [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   if (auth.loading) return <p role="status">Loading your project session…</p>;
-  if (auth.user) return <AgentProject key={auth.user.id} signOut={async () => {
+  if (auth.user) return <AgentProject key={auth.user.id} captureOnly={captureOnly} signOut={async () => {
     await auth.logout(); cache.clear();
   }} />;
   return <section className="operations-page">
     <div className="operations-heading"><div><p className="operations-kicker">Placeholder AI</p>
-      <h1>Project agent</h1><p>Sign in to submit work or review your team's saved assessments.</p></div></div>
+      <h1>{captureOnly ? "Field capture" : "Project agent"}</h1><p>Sign in to submit work or review your team's saved assessments.</p></div></div>
     <form className="card card-pad stack agent-login" onSubmit={async event => {
       event.preventDefault(); setBusy(true); setError("");
       try { cache.clear(); await auth.login(email, password); } catch (e) { setError((e as Error).message); }
@@ -40,18 +40,18 @@ function AgentSession() {
   </section>;
 }
 
-function AgentProject({ signOut }: { signOut: () => Promise<void> }) {
+function AgentProject({ signOut, captureOnly }: { signOut: () => Promise<void>; captureOnly: boolean }) {
   const { user } = useAuth();
   const projects = useQuery({ queryKey: ["agent-projects", user!.id], queryFn: () => api<Project[]>("/projects") });
   const linkedRunId = new URLSearchParams(window.location.search).get("run");
   const linkedRun = useQuery({ queryKey: ["agent-linked-run", user!.id, linkedRunId], enabled: !!linkedRunId,
     queryFn: () => api<Run>(`/agent/runs/${linkedRunId}`) });
-  const [projectId, setProjectId] = useState("");
+  const [projectId, setProjectId] = useState(() => new URLSearchParams(window.location.search).get("project") || "");
   const activeProjectId = projectId || linkedRun.data?.project_id || "";
   const project = projects.data?.find(p => p.id === activeProjectId);
   return <section className="operations-page">
     <div className="operations-heading"><div><p className="operations-kicker">{user!.name} · connected project</p>
-      <h1>Project agent</h1><p>Photos, approved context and review decisions shared with your team.</p></div>
+      <h1>{captureOnly ? "Field capture" : "Project agent"}</h1><p>Photos, approved context and review decisions shared with your team.</p></div>
       <button className="btn" onClick={() => void signOut()}>Sign out</button></div>
     {projects.error && <p role="alert">{projects.error.message}</p>}
     {linkedRun.error && <p role="alert">{linkedRun.error.message}</p>}
@@ -59,11 +59,12 @@ function AgentProject({ signOut }: { signOut: () => Promise<void> }) {
       <option value="">Select a project</option>{projects.data?.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
     </select></label>
     {projects.data?.length === 0 && <p>No project membership yet. Ask your PM to add your account.</p>}
-    {project && <AssessmentBoard key={project.id} project={project} />}
+    {project && !captureOnly && <a className="btn" href={`/field-capture?project=${encodeURIComponent(project.id)}`}>Open mobile field capture</a>}
+    {project && <AssessmentBoard key={project.id} project={project} captureOnly={captureOnly} />}
   </section>;
 }
 
-function AssessmentBoard({ project }: { project: Project }) {
+function AssessmentBoard({ project, captureOnly }: { project: Project; captureOnly: boolean }) {
   const cache = useQueryClient();
   const manager = ["owner", "pm"].includes(project.my_role);
   const writable = manager || project.my_role === "trade";
@@ -133,15 +134,15 @@ function AssessmentBoard({ project }: { project: Project }) {
   };
   const queryError = tree.error || issues.error || members.error || runs.error || checklist.error || evidence.error;
   return <>
-    <DailyBriefing projectId={project.id} onRun={selectRun} />
+    {!captureOnly && <DailyBriefing projectId={project.id} onRun={selectRun} />}
     {(error || queryError) && <p role="alert">{error || queryError?.message}</p>}
-    <div className="agent-layout">
-      <ProjectModelContext projectId={project.id} issues={issues.data || []} selected={null} onSelect={selectRun}
+    <div className={captureOnly ? "agent-field-capture" : "agent-layout"}>
+      {!captureOnly && <ProjectModelContext projectId={project.id} issues={issues.data || []} selected={null} onSelect={selectRun}
         records={runs.data?.map(item => ({ id: item.id, modelVersionId: item.model_version_id, elementIds: item.checks.flatMap(check => check.element_ids) }))}
         onElementSelect={id => { const item = runs.data?.find(candidate => candidate.checks.some(check => check.element_ids.includes(id))); if (item) selectRun(item.id); }}
         showNavigation={false} focus={selected ? { id: selected, elements: focusIds,
           modelVersionId: run?.model_version_id, zone: focusIds.length ? undefined : evidence.data?.zone_id } : null}
-        focusToken={focusToken} />
+        focusToken={focusToken} />}
       <div className="stack">
         {writable && <form className="card card-pad stack" onSubmit={e => { e.preventDefault(); void submit(); }}>
           <h2>Submit work</h2>
@@ -161,8 +162,17 @@ function AssessmentBoard({ project }: { project: Project }) {
           <label>Daily update<textarea value={note} onChange={e => setNote(e.target.value)} maxLength={5000} disabled={busy || !!pendingUpload} /></label>
           <NoteSuggestions projectId={project.id} modelId={checklist.data?.model_version_id || null}
             elementIds={ids} text={note} disabled={busy || !!pendingUpload} onText={setNote} onElements={setIds} />
-          <label>Photos<input key={requestKey} type="file" accept="image/*" multiple disabled={busy || !!pendingUpload}
+          <label>{captureOnly ? "Photos or scan screenshots" : "Photos"}<input key={requestKey} type="file" accept="image/*" multiple disabled={busy || !!pendingUpload}
             onChange={e => setFiles(Array.from(e.target.files || []))} /></label>
+          {captureOnly && <><label>Take site photo<input key={`camera:${requestKey}`} type="file" accept="image/*" capture="environment" disabled={busy || !!pendingUpload} onChange={event => {
+            const added = Array.from(event.target.files || []); event.target.value = "";
+            if (files.length + added.length > 6) { setError("Use at most six photos per update."); return; }
+            setFiles(existing => [...existing, ...added]);
+          }} /></label>
+            <p>Attach JPEG/PNG photos or screenshots exported by your scanning app. Original LiDAR geometry is not parsed or measured here.</p></>}
+          {!!files.length && <div aria-label="Selected evidence">{files.map((file, index) => <p key={`${file.name}:${index}`}>{file.name}
+            <button type="button" disabled={busy || !!pendingUpload} aria-label={`Remove ${file.name}`} onClick={() => setFiles(existing => existing.filter((_file, position) => position !== index))}>Remove</button>
+          </p>)}</div>}
           <button className="btn btn-primary" disabled={busy || (!pendingUpload && (!files.length || files.length > 6 || !ids.length || ids.length > 40))}>
             {busy ? "Saving…" : pendingUpload ? "Retry assessment for saved update" : "Submit for assessment"}</button>
           {pendingUpload && <p role="status">Your update is received. Retry will reuse the saved photos.</p>}

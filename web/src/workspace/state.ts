@@ -1,3 +1,4 @@
+import { coordinate, stopResolvedFollowUps, type CoordinationAction, type CoordinationState } from "./coordination";
 /** Designer fixtures. This store never calls AI, sends messages, or changes live projects. */
 export type Status =
   | "ai"
@@ -87,6 +88,7 @@ export interface Draft {
   step: number;
 }
 export interface WorkspaceState {
+  coordination?: CoordinationState;
   version: 1;
   items: WorkItem[];
   events: Activity[];
@@ -477,6 +479,7 @@ export function initialState(): WorkspaceState {
   };
 }
 export type Action =
+  | CoordinationAction
   | { type: "plan"; item: WorkItem }
   | { type: "draft"; draft: Draft | null }
   | { type: "submit"; draft: Draft; offline: boolean; sample: boolean }
@@ -503,6 +506,8 @@ export function transition(
   action: Action,
   now = new Date().toISOString(),
 ): WorkspaceState {
+  if (action.type === "calendar-import" || action.type === "coordinate" || action.type === "followup")
+    return coordinate(state, action, now);
   const next = structuredClone(state);
   const record = (work: WorkItem, text: string, actor = "Sarah Jenkins") => {
     next.events.unshift({
@@ -709,6 +714,7 @@ export function transition(
       });
     }
     next.draft = null;
+    stopResolvedFollowUps(next, now);
     return next;
   }
   if (!action.reason.trim())
@@ -791,6 +797,7 @@ export function transition(
     .forEach((j) => {
       j.state = "manual_review";
     });
+  stopResolvedFollowUps(next, now);
   record(work, `${action.type}: ${action.reason}`);
   return next;
 }

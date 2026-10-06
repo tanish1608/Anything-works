@@ -63,6 +63,7 @@ const packages: Record<
   "PLAN-401": {
     element: "8186a27c-0d9d-5eca-b0e2-b2358af87cb7",
     title: "Bedroom radiator — planned work",
+    trade: "HVAC",
   },
   "ISS-028": {
     element: "6ac05afe-2984-544c-a5c5-67e8844d48f6",
@@ -134,7 +135,7 @@ export function initialProjectState(data: ModelDataset): WorkspaceState {
         ...i,
         title: p.title,
         trade: p.trade || i.trade,
-        owner: p.trade === "Plumbing" ? "River Plumbing · Nina Patel" : i.owner,
+        owner: p.trade ? template.items.find(item => item.trade === p.trade)?.owner || i.owner : i.owner,
         unit: room?.code || levelName,
         level: Math.round(level.elevation_m / 3.1) + 1,
         location,

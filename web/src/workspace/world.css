@@ -99,33 +99,13 @@
   white-space: nowrap;
   padding: 0;
 }
-.world-brand > span {
-  display: grid;
-  place-items: center;
-  width: 37px;
-  height: 37px;
-  background: #173751;
-  border: 1px solid #37628a;
-  border-radius: 10px;
-  color: #73b8ff;
-}
-.world-brand-logo img {
-  width: 29px;
-  height: 29px;
+.world-brand-logo {
+  display: block;
+  width: 200px;
+  height: auto;
   object-fit: contain;
-  border-radius: 6px;
-  background: #fff;
-}
-.world-brand b {
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: -0.4px;
-}
-.world-brand em {
-  color: #89b8e9;
-  font-style: normal;
-  font-size: 11px;
-  margin-left: 2px;
+  filter: invert(1);
+  mix-blend-mode: screen;
 }
 .world-project-title {
   position: relative;
@@ -1517,8 +1497,8 @@
     padding: 0 18px;
     gap: 17px;
   }
-  .world-brand b {
-    font-size: 12px;
+  .world-brand-logo {
+    width: 160px;
   }
   .world-project-title {
     padding-left: 17px;
@@ -1581,12 +1561,8 @@
     padding: 0 14px;
     gap: 12px;
   }
-  .world-brand b {
-    display: none;
-  }
-  .world-brand > span {
-    width: 33px;
-    height: 33px;
+  .world-brand-logo {
+    width: 104px;
   }
   .world-header-actions > button.world-issue-trigger {
     padding: 9px;

@@ -77,6 +77,16 @@ See [current implementation and gaps](STATUS.md) and [design implementation note
 
 ## Running the existing prototype
 
+**Local testing (installed dependencies):** run `python3 scripts/dev_agent.py` from this repository root, then open `http://127.0.0.1:5174`. Keep the terminal open. Add `--restart` only when replacing this worktree's running servers. There is one application API, not a separate agent server.
+
+Communication demo: select a work record → Copilot **Assign** → enter duration/prerequisites → import a complete bounded `.ics` calendar export → find a time → review/confirm assignment → record replies or escalate the in-app follow-up. Assignments/follow-ups are browser-local and do not send SMS/email/calls. Chat history scrolls and survives minimization. See [the demo walkthrough](docs/DEVELOPMENT.md#communication-demo-and-phone-capture).
+
+Mobile capture: `/field-capture` uses the authenticated project API for photos, scan screenshots and recorded voice. A PM can open a scoped capture link from `/agent`. Raw LiDAR geometry and native iPhone scanning are not implemented.
+
+For Docker, open Docker Desktop and run `docker compose up --build --force-recreate --wait` from this repository root. Open `http://127.0.0.1:8080`; the API docs are on `http://127.0.0.1:8011/docs`. Compose reads `backend/.env`, waits for a registered chat route, and keeps database/storage volumes across rebuilds. See [Docker setup](docs/DEVELOPMENT.md#docker) for logs, restarts and optional demo accounts. Docker build/runtime acceptance is not verified in the sandbox.
+
+For this agent worktree, with dependencies already installed, run `python3 scripts/dev_agent.py --restart` from the repository root. It verifies the loaded backend/chat route, restarts only listeners belonging to this worktree, and starts the API on 8010 plus Vite on 5174 with the matching proxy. Keep the terminal open. `--check` validates imports/provider configuration without stopping servers or making a model request. The launcher does not seed/reset/migrate a database; first-time setup is in the developer guide.
+
 Follow the [developer guide](docs/DEVELOPMENT.md). The local frontend runs at `http://localhost:5173`; open `/` for the main website. One large building canvas is the main workspace. Issues, photos/review, daily updates, progress history, teams and project context open beside it. Old `/demo/...` and page bookmarks redirect into the corresponding root query-state panels. The previous login/project UI is retired from public routing; backend integration remains a separate work package.
 
 Documentation reset and designer UI implementation: October 5, 2026. Detailed BIM/inspection and Project Copilot work: October 6, 2026. Live provider, browser and field validation remain required.

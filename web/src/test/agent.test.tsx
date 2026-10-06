@@ -95,7 +95,7 @@ beforeEach(() => {
     throw new Error(`Unexpected API request: ${path}`);
   });
 });
-afterEach(() => { cleanup(); vi.restoreAllMocks(); localStorage.clear(); });
+afterEach(() => { cleanup(); vi.restoreAllMocks(); localStorage.clear(); window.history.replaceState({}, '', '/'); });
 
 async function signIn() {
   render(<Agent />);
@@ -106,6 +106,29 @@ async function signIn() {
   fireEvent.change(screen.getByLabelText('Project'), { target: { value: 'project' } });
   await screen.findByRole('heading', { name: 'Saved assessments' });
 }
+
+it('opens a scoped mobile capture link and sends scan screenshots through the existing authorized photo workflow', async () => {
+  window.history.replaceState({}, '', '/field-capture?project=project');
+  render(<Agent captureOnly />);
+  fireEvent.change(await screen.findByLabelText('Email'), { target: { value: 'person@example.com' } });
+  fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'test-password' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+  await screen.findByRole('heading', { name: 'Saved assessments' });
+  expect(screen.getByLabelText('Project')).toHaveValue('project');
+  expect(screen.queryByTestId('model')).not.toBeInTheDocument();
+  expect(screen.getByLabelText('Take site photo')).toHaveAttribute('capture', 'environment');
+  await screen.findByRole('option', { name: 'Bathroom' });
+  fireEvent.change(screen.getByLabelText('Location'), { target: { value: 'bath' } });
+  fireEvent.click(await screen.findByLabelText('Sink'));
+  fireEvent.change(screen.getByLabelText('Photos or scan screenshots'), { target: { files: [new File(['fixture screenshot'], 'scan-view.jpg', { type: 'image/jpeg' })] } });
+  fireEvent.change(screen.getByLabelText('Take site photo'), { target: { files: [new File(['fixture photo'], 'site.jpg', { type: 'image/jpeg' })] } });
+  expect(screen.getByText('scan-view.jpg')).toBeVisible();
+  expect(screen.getByText('site.jpg')).toBeVisible();
+  fireEvent.click(screen.getByRole('button', { name: 'Submit for assessment' }));
+  await screen.findByText('Sink visibly present');
+  expect(uploadCalls).toBe(1);
+  expect(screen.queryByRole('button', { name: 'Accept work' })).not.toBeInTheDocument();
+});
 
 it('saves worker photos, retries assessment without duplicating the upload, and withholds manager decisions', async () => {
   await signIn();

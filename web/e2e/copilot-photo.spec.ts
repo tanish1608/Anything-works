@@ -6,7 +6,7 @@ test('copilot photo picker preserves the chosen work and hands real images into 
   const copilot = page.getByRole('region', { name: 'Project Copilot', exact: true });
   await copilot.getByRole('button', { name: 'Open Project Copilot', exact: true }).click();
   const chooser = page.waitForEvent('filechooser');
-  await copilot.getByRole('button', { name: 'Inspect photo', exact: true }).click();
+  await copilot.getByRole('button', { name: 'Photo', exact: true }).click();
   await (await chooser).setFiles('e2e/legacy/fixtures/site1.jpg');
   await expect(copilot.getByRole('img', { name: 'site1.jpg', exact: true })).toBeVisible();
   await copilot.getByLabel('Message Placeholder AI').fill('Photo from the selected work location');

@@ -15,3 +15,5 @@
 .agent-voice audio { width: 100%; }
 .agent-suggestion { border-left: 2px solid #315a44; padding-left: 12px; }
 @media (max-width: 850px) { .agent-layout { grid-template-columns: 1fr; } .agent-layout .home-model { position: relative; top: 0; min-height: 360px; } }
+.agent-field-capture { max-width: 580px; margin: 16px auto; }
+.agent-field-capture input, .agent-field-capture select, .agent-field-capture textarea { min-height: 44px; }

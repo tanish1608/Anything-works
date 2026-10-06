@@ -53,6 +53,14 @@ Daily briefings are scoped per actor, project, local date and IANA timezone. SQL
 
 ## Proposed Placeholder AI boundary
 
+The public copilot currently receives a bounded browser-local problem packet assembled by `web/src/workspace/copilotContext.ts`: selected work, owner/deadline, reference/evidence limitations, related work, partial owner workload and recent selected-work activity. Fields are capped and lower-priority records omitted to keep valid JSON within the existing 6,000-character API contract. `backend/app/agent/provider.py` asks for a practical resolution plan and missing scheduling information. This improves advice; it does not add a tool loop, calendar access or write authority. Browser-local records remain untrusted sample context.
+
+BEAV-014 adds browser-only demo coordination through `CopilotCoordination.tsx`, `calendarSnapshot.ts` and `coordination.ts`, using the existing per-model WorkspaceState/transition/storage boundary. Manager-confirmed duration/qualification and an explicitly covered imported calendar snapshot gate slots; confirmation rechecks current source/owner/deadline and local reservations. Assignment, in-app follow-up and explicit replies retain local audit events; physical progress is unchanged and completion cancels pending reminders. The read-only HTTP chat contract is unchanged, and browser-local confirmations do not grant server authority. Backend assignment/communication invariants remain BEAV-011/007 work.
+
+`/field-capture` is a compact client of the existing authorized photo/run/voice APIs, reusing Agent's scoped project, retry identity and evidence/review workflow. It accepts scan screenshots as ordinary images; raw scan parsing is not implemented. Browser camera selection and secure-context audio capture are client-specific behavior a later Flutter client would replace while reusing the same contracts.
+
+BEAV-011 is the next agency boundary: bind the selected canvas to an authorized database project, retrieve the problem's relevant sources, determine qualified members and calendar free/busy, propose a task/time/assignee, then apply under manager confirmation or an explicitly saved automatic-routing policy. Recheck membership, source revisions, availability and duplicate identity at execution. The current read-only chat contract does not authorize these mutations; action/eligibility/calendar contracts require review before implementation. Manual availability labels cannot establish a free time slot. Existing issue create/assign APIs provide domain foundations, not a released autonomous scheduling workflow.
+
 See [requirements](../.kiro/specs/placeholder-agent/requirements.md) and [ADR 0001](decisions/0001-placeholder-agent-harness.md). The following diagram is the target boundary. The photo/review, recorded-voice and read-only helper subsets described above are implemented.
 
 ```mermaid

@@ -39,7 +39,7 @@ Open `http://localhost:5173`. Vite proxies API calls to port 8000.
 ## Application surfaces
 
 - **Project Copilot:** a compact floating bottom-right chatbot opens against the current building canvas and panel without login. It uses the explicitly untrusted local screen context and has no write authority.
-  Select **Inspect photo** or the camera button to choose images, preview/remove attachments, then select **Add to daily update**. Photos and the typed note are saved in the current work's device-local draft; confirm the location and submit in the capture form. This handoff does not perform AI image assessment; the public chat endpoint accepts text only.
+  Select **Photo** or the plus button to choose images, preview/remove attachments, then select **Add to daily update**. Photos and the typed note are saved in the current work's device-local draft; confirm the location and submit in the capture form. This handoff does not perform AI image assessment; the public chat endpoint accepts text only.
 - **`/agent`:** authenticated assessments, recorded voice and text helpers remain available as the detailed agent workflow.
 
 - **`/`:** one building-centered website with optional right-side panels. It runs without backend/sign-in and stores testing records locally.
@@ -60,6 +60,41 @@ Seeded accounts use `demo-password` unless `DEMO_PASSWORD` is configured.
 The seed includes Maple Court generated from DXF samples and a buildingSMART IFC sample project. Demo credentials and data are for local development.
 
 For a detailed architectural/MEP sample, run `VISION_MODE=off .venv/bin/python -m app.bim.audit --download` from `backend/`, then `.venv/bin/python -m app.seed --duplex` after migrations. This adds **Duplex Apartment — detailed BIM** to the connected workspace. The first tessellation takes a few minutes; subsequent seed runs reuse the project. Migration `0007` adds issue/model-version provenance. Existing unversioned pins retain their unknown revision rather than receiving invented provenance.
+
+## Docker
+
+Open Docker Desktop. From the **Anything-works-agent** repository root:
+
+```bash
+docker compose up --build --force-recreate --wait
+```
+
+The command builds current worktree code and recreates the whole stack, preserving named PostgreSQL/storage volumes. Recreating all services also refreshes Nginx's API connection when the API container changes. Web: `http://127.0.0.1:8080`. API docs: `http://127.0.0.1:8011/docs`. These host ports are separate from the native 5174/8010 setup; Nginx always proxies `/api/` to the internal `api:8000` service, so no frontend `API_URL` is required.
+
+The API reads the existing `backend/.env` at runtime (after optional root `.env` settings); keep the Gemini key there. Compose sets its own database/storage paths and enables the review-only agent. Environment files are excluded from build contexts. API health checks verify `/api/agent/public-chat` registration; web waits for healthy API and its health check exercises `/api/health` through Nginx. These checks establish routing, not live model access or field accuracy.
+
+Docker uses a separate PostgreSQL database. It does not import the host SQLite database or copy browser-local records between origins. Existing named volumes are reused through the inherited Compose project name. Migrations run at API startup. To add the explicitly sample accounts/projects to Docker's database, run:
+
+```bash
+docker compose exec -e VISION_MODE=off api python -m app.seed
+```
+
+Fresh `pm@example.com` and `plumber@example.com` accounts use `demo-password` unless `DEMO_PASSWORD` was configured before seeding. Existing passwords are not reset. The public root chatbot does not require these accounts; authenticated `/agent` does.
+
+Useful commands:
+
+```bash
+docker compose ps
+docker compose logs --tail=100 api web
+docker compose restart
+docker compose down
+```
+
+`restart` restarts the current images. After code or environment changes, repeat `up --build --force-recreate --wait`. `down` stops/removes containers while keeping database/storage volumes; `down --volumes` deletes those volumes and is not part of normal restart. For different host ports, run `API_PORT=8012 WEB_PORT=8081 docker compose up --build --force-recreate --wait` and use web port 8081.
+
+Validated Compose syntax/resolved configuration locally, including Gemini-key presence without printing the key. Container build/start and real Nginx/provider checks remain unverified: this sandbox denies access to Docker Desktop's daemon socket. Run the command above in the host terminal.
+
+Optional root `.env`/shell `POSTGRES_PASSWORD` configures the local database. Behind a TLS-intercepting proxy, `EXTRA_CA_FILE` can point to its CA bundle. See [docker-compose.yml](../docker-compose.yml).
 
 ## Configuration
 
@@ -92,6 +127,35 @@ The legacy project-level auto-approval setting is not the new scoped completion 
 
 Use the **agent worktree**, `Anything-works-agent`, branch `codex/design-iteration-2`. The original `Anything-works/dev` worktree is separate and does not contain this implementation. Install this worktree's backend/web dependencies as above. Reusing the old Python environment requires `PYTHONPATH=.` from this worktree's `backend/`; its editable installation otherwise resolves the original code.
 
+After first-time database setup, start both services from the repository root:
+
+```bash
+python3 scripts/dev_agent.py --restart
+```
+
+The launcher checks this worktree's backend import and chat registration before stopping anything. It uses this backend's virtual environment or the neighboring original environment with an explicit import path. `--restart` only stops listeners whose working directory matches this worktree's backend/web directory. An unrelated port owner is left untouched. The API starts with reload; the live OpenAPI must include `/api/agent/public-chat` before Vite starts with the matching `API_URL`. Keep the terminal open; Ctrl+C stops both process groups. Defaults are API 8010/web 5174; pass `--api-port`/`--web-port` to change them together. `--check` performs local configuration/import checks only. It does not reset passwords, seed data, migrate schemas or verify live model access.
+
+### Communication demo and phone capture
+
+At `/`, select unresolved work, open Copilot and choose **Assign** (or **Plan & follow up** beneath an answer). Enter the instruction, person, duration, prerequisites and future scheduling window. Recorded trade ownership is a suggestion, not proof of qualification; the manager explicitly confirms qualification.
+
+Expand **Connect calendar export**, confirm that the export includes every commitment for the selected person/window, and import `.ics`. Only busy start/end times are retained, not private event titles. Supported snapshots use UTC or local date/time and non-recurring events; timezone-tagged/recurring/duration-only or invalid exports fail visibly rather than imply free time. Refresh exports after 24 hours. The proposal checks imported coverage, existing local assignments and the work deadline, and repeats those checks on confirmation. This is an imported snapshot, not live calendar synchronization.
+
+Choose **Find a time**, **Review assignment**, then **Confirm assignment & follow-up**. The saved task, owner and in-app reminder appear in local state/activity and subsequent chat context. Record an actual recipient reply, cancel or escalate from the follow-up card. These are browser-local coordination records, not delivered SMS/email/calls or a shared server inbox; completing/dismissing work stops pending reminders. No assignment or reply turns the model green.
+
+For phone photo capture on the same Wi-Fi, start the launcher with:
+
+```bash
+python3 scripts/dev_agent.py --restart --web-host 0.0.0.0
+ipconfig getifaddr en0
+```
+
+Open `http://<Mac-LAN-IP>:5174/field-capture` on the iPhone. From `/agent`, select the actual backend project and use **Open mobile field capture**; the link preserves its project ID. Replace the loopback host with the Mac's LAN IP when sending the link to the phone. Sign in with a scoped worker account, choose location/trade/components, attach JPEG/PNG photos or scan screenshots, optionally upload recorded audio, and submit. The PM reads the same persisted submission at `/agent`; browser-local public CAD records are not automatically mapped to that project. No second agent server is required. Browser recording needs localhost/HTTPS, so upload a saved recording when testing through an HTTP LAN address.
+
+Raw PLY/E57/USDZ geometry intake, model registration/measurements and a native LiDAR scanner remain BEAV-005/015 pending the scanning-app/export choice and contract review. The mobile capture page accepts image evidence, not geometry disguised as a photo.
+
+UI regression command: `cd web && npx playwright test e2e/copilot-chat.spec.ts e2e/copilot-photo.spec.ts`. Provider responses in the scroll regression are test doubles; this does not verify live Gemini accuracy.
+
 For an isolated local demo, use a separate database and storage so existing development records remain untouched. From this worktree's `backend/`, with its `.venv` installed and a persistent `JWT_SECRET` configured:
 
 ```bash
@@ -100,7 +164,7 @@ export STORAGE_DIR=./storage-agent-demo
 export AGENT_ENABLED=true
 .venv/bin/alembic upgrade head
 VISION_MODE=off .venv/bin/python -m app.seed
-VISION_MODE=gemini .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8010
+PYTHONPATH=. VISION_MODE=gemini .venv/bin/python -m uvicorn app.main:app --app-dir . --host 127.0.0.1 --port 8010 --reload
 ```
 
 Configure `GEMINI_API_KEY` locally for live assessment; never put it in chat/Git. Check the adapter from `backend/`:
@@ -122,6 +186,14 @@ API_URL=http://127.0.0.1:8010 npm run dev -- --host 127.0.0.1 --port 5174 --stri
 ```
 
 Open `http://127.0.0.1:5174/`. Project Copilot is the floating button in the bottom-right of the building workspace; open it to ask about the visible project without logging in. Its quick actions cover daily updates, photo review, assignment suggestions, progress review and LiDAR guidance. For the detailed authenticated workflow, open `http://127.0.0.1:5174/agent`. Use two separate browser profiles (or one normal and one private window): `plumber@example.com` for the worker, `pm@example.com` for the PM. **Fresh seed accounts** default to `demo-password` unless `DEMO_PASSWORD` was set at creation. Seed does not reset passwords of existing accounts.
+
+If chat returns `404 Not Found`, verify the running API's routes from the host terminal:
+
+```bash
+curl -s http://127.0.0.1:8010/openapi.json | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d["info"]["title"]); print("chat route:", "/api/agent/public-chat" in d["paths"])'
+```
+
+Expect `Placeholder AI API` and `chat route: True`. A missing route means the served application does not match this worktree. Stop its API terminal with Ctrl+C and restart using the command above. When borrowing the original worktree's environment, use `../../Anything-works/backend/.venv/bin/python` instead of `.venv/bin/python`, still from `Anything-works-agent/backend/` with `PYTHONPATH=.` and `--app-dir .`. If the route exists on 8010 but chat still returns 404, restart Vite with `API_URL=http://127.0.0.1:8010`; proxy settings are read at startup. Provider errors return an unavailable chat result, not a missing-route 404.
 
 1. Both identities select **Maple Court (demo)**, which the seed converts from explicitly sample DXF drawings. The imported IFC-only sample projects have no approved drawing extraction and deliberately abstain.
 2. Worker selects an allowed room, plumbing components, photos and a note, then submits. Intake is saved before assessment; a failed create request can retry without uploading photos again. This view requires connectivity; it does not implement a new offline queue.
@@ -152,19 +224,6 @@ Regenerate web agent DTOs from the contract-tested schemas after approved change
 .venv/bin/python ../scripts/generate_agent_types.py
 .venv/bin/pytest tests/test_agent.py tests/test_agent_helpers.py tests/test_agent_contract.py tests/test_agent_provider.py tests/test_agent_migration.py -q
 ```
-
-## Docker
-
-From the repository root, configure a root `.env` containing a locally generated `JWT_SECRET`. Compose reads this root file for the API service; merely setting a shell variable does not replace the service's environment configuration.
-
-```bash
-docker compose up --build -d
-docker compose exec api python -m app.seed
-```
-
-Web: `http://localhost:8080`. API docs: `http://localhost:8000/docs`. Compose includes PostgreSQL and persistent database/storage volumes.
-
-Optional `POSTGRES_PASSWORD` configures the local database. Behind a TLS-intercepting proxy, `EXTRA_CA_FILE` can point to the required CA bundle. See [docker-compose.yml](../docker-compose.yml). These are existing commands, not a production deployment recipe.
 
 ## Checks for implementation work
 

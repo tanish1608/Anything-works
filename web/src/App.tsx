@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 const Workspace = lazy(() => import('./workspace/Workspace'))
+const FieldCapture = lazy(() => import('./workspace/Agent'))
 
 function LegacyWorkspaceRedirect() {
   const { pathname, search, hash } = useLocation()
@@ -14,6 +15,7 @@ export function AppRoutes() {
   return (
     <Suspense fallback={<div className="page muted">Loading workspace…</div>}>
       <Routes>
+        <Route path="/field-capture" element={<FieldCapture captureOnly />} />
         <Route path="/demo/*" element={<LegacyWorkspaceRedirect />} />
         <Route path="/bim-lab" element={<Navigate to="/building" replace />} />
         <Route path="/field" element={<Navigate to="/capture" replace />} />
