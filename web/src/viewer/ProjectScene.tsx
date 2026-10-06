@@ -12,7 +12,7 @@ export interface SceneFocus {
   point?: [number, number, number];
   token?: number;
 }
-/** One GLB renderer/controller for Home, Logs and Building. Pages supply data and presentation only. */
+/** Shared GLB renderer/controller. Workspace panels supply data and presentation only. */
 export default function ProjectScene({
   data,
   visible,
@@ -20,6 +20,7 @@ export default function ProjectScene({
   markers,
   focus,
   expanded = false,
+  explosionGap = 3,
   direction = "iso",
   onSelect,
   onMarker,
@@ -35,6 +36,7 @@ export default function ProjectScene({
   markers: Marker[];
   focus?: SceneFocus | null;
   expanded?: boolean;
+  explosionGap?: number;
   direction?: ViewDirection;
   onSelect?: (id: string | null) => void;
   onMarker?: (id: string) => void;
@@ -113,7 +115,12 @@ export default function ProjectScene({
     const v = viewer.current;
     if (!v || loadedVersion !== data.version) return;
     let alive = true;
-    const offsets = levelOffsets(data.elements, data.plans, expanded);
+    const offsets = levelOffsets(
+      data.elements,
+      data.plans,
+      expanded,
+      explosionGap,
+    );
     v.setExplodedOffsets(offsets).then(() => {
       if (!alive) return;
       if (focus) {
@@ -149,6 +156,7 @@ export default function ProjectScene({
     data.elements,
     data.plans,
     expanded,
+    explosionGap,
     direction,
     focus,
     visible,

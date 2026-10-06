@@ -8,6 +8,12 @@ AI checks daily construction updates against approved project context, flags mis
 
 The original implementation was built as SiteMesh. The UI now uses Everything Works AI branding and the designer's visual system. Internal identifiers and existing backend behavior remain in place.
 
+## Design iteration 2 — October 6
+
+On `codex/design-iteration-2`, contextual panels use wider responsive proportions and larger photo space. The initial camera now fits projected bounds rather than a distant sphere; floor explosion gaps are 1.2 m. A compact project selector adds Schependomlaan Apartments (3,504 components, six source levels and 99 distinct room identities) alongside the duplex. Projects keep separate local records, drafts, decisions and availability; the original duplex key is unchanged. Untracked components can explicitly become planned work, and a searchable source-component directory supports keyboard selection.
+
+The apartment import exposed 94 spaces represented only by explicit IFC FootPrint outlines. Support for closed source polylines recovers all 100 space outlines; the existing duplicate-code rule yields 99 zones. Real multipart IFC upload, draft approval, authorization, plan/mesh retrieval and synthetic-photo-backed human review passed in disposable storage; progress left geometry bytes unchanged and retained the open issue. See [the source/test report](samples/ifc/schependomlaan/README.md) and [UI-only backlog](docs/UI_TODO_ITERATION_2.md). The bundled selector is not arbitrary IFC upload or production project onboarding. All 90 frontend tests and production compilation pass. The real-file upload acceptance and 18 targeted backend regression tests pass; Ruff passes for changed backend files. Frontend lint retains warnings in older components. Real WebGL/mobile appearance remains unverified.
+
 ## Current building-centered interface
 
 The website now uses one large building canvas with optional contextual panels, replacing the previous tab-based layout. The current entry point is `web/src/workspace/Workspace.tsx`; `BuildingCanvas.tsx` keeps the same ProjectScene/SiteViewer mounted across selection, review, capture, history and team workflows. It starts with exploded source levels and an interior view. Floor controls, system toggles, source breadcrumbs, exterior visibility, fit, component isolation and 3D/2D controls sit inside the model surface.

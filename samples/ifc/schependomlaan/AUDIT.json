@@ -1,0 +1,1384 @@
+{
+  "source": {
+    "name": "Schependomlaan Apartments",
+    "slug": "schependomlaan",
+    "repository": "buildingsmart-community/Community-Sample-Test-Files",
+    "revision": "7ddf57a201f88a0c213d5322b02ed15e94a60a40",
+    "folder": "IFC 2.3.0.1 (IFC 2x3)/Schependomlaan/Design model IFC",
+    "license": "CC BY 4.0",
+    "attribution": "ROOT bv for Hendriks Bouw en Ontwikkeling; dataset collected by Stijn van Schaijk, TU Eindhoven, with TNO and RAAMAC; distributed by buildingSMART Community Sample Test Files. IFC-to-GLB/plan derivatives by Everything Works AI.",
+    "files": {
+      "IFC Schependomlaan.ifc": "2c3565ca1904f2aa61adab92024cf3755b2c5b21a498144d3094d7cb58cebec7"
+    },
+    "room_units": {
+      "1.00": "1",
+      "1.01": "1",
+      "1.02": "1",
+      "1.03": "1",
+      "1.04": "1",
+      "1.05": "1",
+      "1.06": "1",
+      "1.07": "1",
+      "10.00": "10",
+      "10.01": "10",
+      "10.02": "10",
+      "10.03": "10",
+      "10.04": "10",
+      "10.05": "10",
+      "10.06": "10",
+      "10.07": "10",
+      "10.08": "10",
+      "2.00": "2",
+      "2.01": "2",
+      "2.03": "2",
+      "2.04": "2",
+      "2.05": "2",
+      "2.06": "2",
+      "2.07": "2",
+      "2.08": "2",
+      "2.09": "2",
+      "2.10": "2",
+      "3.00": "3",
+      "3.01": "3",
+      "3.02": "3",
+      "3.03": "3",
+      "3.04": "3",
+      "3.05": "3",
+      "3.06": "3",
+      "3.07": "3",
+      "3.08": "3",
+      "3.09": "3",
+      "4.00": "4",
+      "4.01": "4",
+      "4.02": "4",
+      "4.03": "4",
+      "4.04": "4",
+      "4.05": "4",
+      "4.06": "4",
+      "4.07": "4",
+      "4.08": "4",
+      "5.00": "5",
+      "5.01": "5",
+      "5.02": "5",
+      "5.03": "5",
+      "5.04": "5",
+      "5.05": "5",
+      "5.06": "5",
+      "5.07": "5",
+      "5.08": "5",
+      "5.09": "5",
+      "6.00": "6",
+      "6.01": "6",
+      "6.02": "6",
+      "6.03": "6",
+      "6.04": "6",
+      "6.05": "6",
+      "6.06": "6",
+      "6.07": "6",
+      "6.08": "6",
+      "7.00": "7",
+      "7.01": "7",
+      "7.02": "7",
+      "7.03": "7",
+      "7.04": "7",
+      "7.05": "7",
+      "7.06": "7",
+      "7.07": "7",
+      "7.08": "7",
+      "8.00": "8",
+      "8.01": "8",
+      "8.02": "8",
+      "8.03": "8",
+      "8.04": "8",
+      "8.05": "8",
+      "8.06": "8",
+      "8.07": "8",
+      "8.08": "8",
+      "8.09": "8",
+      "9.00": "9",
+      "9.01": "9",
+      "9.02": "9",
+      "9.03": "9",
+      "9.04": "9",
+      "9.05": "9",
+      "9.06": "9",
+      "9.07": "9",
+      "9.08": "9"
+    },
+    "unit_grouping_note": "Reviewed display associations for this source revision: numbered room labels 1.xx\u201310.xx group apartments 1\u201310; A-prefixed labels are shared spaces. This is not a general IFC unit parser."
+  },
+  "files": [
+    {
+      "file": "IFC Schependomlaan.ifc",
+      "bytes": 49286967,
+      "sha256": "2c3565ca1904f2aa61adab92024cf3755b2c5b21a498144d3094d7cb58cebec7",
+      "schema": "IFC2X3",
+      "source_products": 3822,
+      "source_spaces": 100,
+      "imported_spaces": 100,
+      "space_geometry_sources": [
+        {
+          "guid": "22lJvI_rz50umvUizzyEQi",
+          "code": "A0.01",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2dFicWHgz1KPbr5tHWzMcP",
+          "code": "A0.00",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3ZMk1e17XESP$vROePi38_",
+          "code": "A0.02",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "2GXKgJyIfAhxPinRH3xm0N",
+          "code": "3.08",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "2lSz4lYYD0yPZfZ0iQzeVj",
+          "code": "3.07",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "39NQt7$3b1Mxn97UesaLDi",
+          "code": "3.06",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "1qHWoDsfT4fQCpDzcA1RZj",
+          "code": "3.09",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "1sCG2cUVb49PxJaBBE81Kw",
+          "code": "3.03",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "10$IVtAgz3gvaL1AC5hF6m",
+          "code": "3.04",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0asyuu9T1AaPR7AmNDL1_c",
+          "code": "3.01",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "1G43xnpGf8ReA8Ux2AmH0Y",
+          "code": "3.00",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0IOcqFv1vCWwJz5c1VnoNe",
+          "code": "3.02",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "3o3cJaPf51HPH9CUJnfi0W",
+          "code": "3.05",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "12AHbNFjr4FRJYlF1r7pMB",
+          "code": "2.10",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "2brbBA_o18ffxZ1OJKAEXd",
+          "code": "2.08",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "1GBaX8Qs19WPwcdIjq6ONn",
+          "code": "2.05",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0ajLK6DXHAaeMk704HiMsX",
+          "code": "2.06",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0OqmHrrnL18wpVdVYaE6Eq",
+          "code": "2.07",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "02NK$DEdTDwuguIz00UqtE",
+          "code": "2.09",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "3vdzRMAWL66B6ew5$sjOj$",
+          "code": "2.03",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "2rpp3iZFTCVwGEE7x9qiQ8",
+          "code": "2.04",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0bNesd_3DCrhdyKRJV7k4U",
+          "code": "1.02",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0P5HFjHIjAsevZeF10JaZS",
+          "code": "2.01",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0Dj6N$QAjCa8$dcIusb5Sm",
+          "code": "2.00",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0EHFwkDTP5BAvP$Lr4UUAk",
+          "code": "1.01",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0Jkjl8tTH5TBBcOqrZRjc0",
+          "code": "1.06",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0P4aIRXgD9XPdxJodXPmsI",
+          "code": "1.07",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "1EO6MCIfDFuRP2Ugg$wu$f",
+          "code": "1.02",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "3K51PWTdT9s9p1sMs0i66A",
+          "code": "1.00",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "3m0eaNZIj4WuqLA61vp_PJ",
+          "code": "1.05",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "1S5uZBEqz97vGlKIzp8YFh",
+          "code": "1.04",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "3RW6tpuaLA5fXODOX3rOlb",
+          "code": "1.03",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "3F3COwDdj5LRVbWzGorFc7",
+          "code": "4.06",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "3EcQs2ERfA495F4sseU_w4",
+          "code": "6.07",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0z1xo3KDX8yQN59ZNuWEoz",
+          "code": "6.06",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "3SPT$EB8r0aBxVBsVnHu5U",
+          "code": "6.05",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "2GOGL_EpT9BOLi26H$n8Y1",
+          "code": "6.08",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0kg640irz75hysOImfQ5Ff",
+          "code": "6.03",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "3_e7IngdDBjOHVpCs_T3bC",
+          "code": "6.04",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "1bpdPR8RjDwuwW5iXv63ud",
+          "code": "6.01",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "2so3nbcb13Ig9Yd7gOPiH$",
+          "code": "5.09",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "09WjTQSeH1n8koThMDL_IH",
+          "code": "6.02",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "2WflCt48T2yQbjDADsjk3X",
+          "code": "6.00",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "1dQmRhr_nEmea8aisHAkCQ",
+          "code": "5.07",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "1AtrO37LT8iQg1RDVAeoCA",
+          "code": "5.00",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0up7RAxwfAqvoyCE1kDxpy",
+          "code": "5.05",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0IIWC_MJj0TegDVVevqJ7a",
+          "code": "5.06",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "1KHE8Hn6vAPe5Gw9Zrubuh",
+          "code": "5.08",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0BsqHll2P5vhJOAHEDwAwi",
+          "code": "5.03",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "1PBqvLnRDDUATdl_lvNYMh",
+          "code": "5.04",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "2EX8CQvoT3VOdgcbCwhid_",
+          "code": "5.02",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0hW2P55_n5cOR9ThNgO3e6",
+          "code": "5.01",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0tv9iZwmX3QhOwYgrkdylc",
+          "code": "4.01",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "3eVcTPP4z5PvakE2XtxxJp",
+          "code": "4.07",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "09fo1jWjfFtQMbiri1ZVQ3",
+          "code": "4.08",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0OFDZWgvrCbvU2AvmpKDKA",
+          "code": "4.02",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "2UFJkHK4XCxgqVrTwxYwA7",
+          "code": "4.00",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "1RPMriui52lBriSIaCeUCC",
+          "code": "4.05",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "2eUwuV6Q14GRH$hdaTX4hB",
+          "code": "4.04",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "2BRXAPrXHFoR9OLTjqGZa3",
+          "code": "4.03",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0ldLkGDpv5wRT1Q$Q3V2M1",
+          "code": "A1.01",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "3gmZJjQND96w5a6Ee$z2ah",
+          "code": "7.06",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0sEYZPVdXAZAaorrZw2LKy",
+          "code": "8.09",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0CJDgHLZLCWu7DbuOU80VN",
+          "code": "8.07",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0CujFs7XvBHACKRDUKrtM$",
+          "code": "8.00",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "2q_kN3Luf7wwPVcXYQjBxR",
+          "code": "8.05",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "1LeiDSp9fA6h6$bEYt0VSH",
+          "code": "8.06",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "1s8ejb3fH1wA$G6dYM5GgC",
+          "code": "8.08",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0a_kF4OBP2GPx5hgvIBSXe",
+          "code": "8.03",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "3QKc$p$NXEvRNG3pdlAj02",
+          "code": "8.04",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "2taKN3SF5AqhoJgBEDOiLL",
+          "code": "8.02",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "1rGsZO_eH6hBvf3PaTPrrd",
+          "code": "8.01",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "2j8_gVWpbACxOVmNDi6bGE",
+          "code": "7.01",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "1mzKtLlF9B0824gzkkIWlz",
+          "code": "7.07",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "3KeJCNzFv2cPjuyq2Kb61z",
+          "code": "7.08",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0yLghiaXr4pB6B4YHPBOlT",
+          "code": "7.02",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0m66n5BInC6fBzFb8EWwyE",
+          "code": "7.00",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "1geKZCJAHAVQxXKkYkD9nV",
+          "code": "7.05",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "3$vxLFFCTCjhIrAHJw7BxO",
+          "code": "7.04",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "1stYdhm21EUQMz3jV6WdHc",
+          "code": "7.03",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "2Nn5OYLeT9FBcLTcY8oegS",
+          "code": "A2.01",
+          "geometry": "tessellated"
+        },
+        {
+          "guid": "1ksvb7lcPBt9rmCaSOqIpd",
+          "code": "9.06",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "1AlG6Dm9L1h8L4yH9tB8FO",
+          "code": "10.07",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0c9LSnFgj7OBxwRT4cC9lK",
+          "code": "10.00",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "1JrMACb0vE99f79I2KAPuN",
+          "code": "10.05",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "12sKPfqUvDFv$X4w8UYHNK",
+          "code": "10.06",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0FOLghHZTBOPD8KF6PRrx0",
+          "code": "10.08",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0lGZe9hjL5GQNRN2Ku92xr",
+          "code": "10.03",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0thxUtY5D3nQDlN3b_gGVK",
+          "code": "10.04",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "2Pbv_BJfT8Ev1Sj5Jh4Tgi",
+          "code": "10.02",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "2Yo$EpP$z2dOC6zNZ35BJq",
+          "code": "10.01",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0oEbkL7YDD8AYm6eYpAT4B",
+          "code": "9.01",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "34JLBtlPXEaeJkF7ppuU09",
+          "code": "9.07",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "0z1DMNAyb21RRdXtk2yF$a",
+          "code": "9.08",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "2SEglEZ618iOaVY$jPjl1r",
+          "code": "9.02",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "00XVyzXGDDQPsHPeNwCNmZ",
+          "code": "9.00",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "3_fPSW07z7bufHlc3SsUgF",
+          "code": "9.05",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "3iG4tbXJ901RkZ0OynKIbL",
+          "code": "9.04",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "1Wtl5_cnDDhAIgcPpOxWTl",
+          "code": "9.03",
+          "geometry": "explicit_footprint"
+        },
+        {
+          "guid": "3c9gfBnpXAtgB1oHgYsgIs",
+          "code": "A3.01",
+          "geometry": "tessellated"
+        }
+      ],
+      "imported_elements": 3504,
+      "unrendered_products": [
+        {
+          "guid": "1j6lJOCJrBfhwVjXcDrBMU",
+          "class": "IfcBuildingElementProxy",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "0VctgvK$r7cwrBnu9fG$cA",
+          "class": "IfcBuildingElementProxy",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "1E7L0rbcP3b9T_kO_wpzXM",
+          "class": "IfcBuildingElementProxy",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "09R3x3btbEC9NWKCsQ9Ndr",
+          "class": "IfcBuildingElementProxy",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "0bPEvM_fn8SPrU2SioL4bx",
+          "class": "IfcBuildingElementProxy",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "3xum028un7c91eysAw7ToR",
+          "class": "IfcBuildingElementProxy",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "09Jnrvfpz0LhOau2puveUM",
+          "class": "IfcBuildingElementProxy",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "1tkaVzyOLEHRrk3ZXytZyO",
+          "class": "IfcBuildingElementProxy",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "03x61TFn1FxQHXFUNuParm",
+          "class": "IfcBuildingElementProxy",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "0ZN2GJozT4VxCVh_WHtQyq",
+          "class": "IfcBuildingElementProxy",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "3CRwhrtRn1UvX9iQV_OTuz",
+          "class": "IfcBuildingElementProxy",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "1V2qCAZ9rAp8VsEGyWln2v",
+          "class": "IfcBuildingElementProxy",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "3u3z2zFojEchllTko9vkJ5",
+          "class": "IfcBuildingElementProxy",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "0yZXVK6wf1RuZHbCnDbIWu",
+          "class": "IfcBuildingElementProxy",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "1LODwiyWT2UwMzhuYIlYa2",
+          "class": "IfcCovering",
+          "name": "muurafdekker",
+          "has_representation": false
+        },
+        {
+          "guid": "0Kvw2yChTBXuQ4cILhgS7P",
+          "class": "IfcCovering",
+          "name": "zinkwerk",
+          "has_representation": false
+        },
+        {
+          "guid": "07cuRabSn7ofP$cYt02X4i",
+          "class": "IfcCovering",
+          "name": "zinkwerk",
+          "has_representation": false
+        },
+        {
+          "guid": "1QAOzVcfjCIgepdR9u6YaR",
+          "class": "IfcCovering",
+          "name": "zinkwerk",
+          "has_representation": false
+        },
+        {
+          "guid": "0qpBWaAanEoR5V$fq4r3RS",
+          "class": "IfcCovering",
+          "name": "zinkwerk",
+          "has_representation": false
+        },
+        {
+          "guid": "2ojoT3QkX9_xyO2CmkhazA",
+          "class": "IfcCovering",
+          "name": "zinkwerk",
+          "has_representation": false
+        },
+        {
+          "guid": "0kBoEfgQzCZwcAITqZnDkN",
+          "class": "IfcCovering",
+          "name": "zinkwerk",
+          "has_representation": false
+        },
+        {
+          "guid": "1AGXqM6FXE$PKWFpHb0tD1",
+          "class": "IfcCovering",
+          "name": "zinkwerk",
+          "has_representation": false
+        },
+        {
+          "guid": "1q7DPgykr9lATuR9kfU1JJ",
+          "class": "IfcCovering",
+          "name": "zinkwerk",
+          "has_representation": false
+        },
+        {
+          "guid": "3a6hoiwS5ALQTYbFhAtpMx",
+          "class": "IfcCovering",
+          "name": "muurafdekker",
+          "has_representation": false
+        },
+        {
+          "guid": "0Aoj1Fkgn3UATZpBNlMNaf",
+          "class": "IfcCovering",
+          "name": "muurafdekker",
+          "has_representation": false
+        },
+        {
+          "guid": "0NegscEpLBHfCO0cOvWvWD",
+          "class": "IfcCovering",
+          "name": "muurafdekker",
+          "has_representation": false
+        },
+        {
+          "guid": "23IDpa5hfBCAToeuOPibhu",
+          "class": "IfcCovering",
+          "name": "muurafdekker",
+          "has_representation": false
+        },
+        {
+          "guid": "11SSFTmvfAsh7uffkbAkHw",
+          "class": "IfcCovering",
+          "name": "muurafdekker",
+          "has_representation": false
+        },
+        {
+          "guid": "3k4Z3diXzAWAnqMaC4UbXG",
+          "class": "IfcCovering",
+          "name": "afdekker",
+          "has_representation": false
+        },
+        {
+          "guid": "10T_URhX986PdE3NdBihco",
+          "class": "IfcCovering",
+          "name": "afdekker",
+          "has_representation": false
+        },
+        {
+          "guid": "0bh_izAIvCGR4N2dD46iKk",
+          "class": "IfcCovering",
+          "name": "zinkwerk",
+          "has_representation": false
+        },
+        {
+          "guid": "1EAotCuNzD2w4dz5DcwpX_",
+          "class": "IfcCovering",
+          "name": "zinkwerk",
+          "has_representation": false
+        },
+        {
+          "guid": "3T7qMysCj85xrHCzTZnlNj",
+          "class": "IfcCovering",
+          "name": "zinkwerk",
+          "has_representation": false
+        },
+        {
+          "guid": "060KlqT792Gu$HoedzYDFv",
+          "class": "IfcCovering",
+          "name": "zinkwerk",
+          "has_representation": false
+        },
+        {
+          "guid": "20qaS1_VH8IOJrYDQQgAEV",
+          "class": "IfcCovering",
+          "name": "afdekker",
+          "has_representation": false
+        },
+        {
+          "guid": "0x2Ptqk7D5yQfXDXwRCLJk",
+          "class": "IfcCovering",
+          "name": "afdekker",
+          "has_representation": false
+        },
+        {
+          "guid": "0NYuZC_Zn0zxU$8bSIn_dg",
+          "class": "IfcCovering",
+          "name": "afdekker",
+          "has_representation": false
+        },
+        {
+          "guid": "1MobKlpi5FmRBwmIGJvVe7",
+          "class": "IfcCovering",
+          "name": "afdekker",
+          "has_representation": false
+        },
+        {
+          "guid": "18Dp7n99rCLBnu8_b3RxrR",
+          "class": "IfcCovering",
+          "name": "afdekker",
+          "has_representation": false
+        },
+        {
+          "guid": "3vD0BTagr0uhk85$J$0SBn",
+          "class": "IfcCovering",
+          "name": "zinkwerk",
+          "has_representation": false
+        },
+        {
+          "guid": "3OZhFtFq98_OiNVPZhex1v",
+          "class": "IfcCovering",
+          "name": "afdekker",
+          "has_representation": false
+        },
+        {
+          "guid": "03smbr_9zFUvoPc7iSmcEW",
+          "class": "IfcCovering",
+          "name": "afdekker",
+          "has_representation": false
+        },
+        {
+          "guid": "2UvMAz_eX4de4Cch8tic9z",
+          "class": "IfcCovering",
+          "name": "afdekker",
+          "has_representation": false
+        },
+        {
+          "guid": "2HxXb1h3n16BOCoDJT05OM",
+          "class": "IfcCovering",
+          "name": "afdekker",
+          "has_representation": false
+        },
+        {
+          "guid": "2jqRiK6lr5dgbYAtO7O9PM",
+          "class": "IfcCovering",
+          "name": "afdekker",
+          "has_representation": false
+        },
+        {
+          "guid": "0lF5MOhTPBxPrLOQzM_gU0",
+          "class": "IfcCovering",
+          "name": "zinkwerk",
+          "has_representation": false
+        },
+        {
+          "guid": "2LWjDdCajEqx6y3aO2HdiR",
+          "class": "IfcCovering",
+          "name": "zinkwerk",
+          "has_representation": false
+        },
+        {
+          "guid": "3KwtARMrX7SOZcscyIrGyC",
+          "class": "IfcCovering",
+          "name": "zinkwerk",
+          "has_representation": false
+        },
+        {
+          "guid": "03pWrikv57TvJ6ZuhGktHh",
+          "class": "IfcCovering",
+          "name": "zinkwerk",
+          "has_representation": false
+        },
+        {
+          "guid": "2luRa0gbH7jxkpjjSUl3pE",
+          "class": "IfcCovering",
+          "name": "zinkwerk",
+          "has_representation": false
+        },
+        {
+          "guid": "1L540sTSbBmBcA50ERiYup",
+          "class": "IfcCovering",
+          "name": "zinkwerk",
+          "has_representation": false
+        },
+        {
+          "guid": "0_FtwVBcH6BQrvFHbzx1Dk",
+          "class": "IfcCovering",
+          "name": "zinkwerk",
+          "has_representation": false
+        },
+        {
+          "guid": "0c9IdEzTz61uKg3zrEBJVm",
+          "class": "IfcCovering",
+          "name": "dakopstand",
+          "has_representation": false
+        },
+        {
+          "guid": "1CPapQAlf4YQ_ggfHZhkiy",
+          "class": "IfcCovering",
+          "name": "dakopstand",
+          "has_representation": false
+        },
+        {
+          "guid": "0vzoXh8HfE39$x$uEJYJop",
+          "class": "IfcCovering",
+          "name": "dakopstand",
+          "has_representation": false
+        },
+        {
+          "guid": "3nJZgUzE597eilBObAKJsS",
+          "class": "IfcCovering",
+          "name": "dakopstand",
+          "has_representation": false
+        },
+        {
+          "guid": "2GynMxLJb7Ve_WEsuAUB$o",
+          "class": "IfcCovering",
+          "name": "dakopstand",
+          "has_representation": false
+        },
+        {
+          "guid": "3Y0AN$7uH9RhdeNNvTVRg$",
+          "class": "IfcCovering",
+          "name": "dakopstand",
+          "has_representation": false
+        },
+        {
+          "guid": "043PX6AOf83xoc4Zbos9VV",
+          "class": "IfcCovering",
+          "name": "dakopstand",
+          "has_representation": false
+        },
+        {
+          "guid": "2mZ5fvqSj1euAdxjC9HqAB",
+          "class": "IfcCovering",
+          "name": "dakopstand",
+          "has_representation": false
+        },
+        {
+          "guid": "0ObAt5weD2MxClwOERiQnw",
+          "class": "IfcCovering",
+          "name": "dakopstand",
+          "has_representation": false
+        },
+        {
+          "guid": "1k4Rf11O17$OYfDaxGxz3e",
+          "class": "IfcCovering",
+          "name": "dakopstand",
+          "has_representation": false
+        },
+        {
+          "guid": "3hhiC8yEn2tx0W6$uE_WXb",
+          "class": "IfcWall",
+          "name": "dakopstand",
+          "has_representation": true
+        },
+        {
+          "guid": "2vp_usBx12Y9PoQVOVdAFF",
+          "class": "IfcWall",
+          "name": "dakopstand",
+          "has_representation": true
+        },
+        {
+          "guid": "2Oyl7MsmPBX8QuVAq0wJYB",
+          "class": "IfcWall",
+          "name": "dakopstand",
+          "has_representation": true
+        },
+        {
+          "guid": "0Zx4cqrajBR8O5_p97fE50",
+          "class": "IfcWall",
+          "name": "dakopstand",
+          "has_representation": true
+        },
+        {
+          "guid": "1A9aTEU4z9SwaqEUwI8Lx4",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "2qmQa8nAP39u6po5334l9v",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "148inggZz0fAp_L7YGDBl6",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "3bi7XzqxrAgvdZxFnRwTdg",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "0A$dxBFCfD698O7H1hW$fd",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "0Nj60ieO55uBt_I0iEvvde",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "0GioG4iQzA1OyX4F47kc4a",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "2iybqz3VH31hQztnwzJ_m7",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "3XhijCDWT4ERsmhSDcEHtI",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "1oHEx35PDDzQFKEx3RZUI5",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "356ZU40Tn3tvjGsP5aWnKD",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "01hUAhn2r989LDYSpRx4VK",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "2Hagr_o5nCPha8GzqG_2Pz",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "1AtB01imf94g7vyKEx$EUO",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "06vshORsrEVvjbvNCwwl$2",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "0vTAFL4d1DwxQSNiJxvejT",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "2SOFxehfn3JPJ42eH$gc$u",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "36fadt$IzDJQp5auYj8rIY",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "0zCNq_mof6gPonl4mLYuLv",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "0IIlOCBsj3HgQHK5iljQCT",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "1i4_mvNgv86Pj97Vy1f2eY",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "3fvHYcQET4afRMl3etTK4F",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "1WCZr3c7r05hqSejiWoWO4",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "13hN5zL1L2fftXqB_Ac_WZ",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "2_xwfAnHjEGheqbGUc$BD5",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "27SAqTJ4n1cfkb4yN$O3Ny",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "07o2mHpkH4_PxUBc290w3Z",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "0$YDCcbYPB0wRxDYucu1$k",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "0LxscyRCL35PTDOLAAjfSI",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "1qHBiNfAHCHhBLrRv9Uyf5",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "0I$ApwjMb2WhHUnG9PohvA",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "1a3Bw$Plv1NBGNlNfFUZO_",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "0P9P2MTnDFWgpzAECWRMfc",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "3V$ApEXsL4kuuKln_RMzx7",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "0d193_IC94VBo0OC8YxmOX",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "2T7$dTI398mR34m8VeIw4m",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "1X9_auq7fAKPab7CpdR8v7",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "2X9Gop0bn3_x38P_1PGdAJ",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "23NrJ1a$r1DOY9eePDI0DJ",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "32BRu80e95IgL7sHEAaW4K",
+          "class": "IfcWallStandardCase",
+          "name": "separatiewand",
+          "has_representation": true
+        },
+        {
+          "guid": "1qSuEDSd1E8ftzFK1HXdBc",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "3JaHyppKTBGBnjCpoJt74v",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "2r4e5jHWfDKhLK$Is1u15D",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "0FdLbmS_r6Ch8VPitxry03",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "32cOaJbaP9VOemKr9dYXtJ",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "1HTzx6dK99rxYirl5arG$b",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "3lUaefqT14jRJXPO$2osRB",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "0SzdhD7kXE$9LKStg07UwP",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "1xkmYzLHD1VPKdNI8y8Me1",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "3TK6FSuO9AVg4wHo$O3IN3",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        },
+        {
+          "guid": "1hsZ5cIZbElRpA938d3ffl",
+          "class": "IfcWallStandardCase",
+          "name": "kozijn",
+          "has_representation": true
+        }
+      ],
+      "source_storeys": [
+        {
+          "guid": "1Q6PG1Po9C5hoyWBnJmRby",
+          "name": "-1 fundering",
+          "elevation": -1000.0
+        },
+        {
+          "guid": "2SWZMQPyD9pfT9q87pgXa1",
+          "name": "00 begane grond",
+          "elevation": 0.0
+        },
+        {
+          "guid": "0u4wgLe6n0ABVaiXyikbkA",
+          "name": "01 eerste verdieping",
+          "elevation": 3000.0
+        },
+        {
+          "guid": "0wPqxf9KX0nPDjgzD8mXwD",
+          "name": "02 tweede verdieping",
+          "elevation": 6000.0
+        },
+        {
+          "guid": "2Hyat1fsPEGfyYPyim12A1",
+          "name": "03 derde verdieping",
+          "elevation": 9000.0
+        },
+        {
+          "guid": "0oaSdYqubDuuJF4k9AqHjC",
+          "name": "04 dak",
+          "elevation": 12000.0
+        }
+      ],
+      "seconds": 13.261,
+      "by_discipline": {
+        "structure": 206,
+        "other": 303,
+        "architecture": 2935,
+        "plumbing": 60
+      },
+      "triangles": 260094,
+      "max_properties": 909
+    }
+  ],
+  "elements": 3504,
+  "levels": 6,
+  "rooms": 99,
+  "assigned_to_room": 995,
+  "triangles": 260094,
+  "vertices": 141229,
+  "by_discipline": {
+    "structure": 206,
+    "other": 303,
+    "architecture": 2935,
+    "plumbing": 60
+  },
+  "export_seconds": 1.981,
+  "mesh_bytes": 4734560,
+  "bedroom_fitting": null
+}

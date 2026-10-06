@@ -16,9 +16,13 @@ import { AppRoutes } from "../App";
 import type ProjectScene from "../viewer/ProjectScene";
 import type { ModelDataset } from "../viewer/modelData";
 import { COLORS, STORE_KEY, type WorkspaceState } from "../workspace/state";
+import { projectStorageKey } from "../workspace/projectState";
 
 const model = JSON.parse(
   readFileSync("public/bim-duplex/model.json", "utf8"),
+) as ModelDataset;
+const apartment = JSON.parse(
+  readFileSync("public/bim-schependomlaan/model.json", "utf8"),
 ) as ModelDataset;
 const scene = vi.hoisted(() => ({
   mount: vi.fn(),
@@ -28,6 +32,7 @@ const scene = vi.hoisted(() => ({
 vi.mock("../viewer/modelData", async (original) => ({
   ...(await original<typeof import("../viewer/modelData")>()),
   loadDemoModel: async () => model,
+  loadPublicProject: async () => apartment,
 }));
 vi.mock("../workspace/photoInput", () => ({
   readPhoto: async (file: File) => ({
@@ -54,6 +59,19 @@ vi.mock("../viewer/ProjectScene", () => ({
         <button onClick={() => props.onSelect?.(model.elements[0].id)}>
           Select untracked component
         </button>
+        {props.data.source.slug === "schependomlaan" && (
+          <button
+            onClick={() =>
+              props.onSelect?.(
+                props.data.elements.find(
+                  (e) => e.ifc_class === "IfcDoor" && e.zone_id,
+                )!.id,
+              )
+            }
+          >
+            Select apartment component
+          </button>
+        )}
       </div>
     );
   },
@@ -117,6 +135,118 @@ afterEach(() => {
 });
 
 describe("one building workspace", () => {
+  it("keeps apartment work, drafts and decisions separate while switching buildings", async () => {
+    renderAt("/");
+    await ready();
+    await userEvent.click(screen.getByLabelText("Open work and issues"));
+    await userEvent.selectOptions(
+      screen.getByLabelText("Switch building project"),
+      "schependomlaan",
+    );
+    await ready();
+    expect(scene.last!.data).toBe(apartment);
+    expect(screen.queryByRole("complementary")).not.toBeInTheDocument();
+    expect(screen.getByTestId("url").textContent).toBe(
+      "/?project=schependomlaan",
+    );
+    await userEvent.click(screen.getByRole("button", { name: "New update" }));
+    expect(screen.getByText("Choose the work first.")).toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole("button", { name: "Select apartment component" }),
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "Track work here" }),
+    );
+    await userEvent.clear(screen.getByLabelText("Work title"));
+    await userEvent.type(
+      screen.getByLabelText("Work title"),
+      "Apartment pipe check",
+    );
+    await userEvent.type(
+      screen.getByLabelText("Responsible person or team"),
+      "Apartment plumbing crew",
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "Create work record" }),
+    );
+    const key = projectStorageKey(apartment);
+    const planned = JSON.parse(localStorage.getItem(key)!) as WorkspaceState;
+    expect(planned.items).toHaveLength(1);
+    expect(planned.items[0]).toMatchObject({
+      status: "none",
+      photos: [],
+      checks: [],
+      inspection: "Not recorded",
+    });
+    expect(planned.items[0].location!.version).toBe(apartment.version);
+    await userEvent.click(screen.getByRole("button", { name: "New update" }));
+    await addEvidence();
+    await userEvent.click(
+      screen.getByRole("button", { name: "Submit for review" }),
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "Accept reviewed work" }),
+    );
+    await userEvent.type(
+      screen.getByLabelText("Decision reason"),
+      "Test review of the scoped evidence.",
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "Save decision" }),
+    );
+    const accepted = JSON.parse(localStorage.getItem(key)!) as WorkspaceState;
+    expect(accepted.items[0].status).toBe("human");
+    expect(accepted.assessmentJobs![0].state).toBe("manual_review");
+    expect(
+      scene.last!.colors.get(accepted.items[0].location!.elements[0]),
+    ).toBe(COLORS.human);
+    await userEvent.selectOptions(
+      screen.getByLabelText("Switch building project"),
+      "duplex",
+    );
+    await ready();
+    expect(scene.last!.data).toBe(model);
+    expect(screen.getByTestId("url").textContent).toBe("/");
+    await userEvent.click(screen.getByLabelText("Open work and issues"));
+    expect(screen.queryByText("Apartment pipe check")).not.toBeInTheDocument();
+    await userEvent.selectOptions(
+      screen.getByLabelText("Switch building project"),
+      "schependomlaan",
+    );
+    await ready();
+    await userEvent.click(screen.getByLabelText("Open work and issues"));
+    await userEvent.click(screen.getByRole("button", { name: "Complete" }));
+    expect(screen.getByText("Apartment pipe check")).toBeInTheDocument();
+    expect(JSON.parse(localStorage.getItem(key)!).items[0].status).toBe(
+      "human",
+    );
+    await userEvent.click(screen.getByRole("button", { name: "New update" }));
+    await userEvent.type(
+      screen.getByLabelText("What changed?"),
+      "Draft stays in this apartment.",
+    );
+    await userEvent.selectOptions(
+      screen.getByLabelText("Switch building project"),
+      "duplex",
+    );
+    await ready();
+    await userEvent.click(screen.getByRole("button", { name: "New update" }));
+    expect(screen.getByLabelText("What changed?")).not.toHaveValue(
+      "Draft stays in this apartment.",
+    );
+    expect(JSON.parse(localStorage.getItem(key)!).draft.note).toBe(
+      "Draft stays in this apartment.",
+    );
+  });
+  it("keeps the selected project when Escape closes a contextual panel", async () => {
+    renderAt("/?project=schependomlaan&panel=project");
+    await ready();
+    await userEvent.keyboard("{Escape}");
+    expect(screen.getByTestId("url").textContent).toBe(
+      "/?project=schependomlaan",
+    );
+    expect(scene.last!.data).toBe(apartment);
+  });
   it("opens the building without login or page tabs and keeps one scene mounted through every panel", async () => {
     renderAt("/");
     await ready();

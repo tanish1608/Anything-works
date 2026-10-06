@@ -2,6 +2,14 @@
 
 Updated October 6, 2026. Current website behavior, with explicit testing boundaries.
 
+## Design iteration 2
+
+`codex/design-iteration-2` adds a wider responsive panel (roughly 38% of desktop width), larger evidence area, closer projected-bounds overview camera and 1.2 m exploded-floor gaps. Panel resizing refits the selected subject until the user manually orbits/zooms. Component close-up fitting is unchanged.
+
+The header/project menu switches between the duplex and [Schependomlaan Apartments](../samples/ifc/schependomlaan/README.md). The latter has 3,504 source components and six levels. Each project uses one renderer and separate local record/draft/history/availability keys. The duplex keeps its original key. Changing projects clears spatial/work/date selections; Escape and overview retain the selected project.
+
+A new project begins with no inferred field progress. The spatial directory includes searchable component rows for keyboard access. Selecting an untracked component offers **Track work here**, requiring a title and owner; only planned work is created. Capture requires a confirmed component location and evidence before review. Real IFC upload has been tested through the retained authenticated API in disposable storage, but arbitrary model upload is not connected to this public UI. See [the UI checklist](UI_TODO_ITERATION_2.md).
+
 ## Interface and user journey
 
 The building is the main workspace. A compact header, floor rail and floating system/view controls surround one persistent model. There is no left navigation sidebar or separate Home/Logs/Building model page. Contextual workflows open to the right on desktop and below the canvas on smaller screens. Closing a panel restores the larger model area.

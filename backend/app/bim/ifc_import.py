@@ -138,6 +138,39 @@ def _space_polygon(space, geo) -> list[list[float]] | None:
     return [[round(x, 3), round(y, 3)] for x, y in shape.exterior.coords[:-1]]
 
 
+def _space_footprint(space) -> list[list[float]] | None:
+    """Read an explicit closed IFC FootPrint when a space has no tessellatable solid.
+
+    Do not substitute bounding boxes or fabricate outlines for unsupported curves/holes.
+    Coordinates use the original placement and file units, then convert to world metres.
+    """
+    import ifcopenshell.util.placement as placement
+
+    if not space.Representation:
+        return None
+    rings = []
+    transform = placement.get_local_placement(space.ObjectPlacement)
+    scale = uunit.calculate_unit_scale(space.file)
+    for representation in space.Representation.Representations:
+        if (representation.RepresentationIdentifier or "").lower() != "footprint":
+            continue
+        for item in representation.Items:
+            curves = item.Elements if item.is_a("IfcGeometricCurveSet") else [item]
+            for curve in curves:
+                if not curve.is_a("IfcPolyline"):
+                    return None
+                points = [p.Coordinates for p in curve.Points]
+                if len(points) < 4 or not np.allclose(points[0], points[-1]):
+                    return None
+                world = [(transform @ np.array([p[0], p[1], p[2] if len(p) > 2 else 0, 1]))[:2] * scale
+                         for p in points[:-1]]
+                rings.append([[round(float(x), 4), round(float(y), 4)] for x, y in world])
+    if len(rings) != 1:
+        return None
+    polygon = Polygon(rings[0])
+    return rings[0] if polygon.is_valid and polygon.area > 1e-8 else None
+
+
 def read_ifc(path: str | Path, discipline_hint: str | None = None, *, audit: dict | None = None) -> tuple[list[Item], list[SpaceInfo]]:
     f = ifcopenshell.open(str(path))
     settings = ifcopenshell.geom.settings()
@@ -155,16 +188,19 @@ def read_ifc(path: str | Path, discipline_hint: str | None = None, *, audit: dic
 
     items, spaces = [], []
     missing = []
+    space_sources = []
     for p in f.by_type("IfcProduct"):
         geo = shapes.get(p.id())
         if p.is_a("IfcSpace"):
             st = _storey_of(p)
-            if geo is not None and st is not None:
-                poly = _space_polygon(p, geo)
+            if st is not None:
+                poly = _space_polygon(p, geo) if geo is not None else _space_footprint(p)
                 if poly:
                     name = p.LongName or p.Name or "Space"
                     spaces.append(SpaceInfo(st[0], st[1], st[2], name, p.Name if p.LongName and p.Name != name else None,
                                             poly))
+                    space_sources.append({"guid": p.GlobalId, "code": p.Name,
+                                          "geometry": "tessellated" if geo is not None else "explicit_footprint"})
             continue
         if any(p.is_a(c) for c in SKIP_CLASSES):
             continue
@@ -185,6 +221,7 @@ def read_ifc(path: str | Path, discipline_hint: str | None = None, *, audit: dic
     if audit is not None:
         audit.update(schema=f.schema, source_products=len(f.by_type("IfcProduct")),
                      source_spaces=len(f.by_type("IfcSpace")), imported_spaces=len(spaces),
+                     space_geometry_sources=space_sources,
                      imported_elements=len(items), unrendered_products=missing,
                      source_storeys=[{"guid": s.GlobalId, "name": s.Name, "elevation": s.Elevation}
                                      for s in f.by_type("IfcBuildingStorey")])

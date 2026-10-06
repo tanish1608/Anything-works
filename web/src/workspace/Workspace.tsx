@@ -1,10 +1,21 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Icon } from "../studio/Icon";
-import { loadDemoModel, type ModelDataset } from "../viewer/modelData";
+import {
+  loadDemoModel,
+  loadPublicProject,
+  PUBLIC_PROJECTS,
+  type PublicProjectId,
+  type ModelDataset,
+} from "../viewer/modelData";
 import { WorkspaceContext, type Decision } from "./context";
-import { initialProjectState, loadProjectState } from "./projectState";
-import { STORE_KEY, transition, type Action } from "./state";
+import {
+  initialProjectState,
+  loadProjectState,
+  projectStorageKey,
+  availabilityStorageKey,
+} from "./projectState";
+import { transition, type Action } from "./state";
 import { itemsAt } from "./history";
 import BuildingCanvas from "./BuildingCanvas";
 import {
@@ -39,45 +50,66 @@ const TITLES: Record<Panel, string> = {
   locations: "Explore building",
 };
 export default function Workspace() {
-  const [model, setModel] = useState<ModelDataset | null>(null),
-    [error, setError] = useState("");
-  const load = useCallback(() => {
-    setError("");
-    loadDemoModel()
-      .then(setModel)
-      .catch((e) => setError(e.message));
-  }, []);
+  const location = useLocation();
+  const requested = new URLSearchParams(location.search).get("project");
+  const project: PublicProjectId =
+    PUBLIC_PROJECTS.find((p) => p.id === requested)?.id || "duplex";
+  const [loaded, setLoaded] = useState<{
+      project: PublicProjectId;
+      model: ModelDataset;
+    } | null>(null),
+    [error, setError] = useState<{
+      project: string;
+      retry: number;
+      message: string;
+    } | null>(null);
+  const [retry, setRetry] = useState(0);
   useEffect(() => {
     let alive = true;
-    loadDemoModel()
+    (project === "duplex" ? loadDemoModel() : loadPublicProject(project))
       .then((m) => {
-        if (alive) setModel(m);
+        if (alive) setLoaded({ project, model: m });
       })
       .catch((e) => {
-        if (alive) setError(e.message);
+        if (alive) setError({ project, retry, message: e.message });
       });
     return () => {
       alive = false;
     };
-  }, []);
-  if (!model)
+  }, [project, retry]);
+  const errorMessage =
+    error?.project === project && error.retry === retry ? error.message : "";
+  if (!loaded || loaded.project !== project)
     return (
       <div className="world-loading">
         <div className="world-loading-mark">
           <Icon name="cube" size={32} />
         </div>
         <h1>
-          {error ? "The building couldn't load" : "Opening your building"}
+          {errorMessage
+            ? "The building couldn't load"
+            : "Opening your building"}
         </h1>
-        <p role={error ? "alert" : undefined}>
-          {error || "Preparing the shared model and project records…"}
+        <p role={errorMessage ? "alert" : undefined}>
+          {errorMessage || "Preparing the shared model and project records…"}
         </p>
-        {error && <button onClick={load}>Try again</button>}
+        {errorMessage && (
+          <button onClick={() => setRetry((n) => n + 1)}>Try again</button>
+        )}
       </div>
     );
-  return <BuildingWorkspace model={model} />;
+  return (
+    <BuildingWorkspace key={project} model={loaded.model} project={project} />
+  );
 }
-function BuildingWorkspace({ model }: { model: ModelDataset }) {
+function BuildingWorkspace({
+  model,
+  project,
+}: {
+  model: ModelDataset;
+  project: PublicProjectId;
+}) {
+  const storageKey = projectStorageKey(model);
   const [state, setState] = useState(() => loadProjectState(model)),
     stateRef = useRef(state);
   const [online, setOnline] = useState(navigator.onLine),
@@ -192,39 +224,42 @@ function BuildingWorkspace({ model }: { model: ModelDataset }) {
   };
   const overview = () => {
     setSearch("");
-    navigate("/");
+    navigate(project === "duplex" ? "/" : `/?project=${project}`);
     menuRef.current?.removeAttribute("open");
   };
   const close = () => {
     go({ panel: null, work: null, element: null, date: null });
     setSearch("");
   };
-  const act = useCallback((action: Action) => {
-    try {
-      const next = transition(stateRef.current, action);
-      localStorage.setItem(STORE_KEY, JSON.stringify(next));
-      stateRef.current = next;
-      setState(next);
-      if (action.type !== "draft")
+  const act = useCallback(
+    (action: Action) => {
+      try {
+        const next = transition(stateRef.current, action);
+        localStorage.setItem(storageKey, JSON.stringify(next));
+        stateRef.current = next;
+        setState(next);
+        if (action.type !== "draft")
+          setMessage(
+            action.type === "submit"
+              ? action.offline
+                ? "Update queued on this device."
+                : "Update saved. Evidence awaits review."
+              : action.type === "sync"
+                ? "Queued updates are ready for review."
+                : "Saved. The building and records are up to date.",
+          );
+        return true;
+      } catch (e) {
         setMessage(
-          action.type === "submit"
-            ? action.offline
-              ? "Update queued on this device."
-              : "Update saved. Evidence awaits review."
-            : action.type === "sync"
-              ? "Queued updates are ready for review."
-              : "Saved. The building and records are up to date.",
+          e instanceof DOMException && e.name === "QuotaExceededError"
+            ? "Device storage is full. Export your records before resetting the workspace."
+            : (e as Error).message,
         );
-      return true;
-    } catch (e) {
-      setMessage(
-        e instanceof DOMException && e.name === "QuotaExceededError"
-          ? "Device storage is full. Export your records before resetting the workspace."
-          : (e as Error).message,
-      );
-      return false;
-    }
-  }, []);
+        return false;
+      }
+    },
+    [storageKey],
+  );
   useEffect(() => {
     const update = () => {
       setOnline(navigator.onLine);
@@ -256,7 +291,7 @@ function BuildingWorkspace({ model }: { model: ModelDataset }) {
       if (e.key === "Escape") {
         if (reset) setReset(false);
         else {
-          navigate("/");
+          navigate(project === "duplex" ? "/" : `/?project=${project}`);
           setSearch("");
           menuRef.current?.removeAttribute("open");
         }
@@ -264,7 +299,7 @@ function BuildingWorkspace({ model }: { model: ModelDataset }) {
     };
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
-  }, [navigate, reset]);
+  }, [navigate, reset, project]);
   const decide = (item: Decision["item"]) => selectWork(item.id);
   const issues = state.items.filter((i) => i.issue).length;
   const context = { model, state, act, decide, online };
@@ -286,6 +321,7 @@ function BuildingWorkspace({ model }: { model: ModelDataset }) {
             unit={unit}
             room={room}
             scope={scope}
+            selectElement={selectElement}
             open={(p, id) => (id ? selectWork(id) : open(p))}
           />
         );
@@ -316,6 +352,20 @@ function BuildingWorkspace({ model }: { model: ModelDataset }) {
           />
         ) : null;
       case "capture":
+        if (!state.items.length)
+          return (
+            <div className="world-empty">
+              <Icon name="pin" size={28} />
+              <h2>Choose the work first.</h2>
+              <p>
+                Select a component in the building or spatial directory and
+                track work there. Then attach your daily update.
+              </p>
+              <button onClick={() => open("locations")}>
+                Find a component
+              </button>
+            </div>
+          );
         return (
           <UpdatePanel key={workId || "draft"} work={workId} open={open} />
         );
@@ -356,6 +406,24 @@ function BuildingWorkspace({ model }: { model: ModelDataset }) {
           </button>
           <div className="world-project-title">
             <h1>{state.projectName}</h1>
+            <select
+              aria-label="Switch building project"
+              value={project}
+              onChange={(e) => {
+                setSearch("");
+                navigate(
+                  e.target.value === "duplex"
+                    ? "/"
+                    : `/?project=${e.target.value}`,
+                );
+              }}
+            >
+              {PUBLIC_PROJECTS.map((p) => (
+                <option value={p.id} key={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
             <span>
               {online ? "Project workspace" : "Offline · device storage"}
             </span>
@@ -398,6 +466,20 @@ function BuildingWorkspace({ model }: { model: ModelDataset }) {
                 <Icon name="down" size={12} />
               </summary>
               <div role="menu">
+                {PUBLIC_PROJECTS.map((p) => (
+                  <button
+                    key={p.id}
+                    role="menuitem"
+                    onClick={() => {
+                      menuRef.current?.removeAttribute("open");
+                      navigate(p.id === "duplex" ? "/" : `/?project=${p.id}`);
+                    }}
+                  >
+                    <Icon name="building" size={16} />
+                    {p.name}
+                    {p.id === project ? " · current" : ""}
+                  </button>
+                ))}
                 {[
                   ["summary", "spark", "Project pulse"],
                   ["activity", "clock", "Progress history"],
@@ -517,8 +599,8 @@ function BuildingWorkspace({ model }: { model: ModelDataset }) {
                   onClick={() => {
                     try {
                       const next = initialProjectState(model);
-                      localStorage.setItem(STORE_KEY, JSON.stringify(next));
-                      localStorage.removeItem("ew-demo-people-v1");
+                      localStorage.setItem(storageKey, JSON.stringify(next));
+                      localStorage.removeItem(availabilityStorageKey(model));
                       stateRef.current = next;
                       setState(next);
                       setReset(false);

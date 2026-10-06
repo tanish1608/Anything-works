@@ -61,6 +61,8 @@ See [current implementation and gaps](STATUS.md) and [design implementation note
 | [Build plan](PLAN.md) | Architecture, delivery sequence and decisions |
 | [Task backlog](TODO.md) | Detailed work packages for contributors |
 | [Current status](STATUS.md) | What is implemented versus planned |
+| [UI iteration 2 backlog](docs/UI_TODO_ITERATION_2.md) | Dedicated interface checklist and acceptance work |
+| [Apartment import test](samples/ifc/schependomlaan/README.md) | Larger source project, import fidelity and real upload acceptance |
 | [Building workspace](docs/BUILDING_WORKSPACE.md) | Current canvas/panel UI, source locations and testing boundaries |
 | [Shared model workflow](docs/MODEL_WORKFLOW.md) | Import/review setup, spatial hierarchy, daily evidence and shared progress |
 | [Detailed BIM audit](docs/BIM_AUDIT.md) | Real-project import results, viewer choice, precise locations and P3 verification |

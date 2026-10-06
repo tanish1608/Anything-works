@@ -53,3 +53,7 @@ Automatic progress completion, human acceptance and formal inspection need disti
 See the [product specification](../docs/PRODUCT_SPEC.md), [backlog](../TODO.md) and [current inventory](../STATUS.md). Keep the isolated viewer reusable and the local demo's simulated behavior clearly identified.
 
 See [the shared model workflow](../docs/MODEL_WORKFLOW.md) for hierarchy, first-upload setup, queued daily evidence and agent integration boundaries.
+
+## Design iteration 2
+
+The header/project menu now switches between the original duplex and `/?project=schependomlaan`. Each project uses one renderer and separate local records, drafts, decisions and availability. The apartment model starts with no field observations: select/search a source component, choose **Track work here**, then submit evidence. Camera overview fits projected bounds; desktop panels use wider responsive proportions. See [the UI-only backlog](../docs/UI_TODO_ITERATION_2.md) and [apartment import/test notes](../samples/ifc/schependomlaan/README.md). This bundled selector does not connect arbitrary IFC uploads or private-project onboarding to the public website.

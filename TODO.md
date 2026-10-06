@@ -6,6 +6,8 @@ Product scope: AI checking daily updates across construction stages, identifying
 
 Owners are suggested contributor roles, not assignments. Each package needs a named owner when coding begins. Requirements R1–R10 are defined in the [product specification](docs/PRODUCT_SPEC.md).
 
+The UI-only iteration backlog is [Design iteration 2](docs/UI_TODO_ITERATION_2.md). It tracks proportions/camera, the second apartment project, sample switching, component exploration and remaining visual acceptance.
+
 ## Building-centered workspace — current UI, October 6
 
 This supersedes the earlier tab-based Home/Logs/Building layout. The building is the website: one persistent model canvas with optional contextual panels on the right (below the canvas on small screens). The earlier implementation sections below describe retained foundations, not the current navigation.

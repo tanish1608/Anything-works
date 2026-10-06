@@ -11,7 +11,12 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { PointerLockControls } from "three/examples/jsm/controls/PointerLockControls.js";
 import { SELECTION_COLOR } from "./colors";
-import { DIRECTIONS, fitBounds, type ViewDirection } from "./spatialMath";
+import {
+  DIRECTIONS,
+  fitBounds,
+  fitProjectedBounds,
+  type ViewDirection,
+} from "./spatialMath";
 import { applyDisplayOffset } from "./explosion";
 import { createMarkerMesh } from "./markers";
 
@@ -74,6 +79,8 @@ export class SiteViewer {
   private dirty = true;
   private raf = 0;
   private lastFrame = performance.now();
+  private framedView: { ids?: string[]; direction: ViewDirection } | null =
+    null;
   private ro: ResizeObserver;
   private pickMode = false;
   private downAt: { x: number; y: number } | null = null;
@@ -118,6 +125,7 @@ export class SiteViewer {
     this.orbit.addEventListener("change", () => this.invalidate());
     this.orbit.addEventListener("start", () => {
       this.flight = null;
+      this.framedView = null;
     });
 
     const el = this.renderer.domElement;
@@ -375,7 +383,8 @@ export class SiteViewer {
       );
     else box.copy(this.bounds);
     if (box.isEmpty()) return;
-    const fitted = fitBounds(
+    this.framedView = { ids, direction };
+    const fitted = (direction === "overview" ? fitProjectedBounds : fitBounds)(
       box,
       this.camera.fov,
       this.camera.aspect,
@@ -391,6 +400,7 @@ export class SiteViewer {
   }
 
   zoom(factor: number) {
+    this.framedView = null;
     const offset = this.camera.position
       .clone()
       .sub(this.orbit.target)
@@ -627,6 +637,10 @@ export class SiteViewer {
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(w, h);
+    // Keep the last fitted subject visible when its canvas narrows for a panel.
+    // A manual orbit/zoom clears this, so resizing does not undo the user's camera.
+    if (this.framedView)
+      this.frame(this.framedView.ids, this.framedView.direction);
     this.invalidate();
   }
 

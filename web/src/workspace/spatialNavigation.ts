@@ -27,6 +27,8 @@ export function unitForRoom(
     model.source.revision !== "7ddf57a201f88a0c213d5322b02ed15e94a60a40"
   )
     return null;
+  if (model.source.slug === "schependomlaan")
+    return model.source.room_units?.[code || ""] || null;
   return /^([AB])\d{3}$/.exec(code || "")?.[1] || null;
 }
 export function workPath(model: ModelDataset, work: WorkItem) {

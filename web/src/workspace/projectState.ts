@@ -75,6 +75,17 @@ const packages: Record<
 };
 export function initialProjectState(data: ModelDataset): WorkspaceState {
   const template = initialState();
+  if (data.source.slug && data.source.slug !== "duplex")
+    return {
+      ...template,
+      items: [],
+      events: [],
+      draft: null,
+      projectName: data.source.name || "Imported building",
+      modelVersion: data.version,
+      modelApproved: true,
+      assessmentJobs: [],
+    };
   const items = template.items.flatMap((i): WorkItem[] => {
     const p = packages[i.id],
       e = data.elements.find((e) => e.id === p?.element);
@@ -183,8 +194,19 @@ export function initialProjectState(data: ModelDataset): WorkspaceState {
     assessmentJobs: [],
   };
 }
+export function projectStorageKey(data: ModelDataset) {
+  return data.source.slug && data.source.slug !== "duplex"
+    ? `${STORE_KEY}:project:${data.source.slug}`
+    : STORE_KEY;
+}
+export function availabilityStorageKey(data: ModelDataset) {
+  return data.source.slug && data.source.slug !== "duplex"
+    ? `ew-demo-people-v1:${data.source.slug}`
+    : "ew-demo-people-v1";
+}
 export function loadProjectState(data: ModelDataset) {
-  const saved = loadState();
+  const key = projectStorageKey(data);
+  const saved = loadState(key);
   // Earlier illustrated-project records stay in their original storage key; never reinterpret locations.
   if (
     saved.modelVersion !== data.version ||
@@ -196,16 +218,73 @@ export function loadProjectState(data: ModelDataset) {
         ),
     )
   ) {
-    const raw = localStorage.getItem(STORE_KEY);
+    const raw = localStorage.getItem(key);
     if (raw)
       localStorage.setItem(
-        `${STORE_KEY}:archive:${saved.modelVersion || "unbound"}:${Date.now()}`,
+        `${key}:archive:${saved.modelVersion || "unbound"}:${Date.now()}`,
         raw,
       );
     return initialProjectState(data);
   }
   return saved;
 }
+
+export function plannedComponent(
+  data: ModelDataset,
+  id: string,
+  title: string,
+  owner: string,
+): WorkItem {
+  const element = data.elements.find((e) => e.id === id);
+  const level = data.plans.find((p) => p.id === element?.level_id);
+  if (!element?.bbox || !level)
+    throw Error(
+      "This component needs a confirmed source floor before tracking.",
+    );
+  const room = level.rooms.find((r) => r.id === element.zone_id),
+    b = element.bbox;
+  return {
+    id: `WORK-${crypto.randomUUID().slice(0, 8).toUpperCase()}`,
+    title: title.trim(),
+    owner: owner.trim(),
+    trade: element.trade || element.discipline,
+    unit: room?.code || floorNameForRecord(level.name),
+    level: data.plans.indexOf(level) + 1,
+    location: {
+      version: data.version,
+      building: data.source.name || "Duplex Apartment",
+      levelId: level.id,
+      levelName: floorNameForRecord(level.name),
+      roomId: room?.id || null,
+      roomName: room?.name || "Unassigned area",
+      spaceCode: room?.code || "",
+      elements: [element.id],
+      anchor: ifcPointToViewer([
+        (b[0] + b[3]) / 2,
+        (b[1] + b[4]) / 2,
+        (b[2] + b[5]) / 2,
+      ]),
+    },
+    status: "none",
+    processing: "completed",
+    update: "",
+    time: "",
+    reference: `Imported IFC · ${data.source.revision.slice(0, 7)} · ${element.ifc_guid}`,
+    detail:
+      "Planned work linked to the design. No field evidence or completion recorded.",
+    scope: `Linked component only: ${element.name || element.ifc_class}`,
+    limits:
+      "Hidden conditions, code compliance, exact measurements and formal inspections",
+    checks: [],
+    photos: [],
+    coverage: "No evidence",
+    progress: "Not assessed",
+    review: "Not requested",
+    inspection: "Not recorded",
+  };
+}
+const floorNameForRecord = (name: string) =>
+  name.replace(/^Building\s*·\s*/, "");
 export function locationLabel(item: WorkItem) {
   return item.location
     ? `${item.location.levelName} · ${item.location.spaceCode} ${item.location.roomName}`

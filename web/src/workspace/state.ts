@@ -477,6 +477,7 @@ export function initialState(): WorkspaceState {
   };
 }
 export type Action =
+  | { type: "plan"; item: WorkItem }
   | { type: "draft"; draft: Draft | null }
   | { type: "submit"; draft: Draft; offline: boolean; sample: boolean }
   | { type: "sync" }
@@ -515,6 +516,40 @@ export function transition(
   };
   if (action.type === "draft") {
     next.draft = action.draft;
+    return next;
+  }
+  if (action.type === "plan") {
+    const item = action.item;
+    if (!state.modelApproved || item.location?.version !== state.modelVersion)
+      throw new Error("Confirm this work against the current project model.");
+    if (
+      !item.title.trim() ||
+      !item.owner.trim() ||
+      !item.location?.elements.length
+    )
+      throw new Error("Work title, owner and model location are required.");
+    if (
+      item.status !== "none" ||
+      item.photos.length ||
+      item.checks.length ||
+      item.issue
+    )
+      throw new Error(
+        "New planned work cannot contain reviewed progress or evidence.",
+      );
+    if (
+      next.items.some(
+        (i) =>
+          i.id === item.id ||
+          i.location?.elements.some((e) => item.location!.elements.includes(e)),
+      )
+    )
+      throw new Error("This component already has tracked work.");
+    next.items.push(structuredClone(item));
+    record(
+      item,
+      `Planned work added: ${item.title}. No field evidence received.`,
+    );
     return next;
   }
   if (action.type === "project") {
@@ -759,14 +794,13 @@ export function transition(
   record(work, `${action.type}: ${action.reason}`);
   return next;
 }
-export function loadState(): WorkspaceState {
+export function loadState(key = STORE_KEY): WorkspaceState {
   try {
-    const value = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+    const value = JSON.parse(localStorage.getItem(key) || "null");
     if (
       value?.version === 1 &&
       typeof value.projectName === "string" &&
       Array.isArray(value.items) &&
-      value.items.length &&
       value.items.every(
         (i: WorkItem) =>
           i &&

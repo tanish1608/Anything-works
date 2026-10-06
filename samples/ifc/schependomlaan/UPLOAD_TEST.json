@@ -1,0 +1,16 @@
+{
+  "source_sha256": "2c3565ca1904f2aa61adab92024cf3755b2c5b21a498144d3094d7cb58cebec7",
+  "source_bytes": 49286967,
+  "elements": 3504,
+  "levels": 6,
+  "spaces_read": 100,
+  "distinct_zones": 99,
+  "upload_draft_approval": "passed",
+  "unauthenticated_access": "rejected",
+  "plan_and_glb_identity": "passed",
+  "photo_manual_review": "passed",
+  "open_issue_preserved": true,
+  "geometry_unchanged": true,
+  "live_ai_called": false,
+  "seconds": 17.295
+}

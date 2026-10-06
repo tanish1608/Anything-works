@@ -10,7 +10,7 @@ from sqlalchemy import select
 from tests_helpers import jpeg
 
 from app.bim.envelope import exterior_wall, roof_element
-from app.bim.ifc_import import Item, SpaceInfo, _flat_props, _resolved_class, create_version
+from app.bim.ifc_import import Item, SpaceInfo, _flat_props, _resolved_class, _space_footprint, create_version
 from app.bim.meshes import ifc_to_three, three_to_ifc
 from app.disciplines import discipline_for
 from app.models import ElementRevision, Project
@@ -79,6 +79,33 @@ def test_duplicate_room_names_keep_distinct_codes_and_element_assignment(db, api
     rows = list(db.scalars(select(ElementRevision).where(ElementRevision.version_id == version.id)))
     assert len({r.zone_id for r in rows}) == 2
     assert len(version.files["plans"]) == 1
+
+
+def test_explicit_space_footprint_uses_source_placement_and_units_without_guessing():
+    import ifcopenshell.api
+
+    f = ifcopenshell.file(schema="IFC4")
+    project = ifcopenshell.api.run("root.create_entity", f, ifc_class="IfcProject")
+    unit = ifcopenshell.api.run("unit.add_si_unit", f, unit_type="LENGTHUNIT", prefix="MILLI")
+    ifcopenshell.api.run("unit.assign_unit", f, units=[unit])
+    origin = f.createIfcCartesianPoint((10000., 20000., 3000.))
+    placement = f.createIfcLocalPlacement(None, f.createIfcAxis2Placement3D(origin, None, None))
+    context = f.createIfcGeometricRepresentationContext(None, "Plan", 3, 1e-5,
+              f.createIfcAxis2Placement3D(f.createIfcCartesianPoint((0., 0., 0.)), None, None), None)
+    points = [f.createIfcCartesianPoint(p) for p in [(0., 0.), (4000., 0.), (4000., 3000.), (0., 3000.), (0., 0.)]]
+    line = f.createIfcPolyline(points)
+    representation = f.createIfcShapeRepresentation(context, "FootPrint", "GeometricCurveSet",
+                     [f.createIfcGeometricCurveSet([line])])
+    space = ifcopenshell.api.run("root.create_entity", f, ifc_class="IfcSpace", name="Bedroom")
+    space.ObjectPlacement = placement
+    space.Representation = f.createIfcProductDefinitionShape(None, None, [representation])
+    assert _space_footprint(space) == [[10., 20.], [14., 20.], [14., 23.], [10., 23.]]
+    representation.RepresentationIdentifier = "Box"
+    assert _space_footprint(space) is None  # Never invent a room from its bounds.
+    representation.RepresentationIdentifier = "FootPrint"
+    line.Points = points[:-1]
+    assert _space_footprint(space) is None  # An open curve does not prove the room perimeter.
+    assert project is not None
 
 
 def test_surface_pin_plan_and_photo_review_round_trip(client, api):

@@ -16,6 +16,15 @@ import { projectModel } from "./modelProjection";
 import { COLORS, type WorkItem } from "./state";
 import { floorName, unitForRoom } from "./spatialNavigation";
 
+const APARTMENT_LEVEL_TAGS: Record<string, string> = {
+  "-1 fundering": "Base",
+  "00 begane grond": "G",
+  "01 eerste verdieping": "1F",
+  "02 tweede verdieping": "2F",
+  "03 derde verdieping": "3F",
+  "04 dak": "Roof",
+};
+
 export default function BuildingCanvas({
   items,
   work,
@@ -198,6 +207,8 @@ export default function BuildingCanvas({
           markers={markers}
           focus={focus}
           expanded={expanded}
+          explosionGap={1.2}
+          direction={selected ? "iso" : "overview"}
           background="#131f2e"
           onReady={ready}
           onMarker={onWork}
@@ -289,11 +300,14 @@ export default function BuildingCanvas({
                 onScope(p.id);
               }}
               aria-label={`Show ${floorName(p.name)}`}
+              title={floorName(p.name)}
             >
               <span>
-                {floorName(p.name)
-                  .replace("Level ", "L")
-                  .replace("T/FDN", "Base")}
+                {model.source.slug === "schependomlaan"
+                  ? APARTMENT_LEVEL_TAGS[floorName(p.name)] || floorName(p.name)
+                  : floorName(p.name)
+                      .replace("Level ", "L")
+                      .replace("T/FDN", "Base")}
               </span>
               <small>
                 {items.filter(
@@ -325,7 +339,9 @@ export default function BuildingCanvas({
         <button
           title="Fit current view"
           aria-label="Fit current view"
-          onClick={() => viewer.current?.frame([...visible])}
+          onClick={() =>
+            viewer.current?.frame([...visible], selected ? "iso" : "overview")
+          }
         >
           <Icon name="expand" />
         </button>

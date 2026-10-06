@@ -19,6 +19,7 @@ import {
   type Panel,
 } from "./spatialNavigation";
 import WorldDialog from "./WorldDialog";
+import { plannedComponent, availabilityStorageKey } from "./projectState";
 
 type Open = (panel: Panel, work?: string) => void;
 export type ReviewAction =
@@ -184,6 +185,7 @@ export function LocationsPanel({
   room,
   scope,
   open,
+  selectElement,
 }: {
   level: string | null;
   unit: string | null;
@@ -194,8 +196,10 @@ export function LocationsPanel({
     room?: string | null,
   ) => void;
   open: Open;
+  selectElement: (id: string) => void;
 }) {
   const { model, state } = useWorkspace();
+  const [query, setQuery] = useState("");
   const plan = model.plans.find((p) => p.id === level);
   const groups = [
     ...new Set(plan?.rooms.map((r) => unitForRoom(model, r.code)) || []),
@@ -301,6 +305,51 @@ export function LocationsPanel({
           No work packages are tracked in this selection yet.
         </p>
       )}
+      <section className="world-detail-section">
+        <h3>Source components</h3>
+        <label>
+          Find a component
+          <input
+            type="search"
+            value={query}
+            placeholder="Name, system or source ID…"
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </label>
+        {model.elements
+          .filter((e) => {
+            if ((level && e.level_id !== level) || (room && e.zone_id !== room))
+              return false;
+            if (unit && !room && !rooms.some((r) => r.id === e.zone_id))
+              return false;
+            return (
+              !query.trim() ||
+              `${e.name} ${e.ifc_guid} ${e.id} ${e.discipline} ${e.ifc_class}`
+                .toLowerCase()
+                .includes(query.toLowerCase().trim())
+            );
+          })
+          .slice(0, 40)
+          .map((e) => (
+            <button
+              className="world-location-row"
+              key={e.id}
+              onClick={() => selectElement(e.id)}
+            >
+              <Icon name="cube" size={17} />
+              <span>
+                <strong>{e.name || e.ifc_class}</strong>
+                <small>
+                  {e.discipline} · {e.ifc_guid}
+                </small>
+              </span>
+              <Icon name="chevron" size={15} />
+            </button>
+          ))}
+        <p className="world-muted">
+          Showing up to 40 components. Search to narrow this selection.
+        </p>
+      </section>
     </>
   );
 }
@@ -586,7 +635,7 @@ export function RecordPanel({
                 Request evidence
               </button>
               <button onClick={() => open("capture", item.id)}>
-                New update
+                Add daily update
               </button>
             </div>
             <button
@@ -725,7 +774,11 @@ export function RecordPanel({
   );
 }
 export function ComponentPanel({ id, open }: { id: string; open: Open }) {
-  const { model, state } = useWorkspace();
+  const { model, state, act } = useWorkspace();
+  const [tracking, setTracking] = useState(false),
+    [title, setTitle] = useState(""),
+    [owner, setOwner] = useState(""),
+    [error, setError] = useState("");
   const element = model.elements.find((e) => e.id === id);
   if (!element)
     return (
@@ -788,6 +841,66 @@ export function ComponentPanel({ id, open }: { id: string; open: Open }) {
             in the design does not establish installed progress.
           </p>
         </div>
+      )}
+      {!work.length && plan && !tracking && (
+        <button
+          className="world-primary"
+          onClick={() => {
+            setTitle(element.name || element.ifc_class);
+            setTracking(true);
+          }}
+        >
+          Track work here
+        </button>
+      )}
+      {!work.length && tracking && (
+        <form
+          className="world-update-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            try {
+              const item = plannedComponent(model, element.id, title, owner);
+              if (act({ type: "plan", item })) open("record", item.id);
+            } catch (e) {
+              setError((e as Error).message);
+            }
+          }}
+        >
+          <label>
+            Work title
+            <input
+              autoFocus
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </label>
+          <label>
+            Responsible person or team
+            <input
+              required
+              value={owner}
+              onChange={(e) => setOwner(e.target.value)}
+              placeholder="Who will do this work?"
+            />
+          </label>
+          <p className="world-muted">
+            This creates planned work at the selected source component. It does
+            not record installation or completion.
+          </p>
+          {error && <p role="alert">{error}</p>}
+          <div className="world-action-pair">
+            <button type="button" onClick={() => setTracking(false)}>
+              Cancel
+            </button>
+            <button
+              className="world-primary"
+              disabled={!title.trim() || !owner.trim()}
+            >
+              Create work record
+            </button>
+          </div>
+        </form>
       )}
       <details className="world-source-details">
         <summary>Source identity</summary>
@@ -1144,13 +1257,13 @@ export function ActivityPanel({
     </>
   );
 }
-const PEOPLE_KEY = "ew-demo-people-v1";
 export function TeamPanel() {
-  const { state } = useWorkspace();
+  const { state, model } = useWorkspace();
+  const peopleKey = availabilityStorageKey(model);
   const [availability, setAvailability] = useState<Record<string, string>>(
     () => {
       try {
-        return JSON.parse(localStorage.getItem(PEOPLE_KEY) || "{}");
+        return JSON.parse(localStorage.getItem(peopleKey) || "{}");
       } catch {
         return {};
       }
@@ -1161,7 +1274,7 @@ export function TeamPanel() {
   const update = (id: string, value: string) => {
     const next = { ...availability, [id]: value };
     try {
-      localStorage.setItem(PEOPLE_KEY, JSON.stringify(next));
+      localStorage.setItem(peopleKey, JSON.stringify(next));
       setAvailability(next);
     } catch {
       setError("Availability could not be saved on this device.");
@@ -1205,11 +1318,15 @@ export function TeamPanel() {
               </span>
               <Icon name="down" size={14} />
             </summary>
-            <p>
-              {(name || owner).toLowerCase().replaceAll(" ", ".")}@example.com
-              <br />
-              +1 (202) 555-01{String(n + 1).padStart(2, "0")}
-            </p>
+            {!model.source.slug || model.source.slug === "duplex" ? (
+              <p>
+                {(name || owner).toLowerCase().replaceAll(" ", ".")}@example.com
+                <br />
+                +1 (202) 555-01{String(n + 1).padStart(2, "0")}
+              </p>
+            ) : (
+              <p>Contact details not recorded.</p>
+            )}
             <label>
               Availability
               <select
@@ -1286,8 +1403,8 @@ export function ProjectPanel({ reset }: { reset: () => void }) {
         <p>{model.source.attribution}</p>
         <p className="world-muted">
           {model.source.license}. Public sample geometry; not an approved
-          construction document. Unit A/B display groups follow the reviewed
-          sample room codes. Unknown locations remain unassigned.
+          construction document. Unit display groups follow this sample's
+          reviewed room associations. Unknown locations remain unassigned.
         </p>
         <details className="world-source-details">
           <summary>Revision & source</summary>
