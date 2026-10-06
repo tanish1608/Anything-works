@@ -155,6 +155,7 @@ describe("one building workspace", () => {
   it("starts a new source project with issues and a direct path to planning work", async () => {
     renderAt("/?project=schependomlaan");
     await ready();
+    expect(screen.getByRole("button", { name: "Placeholder AI — building overview" })).toBeInTheDocument();
     expect(
       screen.getByRole("complementary", { name: "Work & issues" }),
     ).toBeInTheDocument();

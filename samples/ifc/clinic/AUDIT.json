@@ -3,7 +3,7 @@
     "name": "Medical-Dental Clinic",
     "slug": "clinic",
     "folder": "IFC 2.3.0.1 (IFC 2x3)/Medical-Dental Clinic",
-    "attribution": "BSI (2020) Medical-Dental Test Files, buildingSMART International; https://github.com/buildingsmart-community/Community-Sample-Test-Files. IFC-to-GLB/plan derivatives by Everything Works AI.",
+    "attribution": "BSI (2020) Medical-Dental Test Files, buildingSMART International; https://github.com/buildingsmart-community/Community-Sample-Test-Files. IFC-to-GLB/plan derivatives by Placeholder AI.",
     "source_note": "Redacted two-storey clinic architectural source; engineering discipline models are sample simulations for coordination/COBie testing, not verified installed work.",
     "files": {
       "Clinic_Architectural.ifc": "2ac970ce065ecac4e0c9e5f453a257169e90d0067f419b7e33533a64ef837880",

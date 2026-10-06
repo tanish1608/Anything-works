@@ -104,10 +104,8 @@
   place-items: center;
   width: 37px;
   height: 37px;
-  background: #173751;
-  border: 1px solid #37628a;
-  border-radius: 10px;
-  color: #73b8ff;
+  background: transparent;
+  color: #edf3fb;
 }
 .world-brand b {
   font-size: 14px;
@@ -115,9 +113,9 @@
   letter-spacing: -0.4px;
 }
 .world-brand em {
-  color: #89b8e9;
+  color: inherit;
   font-style: normal;
-  font-size: 11px;
+  font-size: inherit;
   margin-left: 2px;
 }
 .world-project-title {

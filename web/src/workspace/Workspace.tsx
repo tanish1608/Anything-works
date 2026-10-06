@@ -1,3 +1,4 @@
+import { BrandMark } from "../branding/BrandMark";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Icon } from "../studio/Icon";
@@ -585,13 +586,13 @@ function BuildingWorkspace({
           <button
             className="world-brand"
             onClick={overview}
-            aria-label="Everything Works AI — building overview"
+            aria-label="Placeholder AI — building overview"
           >
             <span>
-              <Icon name="cube" size={24} />
+              <BrandMark size={32} />
             </span>
             <b>
-              Everything Works <em>AI</em>
+              Placeholder <em>AI</em>
             </b>
           </button>
           <div className="world-project-title">

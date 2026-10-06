@@ -1,4 +1,4 @@
-# Build plan — Everything Works AI
+# Build plan — Placeholder AI
 
 Updated October 5, 2026. This replaces the old SiteMesh milestone plan. Application implementation follows in a separate coding task.
 

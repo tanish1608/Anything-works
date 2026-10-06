@@ -46,9 +46,8 @@
   font-weight: 650;
   font-size: 15px;
 }
-.showroom-brand > svg,
 .showroom-brand > span {
-  color: var(--showroom-blue);
+  color: inherit;
 }
 .showroom-header-actions {
   display: flex;
@@ -416,11 +415,9 @@
     font-size: 10px;
     gap: 5px;
   }
-  .showroom-brand > span {
-    display: none;
-  }
-  .showroom-brand > svg {
-    width: 21px;
+  .showroom-brand > img {
+    width: 19px;
+    height: 24px;
   }
   .showroom-header {
     gap: 8px;

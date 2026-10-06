@@ -1,3 +1,4 @@
+import { BrandMark } from "../branding/BrandMark";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { api, tokenStore } from "../api/client";
@@ -206,8 +207,8 @@ export default function ProjectShowroom({ current }: { current: string }) {
             navigate(returnTo);
           }}
         >
-          <Icon name="cube" size={26} />
-          Everything Works <span>AI</span>
+          <BrandMark size={30} />
+          Placeholder <span>AI</span>
         </a>
         <div className="showroom-header-actions">
           <button onClick={() => navigate("/?panel=import")}>

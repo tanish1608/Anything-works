@@ -8,13 +8,13 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.svg", "design-assets/*.jpg"],
+      includeAssets: ["favicon.svg", "brand/*.svg", "design-assets/*.jpg"],
       manifest: {
-        name: "Everything Works AI",
-        short_name: "Everything Works",
+        name: "Placeholder AI",
+        short_name: "Placeholder AI",
         description: "Daily construction updates, progress and issues in 3D",
-        theme_color: "#0f172a",
-        background_color: "#f8fafc",
+        theme_color: "#101b2a",
+        background_color: "#101b2a",
         display: "standalone",
         start_url: "/",
         scope: "/",

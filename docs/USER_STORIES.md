@@ -1,6 +1,6 @@
 # Customer stories and workflow review
 
-October 6, 2026. These are **fictional product walkthroughs and test scenarios**, not customer testimonials or validated time/cost savings. They describe how a PM and a crew should use Everything Works AI, then compare that journey with the current implementation.
+October 6, 2026. These are **fictional product walkthroughs and test scenarios**, not customer testimonials or validated time/cost savings. They describe how a PM and a crew should use Placeholder AI, then compare that journey with the current implementation.
 
 The promise to demonstrate is **daily evidence → review/check → a located issue or supported progress → correction**. The building explains where the work is; it is not the task itself. AI checking remains future integration. Public samples save records on one browser; private model onboarding is connected, but shared private field records are not.
 

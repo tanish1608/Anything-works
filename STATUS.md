@@ -1,12 +1,14 @@
-# Current status — Everything Works AI
+# Current status — Placeholder AI
 
 Updated October 6, 2026 after the designer UI and detailed BIM implementation. This inventory describes source and verification; it does not certify live AI accuracy.
 
 ## Current direction
 
+The current identity is **Placeholder AI**, using the supplied angular P recreated as a vector, white on the dark workspace/showroom, with matching browser/PWA/app icons. Current product and mobile-handoff documents use the new name. See [brand assets](docs/BRANDING.md). Saved project records and model geometry remain unchanged.
+
 AI checks daily construction updates against approved project context, flags mistakes or incomplete work, and updates progress and issues in 3D. The product spans construction stages; pre-drywall electrical review is one example.
 
-The original implementation was built as SiteMesh. The UI now uses Everything Works AI branding and the designer's visual system. Internal identifiers and existing backend behavior remain in place.
+The original implementation was built as SiteMesh. The UI now uses Placeholder AI branding and the designer's visual system. Internal identifiers and existing backend behavior remain in place.
 
 ## Design iteration 2 — October 6
 

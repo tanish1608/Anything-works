@@ -21,7 +21,7 @@ def create_app() -> FastAPI:
         if worker:
             worker.stop()
 
-    app = FastAPI(title="SiteMesh API", version="0.1.0", lifespan=lifespan)
+    app = FastAPI(title="Placeholder AI API", version="0.1.0", lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=get_settings().cors_origins,

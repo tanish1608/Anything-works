@@ -2,7 +2,7 @@
 
 ## Product and source of truth
 
-The product is **Everything Works AI**. It checks daily construction photos/updates against approved context, flags mistakes and incomplete work, and updates progress and issues in 3D across construction stages. Before-drywall checking is one use case, not the full concept.
+The product is **Placeholder AI**. It checks daily construction photos/updates against approved context, flags mistakes and incomplete work, and updates progress and issues in 3D across construction stages. Before-drywall checking is one use case, not the full concept.
 
 Read [README.md](README.md), [product specification](docs/PRODUCT_SPEC.md), [PLAN.md](PLAN.md), [TODO.md](TODO.md) and [STATUS.md](STATUS.md) before design-level changes. Setup commands are in [the developer guide](docs/DEVELOPMENT.md).
 

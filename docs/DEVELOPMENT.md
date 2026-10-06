@@ -1,6 +1,6 @@
 # Developer guide
 
-This guide runs the existing SiteMesh implementation. Read the [product specification](PRODUCT_SPEC.md) for the intended Everything Works AI workflow and [current status](../STATUS.md) for gaps.
+This guide runs the existing SiteMesh implementation. Read the [product specification](PRODUCT_SPEC.md) for the intended Placeholder AI workflow and [current status](../STATUS.md) for gaps.
 
 ## Local setup
 

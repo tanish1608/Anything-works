@@ -1,8 +1,8 @@
-# Everything Works AI
+# Placeholder AI
 
 **Every daily update becomes a check on work quality and a clearer picture of progress.**
 
-Everything Works AI is being built to check construction photos and daily updates against approved project information, flag potential mistakes, and update completion and issues in a shared 3D model.
+Placeholder AI is being built to check construction photos and daily updates against approved project information, flag potential mistakes, and update completion and issues in a shared 3D model.
 
 The product covers daily work across construction stages. Catching a misplaced electrical box before drywall is one example of the value, not the boundary of the product.
 
@@ -53,7 +53,7 @@ The current website builds on the earlier **SiteMesh** prototype:
 
 These are foundations. The new daily quality-checking workflow, calibrated automatic completion, reliable plan comparison and broad real-site coverage are **not yet delivered or validated**. Existing “installed” verdicts do not establish correct installation.
 
-See [current implementation and gaps](STATUS.md) and [design implementation notes](docs/design/ui/IMPLEMENTATION.md). UI branding now uses Everything Works AI; internal SiteMesh identifiers remain.
+See [current implementation and gaps](STATUS.md) and [design implementation notes](docs/design/ui/IMPLEMENTATION.md). UI branding now uses Placeholder AI; internal SiteMesh identifiers remain.
 
 ## Read and share
 
@@ -65,6 +65,7 @@ See [current implementation and gaps](STATUS.md) and [design implementation note
 | [Task backlog](TODO.md) | Detailed work packages for contributors |
 | [Current status](STATUS.md) | What is implemented versus planned |
 | [UI iteration 2 backlog](docs/UI_TODO_ITERATION_2.md) | Dedicated interface checklist and acceptance work |
+| [Brand identity](docs/BRANDING.md) | Placeholder AI logo assets, app icons and reproduction |
 | [Subcontractor mobile build prompt](docs/SUBCONTRACTOR_MOBILE_BUILD_PROMPT.md) | Self-contained Claude brief for a minimal daily-update PWA; the mobile app is not built yet |
 | [Apartment import test](samples/ifc/schependomlaan/README.md) | Larger source project, import fidelity and real upload acceptance |
 | [Client demo](docs/CLIENT_DEMO.md) | Walkthrough, capability boundaries, rehearsal and pilot priorities |

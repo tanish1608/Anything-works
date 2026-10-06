@@ -1,4 +1,4 @@
-# Implementation backlog — Everything Works AI
+# Implementation backlog — Placeholder AI
 
 Updated October 6, 2026 after rebuilding the website around one central building and contextual workflow panels. Checked items identify completed work and explicitly state when it is limited to local samples or retained components. Unchecked items remain open; existing foundations and verification limits are in [STATUS.md](STATUS.md).
 
@@ -9,6 +9,8 @@ Owners are suggested contributor roles, not assignments. Each package needs a na
 The UI-only iteration backlog is [Design iteration 2](docs/UI_TODO_ITERATION_2.md). It tracks proportions/camera, four audited source projects, sample switching, component exploration and remaining visual acceptance.
 
 ## Building-centered workspace — current UI, October 6
+
+- [x] Rebrand to Placeholder AI using the supplied angular P: workspace/showroom wordmarks, browser/PWA identity and app icons, current docs and mobile handoff. Keep saved project identities and workflows stable.
 
 - [x] Fit the showroom to the viewport with four visible cards, default interior/rotation and no preview buttons. Open Work & issues by default; preserve explicit panel dismissal and deep links.
 - [x] Import/audit clinic (16,071 components) and Esplan (1,958 components), with project isolation, explicit federation labels, preserved survey-coordinate precision and real GLB identity/bounds/picking tests.

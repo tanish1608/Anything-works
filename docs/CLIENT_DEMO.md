@@ -1,4 +1,4 @@
-# Client demo — Everything Works AI
+# Client demo — Placeholder AI
 
 Updated October 6, 2026 · design iteration 2.
 

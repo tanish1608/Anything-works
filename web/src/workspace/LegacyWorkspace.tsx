@@ -1,3 +1,4 @@
+import { BrandMark } from "../branding/BrandMark";
 /** Retained only for regression tests of the previous screen layout. Not mounted by App. */
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -180,9 +181,9 @@ function LoadedWorkspace({ model }: { model: ModelDataset }) {
           <div className="topbar-in workspace-header-main">
             <Link className="brand" to="/">
               <span className="brand-mark">
-                <Icon name="bolt" size={17} />
+                <BrandMark size={22} />
               </span>
-              <span className="brand-name">Everything Works AI</span>
+              <span className="brand-name">Placeholder AI</span>
             </Link>
             <div className="project-control">
               <button

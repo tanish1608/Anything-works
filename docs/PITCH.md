@@ -1,4 +1,4 @@
-# Everything Works AI
+# Placeholder AI
 
 **Turn every daily construction update into checked progress and actionable issues.**
 
@@ -12,13 +12,13 @@ A misplaced component, incomplete installation or missed detail can become more 
 
 ## One-line description
 
-**Everything Works AI checks construction photos and daily updates against approved project information, flags potential mistakes, and updates completion and issues in a shared 3D model.**
+**Placeholder AI checks construction photos and daily updates against approved project information, flags potential mistakes, and updates completion and issues in a shared 3D model.**
 
 ## The pitch
 
 Construction teams already send photos, messages and daily reports. Project managers still have to connect those updates to the correct location and latest plan, decide whether the work is correct and complete, and coordinate any fixes.
 
-We are building Everything Works AI to do that first layer of checking after each daily update.
+We are building Placeholder AI to do that first layer of checking after each daily update.
 
 A crew submits photos and a short description of its work. AI identifies the relevant work items, compares visible conditions with the approved project reference, and separates supported completion, potential mistakes and missing evidence.
 
@@ -181,7 +181,7 @@ That context can eventually support agents coordinating follow-ups and project o
 
 ## 30-second spoken pitch
 
-At an illustrative 5% rework rate, a $20 million project spends $1 million doing work again. Everything Works AI turns daily construction photos and updates into checks against approved plans. It flags potential mistakes, marks supported work AI-checked complete and updates a shared 3D model. Project managers see where attention is needed, and trades can track fixes through resolution. We are building the daily quality-and-progress loop across construction stages, starting with a validated set of observable checks.
+At an illustrative 5% rework rate, a $20 million project spends $1 million doing work again. Placeholder AI turns daily construction photos and updates into checks against approved plans. It flags potential mistakes, marks supported work AI-checked complete and updates a shared 3D model. Project managers see where attention is needed, and trades can track fixes through resolution. We are building the daily quality-and-progress loop across construction stages, starting with a validated set of observable checks.
 
 ## References and assumptions behind the opening
 

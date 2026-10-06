@@ -6,6 +6,8 @@ The building is the main workspace. Use one renderer per selected project, with 
 
 ## Layout and camera
 
+- [x] Apply Placeholder AI name and angular P logo consistently across workspace/showroom branding, accessible labels, browser/PWA metadata, install icons and the mobile companion handoff.
+
 - [x] Preserve the complete first building-centered implementation on the iteration branch.
 - [x] Widen the evidence/workflow panel and give photos, decision forms and timeline more breathing room.
 - [x] Keep the model large when a panel opens; use responsive proportions rather than a narrow fixed drawer.

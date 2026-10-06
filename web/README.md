@@ -1,4 +1,4 @@
-# Everything Works AI — frontend
+# Placeholder AI — frontend
 
 React, TypeScript, Vite PWA, TanStack Query and three.js.
 

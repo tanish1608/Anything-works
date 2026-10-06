@@ -1,4 +1,4 @@
-# Everything Works AI — subcontractor mobile app build prompt
+# Placeholder AI — subcontractor mobile app build prompt
 
 Updated October 6, 2026. This is a self-contained brief to give Claude in a new conversation. The mobile app is **not built yet**. Copy everything below the divider into Claude; it does not need this conversation.
 
@@ -14,7 +14,21 @@ Our existing repository is https://github.com/tanish1608/Anything-works, branch 
 
 ## Product context
 
-**Everything Works AI** aims to check daily construction updates against approved project information, flag potential mistakes, and connect evidence, issues and progress to the same 3D building. It applies to all construction stages. Checking electrical work before drywall is one example, not the entire product.
+Use the **Placeholder AI** name and supplied angular P identity. Reuse `web/public/brand/mark.svg` (black master; invert to white on dark backgrounds) and `web/public/icon-192.png` / `icon-512.png` for app icons; [BRANDING.md](BRANDING.md) documents the assets. Keep the wordmark readable and the mark decorative beside it.
+
+If this prompt is supplied without repository assets, the editable mark is:
+
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92 116" fill="currentColor" aria-hidden="true">
+  <path d="M0 42 28 28v88L0 106Z"/>
+  <path d="m25 12 13-12 43 23q10 5 10 16v15q0 6-7 10L68 73V43q0-7-7-11Z"/>
+  <path d="m35 63 26-14v24L35 87Z"/>
+</svg>
+```
+
+Use white on the dark header and dark ink on light surfaces, paired with the text **Placeholder AI**.
+
+**Placeholder AI** aims to check daily construction updates against approved project information, flag potential mistakes, and connect evidence, issues and progress to the same 3D building. It applies to all construction stages. Checking electrical work before drywall is one example, not the entire product.
 
 The existing website centers a large building model, with contextual work/evidence panels. It has two public IFC samples, optional authenticated project/model onboarding, and a browser-local demo of capture/review/corrections. The live assessment agent is not connected. Authenticated upload/review APIs exist, but the chosen PM website does **not yet display those private field records**. A real mobile API upload is stored on the backend; showing it in the current PM panel requires a separate integration. Make this distinction explicit in your README and demo instructions.
 

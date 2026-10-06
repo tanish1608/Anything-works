@@ -1,4 +1,4 @@
-# Product specification — Everything Works AI
+# Product specification — Placeholder AI
 
 Status: target product, not a list of shipped features. Updated October 6, 2026 with the planned user views.
 

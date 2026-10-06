@@ -1,3 +1,4 @@
+import { BrandMark } from "../branding/BrandMark";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import ViewerCanvas from "../viewer/ViewerCanvas";
@@ -20,7 +21,6 @@ import {
   type LabState,
 } from "../viewer/labState";
 import { ASSETS, COLORS, LABELS } from "../workspace/state";
-import { Icon } from "../studio/Icon";
 import SimpleBuilding from "../workspace/SimpleBuilding";
 import "../workspace/design.css";
 import "../workspace/workspace.css";
@@ -286,9 +286,9 @@ export function Workbench({
         <header className="topbar">
           <Link className="brand" to="/demo">
             <span className="mark">
-              <Icon name="bolt" />
+              <BrandMark size={24} />
             </span>
-            Everything Works AI
+            Placeholder AI
           </Link>
           <Link className="btn" to="/demo/building?view=workflow">
             Daily workflow building

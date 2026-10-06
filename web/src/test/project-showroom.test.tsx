@@ -105,6 +105,7 @@ afterEach(() => {
 it("browses a real model without opening it, then opens with stale work context cleared", async () => {
   mount();
   await screen.findByTestId("showroom-scene");
+  expect(screen.getByRole("link", { name: "Placeholder AI" })).toBeInTheDocument();
   expect(deps.publicModel).toHaveBeenCalledWith("duplex");
   expect(deps.scene!.orbitFit).toBe(true);
   expect(screen.getAllByTestId("showroom-scene")).toHaveLength(1);
