@@ -1,0 +1,35 @@
+import type { CSSProperties } from 'react'
+const paths: Record<string, string> = {
+  building: 'M4 21V5l8-3 8 3v16M9 21v-4h6v4M8 7h1m6 0h1M8 11h1m6 0h1M2 21h20',
+  grid: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z',
+  layers: 'm12 3 10 5-10 5L2 8Zm-9 9 9 5 9-5M3 16l9 5 9-5',
+  work: 'M5 5h14v16H5zM9 3h6v4H9zM8 11h2m3 0h3M8 16h2m3 0h3',
+  camera: 'M3 7h4l2-3h6l2 3h4v13H3ZM16 13a4 4 0 1 1-8 0 4 4 0 0 1 8 0',
+  arrow: 'M4 12h16m-6-6 6 6-6 6', chevron: 'm9 5 7 7-7 7', down: 'm6 9 6 6 6-6',
+  handoff: 'M3 7h16m-4-4 4 4-4 4M21 17H5m4-4-4 4 4 4',
+  report: 'M5 3h10l4 4v14H5zM14 3v5h5M8 12h8M8 16h6',
+  activity: 'M2 12h4l3-8 6 16 3-8h4', search: 'm21 21-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0',
+  plus: 'M12 5v14M5 12h14', close: 'm6 6 12 12M6 18 18 6',
+  check: 'm5 12 4 4L19 6', clock: 'M12 7v5l3 2M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0',
+  alert: 'm12 3 10 18H2ZM12 9v5m0 3v.1', bell: 'M18 8a6 6 0 0 0-12 0c0 8-3 8-3 10h18c0-2-3-2-3-10M10 22h4',
+  phone: 'M7 2h10v20H7zM10 18h4', settings: 'M4 7h16M4 17h16M8 4v6m8 4v6',
+  cube: 'm12 2 9 5v10l-9 5-9-5V7Zm0 10 9-5m-9 5L3 7m9 5v10M7.5 4.5l9 5',
+  expand: 'M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5',
+  eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Zm13 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0',
+  compass: 'm16 8-3 5-5 3 3-5ZM22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0',
+  reset: 'M3 10a9 9 0 1 1 2 8M3 4v6h6', download: 'M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5',
+  spark: 'm12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5ZM20 2v4m-2-2h4',
+  pin: 'M19 9c0 5-7 12-7 12S5 14 5 9a7 7 0 1 1 14 0ZM14 9a2 2 0 1 1-4 0 2 2 0 0 1 4 0',
+  water: 'M12 2S5 10 5 15a7 7 0 0 0 14 0c0-5-7-13-7-13Z',
+  bolt: 'm13 2-9 12h7l-1 8 10-13h-7z', wind: 'M3 8h12a3 3 0 1 0-3-3M2 12h17a3 3 0 1 1-3 3M3 17h5a2 2 0 1 1-2 2',
+  shield: 'm12 2 8 3v7c0 5-8 10-8 10S4 17 4 12V5Zm-4 9 3 3 5-6',
+  people: 'M15 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0M5 21v-4a7 7 0 0 1 14 0v4M19 4a3 3 0 0 1 0 6M22 20v-4a5 5 0 0 0-2-4',
+  sun: 'M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0M12 1v2m0 18v2M1 12h2m18 0h2M4 4l2 2m12 12 2 2M4 20l2-2M18 6l2-2',
+  play: 'm8 4 12 8-12 8z', pause: 'M8 4v16M16 4v16',
+  link: 'M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2',
+  wifi: 'M2 8a16 16 0 0 1 20 0M5 12a11 11 0 0 1 14 0M8 16a6 6 0 0 1 8 0M12 20h.01',
+  menu: 'M4 6h16M4 12h16M4 18h16', lock: 'M5 10h14v12H5zM8 10V6a4 4 0 0 1 8 0v4',
+}
+export function Icon({ name, size = 18, style, className = '' }: { name: string; size?: number; style?: CSSProperties; className?: string }) {
+  return <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" style={style} aria-hidden="true"><path d={paths[name] || paths.cube} /></svg>
+}

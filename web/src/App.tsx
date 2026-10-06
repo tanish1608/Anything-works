@@ -18,6 +18,7 @@ import ModelPage from './pages/ModelPage'
 import ProjectLayout from './pages/ProjectLayout'
 import ProjectsPage from './pages/ProjectsPage'
 import StructurePage from './pages/StructurePage'
+import Studio from './studio/Studio'
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth()
@@ -48,6 +49,7 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/demo/*" element={<Studio />} />
       <Route path="/" element={<RequireAuth><Shell><ProjectsPage /></Shell></RequireAuth>} />
       <Route path="/p/:pid" element={<RequireAuth><Shell><ProjectLayout /></Shell></RequireAuth>}>
         <Route index element={<Navigate to="model" replace />} />

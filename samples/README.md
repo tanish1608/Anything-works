@@ -15,10 +15,16 @@ Every file here lists its source and licence. Don't add files whose licence does
 
 These are a small one-storey house split by discipline (a "federated" model). They share a few elements (chimney, proxies) under the same GlobalId, and our importer de-duplicates them.
 
-## `dxf/`: generated residential plans (M3)
+## `dxf/`: generated residential plans
 
 See `dxf/README.md`.
 
-## `photos/`: labeled progress photo set (M5)
+## `photos/`: labeled progress photo set
 
 See `photos/README.md`.
+
+## Role in the new product
+
+These samples support the existing import and evaluation pipelines. They do not establish reliable daily quality checking or automatic completion on real sites. The current photo labels describe presence and visibility, not plan compliance. See the [product specification](../docs/PRODUCT_SPEC.md) and [evaluation backlog](../TODO.md) before extending the dataset. Preserve the source attribution above.
+
+Generated vector-PDF cases are described in [pdf/README.md](pdf/README.md).

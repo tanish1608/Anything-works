@@ -1,32 +1,42 @@
-# React + TypeScript + Vite
+# Everything Works AI — frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React, TypeScript, Vite PWA, TanStack Query and three.js.
 
-Currently, two official plugins are available:
+The target experience checks daily construction updates for mistakes and incomplete work, updates supported completion, and locates findings in 3D. It applies across construction stages. This documentation change does not implement that new workflow.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Current surfaces
 
-## React Compiler
+- `/demo`: fictional browser-local Studio experience in `src/studio/`; independent of backend AI and live notifications.
+- `/` and `/p/:pid/...`: authenticated project workspace.
+- `/field`: mobile field workflow and IndexedDB upload queue.
+- `/embed/p/:pid/viewer`: authenticated embedded viewer.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Source route definitions are in [App.tsx](src/App.tsx).
 
-## Expanding the Oxlint configuration
+## Run and check
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+From `web/`:
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Open `http://localhost:5173/demo` for the local demo. The connected workspace also needs the backend. See the [developer guide](../docs/DEVELOPMENT.md) for full setup, seeded users and configuration.
+
+```bash
+npm test
+npm run lint
+npm run build
+npm run e2e
+```
+
+The last command needs the backend environment and Playwright browsers. See the guide for its disposable database and ports.
+
+## Next frontend work
+
+Implement daily capture/results, the exception inbox, evidence-to-plan comparison, supported completion badges and the correction loop. Project consistent statuses into model, list and report views. Keep offline, inadequate-evidence and failed-analysis states visible.
+
+Automatic progress completion, human acceptance and formal inspection need distinct labels. A local draft is not a checked upload. Use text/icons with color and a 2D fallback.
+
+See the [product specification](../docs/PRODUCT_SPEC.md), [backlog](../TODO.md) and [current inventory](../STATUS.md). Keep the isolated viewer reusable and the local demo's simulated behavior clearly identified.

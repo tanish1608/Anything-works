@@ -1,97 +1,67 @@
-# CLAUDE.md
+# Repository guidance
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Product and source of truth
 
-SiteMesh (working name): 3D construction coordination for small builders. It converts 2D drawings (DXF, vector PDF) into an IFC/3D model, scopes layers per trade, pins issues to elements, tracks progress from photos (Gemini vision checks with PM approval), and keeps git-like model history. `PLAN.md` has the architecture, data model and decisions log (§8); `STATUS.md` lists known weak spots. Read them before making design-level changes.
+The product is **Everything Works AI**. It checks daily construction photos/updates against approved context, flags mistakes and incomplete work, and updates progress and issues in 3D across construction stages. Before-drywall checking is one use case, not the full concept.
 
-## Working agreement (from the product brief)
+Read [README.md](README.md), [product specification](docs/PRODUCT_SPEC.md), [PLAN.md](PLAN.md), [TODO.md](TODO.md) and [STATUS.md](STATUS.md) before design-level changes. Setup commands are in [the developer guide](docs/DEVELOPMENT.md).
 
-- Work one milestone or feature at a time. When one is done, stop and report what was built, how to run it, what's tested and what's shaky, then wait for a go-ahead before starting the next.
-- If a request is technically a bad idea, say so and propose a better option rather than silently following it. Record agreed deviations in `PLAN.md` (§1, §8 and §9 already list several: web PWA instead of Flutter, SQLite by default, DXF only with no DWG, pdfminer.six instead of PyMuPDF, a DB job queue instead of Redis, server-side GLB instead of `@thatopen/components`).
-- Make small commits, write tests alongside the code, and keep `README.md` setup steps working.
-- The product is inspired by Revizto. Keep it original: don't copy Revizto's branding, UI assets or code.
-- Out of scope: ERP, inventory, payments, accounting, lender draws and warranty. Leave room for them in the data model (attach to `Element`, `Zone` or `Project`), but don't build them.
+The code still uses SiteMesh identifiers. Do not rename packages, storage keys or persisted identifiers as an incidental documentation change.
 
-Non-negotiables. Every change must preserve these:
-1. No element turns green without linked photo evidence.
-2. Every change is logged in the event history.
-3. Field upload works offline.
-4. Conversion always goes through human review before it's live.
-5. Conversion and photo analysis each keep an evaluation script with numbers that can be tracked.
-6. Secrets come from environment variables, never from code.
+## Working approach
 
-Accuracy rule for photo checks: a false green is far worse than a false gray, so tune for precision over recall.
+- Follow the user's requested scope. The October 5 reset is documentation only; application work is a later task.
+- During implementation, complete the authorized work package and its meaningful verification, then report what changed and its limits. Do not introduce an extra permission gate for routine work.
+- Preserve useful foundations. Do not rewrite the stack just to implement the new narrative.
+- Keep actual functionality separate from plans and fixtures. Update STATUS and the relevant backlog when behavior ships.
+- Keep the product original and preserve third-party sample attribution.
+- Use focused changes and relevant tests. Do not claim a test passed without running it.
+- Do not commit/push or contact customers solely because a planning document mentions those future activities.
 
-## Commands
+## Product invariants for the new workflow
 
-Backend (`backend/`, Python 3.11+, uses a local `.venv`):
+1. Every assessment links evidence, confirmed location, applicable source revisions and the checks performed.
+2. No AI-checked completion without adequate evidence and a released check-specific completion policy.
+3. AI completion, human acceptance and formal inspection are separate. Never fabricate a reviewer or inspection result.
+4. Missing, occluded, ambiguous, unsupported and failed checks remain explicit. They are not passes.
+5. New daily evidence can reopen previously completed work. Approved reference changes invalidate affected decisions.
+6. Daily updates change observations and status; approved design revisions change geometry.
+7. Open issues remain prominent over older completion status. All decisions retain provenance and history.
+8. Capture works with offline queuing; a local draft is not a received or checked submission.
+9. Permissions apply to model files, evidence, source documents and derived AI results.
+10. Generated samples and mock outputs are not proof of field accuracy.
 
-```bash
-uv venv && uv pip install -e ".[dev]"          # add ,postgres for psycopg
-cp .env.example .env                            # set JWT_SECRET
-.venv/bin/alembic upgrade head
-.venv/bin/python -m app.seed                    # demo projects/users (runs the real converter, ~10 s); password: demo-password
-.venv/bin/uvicorn app.main:app --reload         # http://localhost:8000/docs
+These are target requirements. The current legacy auto-approval and skip-done behavior do not yet satisfy them; see STATUS and P2 in TODO. Do not describe requirements as implemented merely because they appear here.
 
-.venv/bin/pytest -q                             # full suite on SQLite
-.venv/bin/pytest tests/test_progress.py::test_name -q   # single test
-.venv/bin/ruff check app tests                  # lint (CI runs this)
-TEST_DATABASE_URL=postgresql+psycopg://postgres:pg@localhost:5433/sitemesh_test .venv/bin/pytest -q   # same suite on Postgres
-```
+## Existing technical architecture
 
-Throwaway Postgres for that: `docker run -d --name pgtest -e POSTGRES_PASSWORD=pg -e POSTGRES_DB=sitemesh_test -p 5433:5432 postgres:16-alpine`. CI runs the backend suite on both SQLite and Postgres, so schema/queries must work on both.
+**Backend:** FastAPI, SQLAlchemy 2, Alembic, Python 3.11+. Thin API routers; domain logic in `backend/app/services/`.
 
-Web (`web/`, Node 22):
+- Central authorization lives in `app/rbac.py`, combining roles and trade/zone scope. Reuse it for queries and file access.
+- Record domain mutations through `services/events.record` in the same transaction. Events are append-only, enforced by DB triggers. Do not bypass history for AI mutations.
+- `services/progress.py` enforces photo evidence for existing `done` transitions. Preserve that protection while separating new completion and acceptance semantics.
+- `Element` provides identity; `ElementRevision` holds per-version geometry/props; `ModelVersion` tracks versions. Reconciliation must preserve identity and mark affected prior work for review. Geometry-derived IDs need care when drawings change.
+- `app/jobs.py` implements a DB-backed queue. Handlers register with `@jobs.handler`; normal mode is `thread`, tests use `inline`. No Redis/RQ dependency is assumed.
+- Use `app/storage.py` rather than writing storage paths throughout services.
+- Config uses pydantic-settings and environment variables. Never commit credentials or print live secrets.
+- Add Alembic migrations for schema changes and support SQLite and PostgreSQL.
 
-```bash
-npm install
-npm run dev                    # http://localhost:5173, proxies /api to :8000
-npm test                       # vitest (src/test/)
-npx vitest run src/test/replay.test.ts   # single test file
-npm run lint                   # oxlint
-npm run build                  # tsc -b + vite build (type checking happens here)
-npx playwright test            # e2e; starts its own backend on :8001 (seeded SQLite in /tmp) and vite on :5174
-```
+**Models and drawings:** ezdxf, pdfminer.six, shapely and IfcOpenShell. Review converted drawings before activating them. Do not fabricate undrawn components or infer exact dimensions from schematic symbols. IFC imports generate per-discipline GLBs server-side; the browser loads GLB, not IFC.
 
-E2E needs `backend/.venv` to exist. Screenshots land in `web/e2e/.results/`.
+**AI:** `app/vision/` uses the Google Gemini SDK with structured element verdicts. `VISION_MODE` supports auto/gemini/off/mock. Existing model confidence and installed verdicts are not plan-compliance certification. New checks need versioned context, structured results, evaluation and a separate completion policy.
 
-Evaluation harnesses (run from `backend/`):
+**Frontend:** React, TypeScript, Vite PWA, TanStack Query and three.js.
 
-```bash
-.venv/bin/python -m app.conversion.eval_conversion ../samples/dxf --csv ../samples/dxf/RESULTS.csv
-.venv/bin/python -m app.conversion.eval_conversion ../samples/pdf
-.venv/bin/python -m app.vision.eval_vision ../samples/photos      # --mock without an API key
-```
+- `src/viewer/` is a separate viewer with command/event API and embedding bridge; keep it independent of page components.
+- `src/field/` uses IndexedDB; replay occurs on app open, online events and a timer. Do not assume iOS Background Sync.
+- `src/pages/` is the connected workspace; `src/studio/` is a browser-local fictional demo.
+- `src/api/client.ts` handles JWT access and rotating refresh tokens.
+- The service worker exists in production builds. Verify actual device behavior when changing offline/cache handling.
 
-Full stack: `JWT_SECRET=... docker compose up --build -d && docker compose exec api python -m app.seed` (web :8080, API :8000, Postgres).
+## Evaluation and claims
 
-## Architecture
+Existing DXF/PDF samples are generated; the photo sample is synthetic. Keep conversion and vision evaluation harnesses usable, and extend them for the new check types without silently changing existing label semantics.
 
-**Backend (FastAPI + SQLAlchemy 2 + Alembic).** `app/api/` routers are thin; domain rules live in `app/services/`. Cross-cutting invariants:
+Report false completions, missed supported defects, false alerts, abstention and coverage separately. A single confidence threshold or aggregate accuracy score is insufficient for automatic completion release.
 
-- **RBAC lives only in `app/rbac.py`**: a role → `Perm` matrix (owner/pm/trade/viewer) plus `require(db, project_id, user_id, perm)`. Trade members are further scoped by `ProjectMember.trades` and optional `zone_ids`. That scoping applies to queries *and* file access (a trade never downloads another discipline's GLB). Don't put permission checks anywhere else.
-- **Append-only event log.** Every service mutation calls `services/events.record(...)` in the same transaction as the change. `Event` rows can't be updated or deleted: DB triggers block it (`events_no_update` / `events_no_delete`, installed by `install_event_guards` in `app/models/__init__.py` and by the migrations). Activity feed, timeline replay and status history all come from events.
-- **No green without evidence.** `services/progress.py` raises `EvidenceRequired` if an element is set to `done` without a verification linked to an upload that has photos. Tests enforce this.
-- **Status precedence** in the UI: red (open issue) > amber (needs review) > green (done) > discipline default.
-- **Versioning.** `ModelVersion` is a commit (`parent_id`, `merge_parent_id`, `branch`, draft/approved/merged/rejected). `Element` is identity only, with stable UUIDs that are never deleted. `ElementRevision` holds per-version geometry/props. Element *status* is per physical element, not per version. A changed or moved element that was `done` is reset to `needs_review` and flagged. Diff/replay logic is in `services/history.py`.
-- **Jobs** (`app/jobs.py`): a DB-backed job table instead of Redis. Handlers register with `@jobs.handler("kind")` (`ifc_import`, `sheet_detect`, `model_build`, `photo_analysis`) and are enqueued with `jobs.enqueue(...)`; they run after the caller commits. `JOBS_MODE=thread` starts a worker thread in the API process. Tests force `inline` (see `tests/conftest.py`).
-- **Storage** goes through the `Storage` interface in `app/storage.py` (local FS under `STORAGE_DIR`).
-- **Config** is pydantic-settings in `app/config.py`, from env or `backend/.env`. `APP_ENV=prod` refuses to start without `JWT_SECRET`.
-
-**Conversion pipeline** (`app/conversion/`): `reader.py` (ezdxf) or `pdf.py` (pdfminer.six; PyMuPDF is deliberately avoided for AGPL reasons) produce a `RawDrawing`. `layers.py` maps layer names to roles. `detect.py` orchestrates `walls.py`, openings, `rooms.py` (shapely polygonize → zones) and `mep.py` into a plan dict. `edits.py` applies review-editor corrections. `ifc_writer.py` writes IFC (IfcOpenShell) with our element UUID in a property set. `svg.py` renders the sheet for the 2D editor. `services/conversion.py` wires this into jobs and `ModelVersion`s. Element IDs come from hashes of rounded geometry so they stay stable across re-runs. Never invent pipe runs that aren't drawn: report them as missing so the PM can trace them.
-
-**BIM** (`app/bim/`): IFC import → elements and zones, plus one GLB per discipline (node name = element UUID) generated server-side. The browser loads GLBs, not IFC. IFC stays the system of record per version.
-
-**Vision** (`app/vision/`): Google Gemini (`google-genai` SDK, `GEMINI_API_KEY`) with structured JSON output per element (`installed` / `missing` / `not_visible` / `uncertain`), mapped to statuses and flags in `services/photos.py` / `vision_jobs.py`. Controlled by `VISION_MODE` (`auto|gemini|off|mock`), `VISION_MODEL`, `VISION_EFFORT` (thinking level). Default approval mode is PM approval. Auto-approve is an opt-in project setting.
-
-**Migrations:** `backend/migrations/versions/` are numbered (`0001_…`). Add a new one for any model change. `tests/test_migrations.py` checks migrations against the models (SQLite only).
-
-**Web (React 19 + TS + Vite PWA, TanStack Query, three.js).**
-- `src/viewer/`: `SiteViewer` is an isolated three.js module with a command/event API (`setColors`, `select`, `flyTo`, `setSection`, `setWalkMode`, snapshot, …) and a postMessage `bridge.ts`, so it can be embedded (`EmbedViewerPage`) or wrapped natively later. Keep it independent of React pages.
-- `src/field/`: the mobile field app. Uploads queue offline in IndexedDB (`queue.ts`) and sync on open, `online` and a timer (no Background Sync on iOS).
-- `src/pages/`: office app. `src/api/client.ts` handles auth tokens (JWT access + rotating refresh). `src/lib/replay.ts` folds events for the timeline.
-- The service worker (workbox in `vite.config.ts`) caches GLBs cache-first and GET `/api/*` network-first. It only exists in production builds.
-
-## Samples
-
-`samples/dxf` and `samples/pdf` are **generated** (`generate.py`, `generate_pdf.py`) with ground truth in `expected.json`. Perfect eval scores there only show the pipeline works and catch regressions; they don't measure accuracy on real drawings. `samples/ifc` holds buildingSMART samples (CC BY 4.0). Tests reference samples via `SAMPLES` in `tests/conftest.py`.
+Keep dated research separate from current product decisions. Rework economics are illustrative scenarios unless supported by customer records. Do not assert all current US homes spend 5–6% on rework or that a competitor lacks a feature merely because it was not found in public materials.
