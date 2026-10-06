@@ -1,0 +1,105 @@
+/* Keep identity/actions and navigation in separate rows at every workspace route. */
+.ew-app .workspace-header .workspace-header-main {
+  display: grid;
+  grid-template-columns: auto minmax(140px, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  height: auto;
+  min-height: 64px;
+  max-width: 1440px;
+  padding: 12px 24px;
+}
+.ew-app .workspace-header .brand,
+.ew-app .workspace-header .brand-name,
+.ew-app .workspace-header .project-control {
+  min-width: 0;
+}
+.ew-app .workspace-header .brand-mark,
+.ew-app .workspace-header .project-pill > svg {
+  flex: none;
+}
+.ew-app .workspace-header .brand-name,
+.ew-app .workspace-header .project-pill .strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ew-app .workspace-header .project-pill {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  width: auto;
+  min-width: 0;
+  color: var(--ink);
+  padding: 7px 10px;
+}
+.ew-app .workspace-header .top-right {
+  margin-left: 0;
+  gap: 12px;
+  flex: none;
+}
+.ew-app .workspace-header .workspace-search {
+  display: flex;
+  width: 200px;
+  flex: none;
+}
+.ew-app .workspace-header .workspace-header-nav {
+  display: flex;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 24px 10px;
+  gap: 4px;
+  overflow-x: auto;
+}
+.ew-app .workspace-header .workspace-header-nav a {
+  padding: 7px 12px;
+  font-size: 13px;
+  flex: none;
+}
+.ew-app .workspace-header .project-dropdown {
+  max-width: calc(100vw - 32px);
+  top: calc(100% + 8px);
+}
+@media (max-width: 1100px) {
+  .ew-app .workspace-header .workspace-search {
+    display: none;
+  }
+}
+@media (max-width: 760px) {
+  .ew-app .workspace-header .workspace-header-main {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px 12px;
+    padding: 12px 16px;
+    min-height: 0;
+  }
+  .ew-app .workspace-header .brand {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .ew-app .workspace-header .top-right {
+    grid-column: 2;
+    grid-row: 1;
+    gap: 8px;
+  }
+  .ew-app .workspace-header .project-control {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .ew-app .workspace-header .project-pill {
+    max-width: 100%;
+  }
+  .ew-app .workspace-header .workspace-header-nav,
+  .ew-app .workspace-header .who,
+  .ew-app .workspace-header .avatar {
+    display: none;
+  }
+  .ew-app .workspace-header .mobile-menu {
+    display: inline-flex;
+  }
+}
+@media (min-width: 761px) {
+  .ew-app .workspace-header .mobile-nav {
+    display: none;
+  }
+}

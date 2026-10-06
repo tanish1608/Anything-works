@@ -9,15 +9,15 @@ export interface ProjectCtx {
 }
 
 const NAV = [
-  { to: 'today', label: 'Today', icon: 'sun' },
+  { to: 'home', label: 'Home', icon: 'sun' },
   { to: 'model', label: '3D model', icon: 'cube' },
   { to: 'issues', label: 'Issues', icon: 'alert' },
-  { to: 'progress', label: 'Progress', icon: 'work' },
+  { to: 'logs', label: 'Logs', icon: 'clock' },
   { to: 'drawings', label: 'Drawings', icon: 'layers' },
+  { to: 'setup', label: 'Project setup', icon: 'layers' },
   { to: 'structure', label: 'Buildings & zones', icon: 'building' },
-  { to: 'members', label: 'Team', icon: 'people' },
+  { to: 'people', label: 'People', icon: 'people' },
   { to: 'history', label: 'History', icon: 'clock' },
-  { to: 'activity', label: 'Activity', icon: 'activity' },
 ]
 
 export default function ProjectLayout() {

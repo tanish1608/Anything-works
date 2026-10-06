@@ -1,51 +1,56 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { BimDataset } from "../pages/BimLabPage";
-import type { LayerData, SiteViewer } from "../viewer/Viewer";
-import ViewerCanvas from "../viewer/ViewerCanvas";
+import type { SiteViewer } from "../viewer/Viewer";
+import ProjectScene from "../viewer/ProjectScene";
+import { projectModel } from "./modelProjection";
+import type { WorkItem } from "./state";
 import ModelPlan from "../viewer/ModelPlan";
 import { planViewBox } from "../viewer/planGeometry";
 import { visibleIds } from "../viewer/filters";
 import { DISCIPLINE_COLORS, DISCIPLINE_LABELS } from "../viewer/colors";
-import { emptyLab, labStatus, type LabState } from "../viewer/labState";
 import type { ViewDirection } from "../viewer/spatialMath";
-import { COLORS } from "./state";
 import "./simple-building.css";
 
 /** The everyday Building surface; inspection authoring remains in the workbench. */
-export default function SimpleBuilding({ data }: { data: BimDataset }) {
+const NO_WORK: WorkItem[] = [];
+export default function SimpleBuilding({
+  data,
+  items = NO_WORK,
+  selectedWork = null,
+  onSelectWork,
+}: {
+  data: BimDataset;
+  items?: WorkItem[];
+  selectedWork?: string | null;
+  onSelectWork?: (id: string) => void;
+}) {
   const viewer = useRef<SiteViewer | null>(null);
   const layersMenu = useRef<HTMLDetailsElement>(null);
-  const [ready, setReady] = useState(false),
-    [loaded, setLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const [mode, setMode] = useState<"3d" | "2d">("3d"),
     [view, setView] = useState<ViewDirection>("iso");
-  const [level, setLevel] = useState(""),
-    [selected, setSelected] = useState<string | null>(null);
+  const [chosenLevel, setLevel] = useState(""),
+    [chosenElement, setSelected] = useState<string | null>(null);
   const [layers, setLayers] = useState(
     new Set(data.layers.map((l) => l.discipline)),
   );
   const [thumbnail, setThumbnail] = useState(""),
     [error, setError] = useState(""),
     [failed, setFailed] = useState(false);
-  const [local] = useState<LabState>(() => {
-    try {
-      const saved = JSON.parse(
-        localStorage.getItem("ew-real-bim-lab-v1") || "null",
-      );
-      if (
-        saved?.version === data.version &&
-        saved.pins &&
-        saved.observations &&
-        saved.history
-      )
-        return saved;
-    } catch {
-      /* default empty */
-    }
-    return emptyLab(data.version);
-  });
+  const active = items.find(
+    (i) => i.id === selectedWork && i.location?.version === data.version,
+  );
+  const selected = active?.location?.elements[0] || chosenElement;
+  const level = active
+    ? mode === "2d"
+      ? active.location!.levelId
+      : ""
+    : chosenLevel;
   const plan =
     data.plans.find((p) => p.id === level) ??
+    data.plans.find(
+      (p) => p.id === data.elements.find((e) => e.id === selected)?.level_id,
+    ) ??
     data.plans.find((p) => p.rooms.length) ??
     data.plans[0];
   const visible = useMemo(
@@ -60,29 +65,25 @@ export default function SimpleBuilding({ data }: { data: BimDataset }) {
       }),
     [data, layers, level, selected],
   );
-  const colors = useMemo(
-    () =>
-      new Map(
-        data.elements.map((e) => {
-          const status = labStatus(local, e.id);
-          return [
-            e.id,
-            status === "none"
-              ? DISCIPLINE_COLORS[e.discipline]
-              : COLORS[status],
-          ];
-        }),
-      ),
-    [data, local],
+  const projection = useMemo(
+    () => projectModel(data, items, selectedWork),
+    [data, items, selectedWork],
+  );
+  const colors = projection.colors;
+  const focus = useMemo(
+    () => (selected ? { element: selected } : null),
+    [selected],
   );
   const onReady = useCallback((v: SiteViewer | null) => {
     viewer.current = v;
-    setReady(!!v);
-    if (v) {
-      v.setGhostContext(false);
-      v.on("select", setSelected);
-    }
   }, []);
+  const selectElement = (id: string | null) => {
+    setSelected(id);
+    const work = projection.linked.find((i) =>
+      i.location!.elements.includes(id || ""),
+    );
+    onSelectWork?.(work?.id || "");
+  };
   useEffect(() => {
     const outside = (e: PointerEvent) => {
       if (layersMenu.current && !layersMenu.current.contains(e.target as Node))
@@ -99,67 +100,6 @@ export default function SimpleBuilding({ data }: { data: BimDataset }) {
       document.removeEventListener("keydown", escape);
     };
   }, []);
-  useEffect(() => {
-    const v = viewer.current;
-    if (!ready || !v) return;
-    let alive = true;
-    const controller = new AbortController();
-    Promise.all(
-      data.layers.map(async (l) => {
-        const response = await fetch(l.url, { signal: controller.signal });
-        if (!response.ok)
-          throw Error("The building could not load. Refresh to try again.");
-        return { ...l, data: await response.arrayBuffer() } as LayerData;
-      }),
-    )
-      .then((layers) => (alive ? v.loadLayers(layers) : undefined))
-      .then(() => {
-        if (alive) setLoaded(true);
-      })
-      .catch((e) => {
-        if (alive && e.name !== "AbortError") {
-          setError(e.message);
-          setFailed(true);
-          setMode("2d");
-          const fallback =
-            data.plans.find((p) => p.rooms.length) ?? data.plans[0];
-          if (fallback) setLevel(fallback.id);
-        }
-      });
-    return () => {
-      alive = false;
-      controller.abort();
-    };
-  }, [data, ready]);
-  useEffect(() => {
-    if (!loaded) return;
-    viewer.current?.setVisible(visible);
-    viewer.current?.setColors(colors);
-    viewer.current?.select(selected);
-    viewer.current?.setMarkers(
-      local.pins
-        .filter(
-          (p) =>
-            !p.resolved && p.version === data.version && visible.has(p.element),
-        )
-        .map((p) => ({ id: p.id, position: p.point, color: COLORS.issue })),
-    );
-  }, [visible, colors, selected, loaded, local, data.version]);
-  const frameIds = useMemo(
-    () => [
-      ...visibleIds(data.elements, {
-        disciplines: new Set(data.layers.map((l) => l.discipline)),
-        levelId: level || null,
-        zoneId: null,
-        interior: true,
-        hideRoof: true,
-      }),
-    ],
-    [data, level],
-  );
-  useEffect(() => {
-    if (loaded) viewer.current?.frame(frameIds, view);
-  }, [loaded, frameIds, view]);
   useEffect(() => {
     if (mode !== "2d" || !loaded || failed) return;
     // Capture once after the camera's 600ms flight, rather than running a second renderer.
@@ -190,20 +130,25 @@ export default function SimpleBuilding({ data }: { data: BimDataset }) {
         aria-hidden={mode !== "3d"}
         style={{ visibility: mode === "3d" ? "visible" : "hidden" }}
       >
-        <ViewerCanvas
+        <ProjectScene
+          data={data}
+          visible={visible}
+          colors={colors}
+          markers={projection.markers.filter((m) => visible.has(m.elementId!))}
+          focus={focus}
+          expanded={!!active}
+          direction={view}
           onReady={onReady}
-          onError={() => {
+          onLoaded={setLoaded}
+          onSelect={selectElement}
+          onMarker={(id) => onSelectWork?.(id)}
+          onError={(text) => {
             setFailed(true);
             setMode("2d");
             if (plan) setLevel(plan.id);
-            setError(
-              "3D is unavailable on this device. You can still explore the 2D plan.",
-            );
+            setError(text);
           }}
         />
-        {!loaded && !failed && (
-          <div className="viewer-overlay">Loading building…</div>
-        )}
       </div>
       {mode === "2d" && (
         <div className="simple-building-plan">
@@ -215,7 +160,7 @@ export default function SimpleBuilding({ data }: { data: BimDataset }) {
               selected={selected}
               visible={visible}
               colors={colors}
-              onSelect={setSelected}
+              onSelect={selectElement}
             />
           ) : (
             <p>No 2D plan is available.</p>
@@ -225,7 +170,14 @@ export default function SimpleBuilding({ data }: { data: BimDataset }) {
       <div className="simple-building-controls" aria-label="Building controls">
         <label>
           Level
-          <select value={level} onChange={(e) => setLevel(e.target.value)}>
+          <select
+            value={level}
+            onChange={(e) => {
+              setLevel(e.target.value);
+              setSelected(null);
+              onSelectWork?.("");
+            }}
+          >
             {mode === "3d" && <option value="">All levels</option>}
             {data.plans.map((p) => (
               <option key={p.id} value={p.id}>
@@ -338,7 +290,7 @@ export default function SimpleBuilding({ data }: { data: BimDataset }) {
         rel="noreferrer"
         title={data.source.attribution}
       >
-        Public sample · {data.source.license}
+        Source · {data.source.license}
       </a>
     </section>
   );

@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import type { ElementDetail } from "../api/types";
 import ViewerCanvas from "../viewer/ViewerCanvas";
 import type { SiteViewer, LayerData, SectionBox } from "../viewer/Viewer";
-import ModelPlan, { type ModelPlanData } from "../viewer/ModelPlan";
+import ModelPlan from "../viewer/ModelPlan";
 import {
   ifcPointToViewer,
   viewerPointToIfc,
@@ -28,30 +27,8 @@ import "../workspace/workspace.css";
 import "../viewer/inspection.css";
 import "./bim-lab.css";
 
-export interface BimDataset {
-  version: string;
-  source: {
-    attribution: string;
-    license: string;
-    repository: string;
-    revision: string;
-  };
-  layers: {
-    discipline: string;
-    context: boolean;
-    url: string;
-    bytes: number;
-  }[];
-  elements: ElementDetail[];
-  plans: ModelPlanData[];
-  audit: {
-    elements: number;
-    rooms: number;
-    levels: number;
-    mesh_bytes: number;
-    bedroom_fitting: { id: string } | null;
-  };
-}
+import { loadDemoModel, type ModelDataset } from '../viewer/modelData';
+export type BimDataset=ModelDataset;
 const KEY = "ew-real-bim-lab-v1";
 
 export default function BimLabPage({
@@ -62,20 +39,9 @@ export default function BimLabPage({
   const [data, setData] = useState<BimDataset | null>(null),
     [error, setError] = useState("");
   useEffect(() => {
-    const controller = new AbortController();
-    fetch("/bim-duplex/model.json", { signal: controller.signal })
-      .then((r) => {
-        if (!r.ok)
-          throw Error(
-            "Model dataset is unavailable. Run the BIM audit command in the developer guide.",
-          );
-        return r.json();
-      })
-      .then(setData)
-      .catch((e) => {
-        if (e.name !== "AbortError") setError(e.message);
-      });
-    return () => controller.abort();
+    let alive=true;
+    loadDemoModel().then(d=>{if(alive)setData(d);}).catch(e=>{if(alive)setError(e.message);});
+    return ()=>{alive=false;};
   }, []);
   if (!data)
     return (

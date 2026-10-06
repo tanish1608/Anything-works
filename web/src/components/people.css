@@ -1,0 +1,162 @@
+.people-directory {
+  width: 100%;
+  color: #293a30;
+}
+.people-tools {
+  display: flex;
+  align-items: end;
+  gap: 14px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+.people-tools > label:first-child {
+  flex: 1;
+  min-width: 200px;
+  max-width: 420px;
+}
+.people-tools label {
+  font-size: 12px;
+  color: #7a887c;
+}
+.people-tools input,
+.people-tools select {
+  padding: 9px 12px;
+}
+.people-view-switch {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+.people-view-switch button {
+  font-size: 12px;
+  padding: 9px 13px;
+}
+.people-view-switch button[aria-pressed="true"] {
+  background: #253c2e;
+  color: #fff;
+  border-color: #253c2e;
+}
+.people-source {
+  font-size: 11px;
+  color: #849180;
+  line-height: 1.8;
+  margin: 0 0 20px;
+}
+.people-cards-inner {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+.person-card {
+  border: 1px solid #e2e8df;
+  background: #fff;
+  border-radius: 12px;
+  padding: 22px;
+  min-width: 0;
+}
+.person-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.person-avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #eff3ec;
+  color: #52694e;
+  font-size: 13px;
+}
+.person-header h3 {
+  font-size: 15px;
+  margin: 0 0 5px;
+}
+.person-header p {
+  font-size: 12px;
+  color: #82907d;
+  margin: 0;
+}
+.person-team {
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0 0 8px;
+}
+.person-detail {
+  font-size: 11px;
+  color: #849180;
+  margin: 0 0 6px;
+}
+.person-contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin: 22px 0;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.person-contacts a {
+  color: #526c52;
+}
+.person-availability {
+  font-size: 11px;
+  color: #7d8d76;
+}
+.person-card label {
+  font-size: 11px;
+  gap: 7px;
+}
+.person-card select {
+  font-size: 12px;
+  padding: 7px 10px;
+}
+.people-teams {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.people-team {
+  border-left: 2px solid #dce6d7;
+  padding-left: 24px;
+}
+.people-team h2 {
+  font-size: 14px;
+  margin: 0 0 16px;
+  color: #66805b;
+}
+.people-team:first-child {
+  border-color: #46633c;
+}
+.people-team-members {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+@media (max-width: 1100px) {
+  .people-cards-inner,
+  .people-team-members {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  .people-cards-inner,
+  .people-team-members {
+    grid-template-columns: 1fr;
+  }
+  .people-tools > label:first-child {
+    flex-basis: 100%;
+    max-width: none;
+  }
+  .people-view-switch {
+    margin-left: 0;
+  }
+  .people-team {
+    padding-left: 14px;
+  }
+  .person-card {
+    padding: 18px;
+  }
+}

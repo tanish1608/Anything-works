@@ -71,14 +71,15 @@ def zone_checklist(zone_id: str, trade: str | None = None, user: User = Depends(
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Zone not found")
     pid = project_of_zone(db, z)
     m = require(db, pid, user.id, Perm.project_view)
-    return {"zone": {"id": z.id, "name": z.name, "level_id": z.level_id, "polygon": z.polygon},
+    return {"model_version_id": db.get(Project, pid).current_version_id,
+            "zone": {"id": z.id, "name": z.name, "level_id": z.level_id, "polygon": z.polygon},
             "items": progress.checklist(db, db.get(Project, pid), m, zone_id, trade)}
 
 
 @router.post("/projects/{project_id}/uploads", response_model=UploadOut, status_code=201)
 async def create_upload(project_id: str, zone_id: str = Form(...), trade: str = Form(...), note: str = Form(""),
                         client_uuid: str = Form(...), captured_at: str | None = Form(None),
-                        element_ids: str = Form("[]"), files: list[UploadFile] = File(...),
+                        element_ids: str = Form("[]"), model_version_id: str | None = Form(None), files: list[UploadFile] = File(...),
                         reference: UploadFile | None = File(None),
                         user: User = Depends(current_user), db: Session = Depends(get_db)):
     """Field report. Idempotent on client_uuid so the offline queue can safely retry."""
@@ -98,6 +99,9 @@ async def create_upload(project_id: str, zone_id: str = Form(...), trade: str = 
     except (ValueError, TypeError):
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "element_ids must be a JSON list") from None
     project = db.get(Project, project_id)
+    if model_version_id and model_version_id != project.current_version_id:
+        raise HTTPException(status.HTTP_409_CONFLICT,
+                            "The approved model changed after capture. Confirm the work locations against the new revision before resubmitting.")
     allowed = {r["id"] for r in progress.checklist(db, project, m, zone_id, trade)}
     bad = set(claimed) - allowed
     if bad:
@@ -147,6 +151,8 @@ async def create_upload(project_id: str, zone_id: str = Form(...), trade: str = 
     events.record(db, project_id=project_id, actor_id=user.id, type="upload.created", entity_type="upload",
                   entity_id=up.id, zone_id=zone_id, evidence_ids=[p.id for p in photos],
                   data={"trade": trade, "photos": len(photos), "claimed": len(claimed), "note": note[:200],
+                        "model_version_id": project.current_version_id, "capture_model_version_id": model_version_id,
+                        "element_ids": claimed,
                         "flags": sorted({f.split(':')[0] for p in photos for f in p.flags})})
     managers = db.scalars(select(ProjectMember.user_id).where(ProjectMember.project_id == project_id,
                                                               ProjectMember.role.in_([Role.pm, Role.owner])))

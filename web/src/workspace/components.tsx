@@ -1,3 +1,7 @@
+import { useWorkspace } from "./context";
+import ModelPlan from "../viewer/ModelPlan";
+import { projectModel } from "./modelProjection";
+import { locationLabel } from "./projectState";
 import { useEffect, useRef, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "../studio/Icon";
@@ -145,6 +149,33 @@ export function Photo({
   );
 }
 export function Reference({ item }: { item: WorkItem }) {
+  const { model, state } = useWorkspace();
+  const plan = model.plans.find((p) => p.id === item.location?.levelId);
+  if (item.location)
+    return (
+      <div className="sheet reference-sheet">
+        <span className="label">
+          Model-derived plan · {item.location.levelName}
+        </span>
+        {plan ? (
+          <ModelPlan
+            plan={plan}
+            minimal
+            selected={item.location.elements[0]}
+            visible={new Set(plan.elements.map((e) => e.id))}
+            colors={projectModel(model, state.items).colors}
+            onSelect={() => {}}
+          />
+        ) : (
+          <p>No plan available for this location.</p>
+        )}
+        <p className="xs muted">
+          Linked IFC component · not photo registration or an approved 2D
+          drawing.
+        </p>
+      </div>
+    );
+
   if (item.trade !== "Framing")
     return (
       <div className="sheet reference-sheet">
@@ -291,8 +322,7 @@ export function WorkRow({
       <div className="grow">
         <div className="row">
           <Link className="item-title" to={target}>
-            {item.unit === "Core" ? "Level 14 core" : `Unit ${item.unit}`} —{" "}
-            {item.title}
+            {locationLabel(item)} — {item.title}
           </Link>
           <Chip status={item.status} />
         </div>

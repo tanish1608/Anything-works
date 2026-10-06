@@ -5,9 +5,11 @@ import type { SiteViewer } from "./Viewer";
 export default function ViewerCanvas({
   onReady,
   onError,
+  visible = true,
 }: {
   onReady: (v: SiteViewer | null) => void;
   onError?: (e: unknown) => void;
+  visible?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const ready = useRef(onReady);
@@ -38,5 +40,12 @@ export default function ViewerCanvas({
       v?.dispose();
     };
   }, []);
-  return <div ref={ref} className="viewer-canvas" data-testid="viewer" />;
+  return (
+    <div
+      ref={ref}
+      className="viewer-canvas"
+      data-testid="viewer"
+      style={visible ? undefined : { visibility: "hidden" }}
+    />
+  );
 }

@@ -41,9 +41,9 @@ A PM can review exceptions, confirm or dismiss a finding, and track a correction
 
 This repository contains an earlier **SiteMesh** prototype:
 
-- An interactive designer workspace at `/demo`, with daily overview, work filters, comparison, corrections, local mobile capture, reports and 3D status navigation.
-- A connected application with model import, drawing review, 3D viewing, issues, photo uploads, progress review and event history.
-- A detailed imported duplex in Building at `/demo/building` and standalone `/bim-lab`: 1,282 actual IFC components, an interior view with exterior walls/roof hidden, bedroom pipe fittings, close-up inspection, precise model pins and linked 2D silhouettes. Its evidence/progress demonstrations are local test records; illustrated daily-workflow locations remain in a separate tab.
+- An interactive designer workspace at `/demo`, with a simple Home summary and linked 3D/work list, People contacts and teams, calendar-based Logs with progress comparison, work filters, corrections and local mobile capture.
+- A connected application with model import, drawing review, a linked model on Home, People, daily Logs, issues, photo uploads and progress review.
+- A detailed imported duplex in Building at `/demo/building` and standalone `/bim-lab`: 1,282 actual IFC components, an interior view with exterior walls/roof hidden, bedroom pipe fittings, close-up inspection, precise model pins and linked 2D silhouettes. Home, Logs and Building now share this same model and component-linked sample work records. Home opens the whole building and separates levels before focusing a selected pin.
 - An offline field upload queue and an existing Gemini photo-analysis integration.
 
 These are foundations. The new daily quality-checking workflow, calibrated automatic completion, reliable plan comparison and broad real-site coverage are **not yet delivered or validated**. Existing “installed” verdicts do not establish correct installation.
@@ -59,6 +59,7 @@ See [current implementation and gaps](STATUS.md) and [design implementation note
 | [Build plan](PLAN.md) | Architecture, delivery sequence and decisions |
 | [Task backlog](TODO.md) | Detailed work packages for contributors |
 | [Current status](STATUS.md) | What is implemented versus planned |
+| [Shared model workflow](docs/MODEL_WORKFLOW.md) | Import/review setup, spatial hierarchy, daily evidence and shared progress |
 | [Detailed BIM audit](docs/BIM_AUDIT.md) | Real-project import results, viewer choice, precise locations and P3 verification |
 | [Developer guide](docs/DEVELOPMENT.md) | Setup, configuration, tests and repository map |
 | [Research index](docs/README.md) | Supporting customer-pain and competitor research |

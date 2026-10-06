@@ -48,7 +48,8 @@ def timeline(db: Session, project: Project, visible_ids: set[str] | None) -> dic
     rows = db.execute(select(Event.at, Event.entity_id, Event.data, Event.actor_id)
                       .where(Event.project_id == project.id, Event.type == "element.status_changed")
                       .order_by(Event.id)).all()
-    changes = [{"at": at.isoformat(), "element_id": eid, "status": d.get("to"), "flags": d.get("flags", [])}
+    changes = [{"at": at.isoformat(), "element_id": eid, "status": d.get("to"), "flags": d.get("flags", []),
+                "completion_basis": d.get("completion_basis")}
                for at, eid, d, _ in rows if visible_ids is None or eid in visible_ids]
     issues = [{"element_id": i.element_id, "opened_at": i.created_at.isoformat(),
                "closed_at": i.closed_at.isoformat() if i.closed_at else (

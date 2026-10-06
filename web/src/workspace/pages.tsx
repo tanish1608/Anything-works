@@ -1,3 +1,4 @@
+import { locationLabel } from "./projectState";
 import { useState } from "react";
 import {
   Link,
@@ -11,285 +12,13 @@ import {
   Card,
   CheckTable,
   Chip,
-  Coverage,
   Heading,
   Photo,
   Reference,
   WorkRow,
 } from "./components";
-import { ASSETS, counts, reportText, type WorkItem } from "./state";
+import { ASSETS, type WorkItem } from "./state";
 import { useWorkspace } from "./context";
-
-export function Today() {
-  const { state, decide } = useWorkspace();
-  const [day, setDay] = useState("today"),
-    [sort, setSort] = useState("urgency");
-  const items = state.items;
-  const attention = items
-    .filter(
-      (i) =>
-        ["review", "unsupported"].includes(i.status) ||
-        (i.status === "issue" && i.correction),
-    )
-    .sort((a, b) =>
-      sort === "location"
-        ? a.unit.localeCompare(b.unit)
-        : sort === "trade"
-          ? a.trade.localeCompare(b.trade)
-          : 0,
-    );
-  const waiting = items.filter((i) =>
-    ["evidence", "failed"].includes(i.status),
-  );
-  const completed = items.filter(
-    (i) => i.update && ["ai", "human"].includes(i.status),
-  );
-  const dailyItems = items.filter((i) => i.update);
-  const receivedCount = state.events.filter(
-    (e) => e.actor === "Fixture check" || e.actor === "Field worker",
-  ).length;
-  return (
-    <>
-      <div className="context">
-        <div className="crumbs">
-          <Icon name="building" size={14} />
-          <b>{state.projectName}</b>
-          <span className="sep">/</span>Active stages:
-          <span className="chip tag">Level 14 · Rough-in</span>
-          <span className="chip tag">Level 3 · Finishes & punch</span>
-        </div>
-        <div className="row">
-          <span className="small muted">
-            Sample day · {day === "today" ? "Tue, Oct 6" : "Mon, Oct 5"}, 2026
-          </span>
-          <div className="seg">
-            {["yesterday", "today"].map((d) => (
-              <button
-                key={d}
-                className={day === d ? "on" : ""}
-                onClick={() => setDay(d)}
-              >
-                {d === "today" ? "Today" : "Yesterday"}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-      <Heading
-        eyebrow="PM daily overview"
-        title={
-          <>
-            Good morning, Sarah.{" "}
-            {day === "today" ? (
-              <>
-                {receivedCount} updates recorded —{" "}
-                <span className="red-text">
-                  {attention.length} need your decision.
-                </span>
-              </>
-            ) : (
-              "A new reference was approved yesterday."
-            )}
-          </>
-        }
-        sub="Every submitted demo update has a processing state. View the checks, evidence and decisions behind each result."
-        action={
-          <Link className="btn" to="/demo/capture">
-            <Icon name="camera" size={16} />
-            New field update
-          </Link>
-        }
-      />
-      {day === "yesterday" ? (
-        <Card title="Reference activity · Oct 5">
-          <div className="card-pad stack">
-            <Chip status="inspect">A-402 Rev C · approved reference</Chip>
-            <p>
-              Rev C superseded Rev B and reopened Unit 407 framing. The earlier
-              decision stays in history.
-            </p>
-            <Link className="btn" to="/demo/review/FRAME-407">
-              Review affected work <Icon name="arrow" size={15} />
-            </Link>
-          </div>
-        </Card>
-      ) : (
-        <>
-          <div className="grid g-4">
-            {[
-              {
-                label: "Updates recorded",
-                value: receivedCount,
-                detail: `${dailyItems.reduce((n, i) => n + i.photos.length, 0)} linked images · sample records`,
-                tone: "",
-                icon: "work",
-              },
-              {
-                label: "Need your decision",
-                value: attention.length,
-                detail: "Findings, corrections and review items",
-                tone: "red",
-                icon: "alert",
-              },
-              {
-                label: "Waiting on others",
-                value: waiting.length,
-                detail: "Evidence requests and analysis failures",
-                tone: "amber",
-                icon: "clock",
-              },
-              {
-                label: "Completed today",
-                value: completed.length,
-                detail: `${completed.filter((i) => i.status === "ai").length} AI-checked · ${completed.filter((i) => i.status === "human").length} human accepted`,
-                tone: "green",
-                icon: "check",
-              },
-            ].map((k) => (
-              <div
-                key={k.label}
-                className={`card kpi ${k.tone ? `accent-${k.tone}` : ""}`}
-              >
-                <div className="row between">
-                  <span className="eyebrow">{k.label}</span>
-                  <Icon name={k.icon} size={16} />
-                </div>
-                <div className="v">{k.value}</div>
-                <p className="l">{k.detail}</p>
-              </div>
-            ))}
-          </div>
-          <div className="grid g-2-1">
-            <div className="stack-lg">
-              <Card
-                title={`Needs your decision · ${attention.length}`}
-                action={
-                  <div className="seg">
-                    {["urgency", "location", "trade"].map((s) => (
-                      <button
-                        key={s}
-                        onClick={() => setSort(s)}
-                        className={sort === s ? "on" : ""}
-                      >
-                        By {s}
-                      </button>
-                    ))}
-                  </div>
-                }
-              >
-                <div className="list">
-                  {attention.map((i) => (
-                    <WorkRow key={i.id} item={i} />
-                  ))}
-                  {!attention.length && (
-                    <div className="empty">
-                      <Icon name="check" />
-                      <h3>All decisions recorded</h3>
-                      <p>
-                        Evidence requests and new submissions can still need
-                        attention.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </Card>
-              <Card
-                title={`Waiting on others · ${waiting.length}`}
-                action={
-                  <span className="small muted">
-                    Evidence and processing remain separate
-                  </span>
-                }
-              >
-                <div className="list">
-                  {waiting.map((i) => (
-                    <WorkRow key={i.id} item={i} />
-                  ))}
-                  {!waiting.length && (
-                    <p className="card-pad muted">
-                      No outstanding evidence requests.
-                    </p>
-                  )}
-                </div>
-              </Card>
-              <Card
-                title={`Completed today · ${completed.length}`}
-                action={
-                  <span className="small muted">
-                    Review or reopen any result
-                  </span>
-                }
-              >
-                <div className="list">
-                  {completed.map((i) => (
-                    <WorkRow
-                      key={i.id}
-                      item={i}
-                      onDecision={(item) =>
-                        decide(item, item.status === "ai" ? "accept" : "reopen")
-                      }
-                    />
-                  ))}
-                </div>
-              </Card>
-            </div>
-            <aside className="stack-lg">
-              <Card
-                title="Level 14 coverage"
-                action={
-                  <Link className="small strong" to="/demo/building">
-                    Open in 3D →
-                  </Link>
-                }
-              >
-                <div className="card-pad">
-                  <Coverage items={items.filter((i) => i.level === 14)} />
-                </div>
-              </Card>
-              <Card title="Reference changes">
-                <div className="card-pad stack">
-                  <div className="inset stack">
-                    <div className="row">
-                      <Icon name="report" size={16} />
-                      <b>A-402 Rev C approved Oct 5</b>
-                    </div>
-                    <p className="small muted">
-                      Supersedes Rev B for Level 14 partitions. Reopened Unit
-                      407 framing. Earlier decisions remain in history.
-                    </p>
-                    <Link className="small strong" to="/demo/review/FRAME-407">
-                      See affected items →
-                    </Link>
-                  </div>
-                </div>
-              </Card>
-              <Card title="Inspections & tests">
-                <div className="card-pad stack">
-                  <p className="xs muted">
-                    Formal records only. Never inferred from AI results.
-                  </p>
-                  <div className="row between">
-                    <span className="small">Level 14 rough-in</span>
-                    <Chip status="inspect">Requested · Oct 8 · sample</Chip>
-                  </div>
-                  <div className="row between">
-                    <span className="small">Unit 402 pressure test</span>
-                    <Chip status="none">Not recorded</Chip>
-                  </div>
-                </div>
-              </Card>
-              <Card title="Recent activity">
-                <div className="card-pad">
-                  <Timeline limit={4} />
-                </div>
-              </Card>
-            </aside>
-          </div>
-        </>
-      )}
-    </>
-  );
-}
 
 export function Work() {
   const { state } = useWorkspace(),
@@ -370,8 +99,12 @@ export function Work() {
           Level
           <select value={level} onChange={(e) => setLevel(e.target.value)}>
             <option value="all">All levels</option>
-            <option value="14">Level 14</option>
-            <option value="3">Level 3</option>
+            {[...new Set(state.items.map((i) => i.level))].sort().map((l) => (
+              <option key={l} value={l}>
+                {state.items.find((i) => i.level === l)?.location?.levelName ||
+                  `Level ${l}`}
+              </option>
+            ))}
           </select>
         </label>
       </div>
@@ -412,13 +145,14 @@ function Breadcrumb({ item }: { item: WorkItem }) {
   return (
     <div className="context">
       <div className="crumbs">
-        <Link to="/demo">← Today</Link>
+        <Link to="/demo">← Home</Link>
         <span>/</span>Level {item.level}
-        <span>/</span>Unit {item.unit}
+        <span>/</span>
+        {locationLabel(item)}
         <span>/</span>
         <b>{item.id}</b>
       </div>
-      <Link className="btn sm" to={`/demo/building?unit=${item.unit}`}>
+      <Link className="btn sm" to={`/demo/building?work=${item.id}`}>
         Locate in 3D <Icon name="cube" size={14} />
       </Link>
     </div>
@@ -519,7 +253,7 @@ export function Review() {
         <Chip status="fixture">Fixture result</Chip>
         <span className="chip tag">
           <Icon name="pin" size={14} />
-          Unit {item.unit} · confirmed sample location
+          {locationLabel(item)} · confirmed sample location
         </span>
       </div>
       <div className="grid g-3-2">
@@ -568,8 +302,9 @@ export function Review() {
               </div>
               <div className="inset small">
                 <b>How the photo was matched:</b> fixture location confirmed by
-                unit selection. The highlighted position is approximate. No
-                dimensions are inferred from the image.
+                the selected model component. The pin marks its model centre;
+                photo registration is not performed. No dimensions are inferred
+                from the image.
               </div>
             </div>
           </Card>
@@ -967,322 +702,114 @@ export function Timeline({
     </div>
   );
 }
-export function Report() {
-  const { state, act } = useWorkspace(),
-    [note, setNote] = useState(state.reportNote);
-  const text = reportText(state),
-    c = counts(state.items);
-  const download = () => {
-    const url = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "everything-works-daily-report.txt";
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  };
-  return (
-    <>
-      <Heading
-        eyebrow="Daily report & history"
-        title="A report grounded in the record."
-        sub="Scope, decisions and evidence gaps. No invented weather, headcount or costs."
-        action={
-          <Button icon="download" onClick={download}>
-            Download report
-          </Button>
-        }
-      />
-      <div className="grid g-3-2">
-        <div className="stack-lg">
-          <Card
-            title="Daily project record"
-            action={
-              <Chip status={state.reportSigned ? "human" : "review"}>
-                {state.reportSigned
-                  ? "Signed locally · snapshot locked"
-                  : "Unsigned draft"}
-              </Chip>
-            }
-          >
-            <div className="card-pad stack">
-              <h2>{state.projectName}</h2>
-              <p className="xs muted">Fictional project · local demo records</p>
-              <div className="grid g-3">
-                <div className="inset">
-                  <h2>{c.ai + c.human}</h2>
-                  <p className="small">Completed work items</p>
-                </div>
-                <div className="inset">
-                  <h2>{c.issue}</h2>
-                  <p className="small">Open issues</p>
-                </div>
-                <div className="inset">
-                  <h2>{c.evidence}</h2>
-                  <p className="small">Need evidence</p>
-                </div>
-              </div>
-              <pre className="report-text">{text}</pre>
-              {state.reportSigned && (
-                <p className="xs muted">
-                  The signed text above is a fixed snapshot. Current counts and
-                  source history show subsequent activity.
-                </p>
-              )}
-              <label>
-                PM note
-                <textarea
-                  rows={4}
-                  value={note}
-                  readOnly={!!state.reportSigned}
-                  onChange={(e) => setNote(e.target.value)}
-                  placeholder="Add only information you can support."
-                />
-              </label>
-              {!state.reportSigned && (
-                <div className="row">
-                  <Button
-                    onClick={() => act({ type: "report", note, sign: false })}
-                  >
-                    Save draft note
-                  </Button>
-                  <Button
-                    kind="primary"
-                    icon="lock"
-                    onClick={() => act({ type: "report", note, sign: true })}
-                  >
-                    Sign report snapshot
-                  </Button>
-                </div>
-              )}
-            </div>
-          </Card>
-        </div>
-        <aside className="stack-lg">
-          <Card title="Source history">
-            <div className="card-pad">
-              <Timeline limit={20} />
-            </div>
-          </Card>
-          <Card title="What wasn't reported">
-            <div className="card-pad stack">
-              <p className="small muted">
-                Weather, crew hours and costs have not been recorded. AI
-                progress does not establish inspection approval.
-              </p>
-              <Chip status="fixture">Fixture results · sample project</Chip>
-            </div>
-          </Card>
-        </aside>
-      </div>
-    </>
-  );
-}
 export function Setup() {
-  const { state, act } = useWorkspace(),
+  const { state, act, model } = useWorkspace(),
     [name, setName] = useState(state.projectName);
-  const references = [
-    "A-402 Rev C",
-    "M-402 Rev 3",
-    "E-14 Rev B",
-    "P-201 Rev 2",
-    "FP-214 Rev 1",
-  ];
   return (
     <>
       <Heading
         eyebrow="Project setup"
-        title="References, work items and checks"
-        sub="Approved context for each assessment. Missing context needs review; it is never guessed."
+        title="Model, locations and daily updates"
+        sub="One source model for Home, Logs and Building."
       />
-      <div className="setup-grid">
-        <nav className="setup-nav" aria-label="Setup sections">
-          <a href="#project">Project</a>
-          <a href="#references">Approved references</a>
-          <a href="#checks">Check catalog</a>
-          <a href="#model">Model & drawings</a>
-          <a href="#packages">Work packages</a>
-        </nav>
-        <div className="stack-lg">
-          <Card title="Project" className="anchor-section">
-            <form
-              id="project"
-              className="card-pad row"
-              onSubmit={(e) => {
-                e.preventDefault();
-                act({ type: "project", name });
-              }}
-            >
-              <label className="grow">
-                Local demo project name
-                <input
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </label>
-              <Button type="submit" kind="primary">
-                Save name
-              </Button>
-            </form>
-          </Card>
-          <Card title="Approved references">
-            <div id="references" className="table-wrap anchor-section">
-              <table className="t">
-                <thead>
-                  <tr>
-                    <th>Sheet / document</th>
-                    <th>Status</th>
-                    <th>Applies to</th>
-                    <th>Effect on decisions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {references.map((r, i) => (
-                    <tr key={r}>
-                      <td>
-                        <b>{r}</b>
-                      </td>
-                      <td>
-                        <Chip status="inspect">Approved · sample record</Chip>
-                      </td>
-                      <td>
-                        {
-                          [
-                            "L14 framing",
-                            "L14 HVAC",
-                            "L14 electrical",
-                            "Unit plumbing",
-                            "L14 fire protection",
-                          ][i]
-                        }
-                      </td>
-                      <td>
-                        {i === 0
-                          ? "Reopened Unit 407"
-                          : i === 2
-                            ? "Symbols schematic; no exact box heights"
-                            : "Source retained with assessments"}
-                      </td>
-                    </tr>
-                  ))}
-                  <tr>
-                    <td>M-402 Rev 4 (draft)</td>
-                    <td>
-                      <Chip status="review">Not approved</Chip>
-                    </td>
-                    <td>Not active</td>
-                    <td>Not used by checks</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </Card>
-          <Card
-            title="Check catalog"
-            footer="Release states below are designer fixtures, not measured evaluation results or enabled live automation."
-          >
-            <div id="checks" className="table-wrap anchor-section">
-              <table className="t">
-                <thead>
-                  <tr>
-                    <th>Check</th>
-                    <th>Capture needed</th>
-                    <th>Release state</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    [
-                      "Visible plumbing components & routing",
-                      "Each fixture wall, full height",
-                      "Fixture auto-completion",
-                    ],
-                    [
-                      "Duct presence",
-                      "Ceiling from two angles",
-                      "Fixture auto-completion",
-                    ],
-                    [
-                      "Punch item visually resolved",
-                      "Context and close-up",
-                      "Fixture auto-completion",
-                    ],
-                    [
-                      "Box presence & wall association",
-                      "Every wall with boxes",
-                      "Shadow mode",
-                    ],
-                    [
-                      "Framing openings & placement",
-                      "Partition from doorway and window",
-                      "Review only",
-                    ],
-                    [
-                      "Firestop installation / clearances",
-                      "Qualified on-site review",
-                      "Unsupported",
-                    ],
-                  ].map(([title, capture, release]) => (
-                    <tr key={title}>
-                      <td>
-                        <b>{title}</b>
-                      </td>
-                      <td>{capture}</td>
-                      <td>
-                        <Chip
-                          status={
-                            release.startsWith("Fixture")
-                              ? "fixture"
-                              : release === "Unsupported"
-                                ? "unsupported"
-                                : "review"
-                          }
-                        >
-                          {release}
-                        </Chip>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-          <Card title="Model & drawings">
-            <div id="model" className="card-pad stack anchor-section">
-              <p>
-                The demo uses illustrative procedural geometry. Six modeled
-                levels provide spatial navigation; Level 14 and Level 3 are the
-                active fixture work locations.
-              </p>
-              <div className="row">
-                <Link className="btn" to="/demo/building">
-                  Explore demo model <Icon name="cube" size={16} />
-                </Link>
-                <Link className="btn" to="/">
-                  Open connected projects / import real drawings{" "}
-                  <Icon name="arrow" size={15} />
-                </Link>
-              </div>
-              <p className="xs muted">
-                Actual drawing imports, revisions and member permissions are
-                managed in the authenticated connected workspace.
-              </p>
-            </div>
-          </Card>
-          <Card title="Work packages">
-            <div id="packages" className="card-pad stack anchor-section">
-              <p>
-                {state.items.length} named work items across{" "}
-                {new Set(state.items.map((i) => i.trade)).size} trades. Every
-                record references its source and required checks.
-              </p>
-              <Link className="btn" to="/demo/work">
-                Open work-item list
-              </Link>
-            </div>
-          </Card>
+      <Card title="1. Project and design baseline">
+        <form
+          className="card-pad row"
+          onSubmit={(e) => {
+            e.preventDefault();
+            act({ type: "project", name });
+          }}
+        >
+          <label className="grow">
+            Project name
+            <input
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </label>
+          <Button type="submit">Save name</Button>
+        </form>
+        <div className="card-pad">
+          <p>
+            {model.source.attribution} · {model.source.license}
+          </p>
+          <p>
+            Revision {model.version}. This public design is ready for
+            demonstration, not an approved construction document.
+          </p>
+          <Link className="btn" to="/">
+            Create a connected project and upload your IFC
+          </Link>
         </div>
-      </div>
+      </Card>
+      <Card title="2. Review the imported structure">
+        <div className="card-pad stack">
+          <p>
+            {model.elements.length} components across {model.plans.length}{" "}
+            levels and {model.plans.reduce((n, l) => n + l.rooms.length, 0)}{" "}
+            spaces. Names and associations come from the IFC; unassigned areas
+            remain unassigned.
+          </p>
+          {model.plans.map((l) => (
+            <details key={l.id}>
+              <summary>
+                {l.name} · {l.rooms.length} spaces ·{" "}
+                {model.elements.filter((e) => e.level_id === l.id).length}{" "}
+                components
+              </summary>
+              <ul>
+                {l.rooms.map((r) => (
+                  <li key={r.id}>
+                    {r.code} {r.name} ·{" "}
+                    {model.elements.filter((e) => e.zone_id === r.id).length}{" "}
+                    components
+                  </li>
+                ))}
+              </ul>
+            </details>
+          ))}
+          <Link className="btn" to="/demo/building">
+            Review model and model-derived 2D plans
+          </Link>
+        </div>
+      </Card>
+      <Card title="3. Work locations">
+        <div className="card-pad stack">
+          <p>
+            Every sample work package references this revision and explicit
+            component IDs. Generated sample photos demonstrate the workflow;
+            they are not photos of this building.
+          </p>
+          {state.items.map((i) => (
+            <Link key={i.id} to={`/demo/building?work=${i.id}`}>
+              {i.title} — {locationLabel(i)}
+            </Link>
+          ))}
+        </div>
+      </Card>
+      <Card title="4. Daily update to progress">
+        <div className="card-pad stack">
+          <p>
+            Select work → confirm its model location → attach evidence and a
+            progress claim → submit. A version-bound assessment request is
+            recorded. The live AI agent is not connected; new evidence awaits
+            manual review. Open issues require explicit resolution. Completion
+            updates component colour consistently on all pages.
+          </p>
+          <p>
+            Offline updates remain queued on this device. Reconnecting moves the
+            same request into review; it does not analyse evidence or mark work
+            complete.
+          </p>
+          <Link className="btn" to="/demo/capture">
+            Try a daily update
+          </Link>
+          <Link className="btn" to="/demo/logs">
+            View recorded progress
+          </Link>
+        </div>
+      </Card>
     </>
   );
 }

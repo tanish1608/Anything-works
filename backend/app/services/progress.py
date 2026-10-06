@@ -12,6 +12,7 @@ from app.models import (
     Element,
     ElementRevision,
     ElementStatus,
+    Event,
     Photo,
     Project,
     ProjectMember,
@@ -42,6 +43,8 @@ def set_status(db: Session, el: Element, new: ElementStatus, *, actor_id: str | 
                upload_id: str | None, zone_id: str | None, add_flags: set[str] = frozenset(),
                remove_flags: set[str] = frozenset(), verification_id: str | None = None) -> None:
     evidence = photo_ids(db, upload_id)
+    verification = db.get(Verification, verification_id) if verification_id else None
+    basis = ("legacy_ai" if verification.source == "ai" else "human") if verification and new == ElementStatus.done else None
     if new == ElementStatus.done and not evidence:
         raise EvidenceRequired()
     old = el.status
@@ -56,7 +59,7 @@ def set_status(db: Session, el: Element, new: ElementStatus, *, actor_id: str | 
     events.record(db, project_id=el.project_id, actor_id=actor_id, type="element.status_changed", entity_type="element",
                   entity_id=el.id, zone_id=zone_id, evidence_ids=([upload_id] if upload_id else []) + evidence,
                   data={"from": old.value, "to": new.value, "reason": reason, "flags": el.flags,
-                        "verification_id": verification_id})
+                        "verification_id": verification_id, "completion_basis": basis})
 
 
 def current_revisions(db: Session, project: Project, zone_id: str, trade: str | None = None) -> list[tuple[ElementRevision, Element]]:
@@ -115,7 +118,7 @@ def claim(db: Session, upload: Upload, element_ids: list[str], actor_id: str, *,
                          state="proposed", prev_status=prev, created_by=actor_id)
         db.add(v)
         db.flush()
-        if el.status != ElementStatus.done:
+        if source == "worker" or el.status != ElementStatus.done:
             set_status(db, el, ElementStatus.needs_review, actor_id=actor_id, upload_id=upload.id, zone_id=upload.zone_id,
                        reason=f"{source} reported installed", remove_flags=CLEAR_ON_CLAIM, verification_id=v.id)
         out.append(v)
@@ -127,6 +130,14 @@ def approve(db: Session, v: Verification, actor_id: str, note: str = "") -> None
         raise HTTPException(status.HTTP_409_CONFLICT, f"Already {v.state}")
     el = db.get(Element, v.element_id)
     upload = db.get(Upload, v.upload_id) if v.upload_id else None
+    if upload:
+        submitted = db.scalar(select(Event).where(Event.entity_id == upload.id, Event.type == "upload.created",
+                                                  Event.project_id == upload.project_id))
+        baseline = (submitted.data or {}).get("model_version_id") if submitted else None
+        project = db.get(Project, upload.project_id)
+        if baseline and baseline != project.current_version_id:
+            raise HTTPException(status.HTTP_409_CONFLICT,
+                                "This evidence belongs to a previous model revision. Review a new update against the active baseline.")
     set_status(db, el, ElementStatus.done, actor_id=actor_id, upload_id=v.upload_id,
                zone_id=upload.zone_id if upload else None, reason=note or f"approved {v.source} claim",
                verification_id=v.id)

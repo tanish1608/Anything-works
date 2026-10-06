@@ -39,7 +39,7 @@ import "../viewer/inspection.css";
 
 const FULL: SectionBox = { min: [0, 0, 0], max: [1, 1, 1] };
 
-function ImportPanel({
+export function ImportPanel({
   projectId,
   onDone,
 }: {
@@ -476,6 +476,18 @@ export default function ModelPage() {
 
   // Deep link: ?issue=ID flies to its saved view once the model is loaded.
   const flewTo = useRef<string | null>(null);
+  const flewToElement = useRef<string | null>(null);
+  useEffect(() => {
+    const id = params.get("element");
+    const key = `${versionParam || "current"}:${id}`;
+    if (!id || loading || !viewerReady || flewToElement.current === key || !els.some(e => e.id === id)) return;
+    flewToElement.current = key;
+    // Logs link only to elements returned by this authorized model query.
+    // eslint-disable-next-line react/set-state-in-effect
+    setSelected(id);
+    viewerRef.current?.select(id);
+    viewerRef.current?.frame([id]);
+  }, [params, versionParam, loading, viewerReady, els]);
   useEffect(() => {
     const id = params.get("issue");
     if (

@@ -10,14 +10,15 @@ import {
 } from "react-router-dom";
 import { Icon } from "../studio/Icon";
 import { Button, Modal } from "./components";
-import { Today, Work, Review, Issue, Report, Setup } from "./pages";
+import { Work, Review, Issue, Setup } from "./pages";
+import Home from "./Home";
+import Logs from "./Logs";
+import People, { PEOPLE_KEY } from "./People";
 import { Capture, Result } from "./capture";
 import Building from "./Building";
 import {
   ASSETS,
   STORE_KEY,
-  initialState,
-  loadState,
   transition,
   type Action,
   type WorkItem,
@@ -25,16 +26,51 @@ import {
 import { WorkspaceContext, type Decision } from "./context";
 import "./design.css";
 import "./workspace.css";
+import "./header.css";
+import { loadDemoModel, type ModelDataset } from "../viewer/modelData";
+import {
+  initialProjectState,
+  loadProjectState,
+  locationLabel,
+} from "./projectState";
 
 const NAV = [
-  { path: "", label: "Today" },
+  { path: "", label: "Home" },
   { path: "work", label: "Work & Issues" },
   { path: "building", label: "Building" },
-  { path: "report", label: "Daily Report" },
+  { path: "logs", label: "Logs" },
+  { path: "people", label: "People" },
   { path: "setup", label: "Setup" },
 ];
 export default function Workspace() {
-  const [state, setState] = useState(loadState),
+  const [model, setModel] = useState<ModelDataset | null>(null),
+    [error, setError] = useState("");
+  useEffect(() => {
+    let alive = true;
+    loadDemoModel()
+      .then((data) => {
+        if (alive) setModel(data);
+      })
+      .catch((e) => {
+        if (alive) setError(e.message);
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+  if (!model)
+    return (
+      <div className="page">
+        <h1>Project workspace</h1>
+        <p role={error ? "alert" : undefined}>
+          {error || "Loading the shared building model…"}
+        </p>
+      </div>
+    );
+  return <LoadedWorkspace model={model} />;
+}
+function LoadedWorkspace({ model }: { model: ModelDataset }) {
+  const [state, setState] = useState(() => loadProjectState(model)),
     stateRef = useRef(state);
   const [message, setMessage] = useState(""),
     [decision, setDecision] = useState<Decision | null>(null),
@@ -48,11 +84,9 @@ export default function Workspace() {
   const navigate = useNavigate(),
     location = useLocation(),
     searchRef = useRef<HTMLInputElement>(null);
-  const buildingParams = new URLSearchParams(location.search);
-  const importedBuilding =
-    location.pathname === "/demo/building" &&
-    !buildingParams.has("unit") &&
-    buildingParams.get("view") !== "workflow";
+  const homePage =
+    location.pathname === "/demo" || location.pathname === "/demo/";
+  const importedBuilding = location.pathname === "/demo/building";
   const act = useCallback((action: Action) => {
     try {
       const next = transition(stateRef.current, action);
@@ -136,138 +170,123 @@ export default function Workspace() {
         .slice(0, 6)
     : [];
   return (
-    <WorkspaceContext.Provider value={{ state, act, decide, online }}>
+    <WorkspaceContext.Provider value={{ state, act, decide, online, model }}>
       <div className="ew-app">
         <a className="ew-skip" href="#workspace-main">
           Skip to content
         </a>
-        <div className="mock-strip">
-          <span>
-            <b>Interactive demo</b> ·{" "}
-            {importedBuilding ? "public duplex BIM" : "fictional project"} ·
-            labeled sample AI results · saved in this browser
-          </span>
-          <Link to="/">
-            Connected workspace <Icon name="arrow" size={12} />
-          </Link>
-        </div>
-        <header className="topbar">
-          <div className="topbar-in">
+        <header className="topbar workspace-header">
+          <div className="topbar-in workspace-header-main">
             <Link className="brand" to="/demo">
               <span className="brand-mark">
                 <Icon name="bolt" size={17} />
               </span>
-              Everything Works AI
+              <span className="brand-name">Everything Works AI</span>
             </Link>
             <div className="project-control">
               <button
                 className="project-pill"
                 onClick={() => setProjectMenu(!projectMenu)}
                 aria-expanded={projectMenu}
+                aria-label={`Project: ${state.projectName}`}
               >
-                <span className="strong">
-                  {importedBuilding ? "Duplex Apartment" : state.projectName}
-                </span>
-                <span className="tag">
-                  {importedBuilding ? "Public BIM" : "Fictional"}
-                </span>
+                <span className="strong">{state.projectName}</span>
                 <Icon name="down" size={13} />
               </button>
               {projectMenu && (
                 <div className="project-dropdown card card-pad stack">
                   <Link to="/">
-                    Open connected projects <Icon name="arrow" size={14} />
+                    All projects <Icon name="arrow" size={14} />
                   </Link>
-                  {importedBuilding ? (
-                    <Link to="/demo">Open daily workflow demo</Link>
-                  ) : (
-                    <Button icon="reset" onClick={() => setReset(true)}>
-                      Reset this demo
-                    </Button>
-                  )}
+                  <Link to="/demo/setup">Project settings</Link>
+                  <Button
+                    icon="reset"
+                    onClick={() => {
+                      setProjectMenu(false);
+                      setReset(true);
+                    }}
+                  >
+                    Reset workspace
+                  </Button>
                 </div>
               )}
             </div>
-            <nav className="nav" aria-label="Workspace">
-              {NAV.map((n) => (
-                <NavLink
-                  key={n.path}
-                  end
-                  to={`/demo${n.path ? `/${n.path}` : ""}`}
-                  className={({ isActive }) => (isActive ? "on" : "")}
-                >
-                  {n.label}
-                  {n.path === "work" && attention.length > 0 && (
-                    <span className="count">{attention.length}</span>
-                  )}
-                </NavLink>
-              ))}
-            </nav>
             <div className="top-right">
-              {!importedBuilding && (
-                <div className="workspace-search">
-                  <Icon name="search" size={15} />
-                  <input
-                    ref={searchRef}
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search rooms, items, issues"
-                    aria-label="Search workspace"
-                    onKeyDown={(e) => e.key === "Escape" && setSearch("")}
-                  />
-                  <kbd>⌘K</kbd>
-                  {search && (
-                    <div className="search-results card">
-                      {searchItems.map((i) => (
-                        <Link
-                          key={i.id}
-                          to={
-                            i.issue
-                              ? `/demo/issue/${i.id}`
-                              : `/demo/review/${i.id}`
-                          }
-                        >
-                          <strong>
-                            Unit {i.unit} · {i.title}
-                          </strong>
-                          <small>
-                            {i.id} · {i.trade}
-                          </small>
-                        </Link>
-                      ))}
-                      {!searchItems.length && <p>No matching work items.</p>}
-                    </div>
-                  )}
-                </div>
-              )}
-              {!importedBuilding && (
-                <>
-                  <Link
-                    className="icon-button"
-                    to="/demo/work?filter=review"
-                    aria-label="Open review queue"
-                  >
-                    <Icon name="bell" />
-                  </Link>
-                  <span className="avatar">SJ</span>
-                  <div className="who">
-                    <b>Sarah Jenkins</b>
-                    <span>Project manager</span>
+              <div className="workspace-search">
+                <Icon name="search" size={15} />
+                <input
+                  ref={searchRef}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search project"
+                  aria-label="Search workspace"
+                  onKeyDown={(e) => e.key === "Escape" && setSearch("")}
+                />
+                <kbd>⌘K</kbd>
+                {search && (
+                  <div className="search-results card">
+                    {searchItems.map((i) => (
+                      <Link
+                        key={i.id}
+                        to={
+                          i.issue
+                            ? `/demo/issue/${i.id}`
+                            : `/demo/review/${i.id}`
+                        }
+                      >
+                        <strong>
+                          {locationLabel(i)} · {i.title}
+                        </strong>
+                        <small>
+                          {i.id} · {i.trade}
+                        </small>
+                      </Link>
+                    ))}
+                    {!searchItems.length && <p>No matching work items.</p>}
                   </div>
-                </>
-              )}
+                )}
+              </div>
+              <Link
+                className="icon-button"
+                to="/demo/work?filter=review"
+                aria-label="Open review queue"
+              >
+                <Icon name="bell" />
+              </Link>
+              <span className="avatar">SJ</span>
+              <div className="who">
+                <b>Sarah Jenkins</b>
+                <span>Project manager</span>
+              </div>
               <button
                 className="icon-button mobile-menu"
                 aria-label="Open navigation"
                 aria-expanded={mobileNav}
+                aria-controls="workspace-mobile-navigation"
                 onClick={() => setMobileNav(!mobileNav)}
               >
                 <Icon name="menu" />
               </button>
             </div>
           </div>
+          <nav className="nav workspace-header-nav" aria-label="Workspace">
+            {NAV.map((n) => (
+              <NavLink
+                key={n.path}
+                end
+                to={`/demo${n.path ? `/${n.path}` : ""}`}
+                className={({ isActive }) => (isActive ? "on" : "")}
+              >
+                {n.label}
+              </NavLink>
+            ))}
+          </nav>
           {mobileNav && (
-            <nav className="mobile-nav" aria-label="Mobile workspace">
+            <nav
+              id="workspace-mobile-navigation"
+              className="mobile-nav"
+              aria-label="Mobile workspace"
+            >
               {NAV.map((n) => (
                 <NavLink
                   end
@@ -278,9 +297,6 @@ export default function Workspace() {
                 </NavLink>
               ))}
               <Link to="/demo/capture">Field capture</Link>
-              <Button icon="reset" onClick={() => setReset(true)}>
-                Reset demo
-              </Button>
             </nav>
           )}
         </header>
@@ -289,13 +305,19 @@ export default function Workspace() {
           id="workspace-main"
         >
           <Routes>
-            <Route index element={<Today />} />
+            <Route index element={<Home />} />
+            <Route path="home" element={<Navigate to="/demo" replace />} />
             <Route path="today" element={<Navigate to="/demo" replace />} />
             <Route path="work" element={<Work />} />
             <Route path="review/:id" element={<Review />} />
             <Route path="issue/:id" element={<Issue />} />
             <Route path="building" element={<Building />} />
-            <Route path="report" element={<Report />} />
+            <Route path="logs" element={<Logs />} />
+            <Route path="people" element={<People />} />
+            <Route
+              path="report"
+              element={<Navigate to="/demo/logs" replace />}
+            />
             <Route path="setup" element={<Setup />} />
             <Route path="capture" element={<Capture />} />
             <Route path="result/:id" element={<Result />} />
@@ -309,7 +331,7 @@ export default function Workspace() {
             />
             <Route
               path="activity"
-              element={<Navigate to="/demo/report" replace />}
+              element={<Navigate to="/demo/logs" replace />}
             />
             <Route
               path="handoffs"
@@ -318,7 +340,7 @@ export default function Workspace() {
             <Route path="*" element={<Navigate to="/demo" replace />} />
           </Routes>
         </main>
-        {!importedBuilding && (
+        {!importedBuilding && !homePage && (
           <button
             className="beaver-launch"
             aria-expanded={assistant}
@@ -329,7 +351,7 @@ export default function Workspace() {
             <Icon name={assistant ? "close" : "spark"} size={16} />
           </button>
         )}
-        {assistant && !importedBuilding && (
+        {assistant && !importedBuilding && !homePage && (
           <aside className="beaver" aria-label="Works Beaver assistant">
             <div className="beaver-head">
               <img
@@ -348,7 +370,7 @@ export default function Workspace() {
             </div>
             <div className="beaver-body">
               {attention.length
-                ? `${attention.length} work items need a decision. Start with Unit ${attention[0].unit}: ${attention[0].title}.`
+                ? `${attention.length} work items need a decision. Start with ${locationLabel(attention[0])}: ${attention[0].title}.`
                 : "No outstanding decisions. Check evidence requests and newly submitted updates next."}
             </div>
             <div className="beaver-actions">
@@ -364,7 +386,7 @@ export default function Workspace() {
               <Button
                 onClick={() => {
                   navigate(
-                    `/demo/building?unit=${attention[0]?.unit || "405"}`,
+                    `/demo/building${attention[0] ? `?work=${attention[0].id}` : ""}`,
                   );
                   setAssistant(false);
                 }}
@@ -388,7 +410,7 @@ export default function Workspace() {
         )}
         {decision && (
           <Modal
-            title={`${decision.type === "resolve" ? "Accept correction & resolve" : decision.type === "request" ? "Request additional evidence" : decision.type.charAt(0).toUpperCase() + decision.type.slice(1)} · Unit ${decision.item.unit}`}
+            title={`${decision.type === "resolve" ? "Accept correction & resolve" : decision.type === "request" ? "Request additional evidence" : decision.type.charAt(0).toUpperCase() + decision.type.slice(1)} · ${locationLabel(decision.item)}`}
             close={() => setDecision(null)}
           >
             <p className="small muted">{decision.item.title}</p>
@@ -431,15 +453,16 @@ export default function Workspace() {
           <Modal title="Reset the local demo?" close={() => setReset(false)}>
             <p>
               Removes this demo's decisions, uploads and drafts from this
-              browser. Download the daily report first if you want a record.
+              browser. Export your logs first if you want a record.
             </p>
             <Button
               kind="danger"
               icon="reset"
               onClick={() => {
                 try {
-                  const fresh = initialState();
+                  const fresh = initialProjectState(model);
                   localStorage.setItem(STORE_KEY, JSON.stringify(fresh));
+                  localStorage.removeItem(PEOPLE_KEY);
                   stateRef.current = fresh;
                   setState(fresh);
                   setReset(false);

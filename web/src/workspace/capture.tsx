@@ -1,3 +1,4 @@
+import { locationLabel } from "./projectState";
 import { useRef, useState } from "react";
 import {
   Link,
@@ -171,7 +172,7 @@ export function Capture() {
                   >
                     {state.items.map((i) => (
                       <option key={i.id} value={i.id}>
-                        Unit {i.unit} · {i.title}
+                        {locationLabel(i)} · {i.title}
                       </option>
                     ))}
                   </select>
@@ -179,22 +180,28 @@ export function Capture() {
                 <div className="inset stack">
                   <div className="row">
                     <Icon name="pin" />
-                    <b>
-                      Unit {item.unit} · Level {item.level}
-                    </b>
+                    <b>{locationLabel(item)}</b>
                   </div>
                   <p className="small muted">
                     Location confirmed by your selection. No QR scan is
                     simulated.
                   </p>
+                  <Link to={`/demo/building?work=${item.id}`}>
+                    Confirm location in the project model →
+                  </Link>
+                  <small>
+                    Component {item.location?.elements[0]} · baseline{" "}
+                    {item.location?.version.slice(0, 7)}
+                  </small>
                 </div>
                 <Card title="What the plan shows">
                   <div className="card-pad stack">
                     <b>{item.reference}</b>
                     <p className="small">{item.scope}</p>
                     <p className="xs muted">
-                      Capture context and close-ups. Symbol locations are
-                      schematic; exact dimensions are not inferred.
+                      Capture context and close-ups of the linked component.
+                      Photos are not registered to the model, and exact
+                      measurements are not inferred.
                     </p>
                   </div>
                 </Card>
@@ -220,7 +227,7 @@ export function Capture() {
                     <Icon name="eye" />
                     <span>
                       {item.id === "ELEC-406"
-                        ? "Full north wall — boxes 1 and 2"
+                        ? "Full context of the linked receptacle and its mounting surface"
                         : "Close-up of the condition being reported"}
                     </span>
                   </div>
@@ -301,7 +308,7 @@ export function Capture() {
               <>
                 <div className="inset stack">
                   <b>
-                    Unit {item.unit} · {item.title}
+                    {locationLabel(item)} · {item.title}
                   </b>
                   <p className="small">
                     {draft.photos.length} photos ·{" "}
@@ -400,7 +407,7 @@ export function Capture() {
                     to={`/demo/result/${i.id}`}
                   >
                     <span className="small">
-                      <b>Unit {i.unit}</b>
+                      <b>{locationLabel(i)}</b>
                       <br />
                       {i.update}
                     </span>
@@ -476,7 +483,7 @@ export function Result() {
       <Heading
         eyebrow={`Submission result · ${item.update || item.id}`}
         title={title}
-        sub={`Unit ${item.unit} · ${item.title}`}
+        sub={`${locationLabel(item)} · ${item.title}`}
         action={
           <Link className="btn" to={`/demo/capture?item=${item.id}`}>
             Add another photo
@@ -550,7 +557,7 @@ export function Result() {
               ))}
             </div>
           </Card>
-          <Link className="btn" to={`/demo/building?unit=${item.unit}`}>
+          <Link className="btn" to={`/demo/building?work=${item.id}`}>
             See work in 3D <Icon name="cube" size={16} />
           </Link>
         </aside>

@@ -62,7 +62,7 @@ Use retry-safe job identities and reject stale analysis results. A job finishing
 | **P0 — Define and prepare** | Check catalog, example evidence, state contract, UX and evaluation plan | Team can label sample outcomes consistently and explain completion versus acceptance |
 | **P1 — Daily workflow** | Persisted capture, context, evidence/review states and exception inbox | One update survives offline/retry and reaches a reviewer with correct reference context |
 | **P2 — AI assessment and progress** | Supported checks, provenance, evaluation and controlled automatic completion | Per-check release criteria met; uncertainty, failures and stale inputs never produce completion |
-| **P3 — 3D and corrections** | Model status projection, assigned issues, correction loop and daily report | Multi-outcome update changes the correct items and an issue can be resolved with retained evidence |
+| **P3 — 3D and corrections** | Model status projection, assigned issues, correction loop and daily progress Logs | Multi-outcome update changes the correct items and an issue can be resolved with retained evidence |
 | **P4 — Pilot and hardening** | Real-site workflow evaluation, operations and economics | Evidence supports repeat use, manageable review burden and clear value for a buyer |
 | **P5 — Expansion** | Additional checks/trades, voice/video, measurements, code and integrations | Each extension has validated inputs and a release gate |
 
@@ -74,7 +74,7 @@ No dates or ownership are assigned yet. Work can be divided by the packages in [
 
 Adapt the existing demo's spatial navigation and task presentation into the new story. Build the connected daily submission and result view, comparison panel, exception inbox and correction detail against shared typed contracts.
 
-Make status language consistent in mobile, model and reports. Include loading, offline, failed analysis, inadequate capture, unsupported check and changed-reference states. Keep a 2D alternative for users who do not need 3D navigation.
+Make status language consistent in mobile, model and Logs. Include loading, offline, failed analysis, inadequate capture, unsupported check and changed-reference states. Keep a 2D alternative for users who do not need 3D navigation.
 
 Separate AI-checked complete, human accepted and formal inspection badges. Do not use a global “safe,” “compliant,” or “ready to cover” indicator based only on photo analysis.
 

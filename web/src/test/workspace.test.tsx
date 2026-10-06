@@ -1,4 +1,12 @@
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import type { ModelDataset } from "../viewer/modelData";
+import {
+  cleanup,
+  render,
+  screen,
+  within,
+  waitFor,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import {
@@ -12,28 +20,25 @@ import {
   vi,
 } from "vitest";
 import Workspace from "../workspace/Workspace";
-import { STORE_KEY, initialState } from "../workspace/state";
+import { STORE_KEY } from "../workspace/state";
 
+const model = JSON.parse(
+  readFileSync("public/bim-duplex/model.json", "utf8"),
+) as ModelDataset;
 const sceneCalls = vi.hoisted(() => ({
-  appearance: vi.fn(),
-  update: vi.fn(),
-  dispose: vi.fn(),
+  scene: vi.fn(),
+  selections: [] as ((id: string) => void)[],
 }));
-vi.mock("../studio/scene", () => ({
-  BuildingScene: class {
-    constructor(
-      _host: HTMLElement,
-      _select: (id: string) => void,
-      stats: (count: number) => void,
-    ) {
-      stats(120);
-    }
-    update = sceneCalls.update;
-    setAppearance = sceneCalls.appearance;
-    dispose = sceneCalls.dispose;
-    frame() {}
-    focus() {}
-    zoom() {}
+vi.mock("../viewer/modelData", async (original) => ({
+  ...(await original<typeof import("../viewer/modelData")>()),
+  loadDemoModel: async () => model,
+}));
+vi.mock("../viewer/ProjectScene", () => ({
+  default: (props: Record<string, unknown>) => {
+    sceneCalls.scene(props);
+    const choose = props.onMarker as (id: string) => void;
+    sceneCalls.selections.push(choose);
+    return <div data-testid="shared-scene" />;
   },
 }));
 
@@ -51,6 +56,7 @@ afterAll(() =>
 beforeEach(() => {
   vi.clearAllMocks();
   localStorage.clear();
+  sceneCalls.selections.length = 0;
   vi.spyOn(window, "scrollTo").mockImplementation(() => {});
 });
 afterEach(() => {
@@ -68,42 +74,45 @@ function renderAt(path = "/demo") {
 }
 
 describe("implemented designer workflow", () => {
-  it('keeps a core-level location instead of incorrectly selecting an apartment', () => {
-    renderAt('/demo/building?unit=Core');
-    expect(screen.getByRole('heading', { name: 'Level 14 core' })).toBeInTheDocument();
-    expect(screen.getByText('Firestop at penetrations P-01 to P-06')).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'Unit 405' })).not.toBeInTheDocument();
+  it("uses the imported building even for old illustrated-unit links", async () => {
+    renderAt("/demo/building?unit=Core");
+    await screen.findByLabelText("Building viewer");
+    expect(screen.getByLabelText("Level")).toHaveValue("");
+    expect(sceneCalls.scene.mock.calls.at(-1)![0].data.version).toBe(
+      model.version,
+    );
+    expect(screen.queryByText("Level 14 core")).not.toBeInTheDocument();
   });
-  it("projects issue precedence into 3D and provides an accessible plan fallback", async () => {
+  it("projects actual issue components and switches to their source plan", async () => {
     const user = userEvent.setup();
-    renderAt("/demo/building?unit=405");
-    expect(sceneCalls.appearance).toHaveBeenCalledWith(
-      expect.objectContaining({ "405": { color: "#ef4444", marker: true } }),
+    renderAt("/demo/building?work=ISS-031");
+    await screen.findByLabelText("Building viewer");
+    await waitFor(() =>
+      expect(sceneCalls.scene.mock.calls.at(-1)![0].focus?.element).toBe(
+        "f1bbcc89-9317-5a67-b1e2-9e8b7c9a846c",
+      ),
     );
     expect(
-      screen.getByRole("heading", { name: "Unit 405" }),
-    ).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Plan view" }));
-    expect(
-      within(screen.getByLabelText("Accessible unit plan")).getByRole("button", { name: /405/ }),
-    ).toBeInTheDocument();
-    await user.selectOptions(screen.getByLabelText("Level"), "3");
-    await user.click(
-      within(screen.getByLabelText("Accessible unit plan")).getByRole("button", { name: /302/ }),
-    );
-    expect(
-      screen.getByRole("heading", { name: "Unit 302" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("Punch P-118 · hall-closet paint touch-up"),
-    ).toBeInTheDocument();
+      sceneCalls.scene.mock.calls
+        .at(-1)![0]
+        .colors.get("f1bbcc89-9317-5a67-b1e2-9e8b7c9a846c"),
+    ).toBe("#ef4444");
+    await user.click(screen.getByRole("button", { name: "Switch to 2D plan" }));
+    expect(screen.getByLabelText("Level")).toHaveValue(model.elements.find(e=>e.id==='f1bbcc89-9317-5a67-b1e2-9e8b7c9a846c')!.level_id);
+    expect(screen.getByText(/Model-derived plan/)).toBeInTheDocument();
   });
   it("filters work and records an issue confirmation that persists after refresh", async () => {
     const user = userEvent.setup();
     const view = renderAt("/demo/review/F-118");
     expect(
-      screen.getByRole("heading", { name: "Evidence vs approved reference" }),
+      await screen.findByRole("heading", {
+        name: "Evidence vs approved reference",
+      }),
     ).toBeInTheDocument();
+    await user.type(
+      screen.getByLabelText("Resolution requires"),
+      "Review door placement and submit corrected context photos.",
+    );
     await user.click(
       screen.getByRole("button", { name: "Confirm issue & assign owner" }),
     );
@@ -120,16 +129,20 @@ describe("implemented designer workflow", () => {
     ).toBeTruthy();
     view.unmount();
     renderAt("/demo/work?filter=issues");
-    expect(screen.getAllByText(/Door opening appears/).length).toBeGreaterThan(
-      0,
-    );
-    await user.type(screen.getByLabelText("Find work"), "405");
-    expect(screen.queryByText(/Door opening appears/)).not.toBeInTheDocument();
-    expect(screen.getByText(/Supply duct routing/)).toBeInTheDocument();
+    await screen.findByLabelText("Find work");
+    expect(
+      screen.getAllByText(/Bedroom door — placement review/).length,
+    ).toBeGreaterThan(0);
+    await user.type(screen.getByLabelText("Find work"), "connection");
+    expect(
+      screen.queryByText(/Bedroom door — placement review/),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText(/Bedroom pipe connection/)).toBeInTheDocument();
   });
   it("resolves a correction with a reason and updates the daily record", async () => {
     const user = userEvent.setup();
     renderAt("/demo/issue/ISS-031");
+    await screen.findByRole("button", { name: "Accept correction & resolve" });
     await user.click(
       screen.getByRole("button", { name: "Accept correction & resolve" }),
     );
@@ -144,18 +157,24 @@ describe("implemented designer workflow", () => {
     expect(
       await screen.findByText("Resolved · human accepted"),
     ).toBeInTheDocument();
-    await user.click(screen.getByRole("link", { name: "Daily Report" }));
+    await user.click(screen.getByRole("link", { name: "Logs" }));
+    const saved = JSON.parse(localStorage.getItem(STORE_KEY)!);
+    const at = new Date(saved.events[0].at);
+    const date = `${at.getFullYear()}-${String(at.getMonth() + 1).padStart(2, "0")}-${String(at.getDate()).padStart(2, "0")}`;
+    await user.clear(screen.getByLabelText("Selected log day"));
+    await user.type(screen.getByLabelText("Selected log day"), date);
     expect(
-      screen.getByText(
+      within(screen.getByLabelText("Daily activity")).getByText(
         /Reviewed corrected routing and fire-protection confirmation on site\./,
-        { selector: "pre" },
       ),
     ).toBeInTheDocument();
   });
   it("submits a sample update through capture steps and shows scoped completion", async () => {
     const user = userEvent.setup();
     renderAt("/demo/capture?item=PLUMB-402");
-    await user.click(screen.getByRole("button", { name: "Next: photos" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Next: photos" }),
+    );
     await user.click(screen.getByRole("button", { name: "Use sample image" }));
     await user.type(
       screen.getByLabelText("Note"),
@@ -181,7 +200,9 @@ describe("implemented designer workflow", () => {
   it("keeps an offline simulation queued and later moves it to review", async () => {
     const user = userEvent.setup();
     renderAt("/demo/capture?item=ELEC-406");
-    await user.click(screen.getByRole("button", { name: "Next: photos" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Next: photos" }),
+    );
     await user.click(screen.getByRole("button", { name: "Use sample image" }));
     await user.click(screen.getByRole("button", { name: "Review update" }));
     await user.click(
@@ -200,30 +221,122 @@ describe("implemented designer workflow", () => {
       await screen.findByRole("heading", { name: "Your update is in review" }),
     ).toBeInTheDocument();
   });
-  it("renders setup and a persisted report without inventing inspected status", async () => {
-    localStorage.setItem(STORE_KEY, JSON.stringify(initialState()));
+  it("keeps setup names and redirects the removed report to Logs", async () => {
     const user = userEvent.setup();
-    renderAt("/demo/setup");
-    expect(
-      screen.getByRole("heading", { name: "Approved references" }),
-    ).toBeInTheDocument();
-    await user.clear(screen.getByLabelText("Local demo project name"));
+    const view = renderAt("/demo/setup");
+    await user.clear(await screen.findByLabelText("Project name"));
     await user.type(
-      screen.getByLabelText("Local demo project name"),
+      screen.getByLabelText("Project name"),
       "Friends demo",
     );
     await user.click(screen.getByRole("button", { name: "Save name" }));
-    await user.click(screen.getByRole("link", { name: "Daily Report" }));
+    await user.click(screen.getByRole("link", { name: "Logs" }));
+    expect(screen.getByRole("heading", { name: "Logs" })).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Friends demo" }),
+      screen.getByText("Friends demo", { selector: "p" }),
     ).toBeInTheDocument();
-    await user.type(screen.getByLabelText("PM note"), "Reviewed references.");
+    expect(
+      screen.queryByRole("link", { name: "Daily Report" }),
+    ).not.toBeInTheDocument();
+    view.unmount();
+    renderAt("/demo/report");
+    expect(
+      await screen.findByRole("heading", { name: "Logs" }),
+    ).toBeInTheDocument();
+  });
+  it("links Home rows to model focus and model pins back to the selected record", async () => {
+    const user = userEvent.setup();
+    renderAt();
+    expect(
+      await screen.findByRole("heading", { name: "Home" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Updates recorded")).not.toBeInTheDocument();
     await user.click(
-      screen.getByRole("button", { name: "Sign report snapshot" }),
+      screen.getByRole("button", {
+        name: "Locate Firestop evidence at pipe penetration",
+      }),
+    );
+    expect(sceneCalls.scene.mock.calls.at(-1)![0].focus.element).toBe(
+      "d09d1641-ef7d-53db-9d74-afdf3091c96d",
+    );
+    expect(sceneCalls.scene.mock.calls.at(-1)![0].expanded).toBe(true);
+    const { act } = await import("@testing-library/react");
+    act(() => sceneCalls.selections.at(-1)!("ISS-031"));
+    expect(
+      screen.getByRole("button", {
+        name: "Locate Bedroom pipe connection — correction submitted",
+      }),
+    ).toHaveAttribute("aria-pressed", "true");
+    expect(
+      screen.getByRole("link", { name: "Open evidence & decision →" }),
+    ).toHaveAttribute("href", "/demo/issue/ISS-031");
+    const token = sceneCalls.scene.mock.calls.at(-1)![0].focus.token;
+    await user.click(
+      screen.getByRole("button", {
+        name: "Locate Bedroom pipe connection — correction submitted",
+      }),
+    );
+    expect(sceneCalls.scene.mock.calls.at(-1)![0].focus.token).toBeGreaterThan(
+      token,
+    );
+    await user.click(screen.getByRole("button", { name: "Fit project model" }));
+    expect(sceneCalls.scene.mock.calls.at(-1)![0].focus).toBeNull();
+    expect(sceneCalls.scene.mock.calls.at(-1)![0].expanded).toBe(false);
+    expect(
+      new Set(
+        model.elements
+          .filter((e) =>
+            sceneCalls.scene.mock.calls.at(-1)![0].visible.has(e.id),
+          )
+          .map((e) => e.level_id),
+      ).size,
+    ).toBeGreaterThan(1);
+  });
+  it("compares actual history without backdating current completion", async () => {
+    const user = userEvent.setup();
+    renderAt("/demo/logs");
+    await user.click(
+      await screen.findByRole("checkbox", { name: "Compare dates" }),
     );
     expect(
-      screen.getByText("Signed locally · snapshot locked"),
+      screen.getByText(/2 newly completed · 0 reopened/),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText("PM note")).toHaveAttribute("readonly");
+    const projections = sceneCalls.scene.mock.calls.map((c) => c[0]);
+    const sink = "70bac51c-0cf4-5135-a685-95a5c44f7c6c",
+      issue = "f1bbcc89-9317-5a67-b1e2-9e8b7c9a846c";
+    expect(projections.some((p) => p.colors.get(sink) === "#e2e8f0")).toBe(
+      true,
+    );
+    expect(projections.some((p) => p.colors.get(sink) === "#10b981")).toBe(
+      true,
+    );
+    expect(projections.every((p) => p.colors.get(issue) !== "#10b981")).toBe(
+      true,
+    );
+    expect(projections.every((p) => p.data.version === model.version)).toBe(
+      true,
+    );
+  });
+  it("shows People contacts and persists explicitly set availability", async () => {
+    const user = userEvent.setup();
+    const view = renderAt("/demo/people");
+    expect(
+      await screen.findByRole("link", { name: "nina.patel@example.com" }),
+    ).toHaveAttribute("href", "mailto:nina.patel@example.com");
+    await user.selectOptions(
+      screen.getByLabelText("Availability for Nina Patel"),
+      "On site",
+    );
+    await user.click(screen.getByRole("button", { name: "Teams & hierarchy" }));
+    expect(screen.getAllByText("Reports to Sarah Jenkins").length).toBe(6);
+    view.unmount();
+    renderAt("/demo/people");
+    expect(
+      await screen.findByLabelText("Availability for Nina Patel"),
+    ).toHaveValue("On site");
+    await user.type(screen.getByLabelText("Find people"), "Nina");
+    expect(
+      screen.queryByRole("heading", { name: "Derrick Hall" }),
+    ).not.toBeInTheDocument();
   });
 });

@@ -30,6 +30,7 @@ vi.mock("../pages/ProjectLayout", () => ({
 
 const viewer = vi.hoisted(() => ({
   loadLayers: vi.fn(async () => {}),
+  setExplodedOffsets: vi.fn(async () => {}),
   setVisible: vi.fn(),
   setColors: vi.fn(),
   select: vi.fn(),
@@ -159,7 +160,10 @@ it("opens the real BIM viewer inside Building with shared navigation and a disti
   expect(
     screen.getAllByRole("link", { name: "Everything Works AI" }),
   ).toHaveLength(1);
-  expect(screen.queryByLabelText("Search workspace")).not.toBeInTheDocument();
+  expect(screen.getByLabelText("Search workspace")).toBeInTheDocument();
+  expect(screen.getByRole("link",{name:"Open review queue"})).toBeInTheDocument();
+  expect(screen.queryByText("Interactive demo")).not.toBeInTheDocument();
+  expect(screen.queryByText("Public BIM")).not.toBeInTheDocument();
   expect(
     screen.queryByText("Daily workflow · illustrated building"),
   ).not.toBeInTheDocument();

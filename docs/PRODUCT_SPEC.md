@@ -143,11 +143,12 @@ When exact element association is uncertain, retain a confirmed room-level pin. 
 | Project setup | Approve references and configure work items | Revision, model quality, rooms, trades, required checks |
 | Mobile daily update | Capture and submit | Location, task, capture guidance, draft/sync state |
 | Submission result | Understand what changed | Completed items, issues, evidence requests, limits |
-| PM daily overview | Review exceptions | New completions, unreviewed findings, missing evidence, failed checks |
+| Home | Read the daily summary and act on work pins | Summary above a minimal model on the left and grouped work records on the right; two-way selection and camera focus |
 | 3D / plan workspace | Locate work | Status legend, selected item, coverage, related evidence |
 | Comparison panel | Decide on a finding | Photo, approved reference, highlighted observation, uncertainty |
 | Issue / correction detail | Assign and resolve | Owner, due date, before/after evidence, decision history |
-| Daily report / history | Share a factual summary | Evidence-backed changes, unresolved items, sources and actors |
+| Logs | Inspect daily activity and compare dates | Calendar, recorded progress changes, date comparison, completion/reopening in 3D and traceable evidence |
+| People | Find the responsible person | Contacts, teams, reporting hierarchy and explicitly recorded availability |
 
 The first mobile experience should work without navigating a complex 3D scene. Capture first; richer spatial review is mainly for the office workflow.
 

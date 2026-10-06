@@ -1,24 +1,27 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api/client";
 import { can, type Issue, type UploadInfo } from "../api/types";
-import { Card, Chip, Heading } from "../workspace/components";
 import { Icon } from "../studio/Icon";
+import ProjectModelContext from "../components/ProjectModelContext";
 import { useProject } from "./ProjectLayout";
+import { dayKey } from "../workspace/history";
+import "../workspace/design.css";
+import "../workspace/workspace.css";
+import "../workspace/operations.css";
 
-/** Same design language as the designer workspace, with actual authorized project records. */
 export default function TodayPage() {
-  const [today] = useState(() => new Date().toDateString());
   const { project } = useProject(),
     manager = can.editStructure(project.my_role);
-  const progress = useQuery({
-    queryKey: ["progress", project.id],
-    queryFn: () =>
-      api<{ totals: Record<string, number> }>(
-        `/projects/${project.id}/progress`,
-      ),
-  });
+  const [selected, setSelected] = useState<string | null>(null),
+    [sort, setSort] = useState("priority");
+  const [focusToken, setFocusToken] = useState(0);
+  const select = (id: string) => {
+    setSelected(id);
+    setFocusToken((n) => n + 1);
+  };
+  const refs = useRef(new Map<string, HTMLDivElement>());
   const issues = useQuery({
     queryKey: ["overview-issues", project.id],
     queryFn: () => api<Issue[]>(`/projects/${project.id}/issues`),
@@ -33,231 +36,245 @@ export default function TodayPage() {
     queryFn: () => api<UploadInfo[]>(`/projects/${project.id}/reviews`),
     enabled: manager,
   });
-  const open =
-    issues.data?.filter((i) => ["open", "in_progress"].includes(i.status)) ||
-    [];
-  const totals = progress.data?.totals || {},
-    total = Object.values(totals).reduce((a, b) => a + b, 0);
-  const error =
-    progress.error || issues.error || uploads.error || reviews.error;
-  const recentToday =
-    uploads.data?.filter(
-      (u) =>
-      new Date(u.created_at).toDateString() === today,
-    ) || [];
-  const needReview = totals.needs_review || 0;
+  const open = useMemo(
+    () =>
+      issues.data?.filter((i) => ["open", "in_progress"].includes(i.status)) ||
+      [],
+    [issues.data],
+  );
+  const [date] = useState(() => new Date());
+  const today = dayKey(date.toISOString());
+  const allUploads = [
+    ...new Map(
+      [...(reviews.data || []), ...(uploads.data || [])].map((u) => [u.id, u]),
+    ).values(),
+  ];
+  const pendingIds = new Set(reviews.data?.map((u) => u.id));
+  const waiting = allUploads.filter((u) =>
+    ["queued", "running", "failed"].includes(u.analysis_status),
+  );
+  const waitingIds = new Set(waiting.map((u) => u.id));
+  const latest = allUploads.filter(
+    (u) => !pendingIds.has(u.id) && !waitingIds.has(u.id),
+  );
+  const activeIssue = open.find((i) => i.id === selected) || null;
+  const activeUpload = allUploads.find((u) => u.id === selected);
+  const focus = useMemo(
+    () =>
+      activeUpload
+        ? {
+            id: activeUpload.id,
+            elements: activeUpload.verifications.map((v) => v.element_id),
+            zone: activeUpload.zone_id,
+          }
+        : null,
+    [activeUpload],
+  );
+  const error = issues.error || uploads.error || reviews.error;
+  const loading =
+    issues.isPending || uploads.isPending || (manager && reviews.isPending);
+  useEffect(() => {
+    if (selected)
+      refs.current
+        .get(selected)
+        ?.scrollIntoView?.({ block: "nearest", behavior: "smooth" });
+  }, [selected]);
+  const sortedIssues = [...open].sort((a, b) =>
+    sort === "trade"
+      ? (a.trade || "").localeCompare(b.trade || "")
+      : sort === "recent"
+        ? b.created_at.localeCompare(a.created_at)
+        : ["critical", "high", "medium", "low"].indexOf(a.priority) -
+          ["critical", "high", "medium", "low"].indexOf(b.priority),
+  );
+  const uploadRow = (u: UploadInfo) => (
+    <div
+      key={u.id}
+      ref={(el) => {
+        if (el) refs.current.set(u.id, el);
+        else refs.current.delete(u.id);
+      }}
+      className={`pin-record ${selected === u.id ? "selected" : ""}`}
+    >
+      <button
+        className="pin-select"
+        aria-pressed={selected === u.id}
+        onClick={() => select(u.id)}
+      >
+        <span className="pin-number">
+          <Icon name="pin" size={15} />
+        </span>
+        <span>
+          <strong>
+            {u.zone_name || "Location unconfirmed"} · {u.trade}
+          </strong>
+          <small>
+            {u.user_name} · {new Date(u.created_at).toLocaleString()}
+          </small>
+        </span>
+      </button>
+      {selected === u.id && (
+        <div className="pin-detail">
+          <p>{u.note || "Field evidence submitted."}</p>
+          <Link className="btn sm" to={`../progress?upload=${u.id}`}>
+            Open evidence & decision →
+          </Link>
+        </div>
+      )}
+    </div>
+  );
   return (
     <div className="ew-app connected-overview">
       <div className="page">
-        <Heading
-          eyebrow="Project overview"
-          title={`${project.name}. The latest work, in context.`}
-          sub="Live project records from the connected workspace. Photo results describe the existing progress system."
-          action={
-            <Link className="btn primary" to={`/field/${project.id}`}>
-              <Icon name="camera" size={16} />
-              Submit field update
-            </Link>
-          }
-        />
-        {error && (
-          <div className="inset warning" role="alert">
-            Some project records could not be loaded: {(error as Error).message}
-          </div>
-        )}
-        <div className="grid g-4">
-          {[
-            {
-              label: "Received today",
-              value: uploads.isPending ? "—" : recentToday.length,
-              detail: "From the latest 20 project updates",
-            },
-            {
-              label: "Need review",
-              value: progress.isPending ? "—" : needReview,
-              detail: "Element progress awaiting review",
-            },
-            {
-              label: "Open issues",
-              value: issues.isPending ? "—" : open.length,
-              detail: "Assigned project findings and corrections",
-            },
-            {
-              label: "Recorded complete",
-              value: progress.isPending ? "—" : totals.done || 0,
-              detail: "Existing progress status · see evidence",
-            },
-          ].map((k) => (
-            <div key={k.label} className="card kpi">
-              <span className="eyebrow">{k.label}</span>
-              <div className="v">{k.value}</div>
-              <p className="l">{k.detail}</p>
+        <div className="operations-page">
+          <div className="operations-heading">
+            <div>
+              <p className="operations-kicker">{project.name}</p>
+              <h1>Home</h1>
             </div>
-          ))}
-        </div>
-        <div className="grid g-2-1">
-          <div className="stack-lg">
-            <Card
-              title="Review and follow up"
-              action={
-                <Link className="small strong" to="../progress">
-                  Open progress →
-                </Link>
-              }
-            >
-              <div className="list">
-                {manager &&
-                  reviews.data?.map((u) => (
-                    <div className="item" key={u.id}>
-                      <div className="ic amber">
-                        <Icon name="camera" />
-                      </div>
-                      <div className="grow">
-                        <b>
-                          {u.zone_name} · {u.trade}
-                        </b>
-                        <p className="item-meta">
-                          {u.user_name} ·{" "}
-                          {new Date(u.created_at).toLocaleString()}
-                        </p>
-                        <p className="small muted">
-                          {u.note || "Evidence submitted for review"}
-                        </p>
-                        <Chip status="review">
-                          {
-                            u.verifications.filter(
-                              (v) => v.state === "proposed",
-                            ).length
-                          }{" "}
-                          progress proposals
-                        </Chip>
-                      </div>
-                      <Link
-                        className="btn sm primary"
-                        to={`../progress?upload=${u.id}`}
-                      >
-                        Review evidence
-                      </Link>
-                    </div>
-                  ))}
-                {(!manager || !reviews.data?.length) && (
-                  <div className="card-pad small muted">
-                    {reviews.isPending && manager
-                      ? "Loading review records…"
-                      : manager
-                        ? "No pending review submissions."
-                        : "Open Progress to see records available to your role."}
-                  </div>
-                )}
-              </div>
-            </Card>
-            <Card
-              title="Open issues"
-              action={
-                <Link className="small strong" to="../issues">
-                  All issues →
-                </Link>
-              }
-            >
-              <div className="list">
-                {open.slice(0, 6).map((i) => (
-                  <div className="item" key={i.id}>
-                    <div className="ic red">
-                      <Icon name="alert" />
-                    </div>
-                    <div className="grow">
-                      <Link
-                        className="item-title"
-                        to={`../model?issue=${i.id}`}
-                      >
-                        #{i.number} · {i.title}
-                      </Link>
-                      <p className="item-meta">
-                        {i.trade || "General"} ·{" "}
-                        {i.assignee_name || "Unassigned"} · {i.priority}
-                      </p>
-                      <Chip status="issue">{i.status.replace("_", " ")}</Chip>
-                    </div>
-                    <Link className="btn sm" to={`../model?issue=${i.id}`}>
-                      Locate issue
-                    </Link>
-                  </div>
-                ))}
-                {!open.length && (
-                  <p className="card-pad small muted">
-                    {issues.isPending
-                      ? "Loading issues…"
-                      : "No open issues recorded."}
-                  </p>
-                )}
-              </div>
-            </Card>
+            <Link className="btn" to={`/field/${project.id}`}>
+              <Icon name="camera" size={16} /> New update
+            </Link>
           </div>
-          <aside className="stack-lg">
-            <Card title="Model progress">
-              <div className="card-pad stack">
-                <p className="small">
-                  {total} tracked elements on the current model
-                </p>
-                <div className="covbar">
-                  {(
-                    [
-                      "done",
-                      "needs_review",
-                      "in_progress",
-                      "not_started",
-                    ] as const
-                  ).map((k) => (
-                    <span
-                      key={k}
-                      style={{
-                        width: `${total ? ((totals[k] || 0) / total) * 100 : 0}%`,
-                        background: {
-                          done: "#10b981",
-                          needs_review: "#f59e0b",
-                          in_progress: "#2563eb",
-                          not_started: "#e2e8f0",
-                        }[k],
-                      }}
-                    />
-                  ))}
-                </div>
-                <p className="xs muted">
-                  Element counts are not labor, cost or schedule percentages.
-                  Existing completion records do not imply formal inspection.
-                </p>
-                <Link className="btn" to="../model">
-                  <Icon name="cube" size={16} />
-                  Open 3D model
-                </Link>
+          <section className="daily-summary" aria-labelledby="summary-title">
+            <div className="summary-icon">
+              <Icon name="spark" size={21} />
+            </div>
+            <div>
+              <div className="summary-heading">
+                <h2 id="summary-title">Your daily summary</h2>
+                <span>
+                  {date.toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                  })}{" "}
+                  · Project records
+                </span>
               </div>
-            </Card>
-            <Card title="Latest updates">
-              <div className="card-pad stack">
-                {uploads.data?.slice(0, 5).map((u) => (
-                  <Link
-                    className="inset"
-                    key={u.id}
-                    to={`../progress?upload=${u.id}`}
+              <p>
+                {loading
+                  ? "Loading project records…"
+                  : `${uploads.data?.filter((u) => dayKey(u.created_at) === today).length || 0} updates received today in the latest 20 submissions. ${issues.error ? "Issue records are unavailable." : `${open.length} open issues${open[0] ? `, including ${open[0].title}` : ""}.`} ${manager && !reviews.error ? `${reviews.data?.length || 0} submissions await a decision.` : ""} ${waiting.length} updates are waiting on analysis or a retry.`}
+              </p>
+              <small>
+                Record-based summary. Live AI summaries are not connected;
+                completion does not establish inspection approval.
+              </small>
+            </div>
+          </section>
+          {error && (
+            <p role="alert">
+              Some records could not be loaded: {(error as Error).message}
+            </p>
+          )}
+          <div className="home-workspace">
+            <ProjectModelContext
+              projectId={project.id}
+              issues={open}
+              selected={activeIssue}
+              onSelect={select}
+              focusToken={focusToken}
+              focus={focus}
+            />
+            <aside className="home-feed" aria-label="Project work pins">
+              <header>
+                <h2>Work to follow up</h2>
+                <label>
+                  Sort
+                  <select
+                    aria-label="Sort work pins"
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value)}
                   >
-                    <b className="small">
-                      {u.zone_name} · {u.trade}
-                    </b>
-                    <p className="xs muted">
-                      {u.photos.length} photos · {u.user_name}
+                    <option value="priority">Priority</option>
+                    <option value="trade">Trade</option>
+                    <option value="recent">Newest</option>
+                  </select>
+                </label>
+              </header>
+              <div className="home-feed-scroll">
+                <section className="feed-group">
+                  <h3>Needs your decision</h3>
+                  {sortedIssues.map((i) => (
+                    <div
+                      key={i.id}
+                      ref={(el) => {
+                        if (el) refs.current.set(i.id, el);
+                        else refs.current.delete(i.id);
+                      }}
+                      className={`pin-record ${selected === i.id ? "selected" : ""}`}
+                    >
+                      <button
+                        className="pin-select"
+                        aria-label={`Locate ${i.title}`}
+                        aria-pressed={selected === i.id}
+                        onClick={() => select(i.id)}
+                      >
+                        <span className="pin-number">
+                          <Icon name="pin" size={15} />
+                        </span>
+                        <span>
+                          <strong>
+                            #{i.number} · {i.title}
+                          </strong>
+                          <small>
+                            {i.trade || "General"} ·{" "}
+                            {i.assignee_name || "Unassigned"}
+                            {i.due_date ? ` · Due ${i.due_date}` : ""}
+                          </small>
+                        </span>
+                        <Icon name="arrow" size={15} />
+                      </button>
+                      {selected === i.id && (
+                        <div className="pin-detail">
+                          <p>{i.description}</p>
+                          <Link
+                            className="btn sm"
+                            to={`../model?issue=${i.id}`}
+                          >
+                            Open issue & evidence →
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  {reviews.data
+                    ?.filter((u) => !waitingIds.has(u.id))
+                    .map(uploadRow)}
+                  {!open.length && !reviews.data?.length && (
+                    <p className="feed-empty">
+                      {loading
+                        ? "Loading…"
+                        : "No outstanding decisions recorded."}
                     </p>
-                  </Link>
-                ))}
-                {!uploads.data?.length && (
-                  <p className="small muted">
-                    {uploads.isPending
-                      ? "Loading updates…"
-                      : "No field updates yet."}
-                  </p>
-                )}
+                  )}
+                </section>
+                <section className="feed-group">
+                  <h3>Waiting on others</h3>
+                  {waiting.map(uploadRow)}
+                  {!waiting.length && (
+                    <p className="feed-empty">
+                      No analysis or retry is outstanding.
+                    </p>
+                  )}
+                </section>
+                <section className="feed-group">
+                  <h3>Latest updates</h3>
+                  {latest.map(uploadRow)}
+                  {!latest.length && (
+                    <p className="feed-empty">No other updates recorded.</p>
+                  )}
+                </section>
               </div>
-            </Card>
-          </aside>
+              <footer aria-live="polite">
+                {activeIssue
+                  ? `Selected: ${activeIssue.title}`
+                  : activeUpload
+                    ? "Selected field update"
+                    : "Select an item or a model pin to see its location."}
+              </footer>
+            </aside>
+          </div>
         </div>
       </div>
     </div>

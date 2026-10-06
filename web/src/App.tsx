@@ -17,8 +17,10 @@ import ProjectLayout from './pages/ProjectLayout'
 import ProjectsPage from './pages/ProjectsPage'
 import StructurePage from './pages/StructurePage'
 import TodayPage from './pages/TodayPage'
+import LogsPage from './pages/LogsPage'
 import { Icon } from './studio/Icon'
 
+const ProjectSetupPage = lazy(() => import('./pages/ProjectSetupPage'))
 const ModelPage = lazy(() => import('./pages/ModelPage'))
 const Workspace = lazy(() => import('./workspace/Workspace'))
 const BimLabPage = lazy(() => import('./pages/BimLabPage'))
@@ -58,16 +60,20 @@ export function AppRoutes() {
       <Route path="/bim-lab" element={<BimLabPage />} />
       <Route path="/" element={<RequireAuth><Shell><ProjectsPage /></Shell></RequireAuth>} />
       <Route path="/p/:pid" element={<RequireAuth><Shell><ProjectLayout /></Shell></RequireAuth>}>
-        <Route index element={<Navigate to="model" replace />} />
-        <Route path="today" element={<TodayPage />} />
+        <Route index element={<Navigate to="home" replace />} />
+        <Route path="home" element={<TodayPage />} />
+        <Route path="today" element={<Navigate to="../home" replace />} />
+        <Route path="logs" element={<LogsPage />} />
+        <Route path="people" element={<MembersPage />} />
         <Route path="model" element={<ModelPage />} />
+        <Route path="setup" element={<ProjectSetupPage />} />
         <Route path="issues" element={<IssuesPage />} />
         <Route path="progress" element={<ProgressPage />} />
         <Route path="qr" element={<QrPage />} />
         <Route path="drawings" element={<DrawingsPage />} />
         <Route path="drawings/:sid" element={<SheetReviewPage />} />
         <Route path="structure" element={<StructurePage />} />
-        <Route path="members" element={<MembersPage />} />
+        <Route path="members" element={<Navigate to="../people" replace />} />
         <Route path="activity" element={<ActivityPage />} />
         <Route path="history" element={<HistoryPage />} />
       </Route>

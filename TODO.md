@@ -8,13 +8,50 @@ Owners are suggested contributor roles, not assignments. Each package needs a na
 
 ## Completed in the designer implementation
 
-- [x] Implement Today, Work & Issues, review, correction, Building, Daily Report, Setup, capture and result screens in React at `/demo`.
+- [x] Implement Home, Work & Issues, review, correction, Building, Logs, People, Setup, capture and result screens in React at `/demo`.
 - [x] Apply the designer's typography, colors and navigation; bundle fonts and supplied sample images locally.
-- [x] Add an authenticated Today overview at `/p/:pid/today` using existing authorized API records.
-- [x] Verify the frontend with 32 passing tests, production compilation and lint completion with warnings. Tests use mocked APIs and a stubbed 3D renderer; browser/device verification remains open.
+- [x] Add an authenticated Home overview at `/p/:pid/home` (legacy `/today` redirects) using existing authorized API records.
+- [x] Verify the redesigned frontend with 63 passing tests, production compilation and lint completion with warnings. Tests use mocked APIs and a stubbed 3D renderer; browser/device verification remains open.
 - [x] Document routes, interactions, fixture boundaries and implementation files in [the implementation guide](docs/design/ui/IMPLEMENTATION.md).
 
 The detailed completed demo interactions are checked in the packages below. No production backend package or live AI capability is complete merely because its demo works.
+
+## Home, People and Logs redesign — October 6
+
+- [x] Rename Today to Home; remove Daily Report from navigation and redirect old report bookmarks to Logs.
+- [x] Replace Home KPI cards, status badges, legends and extra panels with a daily summary above a model on the left and grouped work pins on the right.
+- [x] Link list selections to camera focus and model pins back to the matching record, using version-bound component locations; retain evidence/decision detail pages.
+- [x] Keep only fit/open controls on the Home model; detailed controls remain in Building.
+- [x] Add People search, contacts, team grouping and an explicit sample PM → trade-lead hierarchy. Persist availability settings locally in the demo.
+- [x] Show authorized project members and contact emails in connected People; keep membership administration under Manage project access.
+- [x] Add a Logs calendar, daily event history, date comparisons and export in the demo. Reconstruct only recorded statuses; show completion in green and preserve reopenings.
+- [x] Add connected Logs with paginated authorized events, date comparison and links to evidence/model locations; label partial history.
+- [x] Use actual authorized model geometry and version-bound issue pins in connected Home, with interior defaults and explicit unlocated-record handling.
+- [ ] Connect a traceable live AI daily-summary service. Current summaries are generated from records and labeled accordingly.
+- [ ] Persist real contact phone numbers, team reporting lines and availability through project APIs; connected unknown fields remain not recorded.
+- [x] Replay recorded component status and completion provenance in connected Logs on current geometry.
+- [ ] Reconstruct historical design revisions, per-assessment evidence and complete issue reopening intervals in connected Logs.
+- [ ] Review Home, People and Logs on desktop/mobile and with real WebGL; renderer-stub tests do not establish visual acceptance.
+
+## Header cleanup — October 6
+
+- [x] Separate project identity/actions from navigation so header items stay aligned; keep the same controls on Building, Home and Logs.
+- [x] Remove the global demo banner, project badge and redundant demo-summary labels; preserve source credit and generated-evidence labels.
+- [x] Keep project names visible on mobile with truncation, and retain the mobile navigation menu.
+
+## Unified model and correct project workflow — October 6
+
+- [x] Use one imported dataset and shared ProjectScene/SiteViewer on demo Home, Logs and Building; remove the procedural-unit model from these routes.
+- [x] Start Home with the whole building; separate levels before focusing a pin and collapse/fit on request.
+- [x] Define source building/level/space/component bindings for every sample work item; use stable IDs and preserve model-frame coordinates.
+- [x] Replace the demo's schematic references with linked model-derived plans. Retain generated-photo labels and keep approved drawing files distinct.
+- [x] Share component progress and pin projections; open issues and incomplete scope prevent green.
+- [x] Add connected project onboarding: create → IFC draft import → hierarchy/3D/2D review → explicit PM/owner baseline approval → field capture.
+- [x] Retain revision IDs in field checklists and offline uploads; record immutable version/element/photo handoffs. Reject stale submissions and stale approval requests while retaining received retry identity.
+- [x] Reopen completed work on fresh worker claims. Prepare local structured requests, supersede older pending updates and keep offline synchronization idempotent.
+- [x] Preserve old illustrated-project storage instead of reinterpreting its photos and locations as duplex evidence.
+- [ ] Connect the new AI assessment agent and released check policies to the prepared handoff; actual uploaded photos currently await review.
+- [ ] Complete real WebGL and mobile-device visual/capture acceptance.
 
 ## Next work after the UI implementation
 
@@ -148,7 +185,7 @@ The designer screens now have an interactive React implementation at `/demo`; se
 
 Detailed import results, viewer choice, reproduction steps and verification limits: [BIM audit](docs/BIM_AUDIT.md). `/bim-lab` uses the real imported duplex geometry; its progress/pins are local test records. The connected project uses actual authorized API persistence. Visual/device acceptance and live automatic AI completion remain open.
 
-- [x] Integrate the real BIM viewer as the default `/demo/building` view with shared navigation and a public-project identity; retain illustrated daily-workflow locations in their own tab and preserve `?unit=` links.
+- [x] Integrate the real BIM viewer as the default `/demo/building` view with shared navigation and a public-project identity; use the same model in Home and Logs; old illustrated-unit bookmarks open an unselected overview.
 - [x] Simplify the default Building page to a full-width canvas with floating Level, View and Layers controls; remove both inspection sidebars and switch 3D/2D through a corner preview. Preserve filters and the mounted renderer, support touch plan zoom and retain detailed authoring at `/bim-lab`.
 - [x] Default both imported and connected views to solid architecture with exterior walls/roof hidden; preserve shared/untagged walls, reveal selected shell components and offer restoration/transparency controls. Verify real source tags and API hints, including the roof slab's IFC predefined type.
 
@@ -219,7 +256,7 @@ Detailed import results, viewer choice, reproduction steps and verification limi
 - [ ] Project the same persisted backend records into every connected view and verify consistency after refresh.
 - [ ] Ensure captures never silently modify approved geometry.
 
-**Done when:** model, list and daily report agree after refresh, and every completion/issue is traceable.
+**Done when:** model, list and Logs agree after refresh, and every completion/issue is traceable.
 
 ### P3.2 Correction loop — frontend + backend (R5, R6)
 
@@ -236,7 +273,7 @@ Detailed import results, viewer choice, reproduction steps and verification limi
 ### P3.3 Daily report and integrated demo — frontend + product (R7, R10)
 
 - [x] Summarize fixture completions, partial work, open issues, evidence gaps and required actions.
-- [x] Link demo summaries to records without inventing hours, costs or weather; add downloadable reports with immutable locally signed text snapshots.
+- [x] Link demo summaries to records without inventing hours, costs or weather; retain existing locally signed snapshots in log exports; replace the standalone Daily Report screen with Logs.
 - [x] Adapt the detailed Studio building to the multi-stage daily-check narrative with status projection and a plan fallback.
 - [x] Provide repeatable reset/seed behavior and explicitly identified fixtures.
 - [ ] Run the full capture → check → completion/issue → correction → 3D update demonstration.

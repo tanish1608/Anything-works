@@ -18,6 +18,7 @@ export interface QueuedUpload {
   zone_name: string
   trade: string
   note: string
+  model_version_id?: string // confirmed baseline at capture; stale offline claims require review
   element_ids: string[]
   captured_at: string
   files: QueuedFile[]
@@ -111,6 +112,7 @@ export function syncQueue(): Promise<number> {
       fd.append('client_uuid', item.client_uuid)
       fd.append('captured_at', item.captured_at)
       fd.append('element_ids', JSON.stringify(item.element_ids))
+      if(item.model_version_id) fd.append('model_version_id',item.model_version_id)
       item.files.forEach((f) => fd.append('files', new File([f.blob], f.name, { type: f.type })))
       if (item.reference) fd.append('reference', new File([item.reference.blob], item.reference.name, { type: item.reference.type }))
       try {

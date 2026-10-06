@@ -258,7 +258,7 @@ export class BuildingScene {
     this.update(this.options)
   }
   /** Presentation adapter for the new workspace's independent status dimensions. */
-  setAppearance(rooms: Record<string, { color: string; marker?: boolean }>) {
+  setAppearance(rooms: Record<string, { color: string; marker?: boolean }>, pins?: {id: string; unit: string; color: string}[]) {
     for (const r of this.roomMeshes) {
       r.mesh.userData.customColor = rooms[r.unit]?.color || '#e2e8f0'
     }
@@ -267,13 +267,19 @@ export class BuildingScene {
       m.group.traverse(o => { if (o instanceof THREE.Mesh) { o.geometry.dispose(); (o.material as THREE.Material).dispose() } })
     }
     this.markers = []
-    for (const u of UNITS.filter(u => rooms[u.id]?.marker)) {
-      const group = new THREE.Group(), color = rooms[u.id].color
+    const locations = [...UNITS, {id:'Core', floor:4, x:0, z:0}]
+    const entries = pins || UNITS.filter(u => rooms[u.id]?.marker).map(u => ({id:u.id, unit:u.id, color:rooms[u.id].color}))
+    const offsets = new Map<string, number>()
+    for (const pin of entries) {
+      const u = locations.find(u => u.id === pin.unit)
+      if (!u) continue
+      const offset = offsets.get(u.id) || 0; offsets.set(u.id, offset+1)
+      const group = new THREE.Group(), color = pin.color
       const material = new THREE.MeshStandardMaterial({ color, roughness: .4 })
       const ball = new THREE.Mesh(new THREE.SphereGeometry(.3, 14, 10), material)
       const stem = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, .8, 6), material.clone())
-      stem.position.y = -.55; ball.userData.unit = u.id; stem.userData.unit = u.id
-      group.add(ball, stem); group.position.set(u.x, (u.floor - 1) * 3.6 + 2, u.z + 3)
+      stem.position.y = -.55; ball.userData.unit = pin.id; stem.userData.unit = pin.id
+      group.add(ball, stem); group.position.set(u.x+offset*.85, (u.floor - 1) * 3.6 + 2, u.z + 3)
       this.scene.add(group); this.markers.push({ unit: u.id, group, floor: u.floor - 1 })
     }
     this.update(this.options)
@@ -295,7 +301,7 @@ export class BuildingScene {
       m.group.visible = (!options.floor || options.floor === m.floor + 1) && m.floor < options.phase
       m.group.position.y = (options.floor ? 0 : m.floor * (options.exploded ? 6.4 : 3.6)) + 2
     }
-    const unit = UNITS.find(u => u.id === options.selected)
+    const unit = options.selected === 'Core' ? {x:0,z:0,floor:4} : UNITS.find(u => u.id === options.selected)
     this.selection.visible = !!unit && (!options.floor || options.floor === unit.floor) && unit.floor <= options.phase
     if (unit) this.selection.position.set(unit.x, options.floor ? 0 : (unit.floor - 1) * (options.exploded ? 6.4 : 3.6), unit.z)
   }
@@ -304,7 +310,7 @@ export class BuildingScene {
     this.fly(plan ? [0, single ? 42 : 66, .01] : single ? [30, 30, 34] : exploded ? [53, 42, 53] : [44, 31, 44], [0, single ? 0 : exploded ? 16 : 9, 0])
   }
   focus(id: string) {
-    const u = UNITS.find(v => v.id === id); if (!u) return
+    const u = id === 'Core' ? {x:0,z:0,floor:4} : UNITS.find(v => v.id === id); if (!u) return
     const y = this.options.floor ? 0 : (u.floor - 1) * (this.options.exploded ? 6.4 : 3.6)
     this.fly([u.x + 9, y + 8, u.z + (u.z > 0 ? 12 : -12)], [u.x, y + 1, u.z])
   }

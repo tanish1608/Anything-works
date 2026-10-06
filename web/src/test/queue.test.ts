@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { tokenStore } from '../api/client'
 import { enqueue, listQueue, removeFromQueue, retry, syncQueue } from '../field/queue'
 
-const base = { project_id: 'p1', zone_id: 'z1', zone_name: 'Bath', trade: 'plumbing', note: 'done', element_ids: ['e1'],
+const base = { model_version_id: 'v1', project_id: 'p1', zone_id: 'z1', zone_name: 'Bath', trade: 'plumbing', note: 'done', element_ids: ['e1'],
   files: [{ name: 'a.jpg', type: 'image/jpeg', blob: new Blob(['x'], { type: 'image/jpeg' }) }] }
 const ok = () => new Response(JSON.stringify({ id: 'u1' }), { status: 201, headers: { 'content-type': 'application/json' } })
 
@@ -29,6 +29,7 @@ describe('offline queue', () => {
     const body = f.mock.calls[1][1]!.body as FormData
     expect(body.get('client_uuid')).toBe(item.client_uuid)
     expect(body.get('element_ids')).toBe('["e1"]')
+    expect(body.get('model_version_id')).toBe('v1')
     expect((body.get('files') as File).name).toBe('a.jpg')
   })
 

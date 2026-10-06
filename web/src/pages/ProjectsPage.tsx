@@ -17,7 +17,7 @@ export default function ProjectsPage() {
     mutationFn: () => api<Project>('/projects', { method: 'POST', json: { name, address: address || null } }),
     onSuccess: (p) => {
       qc.invalidateQueries({ queryKey: ['projects'] })
-      nav(`/p/${p.id}/structure`)
+      nav(`/p/${p.id}/setup`)
     },
   })
 
@@ -34,7 +34,7 @@ export default function ProjectsPage() {
       {projects && projects.length === 0 && <p className="muted">No projects yet. Create your first one below.</p>}
       <div className="cards">
         {projects?.map((p) => (
-          <Link key={p.id} to={`/p/${p.id}/today`} className="panel card-link">
+          <Link key={p.id} to={`/p/${p.id}/home`} className="panel card-link">
             <h3>{p.name}</h3>
             <div className="muted">{p.address || 'No address'}</div>
             <div style={{ marginTop: 8 }}>

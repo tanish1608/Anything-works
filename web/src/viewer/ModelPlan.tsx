@@ -1,3 +1,4 @@
+import "./inspection.css";
 import { useMemo, useRef, useState } from "react";
 import { DISCIPLINE_COLORS } from "./colors";
 import { planViewBox } from "./planGeometry";

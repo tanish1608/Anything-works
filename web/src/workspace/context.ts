@@ -1,5 +1,6 @@
 import { createContext, useContext } from "react";
 import type { Action, WorkItem, WorkspaceState } from "./state";
+import type { ModelDataset } from "../viewer/modelData";
 
 export interface Decision {
   item: WorkItem;
@@ -14,6 +15,7 @@ export interface Decision {
     | "assign";
 }
 interface Context {
+  model: ModelDataset;
   state: WorkspaceState;
   act: (action: Action) => boolean;
   decide: (item: WorkItem, type: Decision["type"]) => void;

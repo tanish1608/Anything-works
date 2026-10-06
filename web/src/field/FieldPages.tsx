@@ -152,12 +152,12 @@ const ST_COLOR: Record<string, string> = { done: STATUS_COLORS.done, needs_revie
 export function FieldZone() {
   const { pid, zid } = useParams() as { pid: string; zid: string }
   const { project, trades } = useProjectData(pid)
-  const myTrades = project?.my_role === 'trade' ? project.my_trades : (trades ?? []).map((t) => t.code).filter((t) => t !== 'architecture')
+  const myTrades = project?.my_role === 'trade' ? project.my_trades : (trades ?? []).map((t) => t.code)
   const [trade, setTrade] = useState<string>('')
   const activeTrade = trade || myTrades[0] || ''
   const checklist = useQuery({
     queryKey: ['checklist', zid, activeTrade],
-    queryFn: () => api<{ zone: { id: string; name: string }; items: ChecklistItem[] }>(`/zones/${zid}/checklist?trade=${activeTrade}`),
+    queryFn: () => api<{ model_version_id: string | null; zone: { id: string; name: string }; items: ChecklistItem[] }>(`/zones/${zid}/checklist?trade=${activeTrade}`),
     enabled: !!activeTrade,
   })
   const manifest = useQuery({ queryKey: ['manifest', pid, undefined], queryFn: () => api<ViewerManifest>(`/projects/${pid}/viewer`) })
@@ -212,6 +212,7 @@ export function FieldZone() {
   }
   const submit = async () => {
     if (!files.length) return
+    if (!manifest.data?.version || checklist.data?.model_version_id !== manifest.data.version.id || !checked.size) {setDone('Select components on an approved model before submitting.');return;}
     let reference: { name: string; type: string; blob: Blob } | null = null
     if (viewer && show3d) {
       const blob = await (await fetch(viewer.snapshot('image/jpeg', 0.8))).blob()
@@ -219,7 +220,7 @@ export function FieldZone() {
     }
     await enqueue({
       project_id: pid, zone_id: zid, zone_name: zoneName, trade: activeTrade, note,
-      element_ids: [...checked], files: files.map((f) => ({ name: f.name, type: f.type || 'image/jpeg', blob: f })),
+      model_version_id: checklist.data.model_version_id, element_ids: [...checked], files: files.map((f) => ({ name: f.name, type: f.type || 'image/jpeg', blob: f })),
       ...(reference ? { reference } : {}),
     })
     setFiles([])

@@ -15,6 +15,18 @@ export interface Check {
   release: string;
 }
 export interface WorkItem {
+  location?: {
+    version: string;
+    building: string;
+    levelId: string;
+    levelName: string;
+    roomId: string | null;
+    roomName: string;
+    spaceCode: string;
+    elements: string[];
+    anchor: [number, number, number];
+  };
+  fixture?: { checks: Check[]; complete: boolean };
   id: string;
   unit: string;
   level: number;
@@ -83,8 +95,30 @@ export interface WorkspaceState {
   reportNote: string;
   reportSigned: string | null;
   reportSnapshot?: string;
+  modelVersion?: string;
+  modelApproved?: boolean;
+  assessmentJobs?: {
+    id: string;
+    update: string;
+    item: string;
+    modelVersion: string;
+    elements: string[];
+    photos: string[];
+    note?: string;
+    claim?: string;
+    reference?: string;
+    scope?: string;
+    state:
+      | "queued_offline"
+      | "awaiting_agent"
+      | "manual_review"
+      | "fixture_complete"
+      | "superseded";
+    at: string;
+  }[];
 }
-export const STORE_KEY = "everything-works-designer-v1";
+export const LEGACY_STORE_KEY = "everything-works-designer-v1";
+export const STORE_KEY = "everything-works-project-v2";
 export function roomStatus(items: WorkItem[]): Status {
   const order: Status[] = [
     "issue",
@@ -411,6 +445,16 @@ export function initialState(): WorkspaceState {
     reportNote: "",
     reportSigned: null,
     events: [
+      ...items
+        .filter((i) => i.status === "ai" && i.time === "Oct 4")
+        .map((i) => ({
+          id: `baseline-${i.id}`,
+          item: i.id,
+          at: "2026-10-04T15:00:00",
+          actor: "Fixture check",
+          text: `${i.title} — scoped sample completion recorded.`,
+          tone: i.status,
+        })),
       {
         id: "seed-1",
         item: "FRAME-407",
@@ -489,6 +533,11 @@ export function transition(
     return next;
   }
   if (action.type === "sync") {
+    next.assessmentJobs
+      ?.filter((j) => j.state === "queued_offline")
+      .forEach((j) => {
+        j.state = "awaiting_agent";
+      });
     next.items
       .filter((i) => i.processing === "queued")
       .forEach((i) => {
@@ -509,8 +558,26 @@ export function transition(
   );
   if (!work) throw new Error("Work item not found.");
   if (action.type === "submit") {
+    if (
+      state.modelVersion &&
+      (!state.modelApproved ||
+        work.location?.version !== state.modelVersion ||
+        !work.location.elements.length)
+    )
+      throw Error(
+        "Approve the model and confirm this work location before submitting.",
+      );
     if (!action.draft.photos.length)
       throw new Error("Attach a photo before submitting.");
+    next.assessmentJobs
+      ?.filter(
+        (j) =>
+          j.item === work.id &&
+          ["queued_offline", "awaiting_agent"].includes(j.state),
+      )
+      .forEach((j) => {
+        j.state = "superseded";
+      });
     work.assessments = [
       ...(work.assessments || []),
       {
@@ -542,14 +609,17 @@ export function transition(
       work.detail =
         "On this device only. Reconnect to move this update into local demo review.";
     } else if (action.sample && action.draft.photos.every((p) => p.sample)) {
-      const fixture = initialState().items.find((i) => i.id === work.id)!;
+      const fixture =
+        work.fixture || initialState().items.find((i) => i.id === work.id)!;
       work.checks = structuredClone(fixture.checks).map((c) =>
         work.issue && c.result === "discrepancy" ? { ...c, result: "ok" } : c,
       );
       work.processing = "completed";
       work.coverage =
         work.id === "ELEC-406"
-          ? "2 of 4 boxes visible"
+          ? work.location
+            ? "Insufficient sample coverage for the linked component"
+            : "2 of 4 boxes visible"
           : "Adequate for fixture checks";
       if (work.issue) {
         work.correction = true;
@@ -557,7 +627,10 @@ export function transition(
         work.progress = "Correction awaiting acceptance";
         work.detail =
           "Sample correction rechecked. Explicit resolution is still required.";
-      } else if (work.id === "PLUMB-402" || work.id === "PUNCH-302") {
+      } else if (
+        work.fixture?.complete ||
+        (!work.fixture && (work.id === "PLUMB-402" || work.id === "PUNCH-302"))
+      ) {
         work.status = "ai";
         work.progress = "AI-checked complete";
         work.review = "Not requested";
@@ -579,6 +652,27 @@ export function transition(
       `${work.update} submitted: ${action.draft.note || "Photo update"} · worker claim: ${work.claimed || "Not specified"}. ${action.sample ? "Sample simulation requested." : "Manual review required."}`,
       "Field worker",
     );
+    if (work.location) {
+      next.assessmentJobs ||= [];
+      next.assessmentJobs.unshift({
+        id: crypto.randomUUID(),
+        update: work.update,
+        item: work.id,
+        modelVersion: work.location.version,
+        elements: [...work.location.elements],
+        photos: action.draft.photos.map((p) => p.id),
+        note: action.draft.note,
+        claim: action.draft.claim,
+        reference: work.reference,
+        scope: work.scope,
+        state: action.offline
+          ? "queued_offline"
+          : action.sample && action.draft.photos.every((p) => p.sample)
+            ? "fixture_complete"
+            : "awaiting_agent",
+        at: now,
+      });
+    }
     next.draft = null;
     return next;
   }
@@ -657,6 +751,11 @@ export function transition(
       work.review = "Reopened by Sarah Jenkins";
       break;
   }
+  next.assessmentJobs
+    ?.filter((j) => j.item === work.id && j.update === work.update)
+    .forEach((j) => {
+      j.state = "manual_review";
+    });
   record(work, `${action.type}: ${action.reason}`);
   return next;
 }

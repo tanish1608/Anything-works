@@ -12,6 +12,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { PointerLockControls } from "three/examples/jsm/controls/PointerLockControls.js";
 import { SELECTION_COLOR } from "./colors";
 import { DIRECTIONS, fitBounds, type ViewDirection } from "./spatialMath";
+import { applyDisplayOffset } from "./explosion";
 
 export interface LayerData {
   discipline: string;
@@ -36,6 +37,7 @@ export interface Marker {
   position: [number, number, number];
   color: string;
   label?: string;
+  elementId?: string;
 }
 
 type Events = {
@@ -77,6 +79,13 @@ export class SiteViewer {
   private container: HTMLElement;
   private loadGeneration = 0;
   private ghostContext = true;
+  private displayOffsets = new Map<string, number>();
+  private explosion: {
+    from: Map<string, number>;
+    to: Map<string, number>;
+    t: number;
+    resolve: () => void;
+  } | null = null;
 
   constructor(container: HTMLElement) {
     this.container = container;
@@ -235,6 +244,9 @@ export class SiteViewer {
   }
 
   clear() {
+    this.explosion?.resolve();
+    this.explosion = null;
+    this.displayOffsets.clear();
     this.loadGeneration++;
     this.disposeGroup(this.root);
     this.disposeGroup(this.markerGroup);
@@ -250,6 +262,54 @@ export class SiteViewer {
   }
 
   // ------------------------------------------------------------------ appearance
+  /** Exploded floors are reversible presentation transforms, never a design revision. */
+  setExplodedOffsets(
+    offsets: Map<string, number>,
+    animate = true,
+  ): Promise<void> {
+    this.explosion?.resolve();
+    this.explosion = null;
+    const changed = [...offsets].some(
+      ([id, value]) =>
+        Math.abs(value - (this.displayOffsets.get(id) || 0)) > 0.0001,
+    );
+    if (!changed) return Promise.resolve();
+    if (!animate) {
+      this.displayOffsets = new Map(offsets);
+      this.applyExplosion();
+      return Promise.resolve();
+    }
+    return new Promise((resolve) => {
+      this.explosion = {
+        from: new Map(this.displayOffsets),
+        to: new Map(offsets),
+        t: 0,
+        resolve,
+      };
+      this.invalidate();
+    });
+  }
+  private applyExplosion(recomputeBounds = true) {
+    this.meshes.forEach((meshes, id) =>
+      meshes.forEach((mesh) =>
+        applyDisplayOffset(mesh, this.displayOffsets.get(id) || 0),
+      ),
+    );
+    this.markerGroup.children.forEach((marker) => {
+      const point = marker.userData.canonicalPoint as number[] | undefined;
+      if (point)
+        marker.position.set(
+          point[0],
+          point[1] + (this.displayOffsets.get(marker.userData.elementId) || 0),
+          point[2],
+        );
+    });
+    if (recomputeBounds) {
+      this.bounds.copy(this.modelBounds());
+      this.applySection();
+    }
+    this.invalidate();
+  }
   /** Solid context avoids alpha overlap; ghost mode remains an explicit inspection option. */
   setGhostContext(ghost: boolean) {
     this.ghostContext = ghost;
@@ -422,7 +482,12 @@ export class SiteViewer {
     if (!hit) return null;
     return {
       elementId: hit.object.userData.elementId,
-      point: hit.point.toArray() as [number, number, number],
+      point: [
+        hit.point.x,
+        hit.point.y -
+          (this.displayOffsets.get(hit.object.userData.elementId) || 0),
+        hit.point.z,
+      ],
     };
   }
 
@@ -457,9 +522,17 @@ export class SiteViewer {
           clippingPlanes: this.clipPlanes,
         }),
       );
-      s.position.fromArray(m.position);
+      s.position.set(
+        m.position[0],
+        m.position[1] + (this.displayOffsets.get(m.elementId || "") || 0),
+        m.position[2],
+      );
       s.renderOrder = 10;
-      s.userData = { markerId: m.id };
+      s.userData = {
+        markerId: m.id,
+        elementId: m.elementId,
+        canonicalPoint: [...m.position],
+      };
       this.markerGroup.add(s);
     }
     this.sizeMarkers();
@@ -565,6 +638,22 @@ export class SiteViewer {
     const now = performance.now();
     const dt = Math.min((now - this.lastFrame) / 1000, 0.1);
     this.lastFrame = now;
+    if (this.explosion) {
+      const f = this.explosion;
+      f.t = Math.min(1, f.t + dt / 0.45);
+      const eased = f.t * f.t * (3 - 2 * f.t);
+      this.displayOffsets = new Map(
+        [...f.to].map(([id, to]) => [
+          id,
+          (f.from.get(id) || 0) + (to - (f.from.get(id) || 0)) * eased,
+        ]),
+      );
+      this.applyExplosion(f.t === 1);
+      if (f.t === 1) {
+        this.explosion = null;
+        f.resolve();
+      }
+    }
     if (this.flight) {
       const f = this.flight;
       f.t = Math.min(1, f.t + dt / 0.6);
