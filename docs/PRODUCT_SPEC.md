@@ -92,14 +92,14 @@ These dimensions must be stored separately rather than compressed into one “do
 
 **Completion rules:**
 
-- Automatically mark a work item AI-checked complete only when all required checks for that item are supported, have adequate evidence, and pass the released completion policy.
+- Automatically mark a work item AI-checked complete only when all required checks for that item are supported, have adequate evidence, and pass the completion policy. Current policy (`ai-complete-v1`, on by default, per-project opt-out): every photo check passes, any phone measurement is within the project tolerance of the approved model, and the work has no open issue.
 - Scope that label to the named work item and checks. Seeing a box cannot complete an entire electrical installation.
 - Require validated check-specific decision rules; a model's self-reported confidence alone is insufficient.
 - Missing evidence, ambiguous references, unresolved relevant issues and unsupported required checks prevent automatic completion.
 - Keep a route for a qualified reviewer to accept evidence with a reason. Record that it was human accepted rather than AI checked.
 - Newly contradictory evidence or an applicable plan revision reopens review without erasing the earlier decision.
 - Human acceptance and formal inspection must never be manufactured by the AI completion path.
-- Initially run new checks in shadow/review mode. Enable automatic progress completion per released check only after evaluation and project configuration.
+- Decision, October 6, 2026: AI completion is enabled before field accuracy is measured, by the founder's choice. Keep it distinct from human acceptance, reopenable, and measure false completions in the pilot; switch projects to review-only (`ai_auto_complete: false`) if needed.
 
 An open issue overrides the visual “complete” state. A dismissed false alert need not erase a supported completion result; retain both decisions in history.
 

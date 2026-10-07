@@ -158,7 +158,7 @@ it("shows the AI check as a suggestion and records it as provenance of the PM's 
       checks: [{ element_id: component.id, outcome: "insufficient_evidence", observation: "Fitting is out of frame.",
         evidence_ids: [], limitations: ["Connection hidden"] }] } }];
   mount("record", work.id);
-  expect(await screen.findByText("Not enough evidence")).toBeInTheDocument();
+  expect(await screen.findByText("Photos · Not enough evidence")).toBeInTheDocument();
   expect(screen.getByText("Suggestion · PM decides")).toBeInTheDocument();
   expect(state.items[0].status).toBe("review"); // the suggestion changed nothing on its own
   await userEvent.click(screen.getByRole("button", { name: "Review suggested step: request more evidence" }));

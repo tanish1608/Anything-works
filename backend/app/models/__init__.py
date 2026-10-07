@@ -500,6 +500,8 @@ class WorkSubmission(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
     work_id: Mapped[str] = mapped_column(ForeignKey("work_packages.id", ondelete="CASCADE"), index=True)
     upload_id: Mapped[str] = mapped_column(ForeignKey("uploads.id", ondelete="CASCADE"), unique=True)
+    # Phone capture metadata: LiDAR measurements, GPS fix and device (see agent/measurements.py).
+    capture: Mapped[dict | None] = mapped_column(JSON)
     payload_hash: Mapped[str] = mapped_column(String(64))
     reference: Mapped[dict] = mapped_column(JSON)
     claim: Mapped[str] = mapped_column(String(100), default="")

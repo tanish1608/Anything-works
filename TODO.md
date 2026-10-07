@@ -8,6 +8,16 @@ Owners are suggested contributor roles, not assignments. Each package needs a na
 
 The UI-only iteration backlog is [Design iteration 2](docs/UI_TODO_ITERATION_2.md). It tracks proportions/camera, four audited source projects, sample switching, component exploration and remaining visual acceptance.
 
+## Crew iPhone app and AI completion — October 6 (branch `mobile-ios`)
+
+- [x] Native SwiftUI crew app (`mobile/ios`): sign in, assigned work, capture photos (camera/library), AR/LiDAR mounting-height measurement, GPS fix, note and location confirmation; durable per-account outbox with a stable client UUID; AI-check results and history. `CrewCore` package tests and a live backend test pass; the app builds for iOS.
+- [x] Server: capture metadata on work updates; deterministic mounting-height check against the approved model (project tolerance, stated uncertainty); AI completion policy `ai-complete-v1` marks work "AI-checked complete" when every check passes and no issue is open (PM can reopen; per-project opt-out).
+- [ ] Run on physical iPhones (LiDAR and non-LiDAR): camera, AR taps, GPS, offline queue, sign-out with queued updates.
+- [ ] Validate phone measurements against a laser/tape on real walls and set tolerances with a field reviewer; measure false AI completions in the pilot.
+- [ ] Show the 3D model in the app (GLB loader such as GLTFKit2) and highlight the work's component.
+- [ ] Project site geofence to sanity-check GPS; more measurement kinds (distance from corner, spacing).
+- [ ] TestFlight distribution, HTTPS backend and Cloud SQL deployment; Android later.
+
 ## Raise issues from the 3D model and component focus — October 6
 
 - [x] Add **Raise issue here** to the selected-component panel. A PM describes the problem, picks who fixes it and a due date; the component gets a pinned, red, assigned issue that follows the existing correction → review → resolve loop. Works on untracked components and on existing work without an open issue.

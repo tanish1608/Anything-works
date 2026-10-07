@@ -22,7 +22,7 @@ The code still uses SiteMesh identifiers. Do not rename packages, storage keys o
 ## Product invariants for the new workflow
 
 1. Every assessment links evidence, confirmed location, applicable source revisions and the checks performed.
-2. No AI-checked completion without adequate evidence and a released check-specific completion policy.
+2. AI-checked completion (policy `ai-complete-v1`, decided by the user on October 6, 2026 and on by default) requires every photo check to pass and any submitted measurement to be within tolerance of the approved model, with no open issue on the work. It is labelled "AI-checked complete", never "human accepted" or inspected; PMs can reopen it and a project can opt out (`ai_auto_complete: false`). Issues still close only through a PM decision. Measurements are compared by server code, never by the model.
 3. AI completion, human acceptance and formal inspection are separate. Never fabricate a reviewer or inspection result.
 4. Missing, occluded, ambiguous, unsupported and failed checks remain explicit. They are not passes.
 5. New daily evidence can reopen previously completed work. Approved reference changes invalidate affected decisions.
@@ -32,7 +32,7 @@ The code still uses SiteMesh identifiers. Do not rename packages, storage keys o
 9. Permissions apply to model files, evidence, source documents and derived AI results.
 10. Generated samples and mock outputs are not proof of field accuracy.
 
-These are target requirements. The current legacy auto-approval and skip-done behavior do not yet satisfy them; see STATUS and P2 in TODO. Do not describe requirements as implemented merely because they appear here.
+These are target requirements. The legacy zone-upload auto-approval and skip-done behavior (`vision_jobs.py`) do not satisfy them and must stay isolated from shared work packages; see STATUS and P2 in TODO. Do not describe requirements as implemented merely because they appear here.
 
 ## Existing technical architecture
 
@@ -49,7 +49,7 @@ These are target requirements. The current legacy auto-approval and skip-done be
 
 **Models and drawings:** ezdxf, pdfminer.six, shapely and IfcOpenShell. Review converted drawings before activating them. Do not fabricate undrawn components or infer exact dimensions from schematic symbols. IFC imports generate per-discipline GLBs server-side; the browser loads GLB, not IFC.
 
-**AI:** `app/vision/` uses the Google Gemini SDK with structured element verdicts. `VISION_MODE` supports auto/gemini/off/mock. Existing model confidence and installed verdicts are not plan-compliance certification. New checks need versioned context, structured results, evaluation and a separate completion policy.
+**AI:** `app/vision/` uses the Google Gemini SDK with structured element verdicts. `VISION_MODE` supports auto/gemini/off/mock. Existing model confidence and installed verdicts are not plan-compliance certification. Shared work checks live in `app/agent/` (frozen context, server-validated citations, deterministic measurement checks, the AI completion policy and Project Copilot chat); see docs/AI_CHECKS.md. New checks need versioned context, structured results and evaluation; AI completion accuracy on real photos is not yet measured.
 
 **Frontend:** React, TypeScript, Vite PWA, TanStack Query and three.js.
 
@@ -58,6 +58,7 @@ These are target requirements. The current legacy auto-approval and skip-done be
 - `src/viewer/` is a separate viewer with command/event API and embedding bridge; keep it independent of page components.
 - Project switching uses home `/` or `/?screen=projects` and `workspace/ProjectShowroom.tsx`: one selected source-model preview, separate browsing/opening, and preserved return context. Do not mount hidden workspace or thumbnail WebGL canvases. Private previews use authorized current-model/layer loaders; public thumbnails are source-bound SVG silhouettes, not field progress. Keep project names non-interactive and use an explicit Switch project button. Add/import starts from the project home, with private draft review still in the shared canvas. Project pulse and Project context are retired; user-view previews remain in the user menu. The standalone subcontractor companion brief is `docs/SUBCONTRACTOR_MOBILE_BUILD_PROMPT.md`; it is not an implemented mobile app.
 - The active shared daily loop is documented in `docs/SHARED_DAILY_WORKFLOW.md`. Keep public sample transitions isolated from authenticated work. Connected decisions must preserve the revision/update the reviewer opened; never silently retry acceptance against newer evidence. New approved references require reconfirmation and fresh evidence. Legacy AI/progress routes cannot change a tracked WorkPackage. Private photo bytes use authenticated fetch and disposable object URLs.
+- `mobile/ios/` is the native crew app (SwiftUI, iPhone): `CrewCore` is a Swift package with the API contract, file outbox and measurement maths (`swift test` on macOS); the app is generated with XcodeGen from `PlaceholderCrew/project.yml`. It uses the shared work endpoints only.
 - `src/field/` uses IndexedDB; replay occurs on app open, online events and a timer. Do not assume iOS Background Sync.
 - `src/pages/` is the connected workspace; `src/studio/` is a browser-local fictional demo.
 - `src/api/client.ts` handles JWT access and rotating refresh tokens.

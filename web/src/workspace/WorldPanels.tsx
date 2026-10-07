@@ -639,7 +639,7 @@ export function RecordPanel({
       {ai && ai.status !== "superseded" && (
         <section className="world-detail-section world-ai-check" aria-label="AI check">
           <h3>
-            AI check <span className="world-ai-tag">Suggestion · PM decides</span>
+            AI check <span className="world-ai-tag">{ai.applied ? "AI-checked complete" : "Suggestion · PM decides"}</span>
           </h3>
           {ai.status === "queued" || ai.status === "running" ? (
             <p className="world-muted">Checking these photos against the approved reference…</p>
@@ -650,16 +650,25 @@ export function RecordPanel({
             </p>
           ) : (
             <>
-              {ai.checks.map((c) => (
-                <div className={`world-ai-result ${c.outcome}`} key={c.element_id}>
-                  <strong>{AI_OUTCOMES[c.outcome] || c.outcome}</strong>
+              {ai.applied && (
+                <p className="world-ai-applied">
+                  Marked <strong>AI-checked complete</strong> because every check passed. Not human accepted or
+                  inspected; you can reopen it.
+                </p>
+              )}
+              {ai.checks.map((c, n) => (
+                <div className={`world-ai-result ${c.outcome}`} key={`${c.check_code}-${c.element_id}-${n}`}>
+                  <strong>
+                    {c.check_code === "mounting_height" ? "LiDAR height · " : "Photos · "}
+                    {AI_OUTCOMES[c.outcome] || c.outcome}
+                  </strong>
                   <p>{c.observation}</p>
                   {c.limitations.length > 0 && (
                     <small>Not verified: {c.limitations.join(" · ")}</small>
                   )}
                 </div>
               ))}
-              {ai.suggestion?.decision && canReview && !review && (
+              {ai.suggestion?.decision && !ai.applied && canReview && !review && (
                 <button
                   className="world-secondary"
                   onClick={() =>
@@ -670,8 +679,8 @@ export function RecordPanel({
                 </button>
               )}
               <p className="world-muted">
-                {ai.model} · {ai.promptVersion} · {ai.policyVersion}. The AI never accepts, completes or
-                inspects work; your decision is recorded under your name.
+                {ai.model} · {ai.promptVersion} · {ai.policyVersion}. The AI never accepts, resolves issues or
+                inspects work; your decisions are recorded under your name.
               </p>
             </>
           )}

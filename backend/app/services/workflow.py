@@ -178,16 +178,18 @@ def due_date(value: str | None):
         raise HTTPException(422, "A valid due date is required") from None
 
 
-def project_progress(db: Session, work: WorkPackage, user: User):
+def project_progress(db: Session, work: WorkPackage, user: User | None):
+    """Mirror work status onto the element. `user` is None for the AI completion policy."""
     element = db.get(Element, work.element_id)
-    new = ElementStatus.done if work.state["status"] == "human" else ElementStatus.needs_review
+    basis = {"human": "human", "ai": "ai"}.get(work.state["status"])
+    new = ElementStatus.done if basis else ElementStatus.needs_review
     if element.status != new:
         before = element.status.value
         element.status = new
         element.status_updated_at = utcnow()
-        events.record(db, project_id=work.project_id, actor_id=user.id,
+        events.record(db, project_id=work.project_id, actor_id=user.id if user else None,
                       type="element.status_changed", entity_type="element", entity_id=element.id,
                       zone_id=work.state["location"]["roomId"], evidence_ids=[p["id"] for p in work.state["photos"]],
                       data={"from": before, "to": new.value, "reason": work.state["review"],
-                            "completion_basis": "human" if new == ElementStatus.done else None,
+                            "completion_basis": basis,
                             "work_id": work.id, "upload_id": work.state["update"]})

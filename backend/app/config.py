@@ -29,6 +29,12 @@ class Settings(BaseSettings):
     # Review-only AI checks on received work updates (shadow mode: suggestions for the PM, never completion).
     agent_enabled: bool = False
     agent_timeout_seconds: int = 90
+    # When every photo and measurement check passes, mark the work "AI-checked complete" (distinct from human
+    # acceptance; a PM can reopen it). A project can opt out with settings {"ai_auto_complete": false}.
+    agent_auto_complete: bool = True
+    # Default comparison tolerance for phone measurements against model geometry; projects can override with
+    # settings {"measurement_tolerance_m": ...}. A project choice, not a code requirement.
+    measurement_tolerance_m: float = 0.05
     # Project Copilot chat (text only). Public sample chat is rate limited per server process.
     agent_chat_model: str = "gemini-3.8-flash"
     agent_chat_timeout_seconds: int = 30

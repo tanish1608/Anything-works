@@ -87,6 +87,7 @@ export interface AiCheck {
   id: string;
   status: "queued" | "running" | "completed" | "failed" | "superseded";
   checks: {
+    check_code?: string;
     element_id: string;
     outcome: "pass" | "potential_discrepancy" | "insufficient_evidence" | "unsupported" | "failed";
     observation: string;
@@ -99,6 +100,8 @@ export interface AiCheck {
     reason: string;
   } | null;
   model?: string | null;
+  /** Set when the AI completion policy marked the work "AI-checked complete". */
+  applied?: { status: "ai"; policy_version: string } | null;
   error?: { code: string; message: string } | null;
   promptVersion?: string;
   policyVersion?: string;

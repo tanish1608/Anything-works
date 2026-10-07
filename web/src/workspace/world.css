@@ -2045,3 +2045,4 @@
 .world-app .world-ai-result.insufficient_evidence { border-color: #f0b44c; }
 .world-app .world-ai-result p { margin: 4px 0; }
 .world-app .world-ai-result small { color: #93a3b8; }
+.world-app .world-ai-applied { background: #173a2e; border: 1px solid #2f7a5c; border-radius: 8px; padding: 8px 10px; }

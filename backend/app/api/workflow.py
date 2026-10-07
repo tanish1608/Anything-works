@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from app import jobs
 from app.agent import assessment as ai_check
+from app.agent.measurements import Capture
 from app.auth.deps import current_user
 from app.db import SessionLocal, get_db
 from app.models import (
@@ -122,16 +123,22 @@ async def submit(work_id: str, client_uuid: str = Form(..., min_length=1, max_le
                  captured_by: str = Form(...),
                  note: str = Form(..., min_length=1, max_length=5000), claim: str = Form("", max_length=100),
                  captured_at: datetime = Form(...), files: list[UploadFile] = File(...),
+                 capture: str = Form("", max_length=20000),
                  user: User = Depends(current_user), db: Session = Depends(get_db)):
     work, _ = flow.load(db, work_id, user, Perm.progress_upload)
     if captured_by != user.id:
         raise HTTPException(403, "Sign in as the account that captured this update")
     if not confirmed or not note.strip():
         raise HTTPException(422, "Confirm the location and describe the update")
+    try:
+        capture_data = Capture.model_validate_json(capture).model_dump(mode="json") if capture.strip() else None
+    except ValueError:
+        raise HTTPException(422, "Capture metadata (measurements, location, device) is invalid") from None
     prepared = await _prepared(files)
     digest = hashlib.sha256(json.dumps({"work": work_id, "actor": user.id, "model": model_version_id,
                                        "note": note, "claim": claim, "captured_at": captured_at.isoformat(),
-                                       "photos": [m["sha256"] for _, _, m in prepared]}, sort_keys=True).encode()).hexdigest()
+                                       "photos": [m["sha256"] for _, _, m in prepared], "capture": capture_data},
+                                      sort_keys=True).encode()).hexdigest()
 
     def duplicate():
         up = db.scalar(select(Upload).where(Upload.project_id == work.project_id, Upload.client_uuid == client_uuid))
@@ -163,7 +170,8 @@ async def submit(work_id: str, client_uuid: str = Form(..., min_length=1, max_le
             db.add(photo)
             photos.append({"id": photo.id, "url": f"/api/photos/{photo.id}", "name": name[:300], "sample": False})
         reference = {k: deepcopy(work.state[k]) for k in ("location", "reference", "scope", "captureGuidance")}
-        receipt = WorkSubmission(work_id=work.id, upload_id=up.id, payload_hash=digest, reference=reference, claim=claim)
+        receipt = WorkSubmission(work_id=work.id, upload_id=up.id, payload_hash=digest, reference=reference, claim=claim,
+                                 capture=capture_data)
         db.add(receipt)
         state = deepcopy(work.state)
         state.setdefault("assessments", []).append({k: deepcopy(state[k]) for k in

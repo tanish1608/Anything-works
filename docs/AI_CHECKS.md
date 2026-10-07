@@ -1,6 +1,6 @@
 # AI checks — review-only work assessment
 
-Status: implemented on branch `ai-checks`, October 6, 2026. Shadow mode: suggestions for the project manager, never decisions.
+Status: implemented October 6, 2026. Since the `mobile-ios` branch, policy `ai-complete-v1` marks work "AI-checked complete" when every photo and measurement check passes and no issue is open (PM can reopen; per-project opt-out `ai_auto_complete: false`). Otherwise results are suggestions for the PM.
 
 ## What it does
 
@@ -79,3 +79,9 @@ A floating **Copilot** button opens a chat on every project screen (ported from 
 - **Guarantees:** the copilot never changes records. Cited records and suggested work ids are validated server-side against the person's context; an answer that cites anything else is replaced with "unavailable". Customers can ask questions but cannot attach photos. A copilot update never discards another update the person is still writing.
 
 Not ported from the original copilot: draggable/resizable window, avatar image, calendar coordination, LiDAR shortcut, assignment drafting.
+
+## Measurements and AI completion (`mobile-ios`)
+
+Updates may carry `capture` (multipart JSON field): `measurements[]` (`kind: "mounting_height"`, `value_m`, `uncertainty_m`, `method`), `location` (GPS fix) and `device`. The server computes the component's expected centre height above its level from the approved model and compares: within `tolerance - uncertainty` → pass; beyond `tolerance + uncertainty` → possible mistake; otherwise or if uncertainty exceeds the tolerance → not enough evidence. The model never sees measurements or policy fields.
+
+If the project policy is on, every check (photos and measurements) passes, the work is in review and no issue is open on it or its component, the run marks the work `ai` / "AI-checked complete", sets the element done with `completion_basis: "ai"`, records a `work.ai_completed` event (actor: Placeholder AI) and notifies the assignee and managers. A passing correction never closes an issue.
