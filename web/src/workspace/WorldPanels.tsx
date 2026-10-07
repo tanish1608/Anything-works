@@ -492,7 +492,7 @@ export function RecordPanel({
             aria-label="Enlarge evidence photo"
           >
             <EvidenceImage src={displayedPhoto.url} alt={displayedPhoto.name} />
-            <span>
+            <span className="world-photo-expand">
               <Icon name="expand" size={15} />
             </span>
           </button>

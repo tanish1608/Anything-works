@@ -897,7 +897,8 @@
   height: 100%;
   object-fit: cover;
 }
-.world-photo-open > span {
+/* Only the expand icon; the photo's own wrapper is also a span and must fill the frame. */
+.world-photo-open > .world-photo-expand {
   position: absolute;
   right: 9px;
   bottom: 9px;
