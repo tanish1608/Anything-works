@@ -13,7 +13,7 @@ final class AppModel: ObservableObject {
     @Published var pending: [PendingUpdate] = []
     @Published var message: String?
     @Published var loading = false
-    @AppStorage("serverURL") var serverURL = "http://127.0.0.1:8000"
+    @AppStorage("serverURL") var serverURL = "https://placeholder-api-826928184760.us-central1.run.app"
 
     let outbox = Outbox.standard()
     private(set) lazy var client = APIClient(baseURL: URL(string: serverURL) ?? URL(string: "http://127.0.0.1:8000")!,

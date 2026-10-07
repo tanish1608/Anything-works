@@ -26,7 +26,7 @@ struct LoginView: View {
                     TextField("Server", text: $model.serverURL)
                         .keyboardType(.URL).textInputAutocapitalization(.never).autocorrectionDisabled()
                 } header: { Text("Server") } footer: {
-                    Text("On a phone, use your computer's Wi-Fi address, e.g. http://192.168.1.20:8000.")
+                    Text("Defaults to the cloud server. For a local backend use your computer's Wi-Fi address, e.g. http://192.168.1.20:8000.")
                 }
                 if let message = model.message {
                     Section { Label(message, systemImage: "exclamationmark.circle").foregroundStyle(.orange) }

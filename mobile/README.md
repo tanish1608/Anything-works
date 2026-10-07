@@ -22,7 +22,7 @@ open PlaceholderCrew.xcodeproj              # choose your team under Signing, pi
 ```
 
 - **Backend:** `backend/.env` needs `GEMINI_API_KEY` and `AGENT_ENABLED=true`. Start it reachable from the phone: `cd backend && .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000`.
-- **Server address in the app:** your Mac's Wi-Fi IP, e.g. `http://192.168.1.20:8000` (`ipconfig getifaddr en0`). Plain HTTP is allowed only for local networks; production needs HTTPS.
+- **Server address in the app:** defaults to the cloud API `https://placeholder-api-826928184760.us-central1.run.app` (see docs/DEPLOY_GCP.md). For a local backend use your Mac's Wi-Fi IP, e.g. `http://192.168.1.20:8000` (`ipconfig getifaddr en0`). Plain HTTP is allowed only for local networks; production needs HTTPS.
 - **Accounts:** an existing project member with upload permission, e.g. `electrician@example.com` / `demo-password` on the seeded detailed duplex (`python -m app.seed --duplex`). A PM assigns work from the website first.
 - **LiDAR** needs a Pro iPhone/iPad; other iPhones use ARKit camera estimates (less precise, labelled). AR and the camera do not work in the Simulator.
 

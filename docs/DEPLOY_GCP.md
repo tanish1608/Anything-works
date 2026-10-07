@@ -10,7 +10,7 @@ Set up October 6, 2026. Region `us-central1`.
 | Service account | `placeholder-api@ao-hacks.iam.gserviceaccount.com` | Cloud SQL client, secret accessor, bucket object admin |
 | Secrets | `DB_PASSWORD`, `JWT_SECRET`, `GEMINI_API_KEY` | Injected as env vars |
 | Cloud Run job | `placeholder-seed` | Migrations + demo data (`python -m app.seed --crew-demo`) |
-| Cloud Run service | `placeholder-api` | The API (see below) |
+| Cloud Run service | `placeholder-api` | The API: https://placeholder-api-826928184760.us-central1.run.app |
 
 `deploy/start.sh` builds `DATABASE_URL` from `DB_PASSWORD` and the Cloud SQL unix socket, runs `alembic upgrade head`, then starts uvicorn on `$PORT` (or runs the job's command).
 
