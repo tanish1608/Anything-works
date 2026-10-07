@@ -333,7 +333,7 @@ export default function BuildingCanvas({
               title={floorName(p.name)}
             >
               <span>
-                {model.source.slug === "schependomlaan"
+                {(model.localIds ?? model.source.slug) === "schependomlaan"
                   ? APARTMENT_LEVEL_TAGS[floorName(p.name)] || floorName(p.name)
                   : floorName(p.name)
                       .replace("Level ", "L")

@@ -26,9 +26,11 @@ export function unitForRoom(
     model.source.revision !== "7ddf57a201f88a0c213d5322b02ed15e94a60a40"
   )
     return null;
-  if (model.source.slug === "schependomlaan")
+  // Cloud projects drawn from a bundled sample keep their private storage slug; the sample identity is localIds.
+  const sample = model.localIds ?? model.source.slug;
+  if (sample === "schependomlaan")
     return model.source.room_units?.[code || ""] || null;
-  if (model.source.slug && model.source.slug !== "duplex") return null;
+  if (sample && sample !== "duplex") return null;
   return /^([AB])\d{3}$/.exec(code || "")?.[1] || null;
 }
 export function workPath(model: ModelDataset, work: WorkItem) {

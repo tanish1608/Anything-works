@@ -522,3 +522,6 @@
 .showroom-catalog-error p { margin: 6px 0; }
 @media (max-width: 640px) { .showroom-setup { padding: 0 12px; } .showroom-setup-content { padding-top: 20px; } }
 .showroom-header-actions .showroom-signin { background: #3189e9; border-color: #459afa; color: #fff; }
+/* Cards are buttons; keep them dark on hover (the global button hover is a light theme colour). */
+.project-showroom .showroom-project-card:hover:not(:disabled) { background: #1d3049; border-color: #4b6a8c; }
+.project-showroom .showroom-project-card.selected:hover:not(:disabled) { background: #1e3650; border-color: #7ebaff; }

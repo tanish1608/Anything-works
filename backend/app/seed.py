@@ -152,8 +152,9 @@ def seed_duplex_ifc(db: Session) -> Project:
     from app.services.models import approve_version
     from app.storage import get_storage
 
-    name = "Duplex Apartment — detailed BIM"
-    existing = db.scalar(select(Project).where(Project.name == name))
+    name = "Duplex Apartment"
+    # Earlier deployments used a longer name; find either so re-running never duplicates the project.
+    existing = db.scalar(select(Project).where(Project.name.in_([name, "Duplex Apartment — detailed BIM"])))
     if existing:
         return existing
     root = SAMPLES / "ifc/duplex"

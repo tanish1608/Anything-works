@@ -81,16 +81,25 @@ export default function ProjectShowroom({ current }: { current: string }) {
         if (alive)
           setCatalog({
             session,
-            projects: projects.map((p) => ({
-              id: `api:${p.id}`,
-              name: p.name,
-              address: p.address,
-              private: true,
-              // Projects imported from a bundled sample reuse its outline image (no 3D needed for a card).
-              thumbnail: sampleSlug(p) ? `/project-previews/${sampleSlug(p)}.svg` : undefined,
-              description:
-                "Your team's project. Preview the approved source model, then open its building workspace.",
-            })),
+            projects: projects
+              .map((p) => {
+                // Projects imported from a bundled sample are presented exactly like that sample building
+                // (category, description, image, order); the data behind them is the team's real project.
+                const sample = PUBLIC_PROPERTIES.find((s) => s.id === sampleSlug(p));
+                return {
+                  id: `api:${p.id}`,
+                  name: p.name,
+                  address: sample ? null : p.address,
+                  private: true,
+                  category: sample?.category,
+                  thumbnail: sample?.thumbnail,
+                  description: sample?.description
+                    ?? "Your team's project. Preview the approved source model, then open its building workspace.",
+                  order: sample ? PUBLIC_PROPERTIES.indexOf(sample) : PUBLIC_PROPERTIES.length,
+                };
+              })
+              .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name))
+              .map(({ order: _order, ...p }) => p),
           });
       })
       .catch((e) => {
@@ -336,9 +345,7 @@ export default function ProjectShowroom({ current }: { current: string }) {
           aria-live="polite"
         >
           <span className="showroom-property-type">
-            {selected?.private
-              ? "YOUR TEAM'S PROJECT"
-              : selected?.category || "PROJECT"}
+            {selected?.category || (selected?.private ? "YOUR TEAM'S PROJECT" : "PROJECT")}
           </span>
           <h1>{selected?.name || "Project unavailable"}</h1>
           <p>{selected?.description}</p>

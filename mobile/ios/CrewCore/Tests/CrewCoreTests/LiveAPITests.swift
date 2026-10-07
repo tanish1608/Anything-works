@@ -12,7 +12,7 @@ final class LiveAPITests: XCTestCase {
         let client = APIClient(baseURL: url, tokens: MemoryTokenStore())
         let user = try await client.login(email: env["CREW_EMAIL"] ?? "electrician@example.com", password: env["CREW_PASSWORD"] ?? "demo-password")
         let projects = try await client.projects()
-        let project = try XCTUnwrap(projects.first { $0.name.contains("detailed BIM") })
+        let project = try XCTUnwrap(projects.first { $0.name.hasPrefix("Duplex Apartment") })
         let before = try await client.workspace(project.id)
         let work = try XCTUnwrap(before.state.items.first { $0.id == (env["CREW_WORK"] ?? "WORK-BR1-OUTLET") })
         let photo = try Data(contentsOf: URL(fileURLWithPath: env["CREW_PHOTO"] ?? "../../../web/public/design-assets/wall-unit-406.jpg"))

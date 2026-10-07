@@ -36,7 +36,6 @@ export async function loadAuthorizedModel(
       source: {
         ...bundled.source,
         attribution: `${bundled.source.attribution} · drawn from the bundled copy of this project's source`,
-        revision: manifest.version.id,
         ...(setup && projectInfo && me
           ? { apiProjectId: projectId, slug: `private:${me.id}:${projectId}`, name: projectInfo.name,
               approvalStatus: manifest.version.status }
