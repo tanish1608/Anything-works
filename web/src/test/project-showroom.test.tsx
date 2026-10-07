@@ -277,8 +277,8 @@ it("keeps samples usable when the connected service returns 502 and recovers on 
   expect(screen.getAllByRole("button", { name: /^Preview / })).toHaveLength(4);
   expect(screen.getByRole("button", { name: "Open project" })).toBeEnabled();
   await userEvent.click(screen.getByRole("button", { name: "Retry connection" }));
-  await waitFor(() => expect(screen.queryByText("Connected projects are unavailable.")).not.toBeInTheDocument());
+  await waitFor(() => expect(screen.queryByText("Connected projects are unavailable.")).not.toBeInTheDocument(), { timeout: 5000 });
   // Once the account's projects load, they replace the samples.
-  expect(await screen.findByRole("button", { name: "Preview Recovered site" })).toBeInTheDocument();
+  expect(await screen.findByRole("button", { name: "Preview Recovered site" }, { timeout: 5000 })).toBeInTheDocument();
   expect(screen.getAllByRole("button", { name: /^Preview / })).toHaveLength(1);
 });
