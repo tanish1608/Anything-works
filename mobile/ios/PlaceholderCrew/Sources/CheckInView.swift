@@ -9,8 +9,9 @@ struct CheckInView: View {
     @EnvironmentObject var model: AppModel
     @Environment(\.dismiss) private var dismiss
 
-    enum Step { case photos, details, work, result }
-    @State private var step: Step = .photos
+    enum Step { case camera, photos, details, work, result }
+    // The camera is the first screen itself (no sheet stacked on the cover), when the phone has one.
+    @State private var step: Step = UIImagePickerController.isSourceTypeAvailable(.camera) ? .camera : .photos
     @State private var photos: [Data] = []
     @State private var picks: [PhotosPickerItem] = []
     @State private var camera = false
@@ -42,6 +43,13 @@ struct CheckInView: View {
         NavigationStack {
             Group {
                 switch step {
+                case .camera:
+                    CameraPicker(onImage: { image in
+                        if let d = ImageUtil.jpeg(image), photos.count < 6 { photos.append(d) }
+                        step = .details
+                    }, onCancel: { step = photos.isEmpty ? .photos : .details })
+                    .ignoresSafeArea()
+                    .toolbar(.hidden, for: .navigationBar)
                 case .photos: photosStep
                 case .details: detailsStep
                 case .work: workStep
@@ -63,10 +71,7 @@ struct CheckInView: View {
                 }
             }
             .onChange(of: picks) { _, picked in Task { await load(picked) } }
-            .onAppear {
-                location.request()
-                if photos.isEmpty, UIImagePickerController.isSourceTypeAvailable(.camera) { camera = true }
-            }
+            .onAppear { location.request() }
         }
     }
 
@@ -98,7 +103,7 @@ struct CheckInView: View {
             }
             HStack {
                 if UIImagePickerController.isSourceTypeAvailable(.camera) {
-                    Button { camera = true } label: { Label(photos.isEmpty ? "Open camera" : "Add photo", systemImage: "camera.fill") }
+                    Button { step = .camera } label: { Label(photos.isEmpty ? "Open camera" : "Add photo", systemImage: "camera.fill") }
                         .buttonStyle(.bordered).disabled(photos.count >= 6)
                 }
                 PhotosPicker(selection: $picks, maxSelectionCount: max(1, 6 - photos.count), matching: .images) {
@@ -113,6 +118,36 @@ struct CheckInView: View {
 
     private var detailsStep: some View {
         Form {
+            Section {
+                ScrollView(.horizontal) {
+                    HStack {
+                        ForEach(Array(photos.enumerated()), id: \.offset) { index, data in
+                            ZStack(alignment: .topTrailing) {
+                                if let image = UIImage(data: data) {
+                                    Image(uiImage: image).resizable().scaledToFill().frame(width: 84, height: 84).clipped()
+                                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                                }
+                                Button { photos.remove(at: index); if photos.isEmpty { step = .photos } } label: {
+                                    Image(systemName: "xmark.circle.fill").foregroundStyle(.white, .black.opacity(0.6))
+                                }
+                                .accessibilityLabel("Remove photo \(index + 1)")
+                            }
+                        }
+                    }
+                }
+                HStack {
+                    if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                        Button { camera = true } label: { Label("Add another photo", systemImage: "camera") }
+                            .disabled(photos.count >= 6)
+                    }
+                    Spacer()
+                    PhotosPicker(selection: $picks, maxSelectionCount: max(1, 6 - photos.count), matching: .images) {
+                        Label("Library", systemImage: "photo.on.rectangle")
+                    }
+                    .disabled(photos.count >= 6)
+                }
+                .buttonStyle(.borderless)
+            } header: { Text("Photos (\(photos.count)/6)") }
             Section("What did you do?") {
                 VoiceNoteField(placeholder: "e.g. Rough-in wiring done for the living room outlet", text: $note)
                 Toggle("This work is finished", isOn: $finished)
@@ -255,6 +290,7 @@ struct CheckInView: View {
                let jpeg = ImageUtil.jpeg(image) { photos.append(jpeg) }
         }
         picks = []
+        if !photos.isEmpty, step == .photos { step = .details }
     }
 
     /// Go straight to "Where is this?"; suggestions arrive while the person can already browse rooms.

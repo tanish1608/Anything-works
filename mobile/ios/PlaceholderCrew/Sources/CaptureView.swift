@@ -169,6 +169,8 @@ enum ImageUtil {
 
 struct CameraPicker: UIViewControllerRepresentable {
     let onImage: (UIImage) -> Void
+    /// Inline use (as a screen, not a sheet): called instead of dismissing on cancel.
+    var onCancel: (() -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
 
     func makeUIViewController(context: Context) -> UIImagePickerController {
@@ -186,8 +188,10 @@ struct CameraPicker: UIViewControllerRepresentable {
         init(_ parent: CameraPicker) { self.parent = parent }
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
             if let image = info[.originalImage] as? UIImage { parent.onImage(image) }
-            parent.dismiss()
+            if parent.onCancel == nil { parent.dismiss() }
         }
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { parent.dismiss() }
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            if let cancel = parent.onCancel { cancel() } else { parent.dismiss() }
+        }
     }
 }
