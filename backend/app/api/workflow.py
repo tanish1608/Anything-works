@@ -25,7 +25,6 @@ from app.models import (
     Upload,
     User,
     WorkAssessment,
-    WorkPackage,
     WorkSubmission,
     new_id,
     utcnow,
@@ -68,35 +67,9 @@ def workspace(project_id: str, user: User = Depends(current_user), db: Session =
 @router.post("/projects/{project_id}/work", status_code=201)
 def create_work(project_id: str, body: WorkIn, user: User = Depends(current_user), db: Session = Depends(get_db)):
     require(db, project_id, user.id, Perm.progress_approve)
-    rev, loc = flow.source(db, project_id, body.model_version_id, body.element_id)
-    person = flow.assignee(db, project_id, body.assignee_id, rev.trade, rev.zone_id)
-    if not body.title.strip():
-        raise HTTPException(422, "Work title is required")
-    existing = db.get(WorkPackage, body.id)
-    if existing:
-        if (existing.project_id, existing.element_id, existing.assignee_id, existing.state["title"]) != (
-                project_id, body.element_id, body.assignee_id, body.title.strip()):
-            raise HTTPException(409, "Work identity already exists")
-        return flow.item(existing)
-    work = WorkPackage(id=body.id, project_id=project_id, element_id=rev.element_id,
-                       version_id=body.model_version_id, assignee_id=person.id, revision=1, state={
-        "id": body.id, "title": body.title.strip(), "owner": person.name, "trade": rev.trade,
-        "unit": loc["spaceCode"] or loc["levelName"], "level": 0, "location": loc,
-        "status": "none", "processing": "completed", "update": "", "time": "",
-        "reference": f"Approved IFC · revision {body.model_version_id} · element {rev.element_id}",
-        "scope": f"Linked component only: {rev.name or rev.ifc_class}",
-        "captureGuidance": body.capture_guidance, "limits": "Hidden conditions, exact measurements, code compliance and formal inspection",
-        "detail": "Planned work. No field evidence or completion recorded.", "photos": [], "checks": [],
-        "coverage": "No evidence", "progress": "Not assessed", "review": "Not requested", "inspection": "Not recorded"})
-    db.add(work)
-    try:
-        db.flush()
-        flow.record(db, work, user, "planned", "Planned work assigned. No field evidence received.")
-        db.commit()
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(409, "This component already has tracked work") from None
-    return flow.item(work)
+    return flow.create_work(db, project_id, user, work_id=body.id, title=body.title, element_id=body.element_id,
+                            version_id=body.model_version_id, assignee_id=body.assignee_id,
+                            capture_guidance=body.capture_guidance)
 
 
 async def _prepared(files: list[UploadFile]):

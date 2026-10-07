@@ -1,0 +1,26 @@
+# Cloud Build upload: only what deploy/backend.Dockerfile needs. (Overrides .gitignore so sample IFCs upload.)
+*
+!backend/
+!backend/**
+!samples/
+!samples/dxf/**
+!samples/pdf/**
+!samples/ifc/
+!samples/ifc/Building-*.ifc
+!samples/ifc/duplex/
+!samples/ifc/duplex/**
+!deploy/
+!deploy/**
+backend/.venv/
+backend/data/
+backend/storage/
+backend/.env
+**/__pycache__/
+**/.pytest_cache/
+**/.ruff_cache/
+samples/ifc/clinic/
+samples/ifc/esplan/
+samples/ifc/schependomlaan/
+samples/photos/
+backend/tests/
+backend/*.egg-info/

@@ -8,6 +8,7 @@ from datetime import date
 
 from fastapi import HTTPException
 from sqlalchemy import select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models import (
@@ -88,6 +89,40 @@ def source(db: Session, project_id: str, version_id: str, element_id: str):
            "roomName": zone.name if zone else "Unassigned area", "spaceCode": zone.code or "" if zone else "",
            "elements": [element_id], "anchor": [center[0], center[2], -center[1]]}
     return rev, loc
+
+
+def create_work(db: Session, project_id: str, user: User, *, work_id: str, title: str, element_id: str,
+                version_id: str, assignee_id: str, capture_guidance: str):
+    """Plan assigned work on one approved source component. Idempotent for an identical request."""
+    rev, loc = source(db, project_id, version_id, element_id)
+    person = assignee(db, project_id, assignee_id, rev.trade, rev.zone_id)
+    if not title.strip():
+        raise HTTPException(422, "Work title is required")
+    existing = db.get(WorkPackage, work_id)
+    if existing:
+        if (existing.project_id, existing.element_id, existing.assignee_id, existing.state["title"]) != (
+                project_id, element_id, assignee_id, title.strip()):
+            raise HTTPException(409, "Work identity already exists")
+        return item(existing)
+    work = WorkPackage(id=work_id, project_id=project_id, element_id=rev.element_id,
+                       version_id=version_id, assignee_id=person.id, revision=1, state={
+        "id": work_id, "title": title.strip(), "owner": person.name, "trade": rev.trade,
+        "unit": loc["spaceCode"] or loc["levelName"], "level": 0, "location": loc,
+        "status": "none", "processing": "completed", "update": "", "time": "",
+        "reference": f"Approved IFC · revision {version_id} · element {rev.element_id}",
+        "scope": f"Linked component only: {rev.name or rev.ifc_class}",
+        "captureGuidance": capture_guidance, "limits": "Hidden conditions, exact measurements, code compliance and formal inspection",
+        "detail": "Planned work. No field evidence or completion recorded.", "photos": [], "checks": [],
+        "coverage": "No evidence", "progress": "Not assessed", "review": "Not requested", "inspection": "Not recorded"})
+    db.add(work)
+    try:
+        db.flush()
+        record(db, work, user, "planned", "Planned work assigned. No field evidence received.")
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(409, "This component already has tracked work") from None
+    return item(work)
 
 
 def item(work: WorkPackage, current_version: str | None = None):

@@ -176,16 +176,49 @@ def seed_duplex_ifc(db: Session) -> Project:
     return project
 
 
+CREW_DEMO_WORK = [  # IFC component GUID-derived ids are stable across imports of the same source files
+    ("WORK-LR-OUTLET", "Living room wall outlet — rough-in wiring", "Duplex Receptacle", "Living Room"),
+    ("WORK-LR-SWITCH", "Living room light switch — rough-in wiring", "Single Pole", "Living Room"),
+    ("WORK-BR1-OUTLET", "Bedroom 1 wall outlet — rough-in wiring", "Duplex Receptacle", "Bedroom 1"),
+]
+
+
+def seed_crew_demo(db: Session, project: Project) -> list[str]:
+    """Assign a few electrical rough-in items on the detailed duplex to the demo electrician."""
+    from app.models import ElementRevision, WorkPackage, Zone
+    from app.services import workflow as flow
+
+    pm = db.scalar(select(User).where(User.email == "pm@example.com"))
+    electrician = db.scalar(select(User).where(User.email == "electrician@example.com"))
+    made = []
+    for work_id, title, kind, room in CREW_DEMO_WORK:
+        if db.get(WorkPackage, work_id):
+            continue
+        rev = db.scalar(select(ElementRevision).join(Zone, Zone.id == ElementRevision.zone_id).where(
+            ElementRevision.version_id == project.current_version_id, ElementRevision.trade == "electrical",
+            ElementRevision.name.contains(kind), Zone.name == room).order_by(ElementRevision.element_id))
+        if rev is None:
+            continue
+        flow.create_work(db, project.id, pm, work_id=work_id, title=title, element_id=rev.element_id,
+                         version_id=project.current_version_id, assignee_id=electrician.id,
+                         capture_guidance="Wide shot of the wall showing the box location, plus a close-up of the box and cable entry")
+        made.append(work_id)
+    return made
+
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--duplex", action="store_true", help="Also import the detailed public duplex project")
+    parser.add_argument("--crew-demo", action="store_true", help="Assign demo electrical work on the detailed duplex")
     args = parser.parse_args()
     with SessionLocal() as s:
         p = seed(s)
         seed_sample_ifc(s)
-        if args.duplex:
-            seed_duplex_ifc(s)
+        if args.duplex or args.crew_demo:
+            duplex = seed_duplex_ifc(s)
+            if args.crew_demo:
+                print("Crew demo work:", seed_crew_demo(s, duplex) or "already assigned")
         print(f"Demo projects ready: {DEMO_PROJECT}, {SAMPLE_PROJECT}")
         print("Log in as owner@example.com / pm@example.com / plumber@example.com / electrician@example.com /")
         print("inspector@example.com with password:", os.environ.get("DEMO_PASSWORD", "demo-password"))
