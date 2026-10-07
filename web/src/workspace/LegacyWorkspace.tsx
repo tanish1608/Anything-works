@@ -349,19 +349,19 @@ function LoadedWorkspace({ model }: { model: ModelDataset }) {
             onClick={() => setAssistant(!assistant)}
           >
             <img src={ASSETS + "works-beaver.jpg"} alt="" />
-            Works Beaver
+            Timber
             <Icon name={assistant ? "close" : "spark"} size={16} />
           </button>
         )}
         {assistant && !importedBuilding && !homePage && (
-          <aside className="beaver" aria-label="Works Beaver assistant">
+          <aside className="beaver" aria-label="Timber assistant">
             <div className="beaver-head">
               <img
                 src={ASSETS + "works-beaver.jpg"}
-                alt="Works Beaver mascot"
+                alt="Timber mascot"
               />
               <div className="grow">
-                <h3>Works Beaver</h3>
+                <h3>Timber</h3>
                 <p className="xs muted">
                   Daily-update assistant · local record summary
                 </p>

@@ -275,7 +275,8 @@ it("keeps samples usable when the connected service returns 502 and recovers on 
   expect(await screen.findByText("Connected projects are unavailable.")).toBeInTheDocument();
   expect(screen.queryByText(/502 Bad Gateway/)).not.toBeInTheDocument();
   expect(screen.getAllByRole("button", { name: /^Preview / })).toHaveLength(4);
-  expect(screen.getByRole("button", { name: "Open project" })).toBeEnabled();
+  // The sample preview starts loading once the outage is known; Open enables when it has loaded.
+  await waitFor(() => expect(screen.getByRole("button", { name: "Open project" })).toBeEnabled());
   await userEvent.click(screen.getByRole("button", { name: "Retry connection" }));
   await waitFor(() => expect(screen.queryByText("Connected projects are unavailable.")).not.toBeInTheDocument(), { timeout: 5000 });
   // Once the account's projects load, they replace the samples.
