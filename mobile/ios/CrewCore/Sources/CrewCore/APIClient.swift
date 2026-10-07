@@ -70,12 +70,29 @@ public final class APIClient: @unchecked Sendable {
         return try JSON.decoder.decode(T.self, from: try await send(req, authorized: authorized))
     }
 
+    private let refreshLock = NSLock()
+    private var refreshing: Task<Bool, Never>?
+
+    /// One renewal at a time. Refresh tokens rotate and a reused one revokes the whole session, so concurrent
+    /// 401s must share a single refresh instead of each spending the same token.
     private func refresh() async throws -> Bool {
+        let task: Task<Bool, Never> = refreshLock.withLock {
+            if let running = refreshing { return running }
+            let started = Task { await self.performRefresh() }
+            refreshing = started
+            return started
+        }
+        let ok = await task.value
+        refreshLock.withLock { if refreshing == task { refreshing = nil } }
+        return ok
+    }
+
+    private func performRefresh() async -> Bool {
         guard let t = tokens.load() else { return false }
         var req = URLRequest(url: url("/auth/refresh"))
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        req.httpBody = try JSON.encoder.encode(["refresh_token": t.refresh_token])
+        req.httpBody = try? JSON.encoder.encode(["refresh_token": t.refresh_token])
         guard let (data, response) = try? await session.data(for: req),
               (response as? HTTPURLResponse)?.statusCode == 200,
               let fresh = try? JSON.decoder.decode(Tokens.self, from: data) else {

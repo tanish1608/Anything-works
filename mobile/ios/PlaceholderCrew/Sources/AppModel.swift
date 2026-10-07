@@ -66,7 +66,7 @@ final class AppModel: ObservableObject {
             if project == nil { projectID = projects.first?.id }
             await syncAndRefresh()
         } catch {
-            message = (error as? APIError)?.message ?? "Couldn't load projects."
+            if !sessionEnded() { message = (error as? APIError)?.message ?? "Couldn't load projects." }
         }
     }
 
@@ -75,8 +75,21 @@ final class AppModel: ObservableObject {
         do {
             snapshot = try await client.workspace(projectID)
         } catch {
-            message = (error as? APIError)?.message ?? "Offline: showing the last loaded work."
+            if !sessionEnded() { message = (error as? APIError)?.message ?? "Offline: showing the last loaded work." }
         }
+    }
+
+    /// The server rejected the login even after renewing it: go back to sign-in instead of showing raw errors.
+    /// Updates queued on this phone stay saved for this account and send after signing in again.
+    @discardableResult
+    private func sessionEnded() -> Bool {
+        guard user != nil, !client.isSignedIn else { return false }
+        poll?.cancel()
+        user = nil
+        snapshot = nil
+        catalog = nil
+        message = "Your session ended. Please sign in again. Unsent updates are still saved on this phone."
+        return true
     }
 
     /// Send anything queued for this account, then reload the shared work records.

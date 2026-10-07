@@ -134,6 +134,28 @@ final class CrewCoreTests: XCTestCase {
         XCTAssertEqual(StubProtocol.requests.last?.url?.path, "/api/projects/p/checkins/locate")
     }
 
+    func testConcurrentExpiredRequestsShareOneRefresh() async throws {
+        let refreshes = NSLock()
+        nonisolated(unsafe) var refreshCount = 0
+        StubProtocol.handler = { req in
+            if req.url?.path == "/api/auth/refresh" {
+                refreshes.lock(); refreshCount += 1; refreshes.unlock()
+                Thread.sleep(forTimeInterval: 0.05)
+                return (200, Data(#"{"access_token":"b","refresh_token":"r2"}"#.utf8))
+            }
+            if req.value(forHTTPHeaderField: "Authorization") == "Bearer b" {
+                return (200, Data(#"{"id":"u","name":"U","email":"u@x.com"}"#.utf8))
+            }
+            return (401, Data(#"{"detail":"Not authenticated"}"#.utf8))
+        }
+        async let a = client.me()
+        async let b = client.me()
+        async let c = client.me()
+        let users = try await [a, b, c]
+        XCTAssertEqual(users.map(\.id), ["u", "u", "u"])
+        XCTAssertEqual(refreshCount, 1)  // a second refresh with the same token would revoke the session
+    }
+
     func testWorkspaceDecodesTheServerSnapshotAndLatestAICheck() throws {
         let json = #"""
         {"state":{"version":1,"items":[{"id":"WORK-1","title":"Living room outlet","trade":"electrical","owner":"Elle",
