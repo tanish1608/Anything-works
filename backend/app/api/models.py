@@ -3,6 +3,7 @@ import uuid
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
 from fastapi.responses import FileResponse
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -282,3 +283,22 @@ def merge(version_id: str, body: ApproveIn, user: User = Depends(current_user), 
     merged = merge_branch(db, v, user.id, body.message)
     db.commit()
     return _version_out(merged, db.get(Project, v.project_id))
+
+
+class GuidLookupIn(BaseModel):
+    ids: list[str] = []
+    guids: list[str] = []
+
+
+@router.post("/projects/{project_id}/element-guids")
+def element_guids(project_id: str, body: GuidLookupIn, user: User = Depends(current_user), db: Session = Depends(get_db)):
+    """Translate element IDs <-> IFC GUIDs (a few at a time). Lets the website draw a bundled copy of a sample
+    building locally and still exchange work records with this project's own element IDs."""
+    require(db, project_id, user.id, Perm.project_view)
+    if len(body.ids) > 500 or len(body.guids) > 500:
+        raise HTTPException(422, "Look up at most 500 at a time")
+    by_id = dict(db.execute(select(Element.id, Element.ifc_guid).where(
+        Element.project_id == project_id, Element.id.in_(body.ids))).all()) if body.ids else {}
+    by_guid = dict(db.execute(select(Element.ifc_guid, Element.id).where(
+        Element.project_id == project_id, Element.ifc_guid.in_(body.guids))).all()) if body.guids else {}
+    return {"ids": by_id, "guids": by_guid}

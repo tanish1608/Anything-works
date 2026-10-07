@@ -23,6 +23,9 @@ export interface ModelDataset {
   elements: ElementDetail[];
   /** Bundled sample meshes are renamed to these element IDs when drawn (see sampleGeometry.ts). */
   meshIds?: Map<string, string>;
+  /** Set when a cloud project is drawn entirely from a bundled sample: element/level/room IDs are the bundled
+   *  ones, and work records are translated by IFC GUID (see workspace/localBridge.ts). */
+  localIds?: string;
   plans: ModelPlanData[];
   audit: {
     elements: number;

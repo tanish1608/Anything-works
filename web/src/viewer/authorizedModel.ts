@@ -6,7 +6,7 @@ import type {
   Project,
   User,
 } from "../api/types";
-import { fetchModelLayer, type ModelDataset } from "./modelData";
+import { fetchModelLayer, loadPublicProject, type ModelDataset, type PublicProjectId } from "./modelData";
 import { sampleLayerUrl, sampleMeshIds, sampleSlug } from "./sampleGeometry";
 import { cacheKey, readModel, writeModel } from "./modelCache";
 
@@ -17,7 +17,34 @@ export async function loadAuthorizedModel(
   setup = false,
 ) {
   const suffix = version ? `?version=${encodeURIComponent(version)}` : "";
-  const manifest = await api<ViewerManifest>(`/projects/${projectId}/viewer${suffix}`);
+  const [manifest, projectInfo] = await Promise.all([
+    api<ViewerManifest>(`/projects/${projectId}/viewer${suffix}`),
+    api<Project>(`/projects/${projectId}`).catch(() => null),
+  ]);
+  // A project imported from one of our bundled sample buildings is drawn entirely from the local copy:
+  // geometry, components, floors and rooms. Only work records come from the cloud (translated by IFC GUID).
+  const local = !version && manifest.version ? sampleSlug(projectInfo) : null;
+  if (local && manifest.version) {
+    const [bundled, me] = await Promise.all([
+      loadPublicProject(local as PublicProjectId),
+      setup ? api<User>("/auth/me") : Promise.resolve(null),
+    ]);
+    const model: ModelDataset = {
+      ...bundled,
+      version: manifest.version.id,
+      localIds: local,
+      source: {
+        ...bundled.source,
+        attribution: `${bundled.source.attribution} · drawn from the bundled copy of this project's source`,
+        revision: manifest.version.id,
+        ...(setup && projectInfo && me
+          ? { apiProjectId: projectId, slug: `private:${me.id}:${projectId}`, name: projectInfo.name,
+              approvalStatus: manifest.version.status }
+          : { slug: undefined }),
+      },
+    };
+    return { manifest, model };
+  }
   type Cached = { elements: ElementInfo[]; tree: Building[]; project: Project | null; plans?: ModelDataset["plans"] };
   const key = manifest.version ? cacheKey(projectId, manifest.version.id) : null;
   const cached = await readModel<Cached>(key);
@@ -25,7 +52,7 @@ export async function loadAuthorizedModel(
     cached ? cached.elements : api<ElementInfo[]>(`/projects/${projectId}/elements${suffix}`),
     cached ? cached.tree : api<Building[]>(`/projects/${projectId}/tree`),
     // Needed for setup, and to recognise a bundled sample; if it fails, geometry simply comes from the API.
-    setup ? api<Project>(`/projects/${projectId}`) : cached ? cached.project : api<Project>(`/projects/${projectId}`).catch(() => null),
+    Promise.resolve(projectInfo),
     setup ? api<User>("/auth/me") : Promise.resolve(null),
   ]);
   // Projects imported from a bundled sample draw the local copy of the same geometry (much faster).

@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api, tokenStore } from "../api/client";
 import type { Member, User, Notification } from "../api/types";
 import type { Action, Draft, WorkspaceState, WorkItem } from "./state";
 import { getDraft, pendingUpdates, saveDraft, queueWorkUpdate, syncWorkUpdates, type PendingWorkUpdate } from "./workflowQueue";
 import type { ModelDataset } from "../viewer/modelData";
+import { createLocalBridge } from "./localBridge";
 
 export interface WorkSnapshot {
   state: WorkspaceState;
@@ -23,6 +24,8 @@ export function useConnectedWork(model: ModelDataset, changed: (state: Workspace
   const saving = useRef(false);
   const loading = useRef<Promise<void> | null>(null);
   const generation = useRef(0);
+  // Buildings drawn from their bundled copy exchange work records through IFC GUIDs.
+  const bridge = useMemo(() => (project && model.localIds ? createLocalBridge(model, project) : null), [project, model]);
   useEffect(() => { const lifecycle = live; lifecycle.current = true; return () => { lifecycle.current = false; }; }, []);
   const refresh = useCallback(async () => {
     if (!project) return;
@@ -30,7 +33,8 @@ export function useConnectedWork(model: ModelDataset, changed: (state: Workspace
     const epoch = generation.current;
     const run = (async () => {
       try {
-        const result = await api<WorkSnapshot>(`/projects/${project}/workspace`);
+        const fetched = await api<WorkSnapshot>(`/projects/${project}/workspace`);
+        const result = bridge ? { ...fetched, state: await bridge.state(fetched.state) } : fetched;
         if (!live.current || epoch !== generation.current) return;
         // Different accounts never inherit a previous account's in-memory draft.
         if (actor.current !== result.user.id) {
@@ -49,7 +53,7 @@ export function useConnectedWork(model: ModelDataset, changed: (state: Workspace
     })().finally(() => { loading.current = null; });
     loading.current = run;
     return run;
-  }, [project, changed]);
+  }, [project, changed, bridge]);
   const sync = useCallback(async () => {
     if (!project || !actor.current) return;
     try { await syncWorkUpdates(actor.current, project); } catch (e) { message((e as Error).message); }
@@ -83,6 +87,7 @@ export function useConnectedWork(model: ModelDataset, changed: (state: Workspace
     draft.current = value;
     if (project && actor.current) void saveDraft(actor.current, project, value).catch((e: Error) => message(`Draft could not be saved: ${e.message}`));
   }, [project, message]);
+  const toCloud = async (id: string | undefined) => (bridge ? bridge.cloudId(id) : id);
   const commit = async (action: Action, basis?: WorkItem): Promise<boolean> => {
     if (!project || !snapshot || saving.current) return false;
     saving.current = true; setBusy(true);
@@ -90,7 +95,7 @@ export function useConnectedWork(model: ModelDataset, changed: (state: Workspace
       if (action.type === "plan") {
         const item = action.item;
         await api(`/projects/${project}/work`, { method: "POST", json: { id: item.id, title: item.title,
-          assignee_id: item.assigneeId, element_id: item.location?.elements[0], model_version_id: model.version,
+          assignee_id: item.assigneeId, element_id: await toCloud(item.location?.elements[0]), model_version_id: model.version,
           capture_guidance: item.captureGuidance || "Context view and close-up of reported condition" } });
       } else if (action.type === "raise") {
         // Shared records only accept PM-assigned issues: plan the component, then confirm the issue.
@@ -100,7 +105,7 @@ export function useConnectedWork(model: ModelDataset, changed: (state: Workspace
         if (action.item) {
           id = action.item.id;
           await api(`/projects/${project}/work`, { method: "POST", json: { id, title: action.item.title,
-            assignee_id: action.owner, element_id: action.item.location?.elements[0], model_version_id: model.version,
+            assignee_id: action.owner, element_id: await toCloud(action.item.location?.elements[0]), model_version_id: model.version,
             capture_guidance: action.item.captureGuidance || "Context view and close-up of the reported condition" } });
         } else {
           const item = snapshot.state.items.find((i) => i.id === id);

@@ -102,3 +102,14 @@ def test_locate_suggests_only_rooms_and_components_in_scope(api, db, site, ai, m
 def test_locate_without_ai_lets_the_person_choose(api, site):  # noqa: F811
     r = api.c.post(f"/api/projects/{site['pid']}/checkins/locate", data={"note": "anything"}, headers=site["pm"])
     assert r.status_code == 200 and r.json()["status"] == "unavailable" and r.json()["suggestions"] == []
+
+
+def test_element_guid_lookup_translates_both_ways_within_the_project(api, db, site):  # noqa: F811
+    from app.models import Element
+    el = db.get(Element, site["payload"]["element_id"])
+    r = api.c.post(f"/api/projects/{site['pid']}/element-guids", json={"ids": [el.id, "nope"], "guids": [el.ifc_guid]},
+                   headers=site["crew"])
+    assert r.status_code == 200
+    assert r.json() == {"ids": {el.id: el.ifc_guid}, "guids": {el.ifc_guid: el.id}}
+    assert api.c.post(f"/api/projects/{site['pid']}/element-guids", json={"ids": [el.id]},
+                      headers=site["outsider"]).status_code == 404

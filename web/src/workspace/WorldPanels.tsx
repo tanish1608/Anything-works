@@ -940,7 +940,8 @@ export function ComponentPanel({ id, open }: { id: string; open: Open }) {
   const [detailError, setDetailError] = useState("");
   const [propertyQuery, setPropertyQuery] = useState("");
   useEffect(() => {
-    if (!model.source.apiProjectId) return;
+    // Bundled buildings already carry every component's details locally.
+    if (!model.source.apiProjectId || model.localIds) return;
     let active = true;
     api<ElementDetail>(
       `/elements/${encodeURIComponent(id)}?version=${encodeURIComponent(model.version)}`,
@@ -954,7 +955,7 @@ export function ComponentPanel({ id, open }: { id: string; open: Open }) {
     return () => {
       active = false;
     };
-  }, [id, model.version, model.source.apiProjectId]);
+  }, [id, model.version, model.source.apiProjectId, model.localIds]);
   const element =
     detail?.version === model.version && detail.element.id === id
       ? detail.element
