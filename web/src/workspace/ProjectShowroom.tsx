@@ -26,6 +26,7 @@ import {
 import "./world.css";
 import "./showroom.css";
 import ProjectImportPanel from "./ProjectImportPanel";
+import { sampleSlug } from "../viewer/sampleGeometry";
 
 export default function ProjectShowroom({ current }: { current: string }) {
   const location = useLocation(),
@@ -85,6 +86,8 @@ export default function ProjectShowroom({ current }: { current: string }) {
               name: p.name,
               address: p.address,
               private: true,
+              // Projects imported from a bundled sample reuse its outline image (no 3D needed for a card).
+              thumbnail: sampleSlug(p) ? `/project-previews/${sampleSlug(p)}.svg` : undefined,
               description:
                 "Your team's project. Preview the approved source model, then open its building workspace.",
             })),
