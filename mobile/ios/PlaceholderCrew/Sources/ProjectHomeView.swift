@@ -21,13 +21,13 @@ struct ProjectHomeView: View {
                 }
                 Section {
                     if snap.state.items.isEmpty {
-                        Text("No work is assigned to you in this project yet. Your project manager assigns work from the website.")
+                        Text("Nothing tracked yet. Tap Daily check-in to log today's work anywhere on site.")
                             .foregroundStyle(Theme.secondary)
                     }
                     ForEach(sorted(snap.state.items)) { item in
                         NavigationLink(value: item.id) { WorkRow(item: item) }
                     }
-                } header: { Text("Work to report") }
+                } header: { Text("My work") }
             } else {
                 HStack { Spacer(); ProgressView("Loading your work…"); Spacer() }
             }
@@ -36,7 +36,7 @@ struct ProjectHomeView: View {
             }
         }
         .safeAreaInset(edge: .bottom) {
-            if model.snapshot?.permissions.capture == true, !(model.snapshot?.state.items.isEmpty ?? true) {
+            if model.snapshot?.permissions.capture == true {
                 Button { checkingIn = true } label: {
                     Label("Daily check-in", systemImage: "camera.fill")
                         .font(.headline).frame(maxWidth: .infinity).padding(.vertical, 8)

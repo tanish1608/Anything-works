@@ -18,8 +18,11 @@ struct CheckInView: View {
     @State private var finished = true
     @State private var measuring = false
     @State private var height: Double?
-    @State private var suggested: [String] = []
-    @State private var copilot: String?
+    @State private var located: LocateResult?
+    @State private var target: CheckInTarget?
+    @State private var title = ""
+    @State private var browsing = false
+    @State private var locating = false
     @State private var workID = ""
     @State private var confirmed = false
     @State private var busy = false
@@ -31,6 +34,9 @@ struct CheckInView: View {
     private var lidar: Bool { ARWorldTrackingConfiguration.supportsSceneReconstruction(.mesh) }
     private var items: [CrewItem] { model.snapshot?.state.items ?? [] }
     private var item: CrewItem? { items.first { $0.id == workID } }
+    private var canSend: Bool {
+        target != nil && confirmed && !(target?.otherCrew ?? false) && (target?.workTitle != nil || !title.trimmingCharacters(in: .whitespaces).isEmpty)
+    }
 
     var body: some View {
         NavigationStack {
@@ -137,43 +143,80 @@ struct CheckInView: View {
 
     private var workStep: some View {
         Form {
-            if let copilot { Section { Label(copilot, systemImage: "sparkles").font(.subheadline) } }
-            Section("Which work is this?") {
-                ForEach(orderedItems) { candidate in
-                    Button {
-                        workID = candidate.id
-                        confirmed = false
-                    } label: {
+            if locating {
+                Section { HStack { ProgressView(); Text("Finding where this is…") } }
+            } else if let message = located?.message {
+                Section { Label(message, systemImage: "sparkles").font(.subheadline) }
+            }
+            Section {
+                ForEach(located?.suggestions ?? []) { s in
+                    let option = CheckInTarget(elementID: s.element_id, name: s.name, place: s.label,
+                                               workTitle: s.work_title, otherCrew: s.other_crew)
+                    Button { choose(option) } label: {
                         HStack {
-                            Image(systemName: workID == candidate.id ? "largecircle.fill.circle" : "circle")
+                            Image(systemName: target?.elementID == s.element_id ? "largecircle.fill.circle" : "circle")
                             VStack(alignment: .leading) {
-                                Text(candidate.title).foregroundStyle(.primary)
-                                Text(candidate.location?.label ?? "").font(.caption).foregroundStyle(Theme.secondary)
+                                Text(s.name + (s.instances > 1 ? " (\(s.instances) in room)" : "")).foregroundStyle(.primary)
+                                Text(s.label).font(.caption).foregroundStyle(Theme.secondary)
+                                if let work = s.work_title { Text("Tracked: \(work)").font(.caption).foregroundStyle(Theme.accent) }
                             }
-                            Spacer()
-                            if suggested.first == candidate.id { Text("Suggested").font(.caption2.bold()).foregroundStyle(Theme.accent) }
                         }
                     }
                 }
+                Button { browsing = true } label: { Label("Choose another room or component", systemImage: "building.2") }
+                    .disabled(model.catalog == nil)
+                    .task { if model.catalog == nil { await model.loadCatalog() } }
+            } header: { Text("Where is this?") } footer: {
+                if !locating, located?.suggestions.isEmpty ?? true {
+                    Text("No confident suggestion. Pick the room, then the fixture or part of the building you worked on.")
+                }
             }
-            if let item {
+            if let target {
                 Section {
-                    Toggle("These photos show \(item.title) at \(item.location?.label ?? "this location").", isOn: $confirmed)
-                } footer: { Text("Your claim is not approval. The AI checks the photos and height against the approved model.") }
+                    LabeledContent("Logged on", value: "\(target.name) · \(target.place)")
+                    if let work = target.workTitle {
+                        Text("Adds to tracked work: \(work)").font(.footnote).foregroundStyle(Theme.secondary)
+                    } else {
+                        TextField("Short title, e.g. Kitchen sink — drain", text: $title)
+                    }
+                    if target.otherCrew {
+                        Label("Another crew tracks this component. Pick a different one or ask your PM.", systemImage: "person.2.slash")
+                            .foregroundStyle(.orange)
+                    }
+                    Toggle("These photos show \(target.name) in \(target.place).", isOn: $confirmed)
+                } footer: { Text("Your claim is not approval. The AI checks the photos (and height) against the approved model.") }
             }
             if let error { Section { Label(error, systemImage: "exclamationmark.triangle").foregroundStyle(.orange) } }
             Section {
                 Button { Task { await send() } } label: {
                     HStack { Spacer(); if busy { ProgressView() } else { Text("Send check-in").bold() }; Spacer() }
                 }
-                .disabled(item == nil || !confirmed || busy)
+                .disabled(!canSend || busy)
+            }
+        }
+        .navigationDestination(isPresented: $browsing) {
+            if let catalog = model.catalog {
+                RoomPicker(catalog: catalog) { picked in
+                    choose(picked)
+                    browsing = false
+                }
             }
         }
     }
 
+    private func choose(_ option: CheckInTarget) {
+        target = option
+        confirmed = false
+        if option.workTitle == nil, title.isEmpty || title == located?.title { title = located?.title ?? option.name }
+    }
+
     private var resultStep: some View {
         List {
-            if let item {
+            if queued {
+                Section(target?.name ?? "Check-in") {
+                    Label("Saved on this phone. It will send automatically when you're back online.", systemImage: "iphone")
+                }
+            } else if let item {
                 Section(item.title) {
                     if queued {
                         Label("Saved on this phone. It will send automatically when you're back online.", systemImage: "iphone")
@@ -189,7 +232,7 @@ struct CheckInView: View {
         }
         .task(id: uploadID) {
             // Refresh quickly while the check runs; the app model also polls in the background.
-            for _ in 0..<40 where !queued {
+            for _ in 0..<40 where !queued && uploadID != nil {
                 await model.refresh()
                 if let current = items.first(where: { $0.id == workID }), current.update == uploadID,
                    let status = model.snapshot?.latestCheck(for: current)?.ai?.status,
@@ -200,10 +243,6 @@ struct CheckInView: View {
     }
 
     // MARK: Actions
-
-    private var orderedItems: [CrewItem] {
-        suggested.compactMap { id in items.first { $0.id == id } } + items.filter { !suggested.contains($0.id) }
-    }
 
     private func primary(_ title: String, disabled: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) { Text(title).bold().frame(maxWidth: .infinity).padding(.vertical, 6) }
@@ -218,31 +257,39 @@ struct CheckInView: View {
         picks = []
     }
 
+    /// Go straight to "Where is this?"; suggestions arrive while the person can already browse rooms.
     private func findWork() async {
-        busy = true
-        defer { busy = false }
-        if model.snapshot == nil { await model.refresh() }
-        let result = await model.suggestWork(note: note, photoCount: photos.count, selected: nil)
-        suggested = result.ids
-        copilot = result.message
-        workID = suggested.first ?? ""
         step = .work
+        locating = true
+        defer { locating = false }
+        async let catalogLoad: Void = model.catalog == nil ? model.loadCatalog() : ()
+        let result = await model.locate(note: note, photos: photos)
+        _ = await catalogLoad
+        located = result
+        if target == nil, let first = result?.suggestions.first(where: { !$0.other_crew }) {
+            choose(CheckInTarget(elementID: first.element_id, name: first.name, place: first.label,
+                                 workTitle: first.work_title, otherCrew: first.other_crew))
+        }
+        if title.isEmpty { title = result?.title ?? "" }
     }
 
     private func send() async {
-        guard let item else { return }
+        guard let target else { return }
         busy = true
         defer { busy = false }
         let device = DeviceInfo(model: UIDevice.current.model, os: "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)",
-                                app: "crew-ios-2", lidar: lidar)
+                                app: "crew-ios-3", lidar: lidar)
         let fix: GeoFix? = { if case .ready(let fix) = location.state { return fix }; return nil }()
         let measurements = height.map { [CrewCore.Measurement(value_m: $0, uncertainty_m: MeasurementMath.nominalUncertainty(lidar: lidar),
                                                                method: lidar ? "arkit_lidar" : "arkit_camera")] } ?? []
         do {
-            uploadID = try await model.submit(item: item, note: note.trimmingCharacters(in: .whitespacesAndNewlines),
-                                              claim: finished ? "Reported complete" : "", photos: photos,
-                                              capture: CaptureMetadata(measurements: measurements, location: fix, device: device))
-            queued = uploadID == nil
+            let sent = try await model.submitCheckIn(elementID: target.elementID, title: target.workTitle ?? title.trimmingCharacters(in: .whitespaces),
+                                                     note: note.trimmingCharacters(in: .whitespacesAndNewlines),
+                                                     claim: finished ? "Reported complete" : "", photos: photos,
+                                                     capture: CaptureMetadata(measurements: measurements, location: fix, device: device))
+            uploadID = sent.upload
+            workID = sent.work ?? ""
+            queued = sent.upload == nil
             step = .result
         } catch {
             self.error = "Couldn't save the check-in on this phone: \(error.localizedDescription)"

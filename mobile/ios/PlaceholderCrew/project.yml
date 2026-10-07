@@ -20,7 +20,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.tanishvardhineni.placeholdercrew
         DEVELOPMENT_TEAM: 4ZRRP5T5VP
         CODE_SIGN_STYLE: Automatic
-        MARKETING_VERSION: "0.2.0"
+        MARKETING_VERSION: "0.3.0"
         CURRENT_PROJECT_VERSION: "1"
         SWIFT_VERSION: "5.0"
         TARGETED_DEVICE_FAMILY: "1"

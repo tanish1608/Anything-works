@@ -148,6 +148,8 @@ public struct UploadReceipt: Codable, Equatable, Sendable {
     public var upload_id: String
     public var client_uuid: String
     public var received: Bool
+    /// Daily check-ins: the work the update was added to (existing or created from the check-in).
+    public var work_id: String?
 }
 
 /// Phone capture metadata sent with an update (server: app/agent/measurements.py).
@@ -221,4 +223,57 @@ public struct CopilotReply: Codable, Equatable, Sendable {
     public var status: String
     public var message: String
     public var work_ids: [String]
+}
+
+/// A model component the signed-in person may log a daily check-in on (GET /checkins/catalog).
+public struct CatalogComponent: Codable, Equatable, Sendable, Identifiable, Hashable {
+    public var id: String { element_id }
+    public var element_id: String
+    public var name: String
+    public var ifc_class: String
+    public var trade: String
+    public var work_id: String?
+    public var work_title: String?
+    public var work_status: String?
+    public var other_crew: Bool
+}
+
+public struct CatalogRoom: Codable, Equatable, Sendable, Identifiable, Hashable {
+    public var id: String { zone_id }
+    public var zone_id: String
+    public var name: String
+    public var code: String
+    public var level: String
+    public var components: [CatalogComponent]
+    public var label: String { "\(level) › \(name)" + (code.isEmpty ? "" : " (\(code))") }
+}
+
+public struct CheckinCatalog: Codable, Equatable, Sendable {
+    public var model_version_id: String?
+    public var rooms: [CatalogRoom]
+}
+
+/// AI location suggestion for a check-in: one component, its room, and how many of that type are in the room.
+public struct LocationSuggestion: Codable, Equatable, Sendable, Identifiable, Hashable {
+    public var id: String { element_id }
+    public var element_id: String
+    public var name: String
+    public var trade: String
+    public var work_id: String?
+    public var work_title: String?
+    public var other_crew: Bool
+    public var zone_id: String
+    public var room: String
+    public var code: String?
+    public var level: String
+    public var instances: Int
+    public var label: String { "\(level) › \(room)" + ((code ?? "").isEmpty ? "" : " (\(code!))") }
+}
+
+public struct LocateResult: Codable, Equatable, Sendable {
+    public var status: String
+    public var message: String?
+    public var title: String?
+    public var suggestions: [LocationSuggestion]
+    public var model_version_id: String?
 }

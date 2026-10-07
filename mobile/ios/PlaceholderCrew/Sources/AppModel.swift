@@ -11,6 +11,7 @@ final class AppModel: ObservableObject {
     @Published var projectID: String? { didSet { UserDefaults.standard.set(projectID, forKey: "projectID") } }
     @Published var snapshot: WorkspaceSnapshot?
     @Published var pending: [PendingUpdate] = []
+    @Published var catalog: CheckinCatalog?
     @Published var message: String?
     @Published var loading = false
     @AppStorage("serverURL") var serverURL = "https://placeholder-api-826928184760.us-central1.run.app"
@@ -112,6 +113,33 @@ final class AppModel: ObservableObject {
             }
         }
         return result.receipts[update.clientUUID]
+    }
+
+    /// Rooms and components this person may log check-ins on (scoped by the server).
+    func loadCatalog() async {
+        guard let projectID else { return }
+        if let fresh = try? await client.checkinCatalog(projectID: projectID) { catalog = fresh }
+    }
+
+    /// AI suggestions for where a check-in is. Sends small previews only; nothing is recorded.
+    func locate(note: String, photos: [Data]) async -> LocateResult? {
+        guard let projectID else { return nil }
+        let previews = photos.prefix(3).compactMap { UIImage(data: $0).flatMap { ImageUtil.jpeg($0, maxSide: 1024) } }
+        return try? await client.locate(projectID: projectID, note: note, previews: previews)
+    }
+
+    /// Daily check-in on a component: added to its tracked work, or creates work from the check-in.
+    /// Returns the server upload and work IDs when received now (nil when queued on this phone).
+    func submitCheckIn(elementID: String, title: String, note: String, claim: String, photos: [Data],
+                       capture: CaptureMetadata) async throws -> (upload: String?, work: String?) {
+        guard let user, let projectID, let version = catalog?.model_version_id ?? snapshot?.state.modelVersion else { return (nil, nil) }
+        let update = PendingUpdate.checkIn(actorID: user.id, projectID: projectID, elementID: elementID, title: title,
+                                           modelVersionID: version, note: note, claim: claim, capture: capture)
+        try outbox.add(update, photos: photos)
+        let result = await OutboxSync.run(outbox: outbox, client: client, actorID: user.id)
+        pending = outbox.pending(actorID: user.id)
+        await refresh()
+        return (result.receipts[update.clientUUID], result.works[update.clientUUID])
     }
 
     /// Work this person can send photos for, best AI suggestion first. Falls back to all assigned work.

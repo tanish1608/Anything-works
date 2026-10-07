@@ -111,6 +111,25 @@ public final class APIClient: @unchecked Sendable {
         return try await json("POST", "/projects/\(projectID)/copilot/chat", body: body)
     }
 
+    public func checkinCatalog(projectID: String) async throws -> CheckinCatalog {
+        try await json("GET", "/projects/\(projectID)/checkins/catalog")
+    }
+
+    /// Where is this? AI suggestions from the note and up to three small preview photos. Never records anything.
+    public func locate(projectID: String, note: String, previews: [Data]) async throws -> LocateResult {
+        var form = MultipartForm()
+        form.field("note", note)
+        for (index, data) in previews.prefix(3).enumerated() {
+            form.file("files", filename: "preview-\(index + 1).jpg", mime: "image/jpeg", data: data)
+        }
+        var req = URLRequest(url: url("/projects/\(projectID)/checkins/locate"))
+        req.httpMethod = "POST"
+        req.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
+        req.httpBody = form.finished()
+        req.timeoutInterval = 60
+        return try JSON.decoder.decode(LocateResult.self, from: try await send(req))
+    }
+
     public func photo(_ id: String) async throws -> Data {
         try await send(URLRequest(url: url("/photos/\(id)?thumb=1")))
     }
@@ -129,7 +148,13 @@ public final class APIClient: @unchecked Sendable {
         for (index, data) in photos.enumerated() {
             form.file("files", filename: "photo-\(index + 1).jpg", mime: "image/jpeg", data: data)
         }
-        var req = URLRequest(url: url("/work/\(update.workID)/updates"))
+        if let element = update.elementID, update.workID.isEmpty {
+            form.field("element_id", element)
+            form.field("title", update.title ?? "")
+        }
+        let path = update.elementID != nil && update.workID.isEmpty
+            ? "/projects/\(update.projectID)/checkins" : "/work/\(update.workID)/updates"
+        var req = URLRequest(url: url(path))
         req.httpMethod = "POST"
         req.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
         req.httpBody = form.finished()
@@ -143,6 +168,8 @@ public struct SyncResult: Equatable, Sendable {
     public var attention = 0
     /// client UUID -> server upload ID for updates confirmed in this run.
     public var receipts: [String: String] = [:]
+    /// client UUID -> work ID (daily check-ins learn it from the server).
+    public var works: [String: String] = [:]
 }
 
 /// Sends queued updates for one account. Server refusals keep the evidence and ask the person to act.
@@ -159,6 +186,7 @@ public enum OutboxSync {
                 outbox.remove(update)
                 result.sent += 1
                 result.receipts[update.clientUUID] = receipt.upload_id
+                result.works[update.clientUUID] = receipt.work_id ?? update.workID
             } catch let error as APIError where error.needsAttention {
                 update.state = .needsAttention
                 update.lastError = error.message

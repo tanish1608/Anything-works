@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from app import jobs
 from app.agent import assessment as ai_check
+from app.agent import locate as checkin
 from app.agent.measurements import Capture
 from app.auth.deps import current_user
 from app.db import SessionLocal, get_db
@@ -25,6 +26,7 @@ from app.models import (
     Upload,
     User,
     WorkAssessment,
+    WorkPackage,
     WorkSubmission,
     new_id,
     utcnow,
@@ -261,3 +263,62 @@ def decision(work_id: str, body: DecisionIn, user: User = Depends(current_user),
     flow.record(db, work, user, body.type, f"{body.type}: {body.reason}{basis}")
     db.commit()
     return flow.item(work)
+
+
+# Daily check-ins: about anything on site, not only work assigned in advance. The person confirms the room and
+# component; the check-in is added to that component's tracked work or creates it, then the normal AI check runs.
+
+
+@router.get("/projects/{project_id}/checkins/catalog")
+def checkin_catalog(project_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)):
+    return checkin.catalog(db, project_id, user)
+
+
+@router.post("/projects/{project_id}/checkins/locate")
+async def checkin_locate(project_id: str, note: str = Form("", max_length=5000), files: list[UploadFile] = File(default=[]),
+                         user: User = Depends(current_user), db: Session = Depends(get_db)):
+    if len(files) > 3:
+        raise HTTPException(422, "Send at most three preview photos")
+    photos = []
+    for file in files:
+        data = await file.read(8 * 1024 * 1024 + 1)
+        if len(data) > 8 * 1024 * 1024:
+            raise HTTPException(413, "Preview photo exceeds 8 MB")
+        try:
+            from app.services.photos import analysis_copy
+            photos.append(analysis_copy(data, max_side=1024))
+        except (ValueError, OSError):
+            raise HTTPException(422, "Attach a readable photo") from None
+    return checkin.locate(db, project_id, user, note, photos)
+
+
+@router.post("/projects/{project_id}/checkins", status_code=201)
+async def checkin_submit(project_id: str, element_id: str = Form(...), title: str = Form("", max_length=300),
+                         client_uuid: str = Form(..., min_length=1, max_length=64),
+                         model_version_id: str = Form(...), confirmed: bool = Form(...), captured_by: str = Form(...),
+                         note: str = Form(..., min_length=1, max_length=5000), claim: str = Form("", max_length=100),
+                         captured_at: datetime = Form(...), files: list[UploadFile] = File(...),
+                         capture: str = Form("", max_length=20000),
+                         user: User = Depends(current_user), db: Session = Depends(get_db)):
+    member = require(db, project_id, user.id, Perm.progress_upload)
+    prior = db.scalar(select(Upload).where(Upload.project_id == project_id, Upload.client_uuid == client_uuid))
+    receipt = prior and db.scalar(select(WorkSubmission).where(WorkSubmission.upload_id == prior.id))
+    if receipt:
+        work_id = receipt.work_id  # a retry of an update the server already has
+    else:
+        work = db.scalar(select(WorkPackage).where(WorkPackage.project_id == project_id, WorkPackage.element_id == element_id))
+        if work is not None:
+            if not flow.visible(member, work):
+                raise HTTPException(403, "Another crew tracks this component. Pick a different component or ask your PM.")
+            work_id = work.id
+        else:
+            rev, _ = flow.source(db, project_id, model_version_id, element_id)
+            name = title.strip() or checkin.short_name(rev.name, rev.ifc_class)
+            work_id = f"CHK-{new_id()[:8].upper()}"
+            flow.create_work(db, project_id, user, work_id=work_id, title=name, element_id=element_id,
+                             version_id=model_version_id, assignee_id=user.id,
+                             capture_guidance="Wide shot of the area and a close-up of the work")
+    result = await submit(work_id, client_uuid=client_uuid, model_version_id=model_version_id, confirmed=confirmed,
+                          captured_by=captured_by, note=note, claim=claim, captured_at=captured_at, files=files,
+                          capture=capture, user=user, db=db)
+    return {**result, "work_id": work_id}

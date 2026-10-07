@@ -1,6 +1,6 @@
 # Placeholder Crew — iPhone app
 
-A native SwiftUI app for subcontractors and field crews. Sign in, see your assigned work, and send a daily update: photos, an optional AR/LiDAR mounting-height measurement, a GPS fix and a short note. The backend checks it with AI and, if every check passes, marks the work **AI-checked complete** in the shared 3D model (a PM can reopen it). Built October 6, 2026.
+A native SwiftUI app for site teams. Tap **Daily check-in** to log anything you did today (the AI suggests where it is in the model; you confirm), or open assigned work and send an update: photos, an optional AR/LiDAR mounting-height measurement, a GPS fix and a short note. The backend checks it with AI and, if every check passes, marks the work **AI-checked complete** in the shared 3D model (a PM can reopen it). Built October 6, 2026.
 
 ## What's here
 

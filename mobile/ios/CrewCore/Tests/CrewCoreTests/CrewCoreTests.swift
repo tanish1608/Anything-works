@@ -112,6 +112,28 @@ final class CrewCoreTests: XCTestCase {
         XCTAssertEqual(body["message"] as? String, "outlet done")
     }
 
+    func testCheckInPostsToTheCheckinEndpointWithTheComponentAndLearnsTheWork() async throws {
+        let outbox = Outbox(root: dir)
+        let u = try outbox.add(PendingUpdate.checkIn(actorID: "crew", projectID: "p", elementID: "sink-1", title: "Kitchen sink — drain",
+                                                     modelVersionID: "v1", note: "Drain connected", claim: "",
+                                                     capture: CaptureMetadata()), photos: [Data([1])])
+        StubProtocol.handler = { _ in (201, Data(#"{"upload_id":"up9","client_uuid":"\#(u.clientUUID)","received":true,"work_id":"CHK-1"}"#.utf8)) }
+        let result = await OutboxSync.run(outbox: outbox, client: client, actorID: "crew")
+        XCTAssertEqual(result.works[u.clientUUID], "CHK-1")
+        let req = try XCTUnwrap(StubProtocol.requests.last)
+        XCTAssertEqual(req.url?.path, "/api/projects/p/checkins")
+        let body = String(decoding: req.httpBody ?? Data(), as: UTF8.self)
+        XCTAssertTrue(body.contains("name=\"element_id\"\r\n\r\nsink-1"))
+        XCTAssertTrue(body.contains("Kitchen sink — drain"))
+    }
+
+    func testLocateDecodesSuggestions() async throws {
+        StubProtocol.handler = { _ in (200, Data(#"{"status":"available","message":"Sink drain","title":"Kitchen sink — drain","model_version_id":"v1","suggestions":[{"element_id":"s1","name":"Sink - Island - Single","ifc_class":"IfcFlowTerminal","trade":"plumbing","work_id":null,"work_title":null,"work_status":null,"other_crew":false,"zone_id":"z","room":"Kitchen","code":"A103","level":"Level 1","instances":1}]}"#.utf8)) }
+        let result = try await client.locate(projectID: "p", note: "sink", previews: [Data([1])])
+        XCTAssertEqual(result.suggestions.first?.label, "Level 1 › Kitchen (A103)")
+        XCTAssertEqual(StubProtocol.requests.last?.url?.path, "/api/projects/p/checkins/locate")
+    }
+
     func testWorkspaceDecodesTheServerSnapshotAndLatestAICheck() throws {
         let json = #"""
         {"state":{"version":1,"items":[{"id":"WORK-1","title":"Living room outlet","trade":"electrical","owner":"Elle",

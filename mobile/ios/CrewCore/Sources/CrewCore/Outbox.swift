@@ -21,9 +21,22 @@ public struct PendingUpdate: Codable, Equatable, Sendable, Identifiable {
     public var capturedAt: Date
     public var capture: CaptureMetadata
     public var photoFiles: [String]
+    /// Daily check-in target when not sending to known work: the component (and a title for new work).
+    public var elementID: String?
+    public var title: String?
     public var state: State
     public var lastError: String?
     public var attempts: Int
+
+    /// A daily check-in on a model component; the server adds it to that component's work or creates work.
+    public static func checkIn(actorID: String, projectID: String, elementID: String, title: String, modelVersionID: String,
+                               note: String, claim: String, capture: CaptureMetadata) -> PendingUpdate {
+        var u = PendingUpdate(actorID: actorID, projectID: projectID, workID: "", workTitle: title, modelVersionID: modelVersionID,
+                              note: note, claim: claim, capture: capture, photoFiles: [])
+        u.elementID = elementID
+        u.title = title
+        return u
+    }
 
     public init(actorID: String, projectID: String, workID: String, workTitle: String, modelVersionID: String,
                 note: String, claim: String, capturedAt: Date = Date(), capture: CaptureMetadata, photoFiles: [String]) {
@@ -38,6 +51,8 @@ public struct PendingUpdate: Codable, Equatable, Sendable, Identifiable {
         self.capturedAt = capturedAt
         self.capture = capture
         self.photoFiles = photoFiles
+        self.elementID = nil
+        self.title = nil
         self.state = .queued
         self.attempts = 0
     }
