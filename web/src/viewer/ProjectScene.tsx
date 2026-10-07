@@ -108,7 +108,7 @@ export default function ProjectScene({
         async (l) => ({ ...l, data: await loader(l.url) }) as LayerData,
       ),
     )
-      .then((layers) => (alive ? v.loadLayers(layers) : undefined))
+      .then((layers) => (alive ? v.loadLayers(layers, data.meshIds) : undefined))
       .then(() => {
         if (alive) {
           setError("");
@@ -126,7 +126,7 @@ export default function ProjectScene({
     return () => {
       alive = false;
     };
-  }, [ready, data.version, data.layers, loader]);
+  }, [ready, data.version, data.layers, data.meshIds, loader]);
   useEffect(() => {
     const v = viewer.current;
     if (!v || !ready) return;

@@ -163,9 +163,14 @@ def model_plan(version_id: str, level_id: str, user: User = Depends(current_user
     if not key:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No model-derived plan for this level")
     data = json.loads(get_storage().get_bytes(key))
-    visible = {e.id for e in element_rows(db, v.project_id, member, v)}
-    data["elements"] = [e for e in data["elements"] if e["id"] in visible]
-    data["rooms"] = [z for z in data["rooms"] if zone_visible(member, z["id"])]
+    if member.role == Role.trade:
+        # Same rule as element_rows, without building issue counts and history for every component.
+        vis = visible_disciplines(db, member, DISCIPLINES)
+        revs = db.execute(select(ElementRevision.element_id, ElementRevision.discipline, ElementRevision.trade,
+                                 ElementRevision.zone_id).where(ElementRevision.version_id == v.id)).all()
+        visible = {r.element_id for r in revs if r.discipline in vis and element_visible(member, r, vis)}
+        data["elements"] = [e for e in data["elements"] if e["id"] in visible]
+        data["rooms"] = [z for z in data["rooms"] if zone_visible(member, z["id"])]
     return data
 
 

@@ -163,7 +163,8 @@ def seed_duplex_ifc(db: Session) -> Project:
     demo = seed(db)
     owner = db.scalar(select(User).where(User.email == "owner@example.com"))
     project = Project(id=new_id(), org_id=demo.org_id, name=name, address="Public buildingSMART duplex sample",
-                      settings={"model_building_aliases": source["building_aliases"], "approval_mode": "manual"})
+                      settings={"model_building_aliases": source["building_aliases"], "approval_mode": "manual",
+                                "sample_slug": "duplex"})
     db.add(project)
     db.flush()
     for member in db.scalars(select(ProjectMember).where(ProjectMember.project_id == demo.id)):
@@ -202,7 +203,9 @@ def seed_public_ifc(db: Session, slug: str) -> Project:
     owner = db.scalar(select(User).where(User.email == "owner@example.com"))
     project = Project(id=new_id(), org_id=demo.org_id, name=name, address=source.get("attribution", "")[:300],
                       settings={"model_building_aliases": source.get("building_aliases", {}),
-                                "model_level_aliases": source.get("level_aliases", {}), "approval_mode": "manual"})
+                                "model_level_aliases": source.get("level_aliases", {}), "approval_mode": "manual",
+                                # The website draws this project's geometry from its bundled copy (sampleGeometry.ts).
+                                "sample_slug": slug})
     db.add(project)
     db.flush()
     for member in db.scalars(select(ProjectMember).where(ProjectMember.project_id == demo.id)):

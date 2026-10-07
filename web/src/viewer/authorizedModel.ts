@@ -6,7 +6,9 @@ import type {
   Project,
   User,
 } from "../api/types";
-import type { ModelDataset } from "./modelData";
+import { fetchModelLayer, type ModelDataset } from "./modelData";
+import { sampleLayerUrl, sampleMeshIds, sampleSlug } from "./sampleGeometry";
+import { cacheKey, readModel, writeModel } from "./modelCache";
 
 /** All private geometry remains behind the authenticated client. No public cache or sample fallback. */
 export async function loadAuthorizedModel(
@@ -15,21 +17,28 @@ export async function loadAuthorizedModel(
   setup = false,
 ) {
   const suffix = version ? `?version=${encodeURIComponent(version)}` : "";
-  const [manifest, elements, tree, project, user] = await Promise.all([
-    api<ViewerManifest>(`/projects/${projectId}/viewer${suffix}`),
-    api<ElementInfo[]>(`/projects/${projectId}/elements${suffix}`),
-    api<Building[]>(`/projects/${projectId}/tree`),
-    setup ? api<Project>(`/projects/${projectId}`) : Promise.resolve(null),
+  const manifest = await api<ViewerManifest>(`/projects/${projectId}/viewer${suffix}`);
+  type Cached = { elements: ElementInfo[]; tree: Building[]; project: Project | null; plans?: ModelDataset["plans"] };
+  const key = manifest.version ? cacheKey(projectId, manifest.version.id) : null;
+  const cached = await readModel<Cached>(key);
+  const [elements, tree, project, user] = await Promise.all([
+    cached ? cached.elements : api<ElementInfo[]>(`/projects/${projectId}/elements${suffix}`),
+    cached ? cached.tree : api<Building[]>(`/projects/${projectId}/tree`),
+    // Needed for setup, and to recognise a bundled sample; if it fails, geometry simply comes from the API.
+    setup ? api<Project>(`/projects/${projectId}`) : cached ? cached.project : api<Project>(`/projects/${projectId}`).catch(() => null),
     setup ? api<User>("/auth/me") : Promise.resolve(null),
   ]);
+  // Projects imported from a bundled sample draw the local copy of the same geometry (much faster).
+  const slug = manifest.version ? sampleSlug(project) : null;
+  const meshIds = slug ? await sampleMeshIds(slug, elements) : undefined;
   const model: ModelDataset = {
     version: manifest.version?.id || "",
     source: {
-      attribution: "Project IFC upload",
+      attribution: slug ? "Project IFC upload · geometry drawn from the bundled copy of the same source" : "Project IFC upload",
       license: "Private project",
       repository: "",
       revision: manifest.version?.id || "",
-      ...(project && user
+      ...(setup && project && user
         ? {
             apiProjectId: projectId,
             slug: `private:${user.id}:${projectId}`,
@@ -38,11 +47,12 @@ export async function loadAuthorizedModel(
           }
         : {}),
     },
-    layers: manifest.layers.map((l) => ({ ...l, bytes: 0 })),
+    layers: manifest.layers.map((l) => ({ ...l, url: slug ? sampleLayerUrl(slug, l.discipline) : l.url, bytes: 0 })),
+    meshIds,
     elements: elements.map((e) => ({ ...e, props: {}, history: [] })),
     plans: setup
       ? manifest.version
-        ? (
+        ? cached?.plans ?? (
             await Promise.all(
               tree
                 .flatMap((b) => b.levels)
@@ -82,8 +92,12 @@ export async function loadAuthorizedModel(
       bedroom_fitting: null,
     },
   };
+  if (key && (!cached || (setup && !cached.plans)))
+    void writeModel(key, { elements, tree, project, plans: setup ? model.plans : cached?.plans } satisfies Cached);
   return { manifest, model };
 }
 export async function loadAuthorizedLayer(url: string) {
+  // Bundled sample geometry is a public static file; everything else stays behind the authenticated API.
+  if (url.startsWith("/bim-")) return fetchModelLayer(url);
   return (await api<Blob>(url.replace(/^\/api/, ""))).arrayBuffer();
 }

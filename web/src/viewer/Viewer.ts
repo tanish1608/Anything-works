@@ -187,7 +187,8 @@ export class SiteViewer {
   }
 
   // ------------------------------------------------------------------ loading
-  async loadLayers(layers: LayerData[]): Promise<void> {
+  /** `meshIds` renames meshes (bundled sample name -> project element ID); see sampleGeometry.ts. */
+  async loadLayers(layers: LayerData[], meshIds?: Map<string, string>): Promise<void> {
     const generation = ++this.loadGeneration;
     const next = new THREE.Group();
     const meshes = new Map<string, THREE.Mesh[]>();
@@ -199,7 +200,8 @@ export class SiteViewer {
         gltf.scene.traverse((o) => {
           if (!(o as THREE.Mesh).isMesh) return;
           const mesh = o as THREE.Mesh;
-          const id = mesh.name || mesh.parent?.name || "";
+          const raw = mesh.name || mesh.parent?.name || "";
+          const id = meshIds?.get(raw) ?? raw;
           mesh.userData = {
             elementId: id,
             discipline: layer.discipline,

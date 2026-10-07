@@ -21,6 +21,8 @@ export interface ModelDataset {
     bytes: number;
   }[];
   elements: ElementDetail[];
+  /** Bundled sample meshes are renamed to these element IDs when drawn (see sampleGeometry.ts). */
+  meshIds?: Map<string, string>;
   plans: ModelPlanData[];
   audit: {
     elements: number;
