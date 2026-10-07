@@ -389,9 +389,15 @@ describe("one building workspace", () => {
       expect(screen.getByTestId("url").textContent).toMatch(/^\/\?panel=/),
     );
   });
+  it("opens the sign-in form for /login without mounting the old app", async () => {
+    renderAt("/login");
+    expect(await screen.findByRole("main", { name: "Sign in" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Email")).toBeInTheDocument();
+    expect(screen.getByTestId("url").textContent).toBe("/?screen=projects&panel=import&signin=1");
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
   it.each([
     "/demo",
-    "/login",
     "/p/private/home",
     "/field/private/zone/room",
     "/q/private-token",
@@ -895,8 +901,10 @@ it("uses the showroom as home, opens import directly and requires an explicit sw
   renderAt("/");
   await screen.findByRole("main", { name: "Choose building project" });
   expect(screen.queryByRole("button", { name: "Back to building" })).not.toBeInTheDocument();
-  await userEvent.click(screen.getByRole("button", { name: "Add / import project" }));
-  expect(await screen.findByRole("main", { name: "Add or import project" })).toBeInTheDocument();
+  // Signed out, home offers a clear Sign in (adding/importing projects needs an account).
+  expect(screen.queryByRole("button", { name: "Add / import project" })).not.toBeInTheDocument();
+  await userEvent.click(screen.getByRole("button", { name: "Sign in" }));
+  expect(await screen.findByRole("main", { name: "Sign in" })).toBeInTheDocument();
   expect(screen.getByLabelText("Email")).toBeInTheDocument();
   expect(screen.queryByTestId("project-scene")).not.toBeInTheDocument();
   await userEvent.click(screen.getByRole("button", { name: "Back to projects" }));

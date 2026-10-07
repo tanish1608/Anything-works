@@ -521,3 +521,4 @@
 .showroom-catalog-error { border: 1px solid #725649; background: #352b27; padding: 12px; border-radius: 8px; line-height: 1.5; font-size: 11px; }
 .showroom-catalog-error p { margin: 6px 0; }
 @media (max-width: 640px) { .showroom-setup { padding: 0 12px; } .showroom-setup-content { padding-top: 20px; } }
+.showroom-header-actions .showroom-signin { background: #3189e9; border-color: #459afa; color: #fff; }

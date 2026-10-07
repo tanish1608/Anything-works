@@ -32,6 +32,7 @@ export default function ProjectShowroom({ current }: { current: string }) {
     navigate = useNavigate();
   const params = new URLSearchParams(location.search);
   const setup = params.get("panel") === "import";
+  const signingIn = setup && params.get("signin") === "1";
   const homeRef = useRef<HTMLElement>(null);
   useEffect(() => { if (!setup) homeRef.current?.focus({ preventScroll: true }); }, [setup]);
   const requestedId = params.get("preview") || current;
@@ -99,6 +100,10 @@ export default function ProjectShowroom({ current }: { current: string }) {
   // Signed in: only the account's real projects (the same list the phone app shows). Signed out, or if the
   // account has none or the list failed: the sign-in-free browser samples.
   const signedIn = !!tokenStore.get();
+  // Signed in from the Sign in button or /login: go straight to the account's projects.
+  useEffect(() => {
+    if (signingIn && signedIn) navigate("/?screen=projects", { replace: true });
+  }, [signingIn, signedIn, navigate, session]);
   const catalogReady = catalog?.session === session;
   const properties = useMemo(() => {
     if (!signedIn) return PUBLIC_PROPERTIES;
@@ -195,7 +200,7 @@ export default function ProjectShowroom({ current }: { current: string }) {
     next.delete("panel");
     navigate(next.size ? `/?${next}` : "/");
   };
-  if (setup) return <main className="world-app showroom-setup" aria-label="Add or import project">
+  if (setup) return <main className="world-app showroom-setup" aria-label={signingIn ? "Sign in" : "Add or import project"}>
     <header className="showroom-header">
       <a className="showroom-brand" href="/" onClick={(e) => { e.preventDefault(); navigate("/"); }}><BrandMark size={30} /><span>Placeholder AI</span></a>
       <div className="showroom-header-actions"><button onClick={home}><Icon name="chevron" className="showroom-previous" size={16} />Back to projects</button></div>
@@ -240,11 +245,14 @@ export default function ProjectShowroom({ current }: { current: string }) {
           <span>Placeholder AI</span>
         </a>
         <div className="showroom-header-actions">
-          <button onClick={() => {
+          {signedIn && <button onClick={() => {
             const next = new URLSearchParams(location.search);
             next.set("screen", "projects"); next.set("preview", selectedId); next.set("panel", "import");
             navigate(`/?${next}`);
-          }}><Icon name="plus" size={16} /> Add / import project</button>
+          }}><Icon name="plus" size={16} /> Add / import project</button>}
+          {signedIn
+            ? <button onClick={() => { tokenStore.set(null); navigate("/?screen=projects"); }}>Sign out</button>
+            : <button className="showroom-signin" onClick={() => navigate("/?screen=projects&panel=import&signin=1")}>Sign in</button>}
         </div>
       </header>
       <div className="showroom-hero">

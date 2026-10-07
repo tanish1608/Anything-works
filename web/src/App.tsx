@@ -22,7 +22,7 @@ export function AppRoutes() {
         <Route path="/field/*" element={<Navigate to="/" replace />} />
         <Route path="/q/*" element={<Navigate to="/" replace />} />
         <Route path="/embed/*" element={<Navigate to="/" replace />} />
-        <Route path="/login" element={<Navigate to="/" replace />} />
+        <Route path="/login" element={<Navigate to="/?screen=projects&panel=import&signin=1" replace />} />
         <Route path="/*" element={<Workspace />} />
       </Routes>
     </Suspense>
