@@ -229,32 +229,37 @@ def hide_legacy_demos(db: Session) -> list[str]:
     return hidden
 
 
-CREW_DEMO_WORK = [  # IFC component GUID-derived ids are stable across imports of the same source files
-    ("WORK-LR-OUTLET", "Living room wall outlet — rough-in wiring", "Duplex Receptacle", "Living Room"),
-    ("WORK-LR-SWITCH", "Living room light switch — rough-in wiring", "Single Pole", "Living Room"),
-    ("WORK-BR1-OUTLET", "Bedroom 1 wall outlet — rough-in wiring", "Duplex Receptacle", "Bedroom 1"),
+CREW_DEMO_WORK = [  # (work id, title, component name contains, room, assignee email)
+    ("WORK-LR-OUTLET", "Living room wall outlet — rough-in wiring", "Duplex Receptacle", "Living Room", "electrician@example.com"),
+    ("WORK-LR-SWITCH", "Living room light switch — rough-in wiring", "Single Pole", "Living Room", "electrician@example.com"),
+    ("WORK-BR1-OUTLET", "Bedroom 1 wall outlet — rough-in wiring", "Duplex Receptacle", "Bedroom 1", "electrician@example.com"),
+    ("WORK-KIT-SINK", "Kitchen sink — drain and supply connection", "Sink - Island", "Kitchen", "plumber@example.com"),
+    ("WORK-BA1-TOILET", "Bathroom 1 toilet — rough-in and set", "Water Closet", "Bathroom 1", "plumber@example.com"),
+    ("WORK-BA2-BASIN", "Bathroom 2 basin — supply and waste", "Lavatory - Oval", "Bathroom 2", "plumber@example.com"),
 ]
 
 
 def seed_crew_demo(db: Session, project: Project) -> list[str]:
-    """Assign a few electrical rough-in items on the detailed duplex to the demo electrician."""
+    """Assign a few electrical and plumbing items on the detailed duplex to the demo trade crews."""
     from app.models import ElementRevision, WorkPackage, Zone
     from app.services import workflow as flow
 
     pm = db.scalar(select(User).where(User.email == "pm@example.com"))
-    electrician = db.scalar(select(User).where(User.email == "electrician@example.com"))
     made = []
-    for work_id, title, kind, room in CREW_DEMO_WORK:
+    for work_id, title, kind, room, email in CREW_DEMO_WORK:
         if db.get(WorkPackage, work_id):
             continue
+        crew = db.scalar(select(User).where(User.email == email))
+        trade = "electrical" if email.startswith("electrician") else "plumbing"
         rev = db.scalar(select(ElementRevision).join(Zone, Zone.id == ElementRevision.zone_id).where(
-            ElementRevision.version_id == project.current_version_id, ElementRevision.trade == "electrical",
+            ElementRevision.version_id == project.current_version_id, ElementRevision.trade == trade,
             ElementRevision.name.contains(kind), Zone.name == room).order_by(ElementRevision.element_id))
-        if rev is None:
+        if rev is None or crew is None or db.scalar(select(WorkPackage).where(
+                WorkPackage.project_id == project.id, WorkPackage.element_id == rev.element_id)):
             continue
         flow.create_work(db, project.id, pm, work_id=work_id, title=title, element_id=rev.element_id,
-                         version_id=project.current_version_id, assignee_id=electrician.id,
-                         capture_guidance="Wide shot of the wall showing the box location, plus a close-up of the box and cable entry")
+                         version_id=project.current_version_id, assignee_id=crew.id,
+                         capture_guidance="Wide shot of the area, plus a close-up of the connection or fixture")
         made.append(work_id)
     return made
 
@@ -263,7 +268,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--duplex", action="store_true", help="Also import the detailed public duplex project")
-    parser.add_argument("--crew-demo", action="store_true", help="Assign demo electrical work on the detailed duplex")
+    parser.add_argument("--crew-demo", action="store_true", help="Assign demo electrical and plumbing work on the detailed duplex")
     parser.add_argument("--all-samples", action="store_true",
                         help="Also import Schependomlaan, the clinic and Esplan as real projects")
     parser.add_argument("--hide-legacy-demos", action="store_true",
