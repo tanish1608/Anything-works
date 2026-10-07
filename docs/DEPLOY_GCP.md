@@ -49,3 +49,8 @@ gcloud run deploy placeholder-api --project $P --region $R \
 ## Before sharing the URL
 
 The seed created demo accounts with the public password `demo-password`. Reset them (or delete them) before giving anyone the URL, e.g. re-run the seed job on a fresh database with `DEMO_PASSWORD` set from a secret.
+
+## One shared database for phone and website
+
+- The cloud database holds the real projects: Duplex Apartment — detailed BIM (with demo electrical work), Schependomlaan Apartments, Medical-Dental Clinic and Esplan Building, each with the demo team. The generated Maple Court and Sample House demos are hidden (members removed; history is append-only). Seed job: `python -m app.seed --crew-demo --all-samples --hide-legacy-demos` (8 GiB, ~15 min; the clinic is the slow one).
+- Local website → cloud API: put `API_URL=https://placeholder-api-826928184760.us-central1.run.app` in `web/.env.local` (git-ignored); `npm run dev` proxies `/api` there. Signed in, the showroom lists the same projects as the phone.

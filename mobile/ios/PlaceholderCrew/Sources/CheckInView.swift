@@ -144,9 +144,9 @@ struct CheckInView: View {
     private var workStep: some View {
         Form {
             if locating {
-                Section { HStack { ProgressView(); Text("Finding where this is…") } }
+                Section { BeaverSays { HStack { ProgressView(); Text("Finding where this is…") } } }
             } else if let message = located?.message {
-                Section { Label(message, systemImage: "sparkles").font(.subheadline) }
+                Section { BeaverSays { Text(message).font(.subheadline) } }
             }
             Section {
                 ForEach(located?.suggestions ?? []) { s in
@@ -222,10 +222,10 @@ struct CheckInView: View {
                         Label("Saved on this phone. It will send automatically when you're back online.", systemImage: "iphone")
                     } else if let current = items.first(where: { $0.id == item.id }), current.update == uploadID,
                               let ai = model.snapshot?.latestCheck(for: current)?.ai {
-                        AICheckView(ai: ai)
+                        BeaverSays { AICheckView(ai: ai) }
                         if ai.status == "completed" { StatusChip(item: current) }
                     } else {
-                        HStack { ProgressView(); Text("Received. Checking your photos against the approved model…") }
+                        BeaverSays { HStack { ProgressView(); Text("Got it! Checking your photos against the model…") } }
                     }
                 }
             }

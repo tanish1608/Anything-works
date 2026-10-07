@@ -240,13 +240,10 @@ it("pages a larger catalog without scrolling or losing access to any project", a
   );
   deps.privateModel.mockResolvedValue({ model });
   mount();
-  await screen.findByRole("button", { name: "Next project page" });
-  expect(screen.getAllByRole("button", { name: /^Preview / })).toHaveLength(4);
-  await userEvent.click(
-    screen.getByRole("button", { name: "Next project page" }),
-  );
+  // Signed in: only the account's real projects (the list the phone app shows), never the browser samples.
   await screen.findByRole("button", { name: "Preview Site 1" });
   expect(screen.getAllByRole("button", { name: /^Preview / })).toHaveLength(4);
+  expect(screen.queryByRole("button", { name: "Preview Duplex Apartment" })).not.toBeInTheDocument();
   await userEvent.click(
     screen.getByRole("button", { name: "Next project page" }),
   );
@@ -256,7 +253,7 @@ it("pages a larger catalog without scrolling or losing access to any project", a
     screen.getByRole("button", { name: "Next project page" }),
   );
   expect(
-    screen.getByRole("button", { name: "Preview Duplex Apartment" }),
+    screen.getByRole("button", { name: "Preview Site 1" }),
   ).toHaveAttribute("aria-pressed", "true");
 });
 
@@ -281,5 +278,7 @@ it("keeps samples usable when the connected service returns 502 and recovers on 
   expect(screen.getByRole("button", { name: "Open project" })).toBeEnabled();
   await userEvent.click(screen.getByRole("button", { name: "Retry connection" }));
   await waitFor(() => expect(screen.queryByText("Connected projects are unavailable.")).not.toBeInTheDocument());
-  expect(screen.getByText("1–4 of 5 buildings")).toBeInTheDocument();
+  // Once the account's projects load, they replace the samples.
+  expect(await screen.findByRole("button", { name: "Preview Recovered site" })).toBeInTheDocument();
+  expect(screen.getAllByRole("button", { name: /^Preview / })).toHaveLength(1);
 });

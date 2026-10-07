@@ -8,7 +8,7 @@ import { sampleContext } from "./copilotContext";
 import type { Photo, WorkItem } from "./state";
 import "./project-copilot.css";
 
-/** Project Copilot: answers questions from visible work records and turns chat photos into a daily update.
+/** Works Beaver (the project assistant, character from codex/design-iteration-2): answers questions from visible work records and turns chat photos into a daily update.
  * Ported from the codex/design-iteration-2 copilot. It never changes records itself: photo updates are
  * submitted only after the person confirms the work item and location, through the normal update path. */
 type ChatResult = {
@@ -135,7 +135,7 @@ export default function ProjectCopilot({
       item: work.id,
       clientId: crypto.randomUUID(),
       photos: handoff.photos,
-      note: note.trim() || "Photo update from Project Copilot",
+      note: note.trim() || "Photo update via Works Beaver",
       claim: "",
       step: 3,
     };
@@ -177,7 +177,7 @@ export default function ProjectCopilot({
   };
 
   return (
-    <section className={`project-copilot ${open ? "is-open" : ""}`} aria-label="Project Copilot">
+    <section className={`project-copilot ${open ? "is-open" : ""}`} aria-label="Works Beaver">
       <input
         ref={fileInput}
         className="project-copilot-sr-only"
@@ -195,11 +195,12 @@ export default function ProjectCopilot({
       {open && (
         <div className="project-copilot-window" id="project-copilot-body">
           <header className="project-copilot-head">
+            <img className="project-copilot-avatar" src="/brand/works-beaver.png" alt="" />
             <div>
-              <strong>Project Copilot</strong>
+              <strong>Works Beaver</strong>
               <span>{project ? "Your project records" : "Sample project · browser records"}</span>
             </div>
-            <button aria-label="Close Project Copilot" onClick={() => setOpen(false)}>
+            <button aria-label="Close Works Beaver" onClick={() => setOpen(false)}>
               <Icon name="close" size={18} />
             </button>
           </header>
@@ -220,7 +221,7 @@ export default function ProjectCopilot({
                   connected={!!connected} onSubmit={(work, note) => submit(i, work, note)} onOpenRecord={onOpenRecord} />
               ) : (
                 <article key={i} className={`project-copilot-message ${m.kind}`}>
-                  <strong>{m.kind === "user" ? "You" : "Placeholder AI"}</strong>
+                  <strong>{m.kind === "user" ? "You" : "Works Beaver"}</strong>
                   <p>{m.text}</p>
                   {m.kind === "user" && !!m.photos?.length && (
                     <div className="project-copilot-thumbs">
@@ -266,7 +267,7 @@ export default function ProjectCopilot({
               </div>
             )}
             <textarea
-              aria-label="Message Placeholder AI"
+              aria-label="Message Works Beaver"
               rows={2}
               maxLength={2000}
               value={text}
@@ -295,10 +296,10 @@ export default function ProjectCopilot({
           </form>
         </div>
       )}
-      <button className="project-copilot-fab" aria-label={open ? "Close Project Copilot" : "Open Project Copilot"} aria-expanded={open}
+      <button className="project-copilot-fab" aria-label={open ? "Close Works Beaver" : "Open Works Beaver"} aria-expanded={open}
         aria-controls="project-copilot-body" onClick={() => setOpen((v) => !v)}>
-        <Icon name="spark" size={18} />
-        <strong>Copilot</strong>
+        <img className="project-copilot-avatar" src="/brand/works-beaver.png" alt="" />
+        <strong>Works Beaver</strong>
       </button>
     </section>
   );

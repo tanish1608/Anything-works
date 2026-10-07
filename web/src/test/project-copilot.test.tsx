@@ -29,15 +29,15 @@ beforeEach(() => {
 });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); localStorage.clear(); });
 
-const copilot = () => within(screen.getByRole("region", { name: "Project Copilot" }));
+const copilot = () => within(screen.getByRole("region", { name: "Works Beaver" }));
 const saved = () => Object.keys(localStorage).map((k) => { try { return JSON.parse(localStorage.getItem(k)!); } catch { return null; } })
   .find((r) => r?.items?.some((i: { id: string }) => i.id === "ISS-031"));
 
 async function sendPhoto(note: string) {
-  fireEvent.click(copilot().getByRole("button", { name: "Open Project Copilot" }));
+  fireEvent.click(copilot().getByRole("button", { name: "Open Works Beaver" }));
   fireEvent.change(copilot().getByLabelText("Attach work photos"), { target: { files: [new File(["x"], "fix.jpg", { type: "image/jpeg" })] } });
   await copilot().findByRole("img", { name: "fix.jpg" });
-  await userEvent.type(copilot().getByLabelText("Message Placeholder AI"), note);
+  await userEvent.type(copilot().getByLabelText("Message Works Beaver"), note);
   await userEvent.click(copilot().getByRole("button", { name: "Send" }));
 }
 
@@ -81,6 +81,6 @@ it("keeps customers read-only: they can ask but not attach photos", async () => 
   await screen.findByRole("complementary", { name: "Work & issues" });
   await userEvent.click(screen.getByLabelText("Open project menu"));
   await userEvent.selectOptions(screen.getByLabelText("Preview user experience"), "customer");
-  fireEvent.click(copilot().getByRole("button", { name: "Open Project Copilot" }));
+  fireEvent.click(copilot().getByRole("button", { name: "Open Works Beaver" }));
   expect(copilot().getByRole("button", { name: "Attach photo" })).toBeDisabled();
 });

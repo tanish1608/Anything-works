@@ -42,3 +42,7 @@
 }
 .project-copilot .project-copilot-confirm input { flex: none; width: 16px; height: 16px; margin: 2px 0 0; }
 .project-copilot .project-copilot-confirm { line-height: 1.35; }
+.project-copilot .project-copilot-avatar { width: 34px; height: 34px; border-radius: 50%; flex: none; object-fit: cover; }
+.project-copilot .project-copilot-fab { padding: 6px 16px 6px 6px; }
+.project-copilot-head { gap: 10px; justify-content: flex-start; }
+.project-copilot-head > div { flex: 1; }

@@ -34,7 +34,7 @@ export default function ProjectShowroom({ current }: { current: string }) {
   const setup = params.get("panel") === "import";
   const homeRef = useRef<HTMLElement>(null);
   useEffect(() => { if (!setup) homeRef.current?.focus({ preventScroll: true }); }, [setup]);
-  const selectedId = params.get("preview") || current;
+  const requestedId = params.get("preview") || current;
   const returnTo = safeReturnUrl(params.get("returnTo"), current);
   const [session, setSession] = useState(0);
   const [catalog, setCatalog] = useState<{
@@ -96,16 +96,19 @@ export default function ProjectShowroom({ current }: { current: string }) {
       alive = false;
     };
   }, [session]);
-  const properties = useMemo(
-    () => [
-      ...PUBLIC_PROPERTIES,
-      ...(tokenStore.get() && catalog?.session === session
-        ? catalog.projects
-        : []),
-    ],
-    [catalog, session],
-  );
-  const selected = properties.find((p) => p.id === selectedId);
+  // Signed in: only the account's real projects (the same list the phone app shows). Signed out, or if the
+  // account has none or the list failed: the sign-in-free browser samples.
+  const signedIn = !!tokenStore.get();
+  const catalogReady = catalog?.session === session;
+  const properties = useMemo(() => {
+    if (!signedIn) return PUBLIC_PROPERTIES;
+    if (!catalogReady) return []; // don't flash the samples before the account's projects arrive
+    return !catalog?.error && catalog?.projects.length ? catalog.projects : PUBLIC_PROPERTIES;
+  }, [catalog, catalogReady, signedIn]);
+  // A private project that isn't listed is never replaced by another building.
+  const selected = properties.find((p) => p.id === requestedId)
+    || (requestedId.startsWith("api:") ? undefined : properties[0]);
+  const selectedId = selected?.id ?? requestedId;
   const selectedIndex = Math.max(
     0,
     properties.findIndex((p) => p.id === selectedId),

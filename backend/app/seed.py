@@ -176,6 +176,59 @@ def seed_duplex_ifc(db: Session) -> Project:
     return project
 
 
+PUBLIC_SAMPLES = ("schependomlaan", "clinic", "esplan")
+LEGACY_DEMOS = (DEMO_PROJECT, SAMPLE_PROJECT)
+
+
+def seed_public_ifc(db: Session, slug: str) -> Project:
+    """Import a public sample building (samples/ifc/<slug>) as a real project with the demo team.
+    Uses the sample's reviewed building/level aliases; nothing about field progress is inferred."""
+    import json
+
+    from app.bim.ifc_import import import_ifc
+    from app.services.models import approve_version
+    from app.storage import get_storage
+
+    root = SAMPLES / "ifc" / slug
+    source = json.loads((root / "source.json").read_text())
+    name = source.get("name", slug)
+    existing = db.scalar(select(Project).where(Project.name == name))
+    if existing:
+        return existing
+    files = list(source["files"])
+    if not all((root / f).exists() for f in files):
+        raise FileNotFoundError(f"Missing sample files for {slug}; run python -m app.bim.audit --download")
+    demo = seed(db)
+    owner = db.scalar(select(User).where(User.email == "owner@example.com"))
+    project = Project(id=new_id(), org_id=demo.org_id, name=name, address=source.get("attribution", "")[:300],
+                      settings={"model_building_aliases": source.get("building_aliases", {}),
+                                "model_level_aliases": source.get("level_aliases", {}), "approval_mode": "manual"})
+    db.add(project)
+    db.flush()
+    for member in db.scalars(select(ProjectMember).where(ProjectMember.project_id == demo.id)):
+        db.add(ProjectMember(project_id=project.id, user_id=member.user_id, role=member.role, trades=member.trades))
+    keys = [(get_storage().put_file(f"projects/{project.id}/uploads/{slug}/{f}", root / f), None) for f in files]
+    version = import_ifc(db, project, keys, actor_id=owner.id, message=source.get("attribution", name))
+    approve_version(db, version, owner.id, "Public test model; not a live construction project")
+    db.commit()
+    return project
+
+
+def hide_legacy_demos(db: Session) -> list[str]:
+    """Remove members from the old generated demos so every app lists the same real buildings.
+    History is append-only, so projects are hidden rather than deleted; re-adding members restores them."""
+    hidden = []
+    for name in LEGACY_DEMOS:
+        project = db.scalar(select(Project).where(Project.name == name))
+        if project is None:
+            continue
+        for member in db.scalars(select(ProjectMember).where(ProjectMember.project_id == project.id)):
+            db.delete(member)
+        hidden.append(name)
+    db.commit()
+    return hidden
+
+
 CREW_DEMO_WORK = [  # IFC component GUID-derived ids are stable across imports of the same source files
     ("WORK-LR-OUTLET", "Living room wall outlet — rough-in wiring", "Duplex Receptacle", "Living Room"),
     ("WORK-LR-SWITCH", "Living room light switch — rough-in wiring", "Single Pole", "Living Room"),
@@ -211,6 +264,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--duplex", action="store_true", help="Also import the detailed public duplex project")
     parser.add_argument("--crew-demo", action="store_true", help="Assign demo electrical work on the detailed duplex")
+    parser.add_argument("--all-samples", action="store_true",
+                        help="Also import Schependomlaan, the clinic and Esplan as real projects")
+    parser.add_argument("--hide-legacy-demos", action="store_true",
+                        help="Hide the generated Maple Court and Sample House projects (remove members)")
     args = parser.parse_args()
     with SessionLocal() as s:
         p = seed(s)
@@ -219,6 +276,11 @@ if __name__ == "__main__":
             duplex = seed_duplex_ifc(s)
             if args.crew_demo:
                 print("Crew demo work:", seed_crew_demo(s, duplex) or "already assigned")
+        if args.all_samples:
+            for slug in PUBLIC_SAMPLES:
+                print("Imported", seed_public_ifc(s, slug).name, flush=True)
+        if args.hide_legacy_demos:
+            print("Hidden:", hide_legacy_demos(s) or "nothing to hide")
         print(f"Demo projects ready: {DEMO_PROJECT}, {SAMPLE_PROJECT}")
         print("Log in as owner@example.com / pm@example.com / plumber@example.com / electrician@example.com /")
         print("inspector@example.com with password:", os.environ.get("DEMO_PASSWORD", "demo-password"))

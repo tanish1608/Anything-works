@@ -1,7 +1,10 @@
 /// <reference types="vitest/config" />
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+
+// API_URL can come from the shell or a git-ignored .env.local (e.g. the Cloud Run API shared with the phone app).
+const apiURL = process.env.API_URL ?? loadEnv("development", process.cwd(), "").API_URL ?? "http://localhost:8000";
 
 export default defineConfig({
   plugins: [
@@ -44,7 +47,7 @@ export default defineConfig({
     }),
   ],
   server: {
-    proxy: { "/api": process.env.API_URL ?? "http://localhost:8000" },
+    proxy: { "/api": { target: apiURL, changeOrigin: true } },
   },
   test: {
     environment: "jsdom",

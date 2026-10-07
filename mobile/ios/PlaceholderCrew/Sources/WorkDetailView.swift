@@ -25,7 +25,7 @@ struct WorkDetailView: View {
                     Section("Photos to take") { Label(guidance, systemImage: "camera.viewfinder") }
                 }
                 if let job = model.snapshot?.latestCheck(for: item), let ai = job.ai {
-                    Section("AI check") { AICheckView(ai: ai) }
+                    Section("AI check") { BeaverSays { AICheckView(ai: ai) } }
                 }
                 Section("History") {
                     ForEach(model.snapshot?.state.events.filter { $0.item == workID }.prefix(8) ?? []) { event in

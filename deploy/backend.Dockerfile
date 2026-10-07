@@ -12,6 +12,9 @@ COPY samples/dxf /srv/samples/dxf
 COPY samples/pdf /srv/samples/pdf
 COPY samples/ifc/Building-Architecture.ifc samples/ifc/Building-Structural.ifc samples/ifc/Building-Hvac.ifc /srv/samples/ifc/
 COPY samples/ifc/duplex /srv/samples/ifc/duplex
+COPY samples/ifc/schependomlaan /srv/samples/ifc/schependomlaan
+COPY samples/ifc/clinic /srv/samples/ifc/clinic
+COPY samples/ifc/esplan /srv/samples/ifc/esplan
 COPY deploy/start.sh /srv/start.sh
 RUN chmod +x /srv/start.sh
 CMD ["/srv/start.sh"]
