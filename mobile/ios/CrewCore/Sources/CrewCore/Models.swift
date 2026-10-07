@@ -215,3 +215,10 @@ public enum JSON {
         return d
     }()
 }
+
+/// Project Copilot answer (POST /api/projects/{id}/copilot/chat). `work_ids` are validated server-side.
+public struct CopilotReply: Codable, Equatable, Sendable {
+    public var status: String
+    public var message: String
+    public var work_ids: [String]
+}

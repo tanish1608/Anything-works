@@ -70,6 +70,7 @@ final class CrewCoreTests: XCTestCase {
         StubProtocol.handler = { _ in (201, Data(#"{"upload_id":"up1","client_uuid":"\#(u.clientUUID)","received":true}"#.utf8)) }
         let result = await OutboxSync.run(outbox: outbox, client: client, actorID: "crew")
         XCTAssertEqual(result.sent, 1)
+        XCTAssertEqual(result.receipts[u.clientUUID], "up1")
         XCTAssertEqual(outbox.pending(actorID: "crew"), [])
         let req = try XCTUnwrap(StubProtocol.requests.first)
         XCTAssertEqual(req.url?.path, "/api/work/WORK-1/updates")
@@ -98,6 +99,17 @@ final class CrewCoreTests: XCTestCase {
         XCTAssertEqual(pending.first?.state, .needsAttention)
         XCTAssertTrue(pending.first?.lastError?.contains("Reconfirm") == true)
         XCTAssertEqual(try outbox.photos(of: pending[0]).count, 1)  // evidence kept
+    }
+
+    func testSuggestWorkAsksTheCopilotWithAttachmentsAndReturnsValidatedIDs() async throws {
+        StubProtocol.handler = { _ in (200, Data(#"{"input_revision":"x","status":"available","message":"Looks like the outlet","suggested_questions":[],"work_ids":["WORK-1"],"sources":[],"partial_context":true}"#.utf8)) }
+        let reply = try await client.suggestWork(projectID: "p", note: "outlet done", attachments: 2)
+        XCTAssertEqual(reply.work_ids, ["WORK-1"])
+        let req = try XCTUnwrap(StubProtocol.requests.last)
+        XCTAssertEqual(req.url?.path, "/api/projects/p/copilot/chat")
+        let body = try XCTUnwrap(JSONSerialization.jsonObject(with: req.httpBody ?? Data()) as? [String: Any])
+        XCTAssertEqual(body["attachments"] as? Int, 2)
+        XCTAssertEqual(body["message"] as? String, "outlet done")
     }
 
     func testWorkspaceDecodesTheServerSnapshotAndLatestAICheck() throws {

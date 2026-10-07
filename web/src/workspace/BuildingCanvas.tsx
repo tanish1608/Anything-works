@@ -147,6 +147,7 @@ export default function BuildingCanvas({
     }
     return map;
   }, [projection, model]);
+  const statusIds = useMemo(() => new Set(projection.colors.keys()), [projection]);
   const markers = useMemo(() => {
     const pins = projection.markers
       .filter((m) => visible.has(m.elementId || ""))
@@ -232,6 +233,7 @@ export default function BuildingCanvas({
           loader={model.source.apiProjectId ? loadAuthorizedLayer : undefined}
           visible={visible}
           colors={colors}
+          statusIds={statusIds}
           markers={markers}
           focus={focus}
           expanded={expanded}

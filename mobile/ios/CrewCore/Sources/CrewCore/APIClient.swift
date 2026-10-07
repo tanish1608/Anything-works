@@ -102,6 +102,15 @@ public final class APIClient: @unchecked Sendable {
         try await json("GET", "/projects/\(projectID)/workspace")
     }
 
+    /// Ask the project copilot which assigned work these photos belong to. Suggestions only; the person confirms.
+    public func suggestWork(projectID: String, note: String, attachments: Int, selected: String? = nil) async throws -> CopilotReply {
+        var body: [String: AnyCodable] = ["input_revision": .string(UUID().uuidString), "page": .string("capture"),
+                                          "message": .string(note.isEmpty ? "Photos of today's work." : note),
+                                          "attachments": .int(max(0, min(6, attachments)))]
+        if let selected { body["selected_work_id"] = .string(selected) }
+        return try await json("POST", "/projects/\(projectID)/copilot/chat", body: body)
+    }
+
     public func photo(_ id: String) async throws -> Data {
         try await send(URLRequest(url: url("/photos/\(id)?thumb=1")))
     }
@@ -129,11 +138,18 @@ public final class APIClient: @unchecked Sendable {
     }
 }
 
+public struct SyncResult: Equatable, Sendable {
+    public var sent = 0
+    public var attention = 0
+    /// client UUID -> server upload ID for updates confirmed in this run.
+    public var receipts: [String: String] = [:]
+}
+
 /// Sends queued updates for one account. Server refusals keep the evidence and ask the person to act.
 public enum OutboxSync {
     @discardableResult
-    public static func run(outbox: Outbox, client: APIClient, actorID: String) async -> (sent: Int, attention: Int) {
-        var sent = 0, attention = 0
+    public static func run(outbox: Outbox, client: APIClient, actorID: String) async -> SyncResult {
+        var result = SyncResult()
         for var update in outbox.pending(actorID: actorID) where update.state != .needsAttention {
             update.state = .uploading
             try? outbox.save(update)
@@ -141,12 +157,13 @@ public enum OutboxSync {
                 let receipt = try await client.submit(update, photos: try outbox.photos(of: update))
                 guard receipt.client_uuid == update.clientUUID else { throw APIError(status: 409, message: "Receipt mismatch") }
                 outbox.remove(update)
-                sent += 1
+                result.sent += 1
+                result.receipts[update.clientUUID] = receipt.upload_id
             } catch let error as APIError where error.needsAttention {
                 update.state = .needsAttention
                 update.lastError = error.message
                 try? outbox.save(update)
-                attention += 1
+                result.attention += 1
             } catch {
                 update.state = .queued
                 update.attempts += 1
@@ -154,7 +171,7 @@ public enum OutboxSync {
                 try? outbox.save(update)
             }
         }
-        return (sent, attention)
+        return result
     }
 }
 
@@ -162,4 +179,16 @@ private struct AnyEncodable: Encodable {
     let value: Encodable
     init(_ value: Encodable) { self.value = value }
     func encode(to encoder: Encoder) throws { try value.encode(to: encoder) }
+}
+
+/// Minimal JSON value for request bodies with mixed types.
+public enum AnyCodable: Encodable, Sendable {
+    case string(String), int(Int)
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.singleValueContainer()
+        switch self {
+        case .string(let v): try c.encode(v)
+        case .int(let v): try c.encode(v)
+        }
+    }
 }

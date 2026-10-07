@@ -79,6 +79,7 @@ export class SiteViewer {
   private section: SectionBox | null = null;
   private selected: string | null = null;
   private colors = new Map<string, string>();
+  private statusIds = new Set<string>();
   private listeners = new Map<keyof Events, Set<(...args: never[]) => void>>();
   private dirty = true;
   private raf = 0;
@@ -371,20 +372,24 @@ export class SiteViewer {
     this.invalidate();
   }
 
-  setColors(colors: Map<string, string>) {
+  /** `status` ids carry a progress colour (e.g. green = complete) that selection must not hide. */
+  setColors(colors: Map<string, string>, status: Set<string> = new Set()) {
     this.colors = colors;
+    this.statusIds = status;
     this.meshes.forEach((ms, id) => ms.forEach((m) => this.paint(m, id)));
     this.invalidate();
   }
 
   private paint(m: THREE.Mesh, id: string) {
     const mat = m.material as THREE.MeshLambertMaterial;
+    const keep = id === this.selected && this.statusIds.has(id) && this.colors.has(id);
     mat.color.set(
-      id === this.selected
+      id === this.selected && !keep
         ? SELECTION_COLOR
         : (this.colors.get(id) ?? "#cccccc"),
     );
-    mat.emissive.set(id === this.selected ? 0x220055 : 0x000000);
+    // A selected component with a status keeps its colour and glows instead of turning purple.
+    mat.emissive.set(keep ? 0x2a2a2a : id === this.selected ? 0x220055 : 0x000000);
   }
 
   select(id: string | null, emit = false) {
@@ -652,7 +657,7 @@ export class SiteViewer {
   private sizeMarkers() {
     const height = this.container.clientHeight || 600;
     const factor =
-      (10 * Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2))) / height;
+      (16 * Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2))) / height;
     this.markerGroup.children.forEach((marker) => {
       if (marker.userData.billboard)
         marker.quaternion.copy(this.camera.quaternion);

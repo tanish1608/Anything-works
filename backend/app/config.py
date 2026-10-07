@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     # Review-only AI checks on received work updates (shadow mode: suggestions for the PM, never completion).
     agent_enabled: bool = False
     agent_timeout_seconds: int = 90
+    # Gemini thinking level for work checks: medium is ~2x faster than high with the same outcomes on our samples.
+    agent_effort: str = "medium"
     # When every photo and measurement check passes, mark the work "AI-checked complete" (distinct from human
     # acceptance; a PM can reopen it). A project can opt out with settings {"ai_auto_complete": false}.
     agent_auto_complete: bool = True

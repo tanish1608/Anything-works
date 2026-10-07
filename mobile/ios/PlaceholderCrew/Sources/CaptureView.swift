@@ -75,7 +75,7 @@ struct CaptureView: View {
                         Text("AR measurement isn't available on this device.").foregroundStyle(Theme.secondary)
                     }
                 } header: { Text("Measurement (optional)") } footer: {
-                    Text("Tap the floor, then the centre of the box. The server compares it with the approved model; phone measurements are not validated instruments.")
+                    Text("Point the phone at the box; it finds the floor itself. The server compares the height with the approved model; phone measurements are not validated instruments.")
                 }
 
                 Section("Location") {
@@ -87,8 +87,7 @@ struct CaptureView: View {
                 }
 
                 Section("What changed today?") {
-                    TextField("e.g. Rough-in wiring done; box set at the marked height", text: $note, axis: .vertical)
-                        .lineLimit(3...6)
+                    VoiceNoteField(placeholder: "e.g. Rough-in wiring done; box set at the marked height", text: $note)
                     Toggle("I believe this work is finished", isOn: $finished)
                 }
 
@@ -115,7 +114,7 @@ struct CaptureView: View {
             .onChange(of: picks) { _, items in Task { await load(items) } }
             .sheet(isPresented: $camera) { CameraPicker { if let data = ImageUtil.jpeg($0) { photos.append(data) } } }
             .fullScreenCover(isPresented: $measuring) {
-                LiDARMeasureView(lidar: lidar) { value in
+                HeightMeasureView(lidar: lidar) { value in
                     if let value {
                         measurement = CrewCore.Measurement(value_m: MeasurementMath.rounded(value),
                                                            uncertainty_m: MeasurementMath.nominalUncertainty(lidar: lidar),

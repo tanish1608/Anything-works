@@ -32,7 +32,7 @@ def assess(context: dict, photos: list[tuple[str, bytes]], *, client=None) -> tu
             config=types.GenerateContentConfig(
                 system_instruction=SYSTEM, response_mime_type="application/json",
                 response_json_schema=OUTPUT_SCHEMA, max_output_tokens=6000,
-                thinking_config=types.ThinkingConfig(thinking_level=settings.vision_effort.upper()),
+                thinking_config=types.ThinkingConfig(thinking_level=settings.agent_effort.upper()),
                 automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True)))
     finally:
         if owns_client:

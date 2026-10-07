@@ -4,6 +4,7 @@ import SwiftUI
 /// My site: the assigned work for this account in the selected project.
 struct ProjectHomeView: View {
     @EnvironmentObject var model: AppModel
+    @State private var checkingIn = false
 
     var body: some View {
         List {
@@ -34,6 +35,19 @@ struct ProjectHomeView: View {
                 Text(message).font(.footnote).foregroundStyle(Theme.secondary)
             }
         }
+        .safeAreaInset(edge: .bottom) {
+            if model.snapshot?.permissions.capture == true, !(model.snapshot?.state.items.isEmpty ?? true) {
+                Button { checkingIn = true } label: {
+                    Label("Daily check-in", systemImage: "camera.fill")
+                        .font(.headline).frame(maxWidth: .infinity).padding(.vertical, 8)
+                }
+                .buttonStyle(.borderedProminent)
+                .clipShape(Capsule())
+                .shadow(color: .black.opacity(0.35), radius: 10, y: 4)
+                .padding(.horizontal, 24).padding(.bottom, 8)
+            }
+        }
+        .fullScreenCover(isPresented: $checkingIn) { CheckInView() }
         .navigationTitle(model.project?.name ?? "My site")
         .navigationDestination(for: String.self) { id in WorkDetailView(workID: id) }
         .refreshable { await model.syncAndRefresh() }

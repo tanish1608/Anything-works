@@ -87,14 +87,18 @@ final class AppModel: ObservableObject {
         await refresh()
     }
 
-    /// Save on the device first, then try to send. Watch for the AI check result for a couple of minutes.
-    func submit(item: CrewItem, note: String, claim: String, photos: [Data], capture: CaptureMetadata) async throws {
-        guard let user, let projectID, let version = item.location?.version else { return }
+    /// Save on the device first, then try to send. Returns the server upload ID when it was received now
+    /// (nil means it is queued on this phone). Watches for the AI check result for a couple of minutes.
+    @discardableResult
+    func submit(item: CrewItem, note: String, claim: String, photos: [Data], capture: CaptureMetadata) async throws -> String? {
+        guard let user, let projectID, let version = item.location?.version else { return nil }
         let update = PendingUpdate(actorID: user.id, projectID: projectID, workID: item.id, workTitle: item.title,
                                    modelVersionID: version, note: note, claim: claim, capture: capture, photoFiles: [])
         try outbox.add(update, photos: photos)
         pending = outbox.pending(actorID: user.id)
-        await syncAndRefresh()
+        let result = await OutboxSync.run(outbox: outbox, client: client, actorID: user.id)
+        pending = outbox.pending(actorID: user.id)
+        await refresh()
         poll?.cancel()
         poll = Task { [weak self] in
             for _ in 0..<24 {
@@ -106,6 +110,19 @@ final class AppModel: ObservableObject {
                     return
                 }
             }
+        }
+        return result.receipts[update.clientUUID]
+    }
+
+    /// Work this person can send photos for, best AI suggestion first. Falls back to all assigned work.
+    func suggestWork(note: String, photoCount: Int, selected: String?) async -> (ids: [String], message: String?) {
+        guard let projectID, let items = snapshot?.state.items, snapshot?.permissions.capture == true else { return ([], nil) }
+        let valid = Set(items.map(\.id))
+        do {
+            let reply = try await client.suggestWork(projectID: projectID, note: note, attachments: photoCount, selected: selected)
+            return (reply.work_ids.filter { valid.contains($0) }, reply.status == "available" ? reply.message : nil)
+        } catch {
+            return ([], nil)
         }
     }
 

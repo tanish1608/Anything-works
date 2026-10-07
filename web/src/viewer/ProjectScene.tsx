@@ -17,6 +17,7 @@ export default function ProjectScene({
   data,
   visible,
   colors,
+  statusIds,
   markers,
   focus,
   expanded = false,
@@ -36,6 +37,8 @@ export default function ProjectScene({
   data: ModelDataset;
   visible: Set<string>;
   colors: Map<string, string>;
+  /** Components whose colour is a work status; selection keeps that colour visible. */
+  statusIds?: Set<string>;
   markers: Marker[];
   focus?: SceneFocus | null;
   expanded?: boolean;
@@ -134,10 +137,10 @@ export default function ProjectScene({
     const v = viewer.current;
     if (!v || loadedVersion !== data.version) return;
     v.setVisible(visible);
-    v.setColors(colors);
+    v.setColors(colors, statusIds);
     v.select(focus?.element || null);
     v.setMarkers(markers);
-  }, [loadedVersion, data.version, visible, colors, markers, focus?.element]);
+  }, [loadedVersion, data.version, visible, colors, statusIds, markers, focus?.element]);
   useEffect(() => {
     const v = viewer.current;
     if (!v || loadedVersion !== data.version) return;
